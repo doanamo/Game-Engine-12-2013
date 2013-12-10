@@ -69,9 +69,20 @@ ConsoleVariable userProfile("s_userprofile", "./", "Current's user profile direc
 // Main
 //
 
-int main(int argc, const char* argv[])
+int main(int argc, char* argv[])
 {
 	SCOPE_GUARD(system("pause"));
+
+	//
+	// SDL
+	//
+
+	if(SDL_Init(SDL_INIT_EVERYTHING) != 0)
+	{
+		return -1;
+	}
+
+	SCOPE_GUARD(SDL_Quit());
 
 	//
 	// Initialization
@@ -114,4 +125,6 @@ int main(int argc, const char* argv[])
 			Context::consoleSystem->Execute(input);
 		}
 	}
+
+	return 0;
 }

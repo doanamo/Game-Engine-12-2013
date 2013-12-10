@@ -1,25 +1,96 @@
+#
+# CMake
+#
+
 CMake_Minimum_Required(VERSION 2.8.12)
 
-Project("Karolina")
+#
+# SDL2
+#
+
+# We are going to use the static library.
+Set(SDL_SHARED OFF CACHE BOOL "")
+Set(SDL_STATIC ON CACHE BOOL "")
+
+# Look for targets in the main directory where CMakeLists.txt is located.
+Add_SubDirectory("../External/SDL-2.0.1" "SDL2" EXCLUDE_FROM_ALL)
+
+# Set include directory.
+Include_Directories("../External/SDL-2.0.1/include")
+
+# Set directory of library dependencies.
+Link_Directories("$ENV{DXSDK_DIR}/Lib/x86")
+
+#
+# Project
+#
+
+# Project name.
+set(ProjectName "Karolina")
+
+Project(${ProjectName})
+
+# Project source files.
+Set(SourceDir "../Source")
+Set(PrecompiledHeader "Precompiled.hpp")
+Set(PrecompiledSource "Precompiled.cpp")
 
 Set(SourceFiles
-	"../Source/Main.cpp"
-	"../Source/Precompiled.hpp"
-	"../Source/Precompiled.cpp"
-	"../Source/Context.hpp"
-	"../Source/Context.cpp"
-	"../Source/ConsoleSystem.hpp"
-	"../Source/ConsoleSystem.cpp"
-	"../Source/ConsoleDefinition.hpp"
-	"../Source/ConsoleDefinition.cpp"
-	"../Source/ConsoleCommand.hpp"
-	"../Source/ConsoleCommand.cpp"
-	"../Source/ConsoleVariable.hpp"
-	"../Source/ConsoleVariable.cpp"
-	"../Source/Common/NonCopyable.hpp"
-	"../Source/Common/ScopeGuard.hpp"
+	"${SourceDir}/${PrecompiledHeader}"
+	"${SourceDir}/${PrecompiledSource}"
+	"${SourceDir}/Main.cpp"
+	"${SourceDir}/Context.hpp"
+	"${SourceDir}/Context.cpp"
+	"${SourceDir}/ConsoleSystem.hpp"
+	"${SourceDir}/ConsoleSystem.cpp"
+	"${SourceDir}/ConsoleDefinition.hpp"
+	"${SourceDir}/ConsoleDefinition.cpp"
+	"${SourceDir}/ConsoleCommand.hpp"
+	"${SourceDir}/ConsoleCommand.cpp"
+	"${SourceDir}/ConsoleVariable.hpp"
+	"${SourceDir}/ConsoleVariable.cpp"
+	"${SourceDir}/Common/NonCopyable.hpp"
+	"${SourceDir}/Common/ScopeGuard.hpp"
 )
 
 Source_Group("Source" FILES ${SourceFiles})
 
-Add_Executable("Game" ${SourceFiles})
+# Create an executable target.
+Set(TargetName "Game")
+
+Add_Executable(${TargetName} ${SourceFiles})
+
+# Set dependencies and targets that will be linked.
+Add_Dependencies(${TargetName} "SDL2-static" "SDL2main")
+Target_Link_Libraries(${TargetName} "SDL2-static" "SDL2main")
+
+# Set unicode support.
+Add_Definitions(-DUNICODE -D_UNICODE)
+
+#
+# Windows
+#
+
+# Visual C++ specific.
+If(MSVC)
+	# Remove the console window.
+	#Set_Property(TARGET ${TargetName} APPEND_STRING PROPERTY LINK_FLAGS "/SUBSYSTEM:Windows ")
+	
+	# Restore default main() entry instead of WinMain().
+	#Set_Property(TARGET ${TargetName} APPEND_STRING PROPERTY LINK_FLAGS "/ENTRY:mainCRTStartup ")
+	
+	# Set the precompiled header.
+	Get_Filename_Component(PrecompiledName ${PrecompiledHeader} NAME_WE)
+	
+	Set(PrecompiledBinary "$(IntDir)/${PrecompiledName}.pch")
+	
+	Set_Source_Files_Properties(${SourceFiles} PROPERTIES 
+		COMPILE_FLAGS "/Yu\"${PrecompiledHeader}\" /Fp\"${PrecompiledBinary}\""
+		OBJECT_DEPENDS "${PrecompiledBinary}"
+	)
+	
+	Set_Source_Files_Properties("${SourceDir}/${PrecompiledSource}" PROPERTIES 
+		COMPILE_FLAGS "/Yc\"${PrecompiledHeader}\" /Fp\"${PrecompiledBinary}\""
+		OBJECT_OUTPUTS "${PrecompiledBinary}"
+	)
+EndIf()
