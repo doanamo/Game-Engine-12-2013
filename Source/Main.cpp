@@ -87,9 +87,18 @@ int main(int argc, char* argv[])
 	}
 
 	SCOPE_GUARD(SDL_Quit());
+
+	// Set requested attributes.
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
+
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
  
-	// Create SDL window.
-	std::cout << "Creating SDL window..." << std::endl;
+	// Create a window.
+	std::cout << "Creating a window..." << std::endl;
 
 	SDL_Window* window = SDL_CreateWindow(
 		"Game",
@@ -97,33 +106,39 @@ int main(int argc, char* argv[])
 		SDL_WINDOWPOS_CENTERED,
 		1024,
 		576,
-		SDL_WINDOW_SHOWN
+		SDL_WINDOW_SHOWN |
+		SDL_WINDOW_RESIZABLE |
+		SDL_WINDOW_OPENGL
 	);
 
 	if(window == nullptr)
 	{
-		std::cout << "Failed to create SDL window! Error: " << SDL_GetError() << std::endl;
+		std::cout << "Failed to create a window! Error: " << SDL_GetError() << std::endl;
 		return -1;
 	}
 
 	SCOPE_GUARD(SDL_DestroyWindow(window));
 
-	// Create SDL renderer.
-	std::cout << "Creating SDL renderer..." << std::endl;
+	// Create OpenGL context.
+	std::cout << "Creating OpenGL context..." << std::endl;
 
-	SDL_Renderer* renderer = SDL_CreateRenderer(
-		window,
-		-1,
-		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
-	);
+	SDL_GLContext glContext = SDL_GL_CreateContext(window);
 
-	if(renderer == nullptr)
+	if(glContext == nullptr)
 	{
-		std::cout << "Failed to create SDL renderer! Error: " << SDL_GetError() << std::endl;
+		std::cout << "Failed to create OpenGL context! Error: " << SDL_GetError() << std::endl;
 		return -1;
 	}
 
-	SCOPE_GUARD(SDL_DestroyRenderer(renderer));
+	SCOPE_GUARD(SDL_GL_DeleteContext(glContext));
+
+	// Check the version of the created context.
+	int versionMajor, versionMinor;
+
+	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &versionMajor);
+	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &versionMinor);
+
+	std::cout << "Created OpenGL " << versionMajor << "." << versionMinor << " context." << std::endl;
 
 	//
 	// Initialization
@@ -172,12 +187,9 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		// Clear the output surface.
-		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-		SDL_RenderClear(renderer);
-
-		// Present the output surface.
-		SDL_RenderPresent(renderer);
+		// Present the window content.
+		SDL_GL_SetSwapInterval(0);
+		SDL_GL_SwapWindow(window);
 
 		// Handle console input.
 		/*
