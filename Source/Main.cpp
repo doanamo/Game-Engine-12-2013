@@ -71,6 +71,8 @@ ConsoleVariable userProfile("s_userprofile", "./", "Current's user profile direc
 
 int main(int argc, const char* argv[])
 {
+	SCOPE_GUARD(system("pause"));
+
 	//
 	// Initialization
 	//

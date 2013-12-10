@@ -8,7 +8,7 @@ class ConsoleSystem;
 // Console Definition
 //
 
-class ConsoleDefinition
+class ConsoleDefinition : public NonCopyable
 {
 protected:
 	ConsoleDefinition(std::string name, std::string description);

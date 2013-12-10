@@ -9,7 +9,7 @@
 // Console System
 //
 
-class ConsoleSystem
+class ConsoleSystem : public NonCopyable
 {
 public:
 	ConsoleSystem();

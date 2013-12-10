@@ -16,6 +16,8 @@ Set(SourceFiles
 	"../Source/ConsoleCommand.cpp"
 	"../Source/ConsoleVariable.hpp"
 	"../Source/ConsoleVariable.cpp"
+	"../Source/Utility/NonCopyable.hpp"
+	"../Source/Utility/ScopeGuard.hpp"
 )
 
 Source_Group("Source" FILES ${SourceFiles})
