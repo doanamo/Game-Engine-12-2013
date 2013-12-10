@@ -9,6 +9,10 @@
 // SDL2
 #include <SDL.h>
 
+// GLEW
+#define GLEW_STATIC
+#include <GL/glew.h>
+
 // Project
 #include "Common/NonCopyable.hpp"
 #include "Common/ScopeGuard.hpp"

@@ -5,6 +5,15 @@
 CMake_Minimum_Required(VERSION 2.8.12)
 
 #
+# Project
+#
+
+# Project name.
+set(ProjectName "Karolina")
+
+Project(${ProjectName})
+
+#
 # SDL2
 #
 
@@ -15,22 +24,27 @@ Set(SDL_STATIC ON CACHE BOOL "")
 # Look for targets in the main directory where CMakeLists.txt is located.
 Add_SubDirectory("../External/SDL-2.0.1" "SDL2" EXCLUDE_FROM_ALL)
 
-# Set include directory.
+# Add include directory.
 Include_Directories("../External/SDL-2.0.1/include")
 
-# Set directory of library dependencies.
+# Add directory of library dependencies.
 Link_Directories("$ENV{DXSDK_DIR}/Lib/x86")
 
 #
-# Project
+# GLEW
 #
 
-# Project name.
-set(ProjectName "Karolina")
+# Add project directory.
+Add_SubDirectory("../External/GLEW-1.10.0" "GLEW" EXCLUDE_FROM_ALL)
 
-Project(${ProjectName})
+# Add include directory.
+Include_Directories("../External/GLEW-1.10.0/include")
 
-# Project source files.
+#
+# Target
+#
+
+# Target source files.
 Set(SourceDir "../Source")
 Set(PrecompiledHeader "Precompiled.hpp")
 Set(PrecompiledSource "Precompiled.cpp")
@@ -60,9 +74,13 @@ Set(TargetName "Game")
 
 Add_Executable(${TargetName} ${SourceFiles})
 
-# Set dependencies and targets that will be linked.
+# Link SDL2 library.
 Add_Dependencies(${TargetName} "SDL2-static" "SDL2main")
 Target_Link_Libraries(${TargetName} "SDL2-static" "SDL2main")
+
+# Link GLEW library.
+Add_Dependencies(${TargetName} "glew32s")
+Target_Link_Libraries(${TargetName} "glew32s")
 
 # Set unicode support.
 Add_Definitions(-DUNICODE -D_UNICODE)

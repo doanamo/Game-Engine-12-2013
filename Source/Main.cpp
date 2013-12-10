@@ -71,8 +71,6 @@ ConsoleVariable userProfile("s_userprofile", "./", "Current's user profile direc
 
 int main(int argc, char* argv[])
 {
-	SCOPE_GUARD(system("pause"));
-
 	//
 	// SDL
 	//
@@ -141,6 +139,21 @@ int main(int argc, char* argv[])
 	std::cout << "Created OpenGL " << versionMajor << "." << versionMinor << " context." << std::endl;
 
 	//
+	// GLEW
+	//
+
+	// Initialize GLEW library.
+	glewExperimental = GL_TRUE;
+
+	GLenum glewError = glewInit();
+
+	if(glewError != GLEW_OK)
+	{
+		std::cout << "Failed to initialize GLEW library! Error: " << glewGetErrorString(glewError) << std::endl;
+		return -1;
+	}
+
+	//
 	// Initialization
 	//
 
@@ -186,6 +199,12 @@ int main(int argc, char* argv[])
 				break;
 			}
 		}
+
+		// Clear the screen.
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearDepth(1.0f);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Present the window content.
 		SDL_GL_SetSwapInterval(0);
