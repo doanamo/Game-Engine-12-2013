@@ -77,12 +77,53 @@ int main(int argc, char* argv[])
 	// SDL
 	//
 
+	// Initialize SDL library.
+	std::cout<< "Initializing SDL library..." << std::endl;
+
 	if(SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
+		std::cout << "Failed to initialize SDL library! Error: " << SDL_GetError() << std::endl;
 		return -1;
 	}
 
 	SCOPE_GUARD(SDL_Quit());
+ 
+	// Create SDL window.
+	std::cout << "Creating SDL window..." << std::endl;
+
+	SDL_Window* window = SDL_CreateWindow(
+		"Game",
+		SDL_WINDOWPOS_CENTERED,
+		SDL_WINDOWPOS_CENTERED,
+		1024,
+		576,
+		SDL_WINDOW_SHOWN
+	);
+
+	if(window == nullptr)
+	{
+		std::cout << "Failed to create SDL window! Error: " << SDL_GetError() << std::endl;
+		return -1;
+	}
+
+	SCOPE_GUARD(SDL_DestroyWindow(window));
+
+	// Create SDL renderer.
+	std::cout << "Creating SDL renderer..." << std::endl;
+
+	SDL_Renderer* renderer = SDL_CreateRenderer(
+		window,
+		-1,
+		SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
+	);
+
+	if(renderer == nullptr)
+	{
+		std::cout << "Failed to create SDL renderer! Error: " << SDL_GetError() << std::endl;
+		return -1;
+	}
+
+	SCOPE_GUARD(SDL_DestroyRenderer(renderer));
 
 	//
 	// Initialization
@@ -94,9 +135,13 @@ int main(int argc, char* argv[])
 	if(!console.Initialize())
 		return -1;
 
+	SCOPE_GUARD(console.Shutdown());
+
 	//
 	// Example
 	//
+
+	std::cout << std::endl;
 
 	if(argc >= 1)
 	{
@@ -115,6 +160,27 @@ int main(int argc, char* argv[])
 
 	while(!isQuitting)
 	{
+		// Handle window events.
+		SDL_Event event;
+		while(SDL_PollEvent(&event))
+		{
+			switch(event.type)
+			{
+			case SDL_QUIT:
+				isQuitting = true;
+				break;
+			}
+		}
+
+		// Clear the output surface.
+		SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+		SDL_RenderClear(renderer);
+
+		// Present the output surface.
+		SDL_RenderPresent(renderer);
+
+		// Handle console input.
+		/*
 		std::cout << "> ";
 
 		std::string input;
@@ -124,6 +190,7 @@ int main(int argc, char* argv[])
 		{
 			Context::consoleSystem->Execute(input);
 		}
+		*/
 	}
 
 	return 0;
