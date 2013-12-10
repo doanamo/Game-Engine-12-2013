@@ -8,5 +8,5 @@
 
 struct Context
 {
-	static class ConsoleSystem* console;
+	static class ConsoleSystem* consoleSystem;
 };

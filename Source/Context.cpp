@@ -1,4 +1,4 @@
 #include "Precompiled.hpp"
 #include "Context.hpp"
 
-ConsoleSystem* Context::console = nullptr;
+ConsoleSystem* Context::consoleSystem = nullptr;

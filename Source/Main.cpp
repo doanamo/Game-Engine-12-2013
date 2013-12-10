@@ -26,7 +26,7 @@ void CommandHelp(std::string arguments)
 	}
 
 	// Get the definition.
-	ConsoleDefinition* definition = Context::console->FindDefinition(name);
+	ConsoleDefinition* definition = Context::consoleSystem->FindDefinition(name);
 
 	if(definition == nullptr)
 	{
@@ -109,7 +109,7 @@ int main(int argc, const char* argv[])
 
 		if(!input.empty())
 		{
-			Context::console->Execute(input);
+			Context::consoleSystem->Execute(input);
 		}
 	}
 }
