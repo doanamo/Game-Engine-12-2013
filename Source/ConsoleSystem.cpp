@@ -7,17 +7,17 @@ ConsoleSystem::ConsoleSystem()
 
 ConsoleSystem::~ConsoleSystem()
 {
-	Shutdown();
+	Cleanup();
 }
 
 bool ConsoleSystem::Initialize()
 {
-	Shutdown();
+	Cleanup();
 
 	return true;
 }
 
-void ConsoleSystem::Shutdown()
+void ConsoleSystem::Cleanup()
 {
 	// Clear all definitions.
 	m_definitions.clear();

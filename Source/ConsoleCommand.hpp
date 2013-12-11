@@ -14,7 +14,6 @@ public:
 
 public:
 	ConsoleCommand(std::string name, FunctionPointer function, std::string description);
-
 	~ConsoleCommand();
 
 	void Execute(std::string arguments);

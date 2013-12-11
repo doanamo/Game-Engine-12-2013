@@ -167,7 +167,7 @@ int main(int argc, char* argv[])
 	if(!consoleSystem.Initialize())
 		return -1;
 
-	SCOPE_GUARD(consoleSystem.Shutdown());
+	SCOPE_GUARD(consoleSystem.Cleanup());
 
 	// Make instance current.
 	Context::consoleSystem = &consoleSystem;
@@ -187,7 +187,7 @@ int main(int argc, char* argv[])
 	if(!consoleFrame.Initialize())
 		return -1;
 
-	SCOPE_GUARD(consoleFrame.Shutdown());
+	SCOPE_GUARD(consoleFrame.Cleanup());
 
 	// Make instance current.
 	Context::consoleFrame = &consoleFrame;

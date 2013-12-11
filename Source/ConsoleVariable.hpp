@@ -13,7 +13,6 @@ class ConsoleVariable : public ConsoleDefinition
 {
 public:
 	ConsoleVariable(std::string name, std::string value, std::string description);
-
 	~ConsoleVariable();
 
 	void Execute(std::string arguments);

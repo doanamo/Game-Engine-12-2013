@@ -13,7 +13,7 @@ public:
 	~ConsoleFrame();
 
 	bool Initialize();
-	void Shutdown();
+	void Cleanup();
 
 	void Draw();
 

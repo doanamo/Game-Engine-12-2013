@@ -16,7 +16,7 @@ public:
 	~ConsoleSystem();
 
 	bool Initialize();
-	void Shutdown();
+	void Cleanup();
 
 	void Execute(std::string input);
 

@@ -7,17 +7,17 @@ ConsoleFrame::ConsoleFrame()
 
 ConsoleFrame::~ConsoleFrame()
 {
-	Shutdown();
+	Cleanup();
 }
 
 bool ConsoleFrame::Initialize()
 {
-	Shutdown();
+	Cleanup();
 
 	return true;
 }
 
-void ConsoleFrame::Shutdown()
+void ConsoleFrame::Cleanup()
 {
 }
 
