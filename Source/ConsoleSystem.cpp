@@ -20,7 +20,7 @@ bool ConsoleSystem::Initialize()
 void ConsoleSystem::Cleanup()
 {
 	// Clear all definitions.
-	m_definitions.clear();
+	ClearContainer(m_definitions);
 }
 
 void ConsoleSystem::Execute(std::string input)

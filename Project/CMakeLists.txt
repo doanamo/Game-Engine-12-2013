@@ -41,10 +41,10 @@ Add_SubDirectory("../External/GLEW-1.10.0" "GLEW" EXCLUDE_FROM_ALL)
 Include_Directories("../External/GLEW-1.10.0/include")
 
 #
-# Target
+# Source
 #
 
-# Target source files.
+# Source files.
 Set(SourceDir "../Source")
 Set(PrecompiledHeader "Precompiled.hpp")
 Set(PrecompiledSource "Precompiled.cpp")
@@ -65,16 +65,41 @@ Set(SourceFiles
 	"${SourceDir}/ConsoleVariable.cpp"
 	"${SourceDir}/ConsoleFrame.hpp"
 	"${SourceDir}/ConsoleFrame.cpp"
-	"${SourceDir}/Common/NonCopyable.hpp"
-	"${SourceDir}/Common/ScopeGuard.hpp"
 )
 
 Source_Group("Source" FILES ${SourceFiles})
 
+Set(CommonFiles
+	"${SourceDir}/Common/NonCopyable.hpp"
+	"${SourceDir}/Common/ScopeGuard.hpp"
+	"${SourceDir}/Common/Utility.hpp"
+	"${SourceDir}/Common/Utility.cpp"
+)
+
+Source_Group("Source\\Common" FILES ${CommonFiles})
+
+Set(GraphicsFiles
+	"${SourceDir}/Graphics/Shader.hpp"
+	"${SourceDir}/Graphics/Shader.cpp"
+)
+
+Source_Group("Source\\Graphics" FILES ${GraphicsFiles})
+
+# Add the main source folder as an include directory.
+Include_Directories(${SourceDir})
+
+#
+# Target
+#
+
 # Create an executable target.
 Set(TargetName "Game")
 
-Add_Executable(${TargetName} ${SourceFiles})
+Add_Executable(${TargetName}
+	${SourceFiles}
+	${CommonFiles}
+	${GraphicsFiles}
+)
 
 # Link SDL2 library.
 Add_Dependencies(${TargetName} "SDL2-static" "SDL2main")
@@ -86,6 +111,15 @@ Target_Link_Libraries(${TargetName} "glew32s")
 
 # Set unicode support.
 Add_Definitions(-DUNICODE -D_UNICODE)
+
+#
+# Debugging
+#
+
+# Write a text file in the build's directory that will point the executable to it's working directory.
+Get_Filename_Component(WorkingDir "${CMAKE_CURRENT_LIST_DIR}/../Deploy/" ABSOLUTE)
+
+File(WRITE "${CMAKE_BINARY_DIR}/working_dir.txt" "${WorkingDir}/")
 
 #
 # Windows

@@ -3,6 +3,8 @@
 #include "ConsoleSystem.hpp"
 #include "ConsoleFrame.hpp"
 
+#include "Graphics/Shader.hpp"
+
 //
 // Console Commands
 //
@@ -74,6 +76,12 @@ ConsoleVariable userProfile("s_userprofile", "./", "Current user's profile direc
 int main(int argc, char* argv[])
 {
 	SCOPE_GUARD(system("pause"));
+
+	//
+	// Config
+	//
+
+	std::string workingDir = GetTextFileContent("working_dir.txt");
 
 	//
 	// SDL
@@ -231,6 +239,12 @@ int main(int argc, char* argv[])
 
 	SCOPE_GUARD(glDeleteVertexArrays(1, &vertexArray));
 
+	// Create a shader.
+	Shader shader;
+
+	if(!shader.Load(workingDir + "Data/shader.glsl"))
+		return -1;
+
 	//
 	// Example
 	//
@@ -273,9 +287,13 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Draw stuff.
+		glUseProgram(shader.GetHandle());
+
 		glBindVertexArray(vertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glBindVertexArray(0);
+
+		glUseProgram(0);
 
 		// Present the window content.
 		SDL_GL_SetSwapInterval(0);
