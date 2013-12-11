@@ -13,17 +13,14 @@ class ConsoleSystem : public NonCopyable
 {
 public:
 	ConsoleSystem();
-
 	~ConsoleSystem();
 
 	bool Initialize();
-
 	void Shutdown();
 
 	void Execute(std::string input);
 
 	void RegisterDefinition(ConsoleDefinition* definition);
-
 	void UnregisterDefinition(ConsoleDefinition* definition);
 
 	ConsoleDefinition* FindDefinition(std::string name);

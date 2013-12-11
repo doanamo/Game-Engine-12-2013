@@ -12,12 +12,7 @@ ConsoleSystem::~ConsoleSystem()
 
 bool ConsoleSystem::Initialize()
 {
-	// Make instance current.
-	assert(Context::consoleSystem == nullptr);
-	Context::consoleSystem = this;
-
-	// Register definitions created before the console system was initialized.
-	ConsoleDefinition::RegisterStatic();
+	Shutdown();
 
 	return true;
 }
@@ -26,9 +21,6 @@ void ConsoleSystem::Shutdown()
 {
 	// Clear all definitions.
 	m_definitions.clear();
-
-	// Clear the context.
-	Context::consoleSystem = nullptr;
 }
 
 void ConsoleSystem::Execute(std::string input)

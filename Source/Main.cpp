@@ -63,7 +63,7 @@ ConsoleVariable windowHeight("r_height", "1024", "Window height.");
 ConsoleVariable mouseSensivity("i_sensivity", "4.2", "Mouse sensivity.");
 ConsoleVariable playerHealth("g_playerhealth", "100", "Current player health.");
 ConsoleVariable playerAlive("g_playeralive", "true", "Is player alive?");
-ConsoleVariable userProfile("s_userprofile", "./", "Current's user profile directory.");
+ConsoleVariable userProfile("s_userprofile", "./", "Current user's profile directory.");
 
 //
 // Main
@@ -71,6 +71,8 @@ ConsoleVariable userProfile("s_userprofile", "./", "Current's user profile direc
 
 int main(int argc, char* argv[])
 {
+	SCOPE_GUARD(system("pause"));
+
 	//
 	// SDL
 	//
@@ -154,16 +156,24 @@ int main(int argc, char* argv[])
 	}
 
 	//
-	// Initialization
+	// Console System
 	//
 
 	// Initialize the console system.
-	ConsoleSystem console;
+	ConsoleSystem consoleSystem;
 
-	if(!console.Initialize())
+	if(!consoleSystem.Initialize())
 		return -1;
 
-	SCOPE_GUARD(console.Shutdown());
+	SCOPE_GUARD(consoleSystem.Shutdown());
+
+	// Make instance current.
+	Context::consoleSystem = &consoleSystem;
+
+	SCOPE_GUARD(Context::consoleSystem = nullptr);
+
+	// Register definitions created before the console system was initialized.
+	ConsoleDefinition::RegisterStatic();
 
 	//
 	// Example
