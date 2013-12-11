@@ -2,18 +2,24 @@
 
 #if defined(VERTEX_SHADER)
 	layout(location = 0) in vec3 vertexPosition;
+	layout(location = 1) in vec3 vertexColor;
 
-	void main()
-	{
-		gl_Position = vec4(vertexPosition, 1.0f);
-	}
-#endif
-
-#if defined(FRAGMENT_SHADER)
 	out vec4 fragmentColor;
 
 	void main()
 	{
-		fragmentColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+		gl_Position = vec4(vertexPosition, 1.0f);
+		fragmentColor = vec4(vertexColor, 1.0f);
+	}
+#endif
+
+#if defined(FRAGMENT_SHADER)
+	in vec4 fragmentColor;
+
+	out vec4 outputColor;
+
+	void main()
+	{
+		outputColor = fragmentColor;
 	}
 #endif

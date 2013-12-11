@@ -3,8 +3,9 @@
 #include "ConsoleSystem.hpp"
 #include "ConsoleFrame.hpp"
 
-#include "Graphics/Buffer.hpp"
 #include "Graphics/Shader.hpp"
+#include "Graphics/Buffer.hpp"
+#include "Graphics/VertexInput.hpp"
 
 //
 // Console Commands
@@ -213,38 +214,43 @@ int main(int argc, char* argv[])
 	// OpenGL
 	//
 
-	// Vertex data.
-	const float vertexData[] =
-	{
-		-1.0f, -1.0f, 0.0f,
-		 1.0f, -1.0f, 0.0f,
-		 0.0f,  1.0f, 0.0f,
-	};
-
-	// Vertex buffer.
-	VertexBuffer vertexBuffer;
-
-	if(!vertexBuffer.Initialize(sizeof(float), StaticArraySize(vertexData), &vertexData[0]))
-		return -1;
-
-	// Vertex input.
-	GLuint vertexArray;
-	glGenVertexArrays(1, &vertexArray);
-	glBindVertexArray(vertexArray);
-
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.GetHandle());
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	glBindVertexArray(0);
-
-	SCOPE_GUARD(glDeleteVertexArrays(1, &vertexArray));
-
 	// Create a shader.
 	Shader shader;
-
 	if(!shader.Load(workingDir + "Data/shader.glsl"))
+		return -1;
+
+	// Create a vertex buffer.
+	struct Vector3
+	{
+		float x, y, z;
+	};
+
+	struct Vertex
+	{
+		Vector3 position;
+		Vector3 color;
+	};
+
+	Vertex vertexData[] =
+	{
+		{ { -1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
+		{ {  1.0f, -1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
+		{ {  0.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } },
+	};
+
+	VertexBuffer vertexBuffer;
+	if(!vertexBuffer.Initialize(sizeof(Vertex), StaticArraySize(vertexData), &vertexData[0]))
+		return -1;
+
+	// Create a vertex input.
+	VertexAttribute vertexAttributes[] =
+	{
+		{ 0, &vertexBuffer, VertexAttributeTypes::Float3 },
+		{ 1, &vertexBuffer, VertexAttributeTypes::Float3 },
+	};
+
+	VertexInput vertexInput;
+	if(!vertexInput.Initialize(&vertexAttributes[0], StaticArraySize(vertexAttributes)))
 		return -1;
 
 	//
@@ -288,11 +294,11 @@ int main(int argc, char* argv[])
 
 		// Draw stuff.
 		glUseProgram(shader.GetHandle());
+		glBindVertexArray(vertexInput.GetHandle());
 
-		glBindVertexArray(vertexArray);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindVertexArray(0);
 
+		glBindVertexArray(0);
 		glUseProgram(0);
 
 		// Present the window content.

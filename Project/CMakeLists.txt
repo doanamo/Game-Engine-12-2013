@@ -81,10 +81,12 @@ Set(CommonFiles
 Source_Group("Source\\Common" FILES ${CommonFiles})
 
 Set(GraphicsFiles
-	"${SourceDir}/Graphics/Buffer.hpp"
-	"${SourceDir}/Graphics/Buffer.cpp"
 	"${SourceDir}/Graphics/Shader.hpp"
 	"${SourceDir}/Graphics/Shader.cpp"
+	"${SourceDir}/Graphics/Buffer.hpp"
+	"${SourceDir}/Graphics/Buffer.cpp"
+	"${SourceDir}/Graphics/VertexInput.hpp"
+	"${SourceDir}/Graphics/VertexInput.cpp"
 )
 
 Source_Group("Source\\Graphics" FILES ${GraphicsFiles})
