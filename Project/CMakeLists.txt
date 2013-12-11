@@ -49,7 +49,7 @@ Set(SourceDir "../Source")
 Set(PrecompiledHeader "Precompiled.hpp")
 Set(PrecompiledSource "Precompiled.cpp")
 
-Set(SourceFiles
+Set(SourceFiles_Main
 	"${SourceDir}/${PrecompiledHeader}"
 	"${SourceDir}/${PrecompiledSource}"
 	"${SourceDir}/Main.cpp"
@@ -69,18 +69,18 @@ Set(SourceFiles
 	"${SourceDir}/ConsoleFrame.cpp"
 )
 
-Source_Group("Source" FILES ${SourceFiles})
+Source_Group("Source" FILES ${SourceFiles_Main})
 
-Set(CommonFiles
+Set(SourceFiles_Common
 	"${SourceDir}/Common/NonCopyable.hpp"
 	"${SourceDir}/Common/ScopeGuard.hpp"
 	"${SourceDir}/Common/Utility.hpp"
 	"${SourceDir}/Common/Utility.cpp"
 )
 
-Source_Group("Source\\Common" FILES ${CommonFiles})
+Source_Group("Source\\Common" FILES ${SourceFiles_Common})
 
-Set(GraphicsFiles
+Set(SourceFiles_Graphics
 	"${SourceDir}/Graphics/Shader.hpp"
 	"${SourceDir}/Graphics/Shader.cpp"
 	"${SourceDir}/Graphics/Buffer.hpp"
@@ -89,7 +89,7 @@ Set(GraphicsFiles
 	"${SourceDir}/Graphics/VertexInput.cpp"
 )
 
-Source_Group("Source\\Graphics" FILES ${GraphicsFiles})
+Source_Group("Source\\Graphics" FILES ${SourceFiles_Graphics})
 
 # Add the main source folder as an include directory.
 Include_Directories(${SourceDir})
@@ -102,9 +102,9 @@ Include_Directories(${SourceDir})
 Set(TargetName "Game")
 
 Add_Executable(${TargetName}
-	${SourceFiles}
-	${CommonFiles}
-	${GraphicsFiles}
+	${SourceFiles_Main}
+	${SourceFiles_Common}
+	${SourceFiles_Graphics}
 )
 
 # Link SDL2 library.
