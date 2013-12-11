@@ -29,13 +29,13 @@ bool Buffer::Initialize(unsigned int elementSize, unsigned int elementCount, con
 	// Validate arguments.
 	if(elementSize == 0)
 	{
-		Log() << LogInitializeError() << "Invalid argument - \"ElementSize\" is 0.";
+		Log() << LogInitializeError() << "Invalid argument - \"elementSize\" is 0.";
 		return false;
 	}
 
 	if(elementCount == 0)
 	{
-		Log() << LogInitializeError() << "Invalid argument - \"ElementCount\" is 0.";
+		Log() << LogInitializeError() << "Invalid argument - \"elementCount\" is 0.";
 		return false;
 	}
 
