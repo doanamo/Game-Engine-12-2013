@@ -79,6 +79,8 @@ Set(CommonFiles
 Source_Group("Source\\Common" FILES ${CommonFiles})
 
 Set(GraphicsFiles
+	"${SourceDir}/Graphics/Buffer.hpp"
+	"${SourceDir}/Graphics/Buffer.cpp"
 	"${SourceDir}/Graphics/Shader.hpp"
 	"${SourceDir}/Graphics/Shader.cpp"
 )

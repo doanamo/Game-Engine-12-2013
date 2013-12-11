@@ -3,6 +3,7 @@
 #include "ConsoleSystem.hpp"
 #include "ConsoleFrame.hpp"
 
+#include "Graphics/Buffer.hpp"
 #include "Graphics/Shader.hpp"
 
 //
@@ -207,7 +208,7 @@ int main(int argc, char* argv[])
 	//
 
 	// Vertex data.
-	const float vertexData[9] =
+	const float vertexData[] =
 	{
 		-1.0f, -1.0f, 0.0f,
 		 1.0f, -1.0f, 0.0f,
@@ -215,15 +216,10 @@ int main(int argc, char* argv[])
 	};
 
 	// Vertex buffer.
-	GLuint vertexBuffer;
-	glGenBuffers(1, &vertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+	VertexBuffer vertexBuffer;
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 9, &vertexData, GL_STATIC_DRAW);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	SCOPE_GUARD(glDeleteBuffers(1, &vertexBuffer));
+	if(!vertexBuffer.Initialize(sizeof(float), StaticArraySize(vertexData), &vertexData[0]))
+		return -1;
 
 	// Vertex input.
 	GLuint vertexArray;
@@ -231,7 +227,7 @@ int main(int argc, char* argv[])
 	glBindVertexArray(vertexArray);
 
 	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer.GetHandle());
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
