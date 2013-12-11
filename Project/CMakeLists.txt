@@ -52,6 +52,7 @@ Include_Directories("../External/GLEW-1.10.0/include")
 
 # Source files.
 Set(SourceDir "../Source")
+Set(SourceFiles_All "")
 Set(PrecompiledHeader "Precompiled.hpp")
 Set(PrecompiledSource "Precompiled.cpp")
 
@@ -63,6 +64,22 @@ Set(SourceFiles_Main
 	"${SourceDir}/Context.cpp"
 	"${SourceDir}/Logger.hpp"
 	"${SourceDir}/Logger.cpp"
+)
+
+Source_Group("Source" FILES ${SourceFiles_Main})
+Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Main})
+
+Set(SourceFiles_Common
+	"${SourceDir}/Common/NonCopyable.hpp"
+	"${SourceDir}/Common/ScopeGuard.hpp"
+	"${SourceDir}/Common/Utility.hpp"
+	"${SourceDir}/Common/Utility.cpp"
+)
+
+Source_Group("Source\\Common" FILES ${SourceFiles_Common})
+Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Common})
+
+Set(SourceFiles_Console
 	"${SourceDir}/ConsoleSystem.hpp"
 	"${SourceDir}/ConsoleSystem.cpp"
 	"${SourceDir}/ConsoleDefinition.hpp"
@@ -75,16 +92,8 @@ Set(SourceFiles_Main
 	"${SourceDir}/ConsoleFrame.cpp"
 )
 
-Source_Group("Source" FILES ${SourceFiles_Main})
-
-Set(SourceFiles_Common
-	"${SourceDir}/Common/NonCopyable.hpp"
-	"${SourceDir}/Common/ScopeGuard.hpp"
-	"${SourceDir}/Common/Utility.hpp"
-	"${SourceDir}/Common/Utility.cpp"
-)
-
-Source_Group("Source\\Common" FILES ${SourceFiles_Common})
+Source_Group("Source\\Console" FILES ${SourceFiles_Console})
+Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Console})
 
 Set(SourceFiles_Graphics
 	"${SourceDir}/Graphics/Shader.hpp"
@@ -96,6 +105,7 @@ Set(SourceFiles_Graphics
 )
 
 Source_Group("Source\\Graphics" FILES ${SourceFiles_Graphics})
+Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Graphics})
 
 # Add the main source folder as an include directory.
 Include_Directories(${SourceDir})
@@ -107,11 +117,7 @@ Include_Directories(${SourceDir})
 # Create an executable target.
 Set(TargetName "Game")
 
-Add_Executable(${TargetName}
-	${SourceFiles_Main}
-	${SourceFiles_Common}
-	${SourceFiles_Graphics}
-)
+Add_Executable(${TargetName} ${SourceFiles_All})
 
 # Link SDL2 library.
 Add_Dependencies(${TargetName} "SDL2-static" "SDL2main")
