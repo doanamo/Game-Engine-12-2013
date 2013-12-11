@@ -76,7 +76,17 @@ ConsoleVariable userProfile("s_userprofile", "./", "Current user's profile direc
 
 int main(int argc, char* argv[])
 {
-	SCOPE_GUARD(system("pause"));
+	//
+	// Logger
+	//
+
+	// Create a logger.
+	Logger logger("Log.txt");
+
+	// Make instance current.
+	Context::logger = &logger;
+
+	SCOPE_GUARD(Context::logger = nullptr);
 
 	//
 	// Config
@@ -84,16 +94,16 @@ int main(int argc, char* argv[])
 
 	std::string workingDir = GetTextFileContent("working_dir.txt");
 
+	Log() << "Working directory: \"" << workingDir << "\"";
+
 	//
 	// SDL
 	//
 
 	// Initialize SDL library.
-	std::cout<< "Initializing SDL library..." << std::endl;
-
 	if(SDL_Init(SDL_INIT_EVERYTHING) != 0)
 	{
-		std::cout << "Failed to initialize SDL library! Error: " << SDL_GetError() << std::endl;
+		Log() << "Failed to initialize SDL library! Error: " << SDL_GetError();
 		return -1;
 	}
 
@@ -109,8 +119,6 @@ int main(int argc, char* argv[])
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
  
 	// Create a window.
-	std::cout << "Creating a window..." << std::endl;
-
 	SDL_Window* window = SDL_CreateWindow(
 		"Game",
 		SDL_WINDOWPOS_CENTERED,
@@ -124,20 +132,18 @@ int main(int argc, char* argv[])
 
 	if(window == nullptr)
 	{
-		std::cout << "Failed to create a window! Error: " << SDL_GetError() << std::endl;
+		Log() << "Failed to create a window! Error: " << SDL_GetError();
 		return -1;
 	}
 
 	SCOPE_GUARD(SDL_DestroyWindow(window));
 
 	// Create OpenGL context.
-	std::cout << "Creating OpenGL context..." << std::endl;
-
 	SDL_GLContext glContext = SDL_GL_CreateContext(window);
 
 	if(glContext == nullptr)
 	{
-		std::cout << "Failed to create OpenGL context! Error: " << SDL_GetError() << std::endl;
+		Log() << "Failed to create OpenGL context! Error: " << SDL_GetError();
 		return -1;
 	}
 
@@ -149,7 +155,7 @@ int main(int argc, char* argv[])
 	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &versionMajor);
 	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &versionMinor);
 
-	std::cout << "Created OpenGL " << versionMajor << "." << versionMinor << " context." << std::endl;
+	Log() << "Created OpenGL " << versionMajor << "." << versionMinor << " context.";
 
 	//
 	// GLEW
@@ -162,7 +168,7 @@ int main(int argc, char* argv[])
 
 	if(glewError != GLEW_OK)
 	{
-		std::cout << "Failed to initialize GLEW library! Error: " << glewGetErrorString(glewError) << std::endl;
+		Log() << "Failed to initialize GLEW library! Error: " << glewGetErrorString(glewError);
 		return -1;
 	}
 
@@ -244,8 +250,6 @@ int main(int argc, char* argv[])
 	//
 	// Example
 	//
-
-	std::cout << std::endl;
 
 	if(argc >= 1)
 	{

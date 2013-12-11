@@ -29,13 +29,13 @@ bool Buffer::Initialize(unsigned int elementSize, unsigned int elementCount, con
 	// Validate arguments.
 	if(elementSize == 0)
 	{
-		std::cout << LogInitializeError() << "Invalid argument - \"ElementSize\" is 0.";
+		Log() << LogInitializeError() << "Invalid argument - \"ElementSize\" is 0.";
 		return false;
 	}
 
 	if(elementCount == 0)
 	{
-		std::cout << LogInitializeError() << "Invalid argument - \"ElementCount\" is 0.";
+		Log() << LogInitializeError() << "Invalid argument - \"ElementCount\" is 0.";
 		return false;
 	}
 
@@ -47,7 +47,7 @@ bool Buffer::Initialize(unsigned int elementSize, unsigned int elementCount, con
 
 	if(m_handle == InvalidHandle)
 	{
-		std::cout << LogInitializeError() << "Couldn't create a buffer.";
+		Log() << LogInitializeError() << "Couldn't create a buffer.";
 		Cleanup();
 		return false;
 	}
@@ -59,7 +59,7 @@ bool Buffer::Initialize(unsigned int elementSize, unsigned int elementCount, con
 	glBufferData(m_type, bufferSize, data, GL_STATIC_DRAW);
 	glBindBuffer(m_type, 0);
 
-	std::cout << "Created a buffer (Size: " << bufferSize << " bytes).";
+	Log() << "Created a buffer. (Size: " << bufferSize << " bytes)";
 
 	return true;
 }

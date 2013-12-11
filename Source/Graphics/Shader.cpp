@@ -57,7 +57,7 @@ bool Shader::Load(std::string filename)
 
 	if(shaderCode.empty())
 	{
-		std::cout << LogLoadError(filename) << "Couldn't read the file.";
+		Log() << LogLoadError(filename) << "Couldn't read the file.";
 		Cleanup();
 		return false;
 	}
@@ -92,7 +92,7 @@ bool Shader::Load(std::string filename)
 
 			if(shaderObject == InvalidHandle)
 			{
-				std::cout << LogLoadError(filename) << "Couldn't create a shader object.";
+				Log() << LogLoadError(filename) << "Couldn't create a shader object.";
 				Cleanup();
 				return false;
 			}
@@ -119,7 +119,7 @@ bool Shader::Load(std::string filename)
 
 			if(compileStatus == GL_FALSE)
 			{
-				std::cout << LogLoadError(filename) << "Couldn't compile a shader object.";
+				Log() << LogLoadError(filename) << "Couldn't compile a shader object.";
 
 				GLint errorLength = 0;
 				glGetShaderiv(shaderObject, GL_INFO_LOG_LENGTH, &errorLength);
@@ -129,7 +129,7 @@ bool Shader::Load(std::string filename)
 					std::vector<char> errorText(errorLength);
 					glGetShaderInfoLog(shaderObject, errorLength, &errorLength, &errorText[0]);
 
-					std::cout << "Compile errors: \"" << errorText.data() << "\".";
+					Log() << "Compile errors: \"" << errorText.data() << "\".";
 				}
 
 				Cleanup();
@@ -141,7 +141,7 @@ bool Shader::Load(std::string filename)
 	// Check if any shader objects were found.
 	if(shaderObjectsFound == false)
 	{
-		std::cout << LogLoadError(filename) << "Couldn't find any shader objects.";
+		Log() << LogLoadError(filename) << "Couldn't find any shader objects.";
 		Cleanup();
 		return false;
 	}
@@ -151,7 +151,7 @@ bool Shader::Load(std::string filename)
 
 	if(m_handle == InvalidHandle)
 	{
-		std::cout << LogLoadError(filename) << "Couldn't create a shader program.";
+		Log() << LogLoadError(filename) << "Couldn't create a shader program.";
 		Cleanup();
 		return false;
 	}
@@ -187,7 +187,7 @@ bool Shader::Load(std::string filename)
 
 	if(linkStatus == GL_FALSE)
 	{
-		std::cout << LogLoadError(filename) << "Couldn't link a shader program.";
+		Log() << LogLoadError(filename) << "Couldn't link a shader program.";
 
 		GLint errorLength = 0;
 		glGetProgramiv(m_handle, GL_INFO_LOG_LENGTH, &errorLength);
@@ -197,14 +197,14 @@ bool Shader::Load(std::string filename)
 			std::vector<char> errorText(errorLength);
 			glGetProgramInfoLog(m_handle, errorLength, &errorLength, &errorText[0]);
 
-			std::cout << "Linking errors: \"" << errorText.data() << "\".";
+			Log() << "Linking errors: \"" << errorText.data() << "\".";
 		}
 		
 		Cleanup();
 		return false;
 	}
 
-	std::cout << "Loaded a shader from \"" << filename << "\" file.";
+	Log() << "Loaded a shader from \"" << filename << "\" file.";
 
 	return true;
 }

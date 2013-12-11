@@ -8,6 +8,7 @@
 
 struct Context
 {
-	static class ConsoleSystem* consoleSystem;
-	static class ConsoleFrame* consoleFrame;
+	static class Logger*		logger;
+	static class ConsoleSystem*	consoleSystem;
+	static class ConsoleFrame*	consoleFrame;
 };

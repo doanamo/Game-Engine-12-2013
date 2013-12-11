@@ -55,6 +55,8 @@ Set(SourceFiles
 	"${SourceDir}/Main.cpp"
 	"${SourceDir}/Context.hpp"
 	"${SourceDir}/Context.cpp"
+	"${SourceDir}/Logger.hpp"
+	"${SourceDir}/Logger.cpp"
 	"${SourceDir}/ConsoleSystem.hpp"
 	"${SourceDir}/ConsoleSystem.cpp"
 	"${SourceDir}/ConsoleDefinition.hpp"
@@ -134,6 +136,9 @@ If(MSVC)
 	
 	# Restore default main() entry instead of WinMain().
 	#Set_Property(TARGET ${TargetName} APPEND_STRING PROPERTY LINK_FLAGS "/ENTRY:mainCRTStartup ")
+
+	# Disable unsafe Standard C function warnings.
+	Set_Property(TARGET ${TargetName} APPEND_STRING PROPERTY COMPILE_DEFINITIONS "_CRT_SECURE_NO_WARNINGS")
 	
 	# Set the precompiled header.
 	Get_Filename_Component(PrecompiledName ${PrecompiledHeader} NAME_WE)

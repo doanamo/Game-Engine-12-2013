@@ -18,4 +18,6 @@
 #include "Common/ScopeGuard.hpp"
 #include "Common/Utility.hpp"
 
+#include "Logger.hpp"
+
 #include "Context.hpp"
