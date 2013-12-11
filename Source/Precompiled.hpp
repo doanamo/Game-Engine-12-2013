@@ -6,6 +6,9 @@
 #include <string>
 #include <map>
 
+// GLM
+#include <glm/glm.hpp>
+
 // SDL2
 #include <SDL.h>
 

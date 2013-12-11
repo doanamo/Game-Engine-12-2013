@@ -220,22 +220,17 @@ int main(int argc, char* argv[])
 		return -1;
 
 	// Create a vertex buffer.
-	struct Vector3
-	{
-		float x, y, z;
-	};
-
 	struct Vertex
 	{
-		Vector3 position;
-		Vector3 color;
+		glm::vec3 position;
+		glm::vec3 color;
 	};
 
 	Vertex vertexData[] =
 	{
-		{ { -1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
-		{ {  1.0f, -1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
-		{ {  0.0f,  1.0f, 0.0f }, { 0.0f, 0.0f, 1.0f } },
+		{ glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f) },
+		{ glm::vec3( 1.0f, -1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f) },
+		{ glm::vec3( 0.0f,  1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f) },
 	};
 
 	VertexBuffer vertexBuffer;

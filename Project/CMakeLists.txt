@@ -14,6 +14,12 @@ set(ProjectName "Karolina")
 Project(${ProjectName})
 
 #
+# GLM
+#
+
+Include_Directories("../External/GLM-0.9.4.6")
+
+#
 # SDL2
 #
 
