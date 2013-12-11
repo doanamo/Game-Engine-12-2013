@@ -1,5 +1,7 @@
 #include "Precompiled.hpp"
+
 #include "ConsoleSystem.hpp"
+#include "ConsoleFrame.hpp"
 
 //
 // Console Commands
@@ -176,6 +178,60 @@ int main(int argc, char* argv[])
 	ConsoleDefinition::RegisterStatic();
 
 	//
+	// Console Frame
+	//
+
+	// Initialize the console frame.
+	ConsoleFrame consoleFrame;
+
+	if(!consoleFrame.Initialize())
+		return -1;
+
+	SCOPE_GUARD(consoleFrame.Shutdown());
+
+	// Make instance current.
+	Context::consoleFrame = &consoleFrame;
+
+	SCOPE_GUARD(Context::consoleFrame = nullptr);
+
+	//
+	// OpenGL
+	//
+
+	// Vertex data.
+	const float vertexData[9] =
+	{
+		-1.0f, -1.0f, 0.0f,
+		 1.0f, -1.0f, 0.0f,
+		 0.0f,  1.0f, 0.0f,
+	};
+
+	// Vertex buffer.
+	GLuint vertexBuffer;
+	glGenBuffers(1, &vertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 9, &vertexData, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	SCOPE_GUARD(glDeleteBuffers(1, &vertexBuffer));
+
+	// Vertex input.
+	GLuint vertexArray;
+	glGenVertexArrays(1, &vertexArray);
+	glBindVertexArray(vertexArray);
+
+	glEnableVertexAttribArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glBindVertexArray(0);
+
+	SCOPE_GUARD(glDeleteVertexArrays(1, &vertexArray));
+
+	//
 	// Example
 	//
 
@@ -215,6 +271,11 @@ int main(int argc, char* argv[])
 		glClearDepth(1.0f);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		// Draw stuff.
+		glBindVertexArray(vertexArray);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(0);
 
 		// Present the window content.
 		SDL_GL_SetSwapInterval(0);

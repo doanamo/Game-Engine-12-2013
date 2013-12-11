@@ -63,6 +63,8 @@ Set(SourceFiles
 	"${SourceDir}/ConsoleCommand.cpp"
 	"${SourceDir}/ConsoleVariable.hpp"
 	"${SourceDir}/ConsoleVariable.cpp"
+	"${SourceDir}/ConsoleFrame.hpp"
+	"${SourceDir}/ConsoleFrame.cpp"
 	"${SourceDir}/Common/NonCopyable.hpp"
 	"${SourceDir}/Common/ScopeGuard.hpp"
 )
