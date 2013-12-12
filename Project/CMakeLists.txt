@@ -20,6 +20,7 @@ Set_Property(GLOBAL PROPERTY USE_FOLDERS ON)
 # GLM
 #
 
+# Add include directory.
 Include_Directories("../External/GLM-0.9.4.6")
 
 #
@@ -30,24 +31,43 @@ Include_Directories("../External/GLM-0.9.4.6")
 Set(SDL_SHARED OFF CACHE BOOL "")
 Set(SDL_STATIC ON CACHE BOOL "")
 
-# Look for targets in the main directory where CMakeLists.txt is located.
+# Add library directory.
 Add_SubDirectory("../External/SDL-2.0.1" "SDL2" EXCLUDE_FROM_ALL)
 
 # Add include directory.
 Include_Directories("../External/SDL-2.0.1/include")
 
-# Add directory of library dependencies.
+# Add additional link dependencies.
 Link_Directories("$ENV{DXSDK_DIR}/Lib/x86")
 
 #
 # GLEW
 #
 
-# Add project directory.
+# Add library directory.
 Add_SubDirectory("../External/GLEW-1.10.0" "GLEW" EXCLUDE_FROM_ALL)
 
 # Add include directory.
 Include_Directories("../External/GLEW-1.10.0/include")
+
+#
+# FreeType
+#
+
+# Add library directory.
+Add_SubDirectory("../External/FreeType-2.5.2" "FreeType" EXCLUDE_FROM_ALL)
+
+# Add include directory.
+Include_Directories("../External/FreeType-2.5.2/include")
+
+# Disable annoying warnings that we can't do anything about.
+If(MSVC)
+	# C4996: "This function or variable may be unsafe. Consider using 'x' instead."
+	Set_Property(TARGET "freetype" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4996 ")
+
+	# C4244: "Conversion from 'x' to 'y', possible loss of data."
+	Set_Property(TARGET "freetype" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4244 ")
+EndIf()
 
 #
 # Source
@@ -130,6 +150,10 @@ Target_Link_Libraries(${TargetName} "SDL2-static" "SDL2main")
 Add_Dependencies(${TargetName} "glew32s")
 Target_Link_Libraries(${TargetName} "glew32s")
 
+# Link FreeType library.
+Add_Dependencies(${TargetName} "freetype")
+Target_Link_Libraries(${TargetName} "freetype")
+
 # Set unicode support.
 Add_Definitions(-DUNICODE -D_UNICODE)
 
@@ -137,6 +161,7 @@ Add_Definitions(-DUNICODE -D_UNICODE)
 Set_Property(TARGET "SDL2-static" PROPERTY FOLDER "Dependencies")
 Set_Property(TARGET "SDL2main" PROPERTY FOLDER "Dependencies")
 Set_Property(TARGET "glew32s" PROPERTY FOLDER "Dependencies")
+Set_Property(TARGET "freetype" PROPERTY FOLDER "Dependencies")
 
 #
 # Debugging

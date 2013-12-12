@@ -175,6 +175,20 @@ int main(int argc, char* argv[])
 	}
 
 	//
+	// FreeType
+	//
+
+	FT_Library fontLibrary;
+
+	if(FT_Init_FreeType(&fontLibrary) != 0)
+	{
+		Log() << "Failed to initialize FreeType library!";
+		return -1;
+	}
+
+	SCOPE_GUARD(FT_Done_FreeType(fontLibrary));
+
+	//
 	// Console System
 	//
 
