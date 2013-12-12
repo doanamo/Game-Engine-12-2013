@@ -93,9 +93,10 @@ int main(int argc, char* argv[])
 	// Config
 	//
 
-	std::string workingDir = GetTextFileContent("working_dir.txt");
+	// Get the path to the working directory.
+	Context::workingDir = GetTextFileContent("working_dir.txt");
 
-	Log() << "Working directory: \"" << workingDir << "\"";
+	Log() << "Working directory: \"" << Context::workingDir << "\"";
 
 	//
 	// SDL
@@ -179,7 +180,6 @@ int main(int argc, char* argv[])
 
 	// Initialize the console system.
 	ConsoleSystem consoleSystem;
-
 	if(!consoleSystem.Initialize())
 		return -1;
 
@@ -199,7 +199,6 @@ int main(int argc, char* argv[])
 
 	// Initialize the console frame.
 	ConsoleFrame consoleFrame;
-
 	if(!consoleFrame.Initialize())
 		return -1;
 
@@ -209,44 +208,6 @@ int main(int argc, char* argv[])
 	Context::consoleFrame = &consoleFrame;
 
 	SCOPE_GUARD(Context::consoleFrame = nullptr);
-
-	//
-	// OpenGL
-	//
-
-	// Create a shader.
-	Shader shader;
-	if(!shader.Load(workingDir + "Data/shader.glsl"))
-		return -1;
-
-	// Create a vertex buffer.
-	struct Vertex
-	{
-		glm::vec3 position;
-		glm::vec3 color;
-	};
-
-	Vertex vertexData[] =
-	{
-		{ glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f) },
-		{ glm::vec3( 1.0f, -1.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f) },
-		{ glm::vec3( 0.0f,  1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f) },
-	};
-
-	VertexBuffer vertexBuffer;
-	if(!vertexBuffer.Initialize(sizeof(Vertex), StaticArraySize(vertexData), &vertexData[0]))
-		return -1;
-
-	// Create a vertex input.
-	VertexAttribute vertexAttributes[] =
-	{
-		{ 0, &vertexBuffer, VertexAttributeTypes::Float3 },
-		{ 1, &vertexBuffer, VertexAttributeTypes::Float3 },
-	};
-
-	VertexInput vertexInput;
-	if(!vertexInput.Initialize(&vertexAttributes[0], StaticArraySize(vertexAttributes)))
-		return -1;
 
 	//
 	// Example
@@ -278,8 +239,21 @@ int main(int argc, char* argv[])
 			case SDL_QUIT:
 				isQuitting = true;
 				break;
+
+			case SDL_KEYDOWN:
+				if(event.key.keysym.scancode == SDL_SCANCODE_GRAVE && event.key.repeat == 0)
+				{
+					consoleFrame.Toggle();
+				}
+				break;
 			}
 		}
+
+		// Setup the viewport.
+		int windowWidth, windowHeight;
+		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+
+		glViewport(0, 0, windowWidth, windowHeight);
 
 		// Clear the screen.
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -287,14 +261,8 @@ int main(int argc, char* argv[])
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Draw stuff.
-		glUseProgram(shader.GetHandle());
-		glBindVertexArray(vertexInput.GetHandle());
-
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-
-		glBindVertexArray(0);
-		glUseProgram(0);
+		// Draw console frame.
+		consoleFrame.Draw();
 
 		// Present the window content.
 		SDL_GL_SetSwapInterval(0);
