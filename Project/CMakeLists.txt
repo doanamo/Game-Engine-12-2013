@@ -83,16 +83,16 @@ Source_Group("Source\\Common" FILES ${SourceFiles_Common})
 Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Common})
 
 Set(SourceFiles_Console
-	"${SourceDir}/ConsoleSystem.hpp"
-	"${SourceDir}/ConsoleSystem.cpp"
-	"${SourceDir}/ConsoleDefinition.hpp"
-	"${SourceDir}/ConsoleDefinition.cpp"
-	"${SourceDir}/ConsoleCommand.hpp"
-	"${SourceDir}/ConsoleCommand.cpp"
-	"${SourceDir}/ConsoleVariable.hpp"
-	"${SourceDir}/ConsoleVariable.cpp"
-	"${SourceDir}/ConsoleFrame.hpp"
-	"${SourceDir}/ConsoleFrame.cpp"
+	"${SourceDir}/Console/ConsoleSystem.hpp"
+	"${SourceDir}/Console/ConsoleSystem.cpp"
+	"${SourceDir}/Console/ConsoleDefinition.hpp"
+	"${SourceDir}/Console/ConsoleDefinition.cpp"
+	"${SourceDir}/Console/ConsoleCommand.hpp"
+	"${SourceDir}/Console/ConsoleCommand.cpp"
+	"${SourceDir}/Console/ConsoleVariable.hpp"
+	"${SourceDir}/Console/ConsoleVariable.cpp"
+	"${SourceDir}/Console/ConsoleFrame.hpp"
+	"${SourceDir}/Console/ConsoleFrame.cpp"
 )
 
 Source_Group("Source\\Console" FILES ${SourceFiles_Console})

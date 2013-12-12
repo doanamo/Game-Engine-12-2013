@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 
-#include "ConsoleSystem.hpp"
-#include "ConsoleFrame.hpp"
+#include "Console/ConsoleSystem.hpp"
+#include "Console/ConsoleFrame.hpp"
 
 #include "Graphics/Shader.hpp"
 #include "Graphics/Buffer.hpp"
