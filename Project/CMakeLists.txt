@@ -13,6 +13,9 @@ set(ProjectName "Karolina")
 
 Project(${ProjectName})
 
+# Enable project folders.
+Set_Property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 #
 # GLM
 #
@@ -129,6 +132,11 @@ Target_Link_Libraries(${TargetName} "glew32s")
 
 # Set unicode support.
 Add_Definitions(-DUNICODE -D_UNICODE)
+
+# Group dependencies in a single folder.
+Set_Property(TARGET "SDL2-static" PROPERTY FOLDER "Dependencies")
+Set_Property(TARGET "SDL2main" PROPERTY FOLDER "Dependencies")
+Set_Property(TARGET "glew32s" PROPERTY FOLDER "Dependencies")
 
 #
 # Debugging
