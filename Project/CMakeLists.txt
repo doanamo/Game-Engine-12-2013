@@ -40,6 +40,15 @@ Include_Directories("../External/SDL-2.0.1/include")
 # Add additional link dependencies.
 Link_Directories("$ENV{DXSDK_DIR}/Lib/x86")
 
+# Disable annoying warnings that we can't do anything about.
+If(MSVC)
+	# C4996: "'x' was declared deprecated."
+	Set_Property(TARGET "SDL2-static" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4996 ")
+
+	# C4018: "Signed/unsigned mismatch."
+	Set_Property(TARGET "SDL2-static" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4018 ")
+EndIf()
+
 #
 # GLEW
 #
