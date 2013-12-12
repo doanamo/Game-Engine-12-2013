@@ -19,8 +19,11 @@ class LoggerMessage;
 class Logger : public NonCopyable
 {
 public:
-	Logger(std::string filename);
+	Logger();
 	~Logger();
+
+	bool Open(std::string filename);
+	void Close();
 
 	void Write(const LoggerMessage& message);
 

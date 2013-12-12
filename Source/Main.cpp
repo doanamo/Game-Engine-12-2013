@@ -78,24 +78,28 @@ ConsoleVariable userProfile("s_userprofile", "./", "Current user's profile direc
 int main(int argc, char* argv[])
 {
 	//
-	// Logger
-	//
-
-	// Create a logger.
-	Logger logger("Log.txt");
-
-	// Make instance current.
-	Context::logger = &logger;
-
-	SCOPE_GUARD(Context::logger = nullptr);
-
-	//
 	// Config
 	//
 
 	// Get the path to the working directory.
 	Context::workingDir = GetTextFileContent("working_dir.txt");
 
+	//
+	// Logger
+	//
+
+	// Create a logger.
+	Logger logger;
+
+	if(!logger.Open(Context::workingDir + "Log.txt"))
+		return -1;
+
+	// Make instance current.
+	Context::logger = &logger;
+
+	SCOPE_GUARD(Context::logger = nullptr);
+
+	// Print the working directory path.
 	Log() << "Working directory: \"" << Context::workingDir << "\"";
 
 	//

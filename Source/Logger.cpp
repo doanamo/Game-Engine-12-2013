@@ -4,10 +4,24 @@
 #include <ctime>
 #include <iomanip>
 
-Logger::Logger(std::string filename)
+Logger::Logger()
 {
+}
+
+Logger::~Logger()
+{
+	Close();
+}
+
+bool Logger::Open(std::string filename)
+{
+	Close();
+
 	// Open a file.
 	m_file.open(filename);
+
+	if(!m_file.is_open())
+		return false;
 
 	// Write session start.
 	time_t timeData = time(nullptr);
@@ -24,28 +38,33 @@ Logger::Logger(std::string filename)
 	m_file << "\n\n";
 
 	m_file.flush();
+
+	return true;
 }
 
-Logger::~Logger()
+void Logger::Close()
 {
-	// Write session end.
-	time_t timeData = time(nullptr);
-	tm* timeInfo = localtime(&timeData);
+	if(m_file.is_open())
+	{
+		// Write session end.
+		time_t timeData = time(nullptr);
+		tm* timeInfo = localtime(&timeData);
 
-	m_file << "\n";
-	m_file << "Session ended at ";
-	m_file << std::setfill('0');
-	m_file << std::setw(4) << timeInfo->tm_year + 1900 << "-";
-	m_file << std::setw(2) << timeInfo->tm_mon + 1     << "-";
-	m_file << std::setw(2) << timeInfo->tm_mday        << " ";
-	m_file << std::setw(2) << timeInfo->tm_hour        << ":";
-	m_file << std::setw(2) << timeInfo->tm_min         << ":";
-	m_file << std::setw(2) << timeInfo->tm_sec;
+		m_file << "\n";
+		m_file << "Session ended at ";
+		m_file << std::setfill('0');
+		m_file << std::setw(4) << timeInfo->tm_year + 1900 << "-";
+		m_file << std::setw(2) << timeInfo->tm_mon + 1     << "-";
+		m_file << std::setw(2) << timeInfo->tm_mday        << " ";
+		m_file << std::setw(2) << timeInfo->tm_hour        << ":";
+		m_file << std::setw(2) << timeInfo->tm_min         << ":";
+		m_file << std::setw(2) << timeInfo->tm_sec;
 
-	m_file.flush();
+		m_file.flush();
 
-	// Close a file.
-	m_file.close();
+		// Close a file.
+		m_file.close();
+	}
 }
 
 void Logger::Write(const LoggerMessage& message)
