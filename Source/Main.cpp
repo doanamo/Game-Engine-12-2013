@@ -243,7 +243,7 @@ int main(int argc, char* argv[])
 			case SDL_KEYDOWN:
 				if(event.key.keysym.scancode == SDL_SCANCODE_GRAVE && event.key.repeat == 0)
 				{
-					consoleFrame.Toggle();
+					Context::consoleFrame->Toggle();
 				}
 				break;
 			}
@@ -262,7 +262,7 @@ int main(int argc, char* argv[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Draw console frame.
-		consoleFrame.Draw();
+		Context::consoleFrame->Draw();
 
 		// Present the window content.
 		SDL_GL_SetSwapInterval(0);
