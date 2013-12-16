@@ -103,6 +103,25 @@ int main(int argc, char* argv[])
 	Log() << "Working directory: \"" << Context::workingDir << "\"";
 
 	//
+	// Console System
+	//
+
+	// Initialize the console system.
+	ConsoleSystem consoleSystem;
+	if(!consoleSystem.Initialize())
+		return -1;
+
+	SCOPE_GUARD(consoleSystem.Cleanup());
+
+	// Make instance current.
+	Context::consoleSystem = &consoleSystem;
+
+	SCOPE_GUARD(Context::consoleSystem = nullptr);
+
+	// Register definitions created before the console system was initialized.
+	ConsoleDefinition::RegisterStatic();
+
+	//
 	// SDL
 	//
 
@@ -182,6 +201,7 @@ int main(int argc, char* argv[])
 	// FreeType
 	//
 
+	// Initialize FreeType library.
 	FT_Library fontLibrary;
 
 	if(FT_Init_FreeType(&fontLibrary) != 0)
@@ -193,23 +213,59 @@ int main(int argc, char* argv[])
 	SCOPE_GUARD(FT_Done_FreeType(fontLibrary));
 
 	//
-	// Console System
+	// Test
 	//
 
-	// Initialize the console system.
-	ConsoleSystem consoleSystem;
-	if(!consoleSystem.Initialize())
+	// Load a font file.
+	FT_Face fontFace;
+
+	if(FT_New_Face(fontLibrary, std::string(Context::workingDir + "Data/SourceSansPro-Regular.ttf").c_str(), 0, &fontFace) != 0)
 		return -1;
 
-	SCOPE_GUARD(consoleSystem.Cleanup());
+	SCOPE_GUARD(FT_Done_Face(fontFace));
 
-	// Make instance current.
-	Context::consoleSystem = &consoleSystem;
+	// Set font encoding.
+	if(FT_Select_Charmap(fontFace, FT_ENCODING_UNICODE) != 0)
+		return -1;
 
-	SCOPE_GUARD(Context::consoleSystem = nullptr);
+	// Set font size.
+	if(FT_Set_Char_Size(fontFace, 0, 32 * 64, 72, 72) != 0)
+		return -1;
 
-	// Register definitions created before the console system was initialized.
-	ConsoleDefinition::RegisterStatic();
+	// Load font glyph.
+	FT_ULong glyphIndex = FT_Get_Char_Index(fontFace, L'Œ');
+
+	if(FT_Load_Glyph(fontFace, glyphIndex, FT_LOAD_DEFAULT) != 0)
+		return -1;
+
+	// Render font glyph.
+	if(FT_Render_Glyph(fontFace->glyph, FT_RENDER_MODE_NORMAL) != 0)
+		return -1;
+
+	FT_Bitmap* glyphBitmap = &fontFace->glyph->bitmap;
+
+	// Copy bitmap to SDL surface and save to a file.
+	SDL_Surface* glyphSurface = SDL_CreateRGBSurface(0, glyphBitmap->width, glyphBitmap->rows, 32, 0, 0, 0, 0);
+
+	assert(glyphSurface != nullptr);
+
+	SDL_LockSurface(glyphSurface);
+
+	unsigned char* glyphSurfaceData = reinterpret_cast<unsigned char*>(glyphSurface->pixels);
+
+	for(long i = 0; i < glyphBitmap->width * glyphBitmap->rows; ++i)
+	{
+		glyphSurfaceData[i * 4 + 0] = glyphBitmap->buffer[i];
+		glyphSurfaceData[i * 4 + 1] = glyphBitmap->buffer[i];
+		glyphSurfaceData[i * 4 + 2] = glyphBitmap->buffer[i];
+		glyphSurfaceData[i * 4 + 3] = 255;
+	}
+
+	SDL_UnlockSurface(glyphSurface);
+
+	SDL_SaveBMP(glyphSurface, std::string(Context::workingDir + "glyph.bmp").c_str());
+
+	SDL_FreeSurface(glyphSurface);
 
 	//
 	// Console Frame
