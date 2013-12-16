@@ -177,9 +177,9 @@ Set_Property(TARGET "freetype" PROPERTY FOLDER "Dependencies")
 #
 
 # Write a text file in the build's directory that will point the executable to it's working directory.
-Get_Filename_Component(WorkingDir "${CMAKE_CURRENT_LIST_DIR}/../Deploy/" ABSOLUTE)
+Get_Filename_Component(WorkingDir "${CMAKE_CURRENT_LIST_DIR}/../Base" ABSOLUTE)
 
-File(WRITE "${CMAKE_BINARY_DIR}/working_dir.txt" "${WorkingDir}/")
+File(WRITE "${CMAKE_BINARY_DIR}/WorkingDir.txt" "${WorkingDir}/")
 
 #
 # Windows

@@ -17,7 +17,7 @@ bool ConsoleFrame::Initialize()
 	Cleanup();
 
 	// Create a shader.
-	if(!m_shader.Load(Context::workingDir + "Data/shader.glsl"))
+	if(!m_shader.Load(Context::workingDir + "Data/Shaders/Shader.glsl"))
 	{
 		Cleanup();
 		return false;

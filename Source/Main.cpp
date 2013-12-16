@@ -81,8 +81,8 @@ int main(int argc, char* argv[])
 	// Config
 	//
 
-	// Get the path to the working directory.
-	Context::workingDir = GetTextFileContent("working_dir.txt");
+	// Get the path to the asset directory.
+	Context::workingDir = GetTextFileContent("WorkingDir.txt");
 
 	//
 	// Logger
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 	// Create a logger.
 	Logger logger;
 
-	if(!logger.Open(Context::workingDir + "Log.txt"))
+	if(!logger.Open("Log.txt"))
 		return -1;
 
 	// Make instance current.
@@ -219,7 +219,7 @@ int main(int argc, char* argv[])
 	// Load a font file.
 	FT_Face fontFace;
 
-	if(FT_New_Face(fontLibrary, std::string(Context::workingDir + "Data/SourceSansPro-Regular.ttf").c_str(), 0, &fontFace) != 0)
+	if(FT_New_Face(fontLibrary, std::string(Context::workingDir + "Data/Fonts/SourceSansPro.ttf").c_str(), 0, &fontFace) != 0)
 		return -1;
 
 	SCOPE_GUARD(FT_Done_Face(fontFace));
@@ -263,7 +263,7 @@ int main(int argc, char* argv[])
 
 	SDL_UnlockSurface(glyphSurface);
 
-	SDL_SaveBMP(glyphSurface, std::string(Context::workingDir + "glyph.bmp").c_str());
+	SDL_SaveBMP(glyphSurface, "glyph.bmp");
 
 	SDL_FreeSurface(glyphSurface);
 
