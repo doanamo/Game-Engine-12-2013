@@ -229,43 +229,77 @@ int main(int argc, char* argv[])
 		return -1;
 
 	// Set font size.
-	if(FT_Set_Char_Size(fontFace, 0, 32 * 64, 72, 72) != 0)
+	if(FT_Set_Char_Size(fontFace, 0, 64 * 64, 72, 72) != 0)
 		return -1;
 
-	// Load font glyph.
-	FT_ULong glyphIndex = FT_Get_Char_Index(fontFace, L'Œ');
+	// Create a text surface.
+	SDL_Surface* textSurface = SDL_CreateRGBSurface(0, 1024, 128, 32, 0, 0, 0, 0);
 
-	if(FT_Load_Glyph(fontFace, glyphIndex, FT_LOAD_DEFAULT) != 0)
+	if(textSurface == nullptr)
 		return -1;
 
-	// Render font glyph.
-	if(FT_Render_Glyph(fontFace->glyph, FT_RENDER_MODE_NORMAL) != 0)
-		return -1;
+	SCOPE_GUARD(SDL_FreeSurface(textSurface));
 
-	FT_Bitmap* glyphBitmap = &fontFace->glyph->bitmap;
+	// Draw text glyphs.
+	wchar_t* text = L"Hello world! Test: œŸ³óæ¹ê€³æ :)";
 
-	// Copy bitmap to SDL surface and save to a file.
-	SDL_Surface* glyphSurface = SDL_CreateRGBSurface(0, glyphBitmap->width, glyphBitmap->rows, 32, 0, 0, 0, 0);
+	glm::ivec2 drawPosition(0, 64);
 
-	assert(glyphSurface != nullptr);
-
-	SDL_LockSurface(glyphSurface);
-
-	unsigned char* glyphSurfaceData = reinterpret_cast<unsigned char*>(glyphSurface->pixels);
-
-	for(long i = 0; i < glyphBitmap->width * glyphBitmap->rows; ++i)
+	for(std::size_t i = 0; i < std::wcslen(text); ++i)
 	{
-		glyphSurfaceData[i * 4 + 0] = glyphBitmap->buffer[i];
-		glyphSurfaceData[i * 4 + 1] = glyphBitmap->buffer[i];
-		glyphSurfaceData[i * 4 + 2] = glyphBitmap->buffer[i];
-		glyphSurfaceData[i * 4 + 3] = 255;
+		// Load font glyph.
+		FT_ULong glyphIndex = FT_Get_Char_Index(fontFace, text[i]);
+
+		if(FT_Load_Glyph(fontFace, glyphIndex, FT_LOAD_DEFAULT) != 0)
+			return -1;
+
+		FT_GlyphSlot glyphSlot = fontFace->glyph;
+
+		// Render font glyph.
+		if(FT_Render_Glyph(fontFace->glyph, FT_RENDER_MODE_NORMAL) != 0)
+			return -1;
+
+		FT_Bitmap* glyphBitmap = &glyphSlot->bitmap;
+
+		// Create a glyph surface.
+		SDL_Surface* glyphSurface = SDL_CreateRGBSurface(0, glyphBitmap->width, glyphBitmap->rows, 32, 0, 0, 0, 0);
+
+		if(glyphSurface == nullptr)
+			return -1;
+
+		SCOPE_GUARD(SDL_FreeSurface(glyphSurface));
+
+		// Copy glyph pixels.
+		SDL_LockSurface(glyphSurface);
+
+		unsigned char* glyphSurfaceData = reinterpret_cast<unsigned char*>(glyphSurface->pixels);
+
+		for(long i = 0; i < glyphBitmap->width * glyphBitmap->rows; ++i)
+		{
+			glyphSurfaceData[i * 4 + 0] = glyphBitmap->buffer[i];
+			glyphSurfaceData[i * 4 + 1] = glyphBitmap->buffer[i];
+			glyphSurfaceData[i * 4 + 2] = glyphBitmap->buffer[i];
+			glyphSurfaceData[i * 4 + 3] = 255;
+		}
+
+		SDL_UnlockSurface(glyphSurface);
+
+		// Draw glyph surface.
+		SDL_Rect rect;
+		rect.x = drawPosition.x + glyphSlot->bitmap_left;
+		rect.y = drawPosition.y - glyphSlot->bitmap_top;
+		rect.w = glyphBitmap->width;
+		rect.h = glyphBitmap->rows;
+
+		SDL_BlitSurface(glyphSurface, nullptr, textSurface, &rect);
+
+		// Advance drawing position.
+		drawPosition.x += glyphSlot->advance.x >> 6;
+		drawPosition.y += glyphSlot->advance.y >> 6;
 	}
 
-	SDL_UnlockSurface(glyphSurface);
-
-	SDL_SaveBMP(glyphSurface, "glyph.bmp");
-
-	SDL_FreeSurface(glyphSurface);
+	// Save text surface to a file.
+	SDL_SaveBMP(textSurface, "text.bmp");
 
 	//
 	// Console Frame
