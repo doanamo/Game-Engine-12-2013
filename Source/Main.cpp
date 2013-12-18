@@ -278,12 +278,10 @@ int main(int argc, char* argv[])
 	int textSurfaceWidth = 1024;
 	int textSurfaceHeight = 128;
 
-	SDL_Surface* textSurface = SDL_CreateRGBSurface(0, textSurfaceWidth, textSurfaceHeight, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+	SDL_Surface* textSurface = SDL_CreateRGBSurface(0, textSurfaceWidth, textSurfaceHeight, 8, 0, 0, 0, 0);
 
 	if(textSurface == nullptr)
 		return -1;
-
-	SDL_FillRect(textSurface, nullptr, SDL_MapRGBA(textSurface->format, 255, 255, 255, 0));
 
 	SCOPE_GUARD(SDL_FreeSurface(textSurface));
 
@@ -309,12 +307,10 @@ int main(int argc, char* argv[])
 		FT_Bitmap* glyphBitmap = &glyphSlot->bitmap;
 
 		// Create a glyph surface.
-		SDL_Surface* glyphSurface = SDL_CreateRGBSurface(0, glyphBitmap->width, glyphBitmap->rows, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+		SDL_Surface* glyphSurface = SDL_CreateRGBSurface(0, glyphBitmap->width, glyphBitmap->rows, 8, 0, 0, 0, 0);
 
 		if(glyphSurface == nullptr)
 			return -1;
-
-		SDL_FillRect(glyphSurface, nullptr, SDL_MapRGBA(textSurface->format, 0, 0, 0, 255));
 
 		SCOPE_GUARD(SDL_FreeSurface(glyphSurface));
 
@@ -323,13 +319,9 @@ int main(int argc, char* argv[])
 
 		unsigned char* glyphSurfaceData = reinterpret_cast<unsigned char*>(glyphSurface->pixels);
 
-		for(long i = 0; i < glyphBitmap->width * glyphBitmap->rows; ++i)
+		for(long i = 0; i < glyphBitmap->rows; ++i)
 		{
-			// RGBA
-			glyphSurfaceData[i * 4 + 0] = 255;
-			glyphSurfaceData[i * 4 + 1] = 255;
-			glyphSurfaceData[i * 4 + 2] = 255;
-			glyphSurfaceData[i * 4 + 3] = glyphBitmap->buffer[i];
+			memcpy(&glyphSurfaceData[i * glyphSurface->pitch], &glyphBitmap->buffer[i * glyphBitmap->pitch], glyphBitmap->width);
 		}
 
 		SDL_UnlockSurface(glyphSurface);
@@ -347,9 +339,6 @@ int main(int argc, char* argv[])
 		drawPosition.x += glyphSlot->advance.x >> 6;
 		drawPosition.y += glyphSlot->advance.y >> 6;
 	}
-
-	// Save text surface to a file.
-	SDL_SaveBMP(textSurface, "text.bmp");
 
 	// Flip surface.
 	FlipSurface(textSurface);
@@ -401,7 +390,7 @@ int main(int argc, char* argv[])
 
 	// Texture.
 	Texture textTexture;
-	if(!textTexture.Initialize(textSurfaceWidth, textSurfaceHeight, GL_RGBA, textSurface->pixels))
+	if(!textTexture.Initialize(textSurfaceWidth, textSurfaceHeight, GL_RED, textSurface->pixels))
 		return -1;
 
 	//
@@ -485,7 +474,9 @@ int main(int argc, char* argv[])
 		glUseProgram(textShader.GetHandle());
 		glBindVertexArray(textVertexInput.GetHandle());
 
-		glUniformMatrix4fv(textShader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(proj));
+		glm::mat4 world = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, (float)windowHeight - textSurfaceHeight, 0.0f));
+
+		glUniformMatrix4fv(textShader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(proj * world));
 		glUniform1i(textShader.GetUniform("texture"), 0);
 
 		glDrawArrays(GL_TRIANGLES, 0, textVertexBuffer.GetElementCount());

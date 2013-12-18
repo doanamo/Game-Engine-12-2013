@@ -67,10 +67,12 @@ bool Texture::Initialize(int width, int height, GLenum format, const void* data)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	if(format == GL_ALPHA)
+	/*
+	if(format == GL_RED)
 	{
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	}
+	*/
 
 	glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, data);
 
