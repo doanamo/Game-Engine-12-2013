@@ -6,6 +6,7 @@
 #include "Graphics/Shader.hpp"
 #include "Graphics/Buffer.hpp"
 #include "Graphics/VertexInput.hpp"
+#include "Graphics/Texture.hpp"
 
 //
 // Flip Surface
@@ -399,24 +400,9 @@ int main(int argc, char* argv[])
 		return -1;
 
 	// Texture.
-	GLuint textTexture;
-	glGenTextures(1, &textTexture);
-
-	SCOPE_GUARD(glDeleteTextures(1, &textTexture));
-
-	glBindTexture(GL_TEXTURE_2D, textTexture);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
- 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textSurfaceWidth, textSurfaceHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, textSurface->pixels);
-
-	glBindTexture(GL_TEXTURE_2D, 0);
+	Texture textTexture;
+	if(!textTexture.Initialize(textSurfaceWidth, textSurfaceHeight, GL_RGBA, textSurface->pixels))
+		return -1;
 
 	//
 	// Console Frame
@@ -494,7 +480,7 @@ int main(int argc, char* argv[])
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, textTexture);
+		glBindTexture(GL_TEXTURE_2D, textTexture.GetHandle());
 
 		glUseProgram(textShader.GetHandle());
 		glBindVertexArray(textVertexInput.GetHandle());

@@ -134,6 +134,8 @@ Set(SourceFiles_Graphics
 	"${SourceDir}/Graphics/Buffer.cpp"
 	"${SourceDir}/Graphics/VertexInput.hpp"
 	"${SourceDir}/Graphics/VertexInput.cpp"
+	"${SourceDir}/Graphics/Texture.hpp"
+	"${SourceDir}/Graphics/Texture.cpp"
 )
 
 Source_Group("Source\\Graphics" FILES ${SourceFiles_Graphics})
