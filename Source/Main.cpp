@@ -282,7 +282,7 @@ int main(int argc, char* argv[])
 	if(textSurface == nullptr)
 		return -1;
 
-	SDL_FillRect(textSurface, nullptr, SDL_MapRGBA(textSurface->format, 0, 0, 0, 255));
+	SDL_FillRect(textSurface, nullptr, SDL_MapRGBA(textSurface->format, 255, 255, 255, 0));
 
 	SCOPE_GUARD(SDL_FreeSurface(textSurface));
 
@@ -325,10 +325,10 @@ int main(int argc, char* argv[])
 		for(long i = 0; i < glyphBitmap->width * glyphBitmap->rows; ++i)
 		{
 			// RGBA
-			glyphSurfaceData[i * 4 + 0] = glyphBitmap->buffer[i];
-			glyphSurfaceData[i * 4 + 1] = glyphBitmap->buffer[i];
-			glyphSurfaceData[i * 4 + 2] = glyphBitmap->buffer[i];
-			glyphSurfaceData[i * 4 + 3] = 255;
+			glyphSurfaceData[i * 4 + 0] = 255;
+			glyphSurfaceData[i * 4 + 1] = 255;
+			glyphSurfaceData[i * 4 + 2] = 255;
+			glyphSurfaceData[i * 4 + 3] = glyphBitmap->buffer[i];
 		}
 
 		SDL_UnlockSurface(glyphSurface);
@@ -481,7 +481,7 @@ int main(int argc, char* argv[])
 		glViewport(0, 0, windowWidth, windowHeight);
 
 		// Clear the screen.
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClearDepth(1.0f);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -490,6 +490,9 @@ int main(int argc, char* argv[])
 		Context::consoleFrame->Draw();
 		
 		// Draw text.
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, textTexture);
 
@@ -505,6 +508,8 @@ int main(int argc, char* argv[])
 		glUseProgram(0);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
+
+		glDisable(GL_BLEND);
 
 		// Present the window content.
 		SDL_GL_SetSwapInterval(0);
