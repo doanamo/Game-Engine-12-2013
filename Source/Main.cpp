@@ -8,6 +8,44 @@
 #include "Graphics/VertexInput.hpp"
 
 //
+// Flip Surface
+//
+
+void FlipSurface(SDL_Surface* surface)
+{
+	assert(surface != nullptr);
+
+	size_t surfaceRowSize = surface->pitch;
+	size_t surfaceRowLast = surface->pitch * (surface->h - 1);
+
+	// Create temporary row buffer.
+	unsigned char* rowBuffer = new unsigned char[surfaceRowSize];
+
+	SCOPE_GUARD(delete[] rowBuffer);
+
+	// Flip surface line by line.
+	SDL_LockSurface(surface);
+
+	unsigned char* surfaceData = reinterpret_cast<unsigned char*>(surface->pixels);
+
+	for(long i = 0; i < surface->h / 2; ++i)
+	{
+		unsigned long offset = i * surface->pitch;
+
+		// Copy top to temporary.
+		memcpy(&rowBuffer[0], &surfaceData[offset], surfaceRowSize);
+
+		// Copy bottom to top.
+		memcpy(&surfaceData[offset], &surfaceData[surfaceRowLast - offset], surfaceRowSize);
+
+		// Copy temporary to bottom.
+		memcpy(&surfaceData[surfaceRowLast - offset], &rowBuffer[0], surfaceRowSize);
+	}
+
+	SDL_UnlockSurface(surface);
+}
+
+//
 // Console Commands
 //
 
@@ -64,8 +102,8 @@ ConsoleCommand help("help", &CommandHelp, "Prints a description of a command or 
 ConsoleCommand echo("echo", &CommandEcho, "Prints provided arguments in the console.");
 ConsoleCommand quit("quit", &CommandQuit, "Quits the application.");
 
-ConsoleVariable windowWidth("r_width", "1920", "Window width.");
-ConsoleVariable windowHeight("r_height", "1024", "Window height.");
+//ConsoleVariable windowWidth("r_width", "1920", "Window width.");
+//ConsoleVariable windowHeight("r_height", "1024", "Window height.");
 ConsoleVariable mouseSensivity("i_sensivity", "4.2", "Mouse sensivity.");
 ConsoleVariable playerHealth("g_playerhealth", "100", "Current player health.");
 ConsoleVariable playerAlive("g_playeralive", "true", "Is player alive?");
@@ -144,12 +182,15 @@ int main(int argc, char* argv[])
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
  
 	// Create a window.
+	int windowWidth = 1024;
+	int windowHeight = 576;
+
 	SDL_Window* window = SDL_CreateWindow(
 		"Game",
 		SDL_WINDOWPOS_CENTERED,
 		SDL_WINDOWPOS_CENTERED,
-		1024,
-		576,
+		windowWidth,
+		windowHeight,
 		SDL_WINDOW_SHOWN |
 		SDL_WINDOW_RESIZABLE |
 		SDL_WINDOW_OPENGL
@@ -233,10 +274,15 @@ int main(int argc, char* argv[])
 		return -1;
 
 	// Create a text surface.
-	SDL_Surface* textSurface = SDL_CreateRGBSurface(0, 1024, 128, 32, 0, 0, 0, 0);
+	int textSurfaceWidth = 1024;
+	int textSurfaceHeight = 128;
+
+	SDL_Surface* textSurface = SDL_CreateRGBSurface(0, textSurfaceWidth, textSurfaceHeight, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 
 	if(textSurface == nullptr)
 		return -1;
+
+	SDL_FillRect(textSurface, nullptr, SDL_MapRGBA(textSurface->format, 0, 0, 0, 255));
 
 	SCOPE_GUARD(SDL_FreeSurface(textSurface));
 
@@ -262,10 +308,12 @@ int main(int argc, char* argv[])
 		FT_Bitmap* glyphBitmap = &glyphSlot->bitmap;
 
 		// Create a glyph surface.
-		SDL_Surface* glyphSurface = SDL_CreateRGBSurface(0, glyphBitmap->width, glyphBitmap->rows, 32, 0, 0, 0, 0);
+		SDL_Surface* glyphSurface = SDL_CreateRGBSurface(0, glyphBitmap->width, glyphBitmap->rows, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 
 		if(glyphSurface == nullptr)
 			return -1;
+
+		SDL_FillRect(glyphSurface, nullptr, SDL_MapRGBA(textSurface->format, 0, 0, 0, 255));
 
 		SCOPE_GUARD(SDL_FreeSurface(glyphSurface));
 
@@ -276,6 +324,7 @@ int main(int argc, char* argv[])
 
 		for(long i = 0; i < glyphBitmap->width * glyphBitmap->rows; ++i)
 		{
+			// RGBA
 			glyphSurfaceData[i * 4 + 0] = glyphBitmap->buffer[i];
 			glyphSurfaceData[i * 4 + 1] = glyphBitmap->buffer[i];
 			glyphSurfaceData[i * 4 + 2] = glyphBitmap->buffer[i];
@@ -300,6 +349,74 @@ int main(int argc, char* argv[])
 
 	// Save text surface to a file.
 	SDL_SaveBMP(textSurface, "text.bmp");
+
+	// Flip surface.
+	FlipSurface(textSurface);
+
+	//
+	// Test
+	//
+
+	// Projection.
+	glm::mat4x4 proj = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
+
+	// Shader.
+	Shader textShader;
+	if(!textShader.Load(Context::workingDir + "Data/Shaders/Text.glsl"))
+		return -1;
+
+	// Vertex buffer.
+	struct textVertex
+	{
+		glm::vec2 position;
+		glm::vec2 texture;
+	};
+
+	textVertex textBuffer[] =
+	{
+		{ glm::vec2(            0.0f,              0.0f), glm::vec2(0.0f, 0.0f) },
+		{ glm::vec2(textSurfaceWidth,              0.0f), glm::vec2(1.0f, 0.0f) },
+		{ glm::vec2(textSurfaceWidth, textSurfaceHeight), glm::vec2(1.0f, 1.0f) },
+
+		{ glm::vec2(            0.0f,              0.0f), glm::vec2(0.0f, 0.0f) },
+		{ glm::vec2(textSurfaceWidth, textSurfaceHeight), glm::vec2(1.0f, 1.0f) },
+		{ glm::vec2(            0.0f, textSurfaceHeight), glm::vec2(0.0f, 1.0f) },
+	};
+	
+	VertexBuffer textVertexBuffer;
+	if(!textVertexBuffer.Initialize(sizeof(textVertex), StaticArraySize(textBuffer), &textBuffer[0]))
+		return -1;
+
+	// Vertex input.
+	VertexAttribute vertexAttributes[] =
+	{
+		{ 0, &textVertexBuffer, VertexAttributeTypes::Float2 },
+		{ 1, &textVertexBuffer, VertexAttributeTypes::Float2 },
+	};
+
+	VertexInput textVertexInput;
+	if(!textVertexInput.Initialize(&vertexAttributes[0], StaticArraySize(vertexAttributes)))
+		return -1;
+
+	// Texture.
+	GLuint textTexture;
+	glGenTextures(1, &textTexture);
+
+	SCOPE_GUARD(glDeleteTextures(1, &textTexture));
+
+	glBindTexture(GL_TEXTURE_2D, textTexture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+ 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textSurfaceWidth, textSurfaceHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, textSurface->pixels);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	//
 	// Console Frame
@@ -326,8 +443,8 @@ int main(int argc, char* argv[])
 		userProfile.SetString(argv[0]);
 	}
 
-	std::cout << windowWidth.GetName() << " = " << windowWidth.GetString() << std::endl;
-	std::cout << windowHeight.GetName() << " = " << windowHeight.GetString() << std::endl;
+	//std::cout << windowWidth.GetName() << " = " << windowWidth.GetString() << std::endl;
+	//std::cout << windowHeight.GetName() << " = " << windowHeight.GetString() << std::endl;
 	std::cout << mouseSensivity.GetName() << " = " << mouseSensivity.GetString() << std::endl;
 	std::cout << playerHealth.GetName() << " = " << playerHealth.GetString() << std::endl;
 	std::cout << playerAlive.GetName() << " = " << playerAlive.GetString() << std::endl;
@@ -364,13 +481,30 @@ int main(int argc, char* argv[])
 		glViewport(0, 0, windowWidth, windowHeight);
 
 		// Clear the screen.
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClearDepth(1.0f);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Draw console frame.
 		Context::consoleFrame->Draw();
+		
+		// Draw text.
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, textTexture);
+
+		glUseProgram(textShader.GetHandle());
+		glBindVertexArray(textVertexInput.GetHandle());
+
+		glUniformMatrix4fv(textShader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(proj));
+		glUniform1i(textShader.GetUniform("texture"), 0);
+
+		glDrawArrays(GL_TRIANGLES, 0, textVertexBuffer.GetElementCount());
+
+		glBindVertexArray(0);
+		glUseProgram(0);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
 
 		// Present the window content.
 		SDL_GL_SetSwapInterval(0);
