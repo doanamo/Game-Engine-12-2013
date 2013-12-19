@@ -259,12 +259,12 @@ int main(int argc, char* argv[])
 	glm::mat4x4 proj = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
 
 	// Shader.
-	Shader textShader;
-	if(!textShader.Load(Context::workingDir + "Data/Shaders/Text.glsl"))
+	Shader shader;
+	if(!shader.Load(Context::workingDir + "Data/Shaders/Text.glsl"))
 		return -1;
 
 	// Vertex buffer.
-	struct textVertex
+	struct Vertex
 	{
 		glm::vec2 position;
 		glm::vec2 texture;
@@ -273,30 +273,38 @@ int main(int argc, char* argv[])
 	float quadWidth = (float)fontTexture->GetWidth();
 	float quadHeight = (float)fontTexture->GetHeight();
 
-	textVertex textBuffer[] =
+	Vertex vertices[] =
 	{
 		{ glm::vec2(     0.0f,       0.0f), glm::vec2(0.0f, 0.0f) },
 		{ glm::vec2(quadWidth,       0.0f), glm::vec2(1.0f, 0.0f) },
 		{ glm::vec2(quadWidth, quadHeight), glm::vec2(1.0f, 1.0f) },
-
-		{ glm::vec2(     0.0f,       0.0f), glm::vec2(0.0f, 0.0f) },
-		{ glm::vec2(quadWidth, quadHeight), glm::vec2(1.0f, 1.0f) },
 		{ glm::vec2(     0.0f, quadHeight), glm::vec2(0.0f, 1.0f) },
 	};
 	
-	VertexBuffer textVertexBuffer;
-	if(!textVertexBuffer.Initialize(sizeof(textVertex), StaticArraySize(textBuffer), &textBuffer[0]))
+	VertexBuffer vertexBuffer;
+	if(!vertexBuffer.Initialize(sizeof(Vertex), StaticArraySize(vertices), &vertices[0]))
+		return -1;
+
+	// Index buffer.
+	unsigned short indices[] =
+	{
+		0, 1, 2,
+		2, 3, 0,
+	};
+
+	IndexBuffer indexBuffer;
+	if(!indexBuffer.Initialize(sizeof(unsigned short), StaticArraySize(indices), &indices[0]))
 		return -1;
 
 	// Vertex input.
 	VertexAttribute vertexAttributes[] =
 	{
-		{ 0, &textVertexBuffer, VertexAttributeTypes::Float2 },
-		{ 1, &textVertexBuffer, VertexAttributeTypes::Float2 },
+		{ 0, &vertexBuffer, VertexAttributeTypes::Float2 },
+		{ 1, &vertexBuffer, VertexAttributeTypes::Float2 },
 	};
 
-	VertexInput textVertexInput;
-	if(!textVertexInput.Initialize(&vertexAttributes[0], StaticArraySize(vertexAttributes)))
+	VertexInput vertexInput;
+	if(!vertexInput.Initialize(&vertexAttributes[0], StaticArraySize(vertexAttributes)))
 		return -1;
 
 	//
@@ -377,17 +385,18 @@ int main(int argc, char* argv[])
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, fontTexture->GetHandle());
 
-		glUseProgram(textShader.GetHandle());
-		glBindVertexArray(textVertexInput.GetHandle());
+		glUseProgram(shader.GetHandle());
 
 		glm::mat4 world = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, (float)windowHeight - quadHeight, 0.0f));
 
-		glUniformMatrix4fv(textShader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(proj * world));
-		glUniform1i(textShader.GetUniform("texture"), 0);
+		glUniformMatrix4fv(shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(proj * world));
+		glUniform1i(shader.GetUniform("texture"), 0);
 
-		glDrawArrays(GL_TRIANGLES, 0, textVertexBuffer.GetElementCount());
-
+		glBindVertexArray(vertexInput.GetHandle());
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.GetHandle());
+		glDrawElements(GL_TRIANGLES, indexBuffer.GetElementCount(), indexBuffer.GetElementType(), (void*)0);
 		glBindVertexArray(0);
+
 		glUseProgram(0);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
