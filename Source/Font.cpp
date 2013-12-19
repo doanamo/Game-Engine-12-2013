@@ -20,7 +20,7 @@ Font::Font() :
 	m_atlasUpload(false),
 	m_shelfPosition(atlasGlyphSpacing, atlasGlyphSpacing),
 	m_shelfSize(0),
-	m_Initialized(false)
+	m_initialized(false)
 {
 }
 
@@ -107,7 +107,7 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
 
 	Log() << "Loaded font from \"" << filename << "\" file. (Size: " << size << ")";
 
-	return m_Initialized = true;
+	return m_initialized = true;
 }
 
 void Font::Cleanup()
@@ -134,12 +134,12 @@ void Font::Cleanup()
 	FT_Done_Face(m_fontFace);
 	m_fontFace = nullptr;
 
-	m_Initialized = false;
+	m_initialized = false;
 }
 
 void Font::CacheGlyphs(const wchar_t* characters)
 {
-	if(!m_Initialized)
+	if(!m_initialized)
 		return;
 
 	if(characters != nullptr)
@@ -153,7 +153,7 @@ void Font::CacheGlyphs(const wchar_t* characters)
 
 const Glyph* Font::CacheGlyph(FT_ULong character)
 {
-	if(!m_Initialized)
+	if(!m_initialized)
 		return nullptr;
 
 	// Find out if glyph is already cached.
@@ -253,7 +253,7 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
 
 void Font::UpdateAtlasTexture()
 {
-	if(!m_Initialized)
+	if(!m_initialized)
 		return;
 
 	m_atlasTexture.Update(m_atlasSurface->pixels);

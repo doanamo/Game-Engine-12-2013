@@ -22,7 +22,7 @@ Buffer::~Buffer()
 	Cleanup();
 }
 
-bool Buffer::Initialize(unsigned int elementSize, unsigned int elementCount, const void* data)
+bool Buffer::Initialize(unsigned int elementSize, unsigned int elementCount, const void* data, GLenum usage)
 {
 	Cleanup();
 
@@ -53,10 +53,10 @@ bool Buffer::Initialize(unsigned int elementSize, unsigned int elementCount, con
 	}
 
 	// Copy data to the buffer.
-	unsigned int bufferSize = elementSize * elementCount;
+	unsigned int bufferSize = m_elementSize * m_elementCount;
 
 	glBindBuffer(m_type, m_handle);
-	glBufferData(m_type, bufferSize, data, GL_STATIC_DRAW);
+	glBufferData(m_type, bufferSize, data, usage);
 	glBindBuffer(m_type, 0);
 
 	Log() << "Created a buffer. (Size: " << bufferSize << " bytes)";
@@ -73,12 +73,26 @@ void Buffer::Cleanup()
 	m_elementCount = 0;
 }
 
+void Buffer::Update(const void* data)
+{
+	if(m_handle == InvalidHandle)
+		return;
+
+	if(data == nullptr)
+		return;
+
+	// Upload new buffer data.
+	glBindBuffer(m_type, m_handle);
+	glBufferSubData(m_type, 0, m_elementSize * m_elementCount, data);
+	glBindBuffer(m_type, 0);
+}
+
 bool Buffer::IsValid() const
 {
 	return m_handle != InvalidHandle;
 }
 
-GLenum Buffer::GetElementType() const
+GLenum IndexBuffer::GetElementType() const
 {
 	if(m_type == GL_ELEMENT_ARRAY_BUFFER)
 	{

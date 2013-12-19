@@ -60,5 +60,5 @@ private:
 	glm::ivec2	m_shelfPosition;
 	int			m_shelfSize;
 
-	bool m_Initialized;
+	bool m_initialized;
 };

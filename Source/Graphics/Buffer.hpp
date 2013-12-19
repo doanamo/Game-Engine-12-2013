@@ -8,15 +8,19 @@
 
 class Buffer
 {
-public:
+protected:
 	Buffer(GLenum type);
 	virtual ~Buffer();
 
+public:
 	// Initializes the buffer.
-	bool Initialize(unsigned int elementSize, unsigned int elementCount, const void* data);
+	bool Initialize(unsigned int elementSize, unsigned int elementCount, const void* data, GLenum usage = GL_STATIC_DRAW);
 
 	// Restores class instance to it's original state.
 	void Cleanup();
+
+	// Update buffer data.
+	void Update(const void* data);
 
 	// Checks if the buffer is valid.
 	bool IsValid() const;
@@ -48,7 +52,7 @@ public:
 	// Gets the buffer element type.
 	GLenum GetElementType() const;
 
-private:
+protected:
 	GLenum m_type;
 	GLuint m_handle;
 
@@ -80,4 +84,6 @@ public:
 		Buffer(GL_ELEMENT_ARRAY_BUFFER)
 	{
 	}
+
+	GLenum GetElementType() const;
 };
