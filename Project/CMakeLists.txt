@@ -96,6 +96,8 @@ Set(SourceFiles_Main
 	"${SourceDir}/Context.cpp"
 	"${SourceDir}/Logger.hpp"
 	"${SourceDir}/Logger.cpp"
+	"${SourceDir}/Font.hpp"
+	"${SourceDir}/Font.cpp"
 )
 
 Source_Group("Source" FILES ${SourceFiles_Main})

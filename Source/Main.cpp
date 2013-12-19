@@ -8,6 +8,7 @@
 #include "Graphics/VertexInput.hpp"
 #include "Graphics/Texture.hpp"
 
+#include "Font.hpp"
 
 //
 // Console Commands
@@ -216,6 +217,21 @@ int main(int argc, char* argv[])
 	}
 
 	SCOPE_GUARD(FT_Done_FreeType(fontLibrary));
+
+	// Make instance current.
+	Context::Private::fontLibrary = fontLibrary;
+
+	SCOPE_GUARD(Context::Private::fontLibrary = nullptr);
+
+	//
+	// Font
+	//
+
+	Font font;
+	if(!font.Load(Context::workingDir + "Data/Fonts/SourceSansPro.ttf", 64, 512, 256))
+		return -1;
+
+	font.CacheGlyphs(L"Hello world! Test: �����ꀳ� :) -][2}{ 1234567890");
 
 	//
 	// Test

@@ -1,0 +1,253 @@
+#include "Precompiled.hpp"
+#include "Font.hpp"
+
+namespace
+{
+	// Log error messages.
+	#define LogLoadError(filename) "Failed to load a font from \"" << filename << "\" file! "
+
+	// Spacing between characters on the atlas (to avoid filtering artifacts).
+	const int atlasGlyphSpacing = 1;
+}
+
+Font::Font() :
+	m_fontFace(nullptr),
+	m_glyphCache(),
+	m_atlasWidth(0),
+	m_atlasHeight(0),
+	m_atlasSurface(nullptr),
+	m_atlasTexture(),
+	m_atlasUpload(false),
+	m_shelfPosition(atlasGlyphSpacing, atlasGlyphSpacing),
+	m_shelfSize(0)
+{
+}
+
+Font::~Font()
+{
+	Cleanup();
+}
+
+bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
+{
+	Cleanup();
+
+	assert(Context::Private::fontLibrary);
+
+	// Validate arguments.
+	if(filename.empty())
+	{
+		Log() << LogLoadError(filename) << "Invalid argument - \"filename\" is invalid.";
+		return false;
+	}
+
+	if(size <= 0)
+	{
+		Log() << LogLoadError(filename) << "Invalid argument - \"size\" is invalid.";
+		return false;
+	}
+
+	if(atlasWidth <= 0)
+	{
+		Log() << LogLoadError(filename) << "Invalid argument - \"atlasWidth\" is invalid.";
+		return false;
+	}
+
+	if(atlasHeight <= 0)
+	{
+		Log() << LogLoadError(filename) << "Invalid argument - \"atlasHeight\" is invalid.";
+		return false;
+	}
+
+	m_atlasWidth = atlasWidth;
+	m_atlasHeight = atlasHeight;
+
+	// Load font face.
+	if(FT_New_Face(Context::Private::fontLibrary, filename.c_str(), 0, &m_fontFace) != 0)
+	{
+		Log() << LogLoadError(filename) << "Couldn't load the font.";
+		Cleanup();
+		return false;
+	}
+
+	// Set font encoding.
+	if(FT_Select_Charmap(m_fontFace, FT_ENCODING_UNICODE) != 0)
+	{
+		Log() << LogLoadError(filename) << "Couldn't set font encoding.";
+		Cleanup();
+		return false;
+	}
+
+	// Set font size.
+	if(FT_Set_Pixel_Sizes(m_fontFace, 0, size) != 0)
+	{
+		Log() << LogLoadError(filename) << "Couldn't set font size.";
+		Cleanup();
+		return false;
+	}
+
+	// Create font atlas surface.
+	m_atlasSurface = SDL_CreateRGBSurface(0, m_atlasWidth, m_atlasHeight, 8, 0, 0, 0, 0);
+
+	if(m_atlasSurface == nullptr)
+	{
+		Log() << LogLoadError(filename) << "Couldn't create atlas surface.";
+		Cleanup();
+		return false;
+	}
+
+	// Create font atlas texture.
+	if(!m_atlasTexture.Initialize(m_atlasWidth, m_atlasHeight, GL_RED, nullptr))
+	{
+		Log() << LogLoadError(filename) << "Couldn't create atlas texture.";
+		Cleanup();
+		return false;
+	}
+
+	Log() << "Loaded font from \"" << filename << "\" file. (Size: " << size << ")";
+
+	return true;
+}
+
+void Font::Cleanup()
+{
+	// Cleanup atlas shelf.
+	m_shelfPosition = glm::ivec2(atlasGlyphSpacing, atlasGlyphSpacing);
+	m_shelfSize = 0;
+
+	// Cleanup font atlas.
+	m_atlasWidth = 0;
+	m_atlasHeight = 0;
+
+	SDL_FreeSurface(m_atlasSurface);
+	m_atlasSurface = nullptr;
+
+	m_atlasTexture.Cleanup();
+
+	m_atlasUpload = false;
+
+	// Cleanup glyph registry.
+	ClearContainer(m_glyphCache);
+
+	// Cleanup loaded font.
+	FT_Done_Face(m_fontFace);
+	m_fontFace = nullptr;
+}
+
+void Font::CacheGlyphs(const wchar_t* characters)
+{
+	if(characters != nullptr)
+	{
+		for(size_t i = 0; i < std::wcslen(characters); ++i)
+		{
+			CacheGlyph(characters[i]);
+		}
+	}
+}
+
+const Glyph* Font::CacheGlyph(FT_ULong character)
+{
+	assert(m_fontFace);
+
+	// Find out if glyph is already cached.
+	auto it = m_glyphCache.find(character);
+
+	if(it != m_glyphCache.end())
+	{
+		return &it->second;
+	}
+
+	// Load font glyph.
+	FT_ULong glyphIndex = FT_Get_Char_Index(m_fontFace, character);
+
+	if(FT_Load_Glyph(m_fontFace, glyphIndex, FT_LOAD_DEFAULT) != 0)
+		return nullptr;
+
+	FT_GlyphSlot glyphSlot = m_fontFace->glyph;
+
+	// Render font glyph.
+	if(FT_Render_Glyph(m_fontFace->glyph, FT_RENDER_MODE_NORMAL) != 0)
+		return nullptr;
+
+	FT_Bitmap* glyphBitmap = &glyphSlot->bitmap;
+
+	// Create a glyph surface.
+	// Todo: Allocated a surface that can hold all glyph bitmaps once.
+	SDL_Surface* glyphSurface = SDL_CreateRGBSurface(0, glyphBitmap->width, glyphBitmap->rows, 8, 0, 0, 0, 0);
+
+	if(glyphSurface == nullptr)
+		return nullptr;
+
+	SCOPE_GUARD(SDL_FreeSurface(glyphSurface));
+
+	// Copy glyph pixels.
+	SDL_LockSurface(glyphSurface);
+
+	unsigned char* glyphSurfaceData = reinterpret_cast<unsigned char*>(glyphSurface->pixels);
+
+	for(long i = 0; i < glyphBitmap->rows; ++i)
+	{
+		memcpy(&glyphSurfaceData[i * glyphSurface->pitch], &glyphBitmap->buffer[i * glyphBitmap->pitch], glyphBitmap->width);
+	}
+
+	SDL_UnlockSurface(glyphSurface);
+
+	// Flip glyph surface (we will draw upside down on SDL surface).
+	FlipSurface(glyphSurface);
+
+	// Check space on the current shelf.
+	if(m_shelfPosition.x + glyphBitmap->width + atlasGlyphSpacing > m_atlasWidth)
+	{
+		// Move to next shelf.
+		m_shelfPosition.x = atlasGlyphSpacing;
+		m_shelfPosition.y = m_shelfPosition.y + m_shelfSize + atlasGlyphSpacing;
+		m_shelfSize = 0;
+	}
+
+	if(m_shelfPosition.y + glyphBitmap->rows + atlasGlyphSpacing > m_atlasHeight)
+	{
+		// Not enough space on the atlas for this glyph.
+		return nullptr;
+	}
+
+	// Draw glyph surface on the atlas.
+	SDL_Rect drawRect;
+	drawRect.x = m_shelfPosition.x;
+	drawRect.y = m_shelfPosition.y;
+	drawRect.w = glyphBitmap->width;
+	drawRect.h = glyphBitmap->rows;
+
+	SDL_BlitSurface(glyphSurface, nullptr, m_atlasSurface, &drawRect);
+
+	// Update current shelf position and size.
+	m_shelfPosition.x += glyphBitmap->width + atlasGlyphSpacing;
+
+	m_shelfSize = std::max(m_shelfSize, glyphBitmap->rows);
+
+	// Fill glyph structure.
+	glm::vec2 pixelSize(1.0f / m_atlasWidth, 1.0f / m_atlasHeight);
+
+	Glyph glyph;
+	glyph.drawingOffset.x = glyphSlot->bitmap_left;
+	glyph.drawingOffset.y = glyphSlot->bitmap_top;
+	glyph.drawingAdvance.x = glyphSlot->advance.x >> 6;
+	glyph.drawingAdvance.y = glyphSlot->advance.y >> 6;
+	glyph.textureCoords.x = drawRect.x * pixelSize.x;
+	glyph.textureCoords.y = drawRect.y * pixelSize.y;
+	glyph.textureCoords.z = drawRect.w * pixelSize.x;
+	glyph.textureCoords.w = drawRect.h * pixelSize.y;
+
+	// Debug output.
+	//SaveSurface(m_atlasSurface, "atlas.bmp");
+
+	// Add glyph to the cache.
+	auto result = m_glyphCache.insert(std::make_pair(character, glyph));
+
+	// Return inserted glyph.
+	return &result.first->second;
+}
+
+void Font::UpdateAtlasTexture()
+{
+	// TODO
+}
