@@ -8,43 +8,6 @@
 #include "Graphics/VertexInput.hpp"
 #include "Graphics/Texture.hpp"
 
-//
-// Flip Surface
-//
-
-void FlipSurface(SDL_Surface* surface)
-{
-	assert(surface != nullptr);
-
-	size_t surfaceRowSize = surface->pitch;
-	size_t surfaceRowLast = surface->pitch * (surface->h - 1);
-
-	// Create temporary row buffer.
-	unsigned char* rowBuffer = new unsigned char[surfaceRowSize];
-
-	SCOPE_GUARD(delete[] rowBuffer);
-
-	// Flip surface line by line.
-	SDL_LockSurface(surface);
-
-	unsigned char* surfaceData = reinterpret_cast<unsigned char*>(surface->pixels);
-
-	for(long i = 0; i < surface->h / 2; ++i)
-	{
-		unsigned long offset = i * surface->pitch;
-
-		// Copy top to temporary.
-		memcpy(&rowBuffer[0], &surfaceData[offset], surfaceRowSize);
-
-		// Copy bottom to top.
-		memcpy(&surfaceData[offset], &surfaceData[surfaceRowLast - offset], surfaceRowSize);
-
-		// Copy temporary to bottom.
-		memcpy(&surfaceData[surfaceRowLast - offset], &rowBuffer[0], surfaceRowSize);
-	}
-
-	SDL_UnlockSurface(surface);
-}
 
 //
 // Console Commands

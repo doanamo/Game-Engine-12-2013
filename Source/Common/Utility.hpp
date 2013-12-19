@@ -1,7 +1,6 @@
 #pragma once
 
-#include <string>
-#include <vector>
+#include "Precompiled.hpp"
 
 // Gets the size of a static array.
 template<typename Type, size_t Size>
@@ -23,3 +22,9 @@ std::string GetTextFileContent(std::string filename);
 
 // Gest the content of a binary file.
 std::vector<char> GetBinaryFileContent(std::string filename);
+
+// Flips SDL surface upside down.
+void FlipSurface(SDL_Surface* surface);
+
+// Saves SDL surface to a file.
+void SaveSurface(SDL_Surface* surface, std::string filename);
