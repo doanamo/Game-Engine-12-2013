@@ -39,12 +39,6 @@ bool Texture::Initialize(int width, int height, GLenum format, const void* data)
 		return false;
 	}
 
-	if(data == nullptr)
-	{
-		Log() << LogInitializeError() << "Invalid argument - \"data\" is null.";
-		return false;
-	}
-
 	m_width = width;
 	m_height = height;
 
@@ -58,15 +52,17 @@ bool Texture::Initialize(int width, int height, GLenum format, const void* data)
 		return false;
 	}
 
-	// Copy pixel data.
+	// Bind the texture.
 	glBindTexture(GL_TEXTURE_2D, m_handle);
 
+	// Set default sampling parameters.
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
  
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+	// Set packing aligment for provided data.
 	/*
 	if(format == GL_RED)
 	{
@@ -74,8 +70,10 @@ bool Texture::Initialize(int width, int height, GLenum format, const void* data)
 	}
 	*/
 
+	// Allocated a texture surface on the hardware.
 	glTexImage2D(GL_TEXTURE_2D, 0, format, m_width, m_height, 0, format, GL_UNSIGNED_BYTE, data);
 
+	// Unbind the texture.
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	return true;

@@ -4,7 +4,7 @@
 namespace
 {
 	// Log error message.
-	#define LogLoadError(Filename) "Failed to load a shader from \"" << Filename << " file! "
+	#define LogLoadError(filename) "Failed to load a shader from \"" << filename << " file! "
 
 	// Shader constants.
 	const GLuint	InvalidHandle		= 0;
