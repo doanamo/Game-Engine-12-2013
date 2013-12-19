@@ -15,6 +15,8 @@ public:
 	bool Initialize(int width, int height, GLenum format, const void* data);
 	void Cleanup();
 
+	void Update(const void* data);
+
 	GLuint GetHandle() const
 	{
 		return m_handle;
@@ -35,4 +37,6 @@ private:
 
 	int m_width;
 	int m_height;
+
+	GLenum m_format;
 };

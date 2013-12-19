@@ -59,4 +59,6 @@ private:
 	// Current shelf used for packing glyphs.
 	glm::ivec2	m_shelfPosition;
 	int			m_shelfSize;
+
+	bool m_Initialized;
 };

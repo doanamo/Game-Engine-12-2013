@@ -13,7 +13,8 @@ namespace
 Texture::Texture() :
 	m_handle(InvalidHandle),
 	m_width(0),
-	m_height(0)
+	m_height(0),
+	m_format(GL_INVALID_ENUM)
 {
 }
 
@@ -41,6 +42,7 @@ bool Texture::Initialize(int width, int height, GLenum format, const void* data)
 
 	m_width = width;
 	m_height = height;
+	m_format = format;
 
 	// Create a texture handle.
 	glGenTextures(1, &m_handle);
@@ -86,4 +88,22 @@ void Texture::Cleanup()
 
 	m_width = 0;
 	m_height = 0;
+
+	m_format = GL_INVALID_ENUM;
+}
+
+void Texture::Update(const void* data)
+{
+	if(m_handle == InvalidHandle)
+		return;
+
+	if(data == nullptr)
+		return;
+
+	// Upload new texture data.
+	glBindTexture(GL_TEXTURE_2D, m_handle);
+
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, m_format, GL_UNSIGNED_BYTE, data);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 }

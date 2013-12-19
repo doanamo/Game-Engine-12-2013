@@ -224,103 +224,32 @@ int main(int argc, char* argv[])
 	SCOPE_GUARD(Context::Private::fontLibrary = nullptr);
 
 	//
+	// Text Renderer
+	//
+
+	//
 	// Font
 	//
 
+	// Load font file.
 	Font font;
-	if(!font.Load(Context::workingDir + "Data/Fonts/SourceSansPro.ttf", 64, 512, 256))
+	if(!font.Load(Context::workingDir + "Data/Fonts/SourceSansPro.ttf", 64, 512, 512))
 		return -1;
+	
+	// Cache ASCII character set.
+	std::wstring ascii;
 
-	font.CacheGlyphs(L"Hello world! Test: ï¿½ï¿½ï¿½ï¿½ï¿½ê€³ï¿½ :) -][2}{ 1234567890");
-
-	//
-	// Test
-	//
-
-	// Load a font file.
-	FT_Face fontFace;
-
-	if(FT_New_Face(fontLibrary, std::string(Context::workingDir + "Data/Fonts/SourceSansPro.ttf").c_str(), 0, &fontFace) != 0)
-		return -1;
-
-	SCOPE_GUARD(FT_Done_Face(fontFace));
-
-	// Set font encoding.
-	if(FT_Select_Charmap(fontFace, FT_ENCODING_UNICODE) != 0)
-		return -1;
-
-	// Set font size.
-	if(FT_Set_Char_Size(fontFace, 0, 64 * 64, 72, 72) != 0)
-		return -1;
-
-	// Create a text surface.
-	int textSurfaceWidth = 1024;
-	int textSurfaceHeight = 128;
-
-	SDL_Surface* textSurface = SDL_CreateRGBSurface(0, textSurfaceWidth, textSurfaceHeight, 8, 0, 0, 0, 0);
-
-	if(textSurface == nullptr)
-		return -1;
-
-	SCOPE_GUARD(SDL_FreeSurface(textSurface));
-
-	// Draw text glyphs.
-	wchar_t* text = L"Hello world! Test: œŸ³óæ¹ê€³æ :)";
-
-	glm::ivec2 drawPosition(0, 64);
-
-	for(std::size_t i = 0; i < std::wcslen(text); ++i)
+	for(int i = 33; i <= 126; ++i)
 	{
-		// Load font glyph.
-		FT_ULong glyphIndex = FT_Get_Char_Index(fontFace, text[i]);
-
-		if(FT_Load_Glyph(fontFace, glyphIndex, FT_LOAD_DEFAULT) != 0)
-			return -1;
-
-		FT_GlyphSlot glyphSlot = fontFace->glyph;
-
-		// Render font glyph.
-		if(FT_Render_Glyph(fontFace->glyph, FT_RENDER_MODE_NORMAL) != 0)
-			return -1;
-
-		FT_Bitmap* glyphBitmap = &glyphSlot->bitmap;
-
-		// Create a glyph surface.
-		SDL_Surface* glyphSurface = SDL_CreateRGBSurface(0, glyphBitmap->width, glyphBitmap->rows, 8, 0, 0, 0, 0);
-
-		if(glyphSurface == nullptr)
-			return -1;
-
-		SCOPE_GUARD(SDL_FreeSurface(glyphSurface));
-
-		// Copy glyph pixels.
-		SDL_LockSurface(glyphSurface);
-
-		unsigned char* glyphSurfaceData = reinterpret_cast<unsigned char*>(glyphSurface->pixels);
-
-		for(long i = 0; i < glyphBitmap->rows; ++i)
-		{
-			memcpy(&glyphSurfaceData[i * glyphSurface->pitch], &glyphBitmap->buffer[i * glyphBitmap->pitch], glyphBitmap->width);
-		}
-
-		SDL_UnlockSurface(glyphSurface);
-
-		// Draw glyph surface.
-		SDL_Rect rect;
-		rect.x = drawPosition.x + glyphSlot->bitmap_left;
-		rect.y = drawPosition.y - glyphSlot->bitmap_top;
-		rect.w = glyphBitmap->width;
-		rect.h = glyphBitmap->rows;
-
-		SDL_BlitSurface(glyphSurface, nullptr, textSurface, &rect);
-
-		// Advance drawing position.
-		drawPosition.x += glyphSlot->advance.x >> 6;
-		drawPosition.y += glyphSlot->advance.y >> 6;
+		ascii.push_back((wchar_t)i);
 	}
 
-	// Flip surface.
-	FlipSurface(textSurface);
+	font.CacheGlyphs(ascii.c_str());
+
+	// Update the atlas texture.
+	font.UpdateAtlasTexture();
+
+	const Texture* fontTexture = font.GetTexture();
 
 	//
 	// Test
@@ -341,15 +270,18 @@ int main(int argc, char* argv[])
 		glm::vec2 texture;
 	};
 
+	float quadWidth = (float)fontTexture->GetWidth();
+	float quadHeight = (float)fontTexture->GetHeight();
+
 	textVertex textBuffer[] =
 	{
-		{ glm::vec2(            0.0f,              0.0f), glm::vec2(0.0f, 0.0f) },
-		{ glm::vec2(textSurfaceWidth,              0.0f), glm::vec2(1.0f, 0.0f) },
-		{ glm::vec2(textSurfaceWidth, textSurfaceHeight), glm::vec2(1.0f, 1.0f) },
+		{ glm::vec2(     0.0f,       0.0f), glm::vec2(0.0f, 0.0f) },
+		{ glm::vec2(quadWidth,       0.0f), glm::vec2(1.0f, 0.0f) },
+		{ glm::vec2(quadWidth, quadHeight), glm::vec2(1.0f, 1.0f) },
 
-		{ glm::vec2(            0.0f,              0.0f), glm::vec2(0.0f, 0.0f) },
-		{ glm::vec2(textSurfaceWidth, textSurfaceHeight), glm::vec2(1.0f, 1.0f) },
-		{ glm::vec2(            0.0f, textSurfaceHeight), glm::vec2(0.0f, 1.0f) },
+		{ glm::vec2(     0.0f,       0.0f), glm::vec2(0.0f, 0.0f) },
+		{ glm::vec2(quadWidth, quadHeight), glm::vec2(1.0f, 1.0f) },
+		{ glm::vec2(     0.0f, quadHeight), glm::vec2(0.0f, 1.0f) },
 	};
 	
 	VertexBuffer textVertexBuffer;
@@ -365,11 +297,6 @@ int main(int argc, char* argv[])
 
 	VertexInput textVertexInput;
 	if(!textVertexInput.Initialize(&vertexAttributes[0], StaticArraySize(vertexAttributes)))
-		return -1;
-
-	// Texture.
-	Texture textTexture;
-	if(!textTexture.Initialize(textSurfaceWidth, textSurfaceHeight, GL_RED, textSurface->pixels))
 		return -1;
 
 	//
@@ -448,12 +375,12 @@ int main(int argc, char* argv[])
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, textTexture.GetHandle());
+		glBindTexture(GL_TEXTURE_2D, fontTexture->GetHandle());
 
 		glUseProgram(textShader.GetHandle());
 		glBindVertexArray(textVertexInput.GetHandle());
 
-		glm::mat4 world = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, (float)windowHeight - textSurfaceHeight, 0.0f));
+		glm::mat4 world = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, (float)windowHeight - quadHeight, 0.0f));
 
 		glUniformMatrix4fv(textShader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(proj * world));
 		glUniform1i(textShader.GetUniform("texture"), 0);

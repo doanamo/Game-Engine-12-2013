@@ -19,7 +19,8 @@ Font::Font() :
 	m_atlasTexture(),
 	m_atlasUpload(false),
 	m_shelfPosition(atlasGlyphSpacing, atlasGlyphSpacing),
-	m_shelfSize(0)
+	m_shelfSize(0),
+	m_Initialized(false)
 {
 }
 
@@ -106,7 +107,7 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
 
 	Log() << "Loaded font from \"" << filename << "\" file. (Size: " << size << ")";
 
-	return true;
+	return m_Initialized = true;
 }
 
 void Font::Cleanup()
@@ -132,10 +133,15 @@ void Font::Cleanup()
 	// Cleanup loaded font.
 	FT_Done_Face(m_fontFace);
 	m_fontFace = nullptr;
+
+	m_Initialized = false;
 }
 
 void Font::CacheGlyphs(const wchar_t* characters)
 {
+	if(!m_Initialized)
+		return;
+
 	if(characters != nullptr)
 	{
 		for(size_t i = 0; i < std::wcslen(characters); ++i)
@@ -147,7 +153,8 @@ void Font::CacheGlyphs(const wchar_t* characters)
 
 const Glyph* Font::CacheGlyph(FT_ULong character)
 {
-	assert(m_fontFace);
+	if(!m_Initialized)
+		return nullptr;
 
 	// Find out if glyph is already cached.
 	auto it = m_glyphCache.find(character);
@@ -237,9 +244,6 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
 	glyph.textureCoords.z = drawRect.w * pixelSize.x;
 	glyph.textureCoords.w = drawRect.h * pixelSize.y;
 
-	// Debug output.
-	//SaveSurface(m_atlasSurface, "atlas.bmp");
-
 	// Add glyph to the cache.
 	auto result = m_glyphCache.insert(std::make_pair(character, glyph));
 
@@ -249,5 +253,8 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
 
 void Font::UpdateAtlasTexture()
 {
-	// TODO
+	if(!m_Initialized)
+		return;
+
+	m_atlasTexture.Update(m_atlasSurface->pixels);
 }
