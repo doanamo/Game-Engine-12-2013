@@ -9,6 +9,7 @@
 #include "Graphics/Texture.hpp"
 
 #include "Font.hpp"
+#include "TextRenderer.hpp"
 
 //
 // Console Commands
@@ -227,6 +228,10 @@ int main(int argc, char* argv[])
 	// Text Renderer
 	//
 
+	TextRenderer textRenderer;
+	if(!textRenderer.Initialize(32))
+		return -1;
+
 	//
 	// Font
 	//
@@ -246,66 +251,12 @@ int main(int argc, char* argv[])
 
 	font.CacheGlyphs(ascii.c_str());
 
-	// Update the atlas texture.
-	font.UpdateAtlasTexture();
-
-	const Texture* fontTexture = font.GetTexture();
-
 	//
 	// Test
 	//
 
 	// Projection.
-	glm::mat4x4 proj = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
-
-	// Shader.
-	Shader shader;
-	if(!shader.Load(Context::workingDir + "Data/Shaders/Text.glsl"))
-		return -1;
-
-	// Vertex buffer.
-	struct Vertex
-	{
-		glm::vec2 position;
-		glm::vec2 texture;
-	};
-
-	float quadWidth = (float)fontTexture->GetWidth();
-	float quadHeight = (float)fontTexture->GetHeight();
-
-	Vertex vertices[] =
-	{
-		{ glm::vec2(     0.0f,       0.0f), glm::vec2(0.0f, 0.0f) },
-		{ glm::vec2(quadWidth,       0.0f), glm::vec2(1.0f, 0.0f) },
-		{ glm::vec2(quadWidth, quadHeight), glm::vec2(1.0f, 1.0f) },
-		{ glm::vec2(     0.0f, quadHeight), glm::vec2(0.0f, 1.0f) },
-	};
-	
-	VertexBuffer vertexBuffer;
-	if(!vertexBuffer.Initialize(sizeof(Vertex), StaticArraySize(vertices), &vertices[0]))
-		return -1;
-
-	// Index buffer.
-	unsigned short indices[] =
-	{
-		0, 1, 2,
-		2, 3, 0,
-	};
-
-	IndexBuffer indexBuffer;
-	if(!indexBuffer.Initialize(sizeof(unsigned short), StaticArraySize(indices), &indices[0]))
-		return -1;
-
-	// Vertex input.
-	VertexAttribute vertexAttributes[] =
-	{
-		{ 0, &vertexBuffer, VertexAttributeTypes::Float2 },
-		{ 1, &vertexBuffer, VertexAttributeTypes::Float2 },
-	};
-
-	VertexInput vertexInput;
-	if(!vertexInput.Initialize(&vertexAttributes[0], StaticArraySize(vertexAttributes)))
-		return -1;
+	glm::mat4x4 projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
 
 	//
 	// Console Frame
@@ -379,29 +330,7 @@ int main(int argc, char* argv[])
 		Context::consoleFrame->Draw();
 		
 		// Draw text.
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, fontTexture->GetHandle());
-
-		glUseProgram(shader.GetHandle());
-
-		glm::mat4 world = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, (float)windowHeight - quadHeight, 0.0f));
-
-		glUniformMatrix4fv(shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(proj * world));
-		glUniform1i(shader.GetUniform("texture"), 0);
-
-		glBindVertexArray(vertexInput.GetHandle());
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer.GetHandle());
-		glDrawElements(GL_TRIANGLES, indexBuffer.GetElementCount(), indexBuffer.GetElementType(), (void*)0);
-		glBindVertexArray(0);
-
-		glUseProgram(0);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-		glDisable(GL_BLEND);
+		textRenderer.Draw(&font, glm::vec2(10.0f, 10.0f), projection, L"Hello world!!! Ggqujf :) ŒœÊe¥¹€£³Óóæ");
 
 		// Present the window content.
 		SDL_GL_SetSwapInterval(0);

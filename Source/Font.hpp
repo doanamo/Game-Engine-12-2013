@@ -9,9 +9,10 @@
 
 struct Glyph
 {
-	glm::ivec2 drawingOffset;
-	glm::ivec2 drawingAdvance;
-	glm::vec4 textureCoords;
+	glm::ivec2 position;
+	glm::ivec2 size;
+	glm::ivec2 offset;
+	glm::ivec2 advance;
 };
 
 //
@@ -35,6 +36,21 @@ public:
 
 	const Glyph* GetGlyph(FT_ULong character);
 
+	int GetAtlasWidth() const
+	{
+		return m_atlasWidth;
+	}
+
+	int GetAtlasHeight() const
+	{
+		return m_atlasHeight;
+	}
+
+	const SDL_Surface* GetSurface() const
+	{
+		return m_atlasSurface;
+	}
+
 	const Texture* GetTexture() const
 	{
 		return &m_atlasTexture;
@@ -47,7 +63,8 @@ private:
 	FT_Face m_fontFace;
 
 	// Glyph registry.
-	GlyphCache m_glyphCache;
+	GlyphCache		m_glyphCache;
+	const Glyph*	m_glyphDefault;
 
 	// Font atlas where glyphs are stores.
 	int				m_atlasWidth;

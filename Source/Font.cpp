@@ -7,18 +7,22 @@ namespace
 	#define LogLoadError(filename) "Failed to load a font from \"" << filename << "\" file! "
 
 	// Spacing between characters on the atlas (to avoid filtering artifacts).
-	const int atlasGlyphSpacing = 1;
+	const int AtlasGlyphSpacing = 1;
+
+	// Default glyph code if caching fails.
+	FT_ULong DefaultGlyph = '?';
 }
 
 Font::Font() :
 	m_fontFace(nullptr),
 	m_glyphCache(),
+	m_glyphDefault(nullptr),
 	m_atlasWidth(0),
 	m_atlasHeight(0),
 	m_atlasSurface(nullptr),
 	m_atlasTexture(),
 	m_atlasUpload(false),
-	m_shelfPosition(atlasGlyphSpacing, atlasGlyphSpacing),
+	m_shelfPosition(AtlasGlyphSpacing, AtlasGlyphSpacing),
 	m_shelfSize(0),
 	m_initialized(false)
 {
@@ -105,15 +109,29 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
 		return false;
 	}
 
+	// Set initialized state.
+	m_initialized = true;
+
+	// Cache the default glyph.
+	m_glyphDefault = CacheGlyph(DefaultGlyph);
+
+	if(m_glyphDefault == nullptr)
+	{
+		Log() << LogLoadError(filename) << "Couldn't cache the default glyph.";
+		Cleanup();
+		return false;
+	}
+
+	// Success!
 	Log() << "Loaded font from \"" << filename << "\" file. (Size: " << size << ")";
 
-	return m_initialized = true;
+	return true;
 }
 
 void Font::Cleanup()
 {
 	// Cleanup atlas shelf.
-	m_shelfPosition = glm::ivec2(atlasGlyphSpacing, atlasGlyphSpacing);
+	m_shelfPosition = glm::ivec2(AtlasGlyphSpacing, AtlasGlyphSpacing);
 	m_shelfSize = 0;
 
 	// Cleanup font atlas.
@@ -129,6 +147,8 @@ void Font::Cleanup()
 
 	// Cleanup glyph registry.
 	ClearContainer(m_glyphCache);
+
+	m_glyphDefault = nullptr;
 
 	// Cleanup loaded font.
 	FT_Done_Face(m_fontFace);
@@ -203,15 +223,15 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
 	FlipSurface(glyphSurface);
 
 	// Check space on the current shelf.
-	if(m_shelfPosition.x + glyphBitmap->width + atlasGlyphSpacing > m_atlasWidth)
+	if(m_shelfPosition.x + glyphBitmap->width + AtlasGlyphSpacing > m_atlasWidth)
 	{
 		// Move to next shelf.
-		m_shelfPosition.x = atlasGlyphSpacing;
-		m_shelfPosition.y = m_shelfPosition.y + m_shelfSize + atlasGlyphSpacing;
+		m_shelfPosition.x = AtlasGlyphSpacing;
+		m_shelfPosition.y = m_shelfPosition.y + m_shelfSize + AtlasGlyphSpacing;
 		m_shelfSize = 0;
 	}
 
-	if(m_shelfPosition.y + glyphBitmap->rows + atlasGlyphSpacing > m_atlasHeight)
+	if(m_shelfPosition.y + glyphBitmap->rows + AtlasGlyphSpacing > m_atlasHeight)
 	{
 		// Not enough space on the atlas for this glyph.
 		return nullptr;
@@ -227,7 +247,7 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
 	SDL_BlitSurface(glyphSurface, nullptr, m_atlasSurface, &drawRect);
 
 	// Update current shelf position and size.
-	m_shelfPosition.x += glyphBitmap->width + atlasGlyphSpacing;
+	m_shelfPosition.x += glyphBitmap->width + AtlasGlyphSpacing;
 
 	m_shelfSize = std::max(m_shelfSize, glyphBitmap->rows);
 
@@ -235,14 +255,14 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
 	glm::vec2 pixelSize(1.0f / m_atlasWidth, 1.0f / m_atlasHeight);
 
 	Glyph glyph;
-	glyph.drawingOffset.x = glyphSlot->bitmap_left;
-	glyph.drawingOffset.y = glyphSlot->bitmap_top;
-	glyph.drawingAdvance.x = glyphSlot->advance.x >> 6;
-	glyph.drawingAdvance.y = glyphSlot->advance.y >> 6;
-	glyph.textureCoords.x = drawRect.x * pixelSize.x;
-	glyph.textureCoords.y = drawRect.y * pixelSize.y;
-	glyph.textureCoords.z = drawRect.w * pixelSize.x;
-	glyph.textureCoords.w = drawRect.h * pixelSize.y;
+	glyph.position.x = drawRect.x;
+	glyph.position.y = drawRect.y;
+	glyph.size.x = drawRect.w;
+	glyph.size.y = drawRect.h;
+	glyph.offset.x = glyphSlot->bitmap_left;
+	glyph.offset.y = glyphSlot->bitmap_top - glyphBitmap->rows;
+	glyph.advance.x = glyphSlot->advance.x >> 6;
+	glyph.advance.y = glyphSlot->advance.y >> 6;
 
 	// Add glyph to the cache.
 	auto result = m_glyphCache.insert(std::make_pair(character, glyph));
@@ -257,4 +277,22 @@ void Font::UpdateAtlasTexture()
 		return;
 
 	m_atlasTexture.Update(m_atlasSurface->pixels);
+}
+
+const Glyph* Font::GetGlyph(FT_ULong character)
+{
+	if(!m_initialized)
+		return nullptr;
+
+	// Get the character glyph (it will be cached if needed).
+	const Glyph* glyph = CacheGlyph(character);
+
+	if(glyph != nullptr)
+	{
+		return glyph;
+	}
+	else
+	{
+		return m_glyphDefault;
+	}
 }
