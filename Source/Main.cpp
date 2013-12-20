@@ -225,12 +225,34 @@ int main(int argc, char* argv[])
 	SCOPE_GUARD(Context::Private::fontLibrary = nullptr);
 
 	//
+	// Console Frame
+	//
+
+	// Initialize the console frame.
+	ConsoleFrame consoleFrame;
+	if(!consoleFrame.Initialize())
+		return -1;
+
+	SCOPE_GUARD(consoleFrame.Cleanup());
+
+	// Make instance current.
+	Context::consoleFrame = &consoleFrame;
+
+	SCOPE_GUARD(Context::consoleFrame = nullptr);
+
+	//
 	// Text Renderer
 	//
 
+	// Initialize the text renderer.
 	TextRenderer textRenderer;
 	if(!textRenderer.Initialize(32))
 		return -1;
+
+	// Make instance current.
+	Context::textRenderer = &textRenderer;
+
+	SCOPE_GUARD(Context::textRenderer = nullptr);
 
 	//
 	// Font
@@ -257,22 +279,6 @@ int main(int argc, char* argv[])
 
 	// Projection.
 	glm::mat4x4 projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
-
-	//
-	// Console Frame
-	//
-
-	// Initialize the console frame.
-	ConsoleFrame consoleFrame;
-	if(!consoleFrame.Initialize())
-		return -1;
-
-	SCOPE_GUARD(consoleFrame.Cleanup());
-
-	// Make instance current.
-	Context::consoleFrame = &consoleFrame;
-
-	SCOPE_GUARD(Context::consoleFrame = nullptr);
 
 	//
 	// Example
@@ -330,7 +336,7 @@ int main(int argc, char* argv[])
 		Context::consoleFrame->Draw();
 		
 		// Draw text.
-		textRenderer.Draw(&font, glm::vec2(10.0f, 10.0f), projection, L"Hello world!!! Ggqujf :) ŒœÊe¥¹€£³Óóæ");
+		Context::textRenderer->Draw(&font, glm::vec2(10.0f, 10.0f), projection, L"Hello world!!! Ggqujf :) ŒœÊe¥¹€£³Óóæ");
 
 		// Present the window content.
 		SDL_GL_SetSwapInterval(0);
