@@ -188,11 +188,16 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 		baselinePosition.x = position.x;
 		baselinePosition.y -= font->GetLineSpacing();
 
-		baselineBegin = baselinePosition;
+		// Set new baseline begining.
+		if(m_debug)
+		{
+			baselineBegin = baselinePosition;
+		}
 	};
 
 	auto AdvanceBaseline = [&](const Glyph* glyph)
 	{
+		// Advance position for next glyph.
 		baselinePosition.x += glyph->advance.x;
 		baselinePosition.y += glyph->advance.y;
 	};
@@ -211,7 +216,6 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 		{
 			// Move to the next line.
 			MoveNextLine();
-
 			continue;
 		}
 		else
@@ -219,14 +223,12 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 		{
 			// Get glyph description.
 			const Glyph* glyph = font->GetGlyph(' ');
-
 			assert(glyph != nullptr);
 
 			// Advance drawing position.
 			AdvanceBaseline(glyph);
 
 			wordProcessed = false;
-
 			continue;
 		}
 
@@ -244,7 +246,6 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 
 				// Get glyph description.
 				const Glyph* glyph = font->GetGlyph(wordCharacter);
-
 				assert(glyph != nullptr);
 
 				// Get glyph kerning.
@@ -257,8 +258,18 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 
 				if(baselinePosition.x - position.x + wordSize > maxWidth)
 				{
+					// Don't draw last space for debug base line.
+					if(m_debug)
+					{
+						const Glyph* glyphSpace = font->GetGlyph(' ');
+						assert(glyphSpace != nullptr);
+
+						baselinePosition.x -= glyphSpace->advance.x;
+					}
+
 					// Move to the next line.
 					MoveNextLine();
+
 					break;
 				}
 			}
@@ -335,9 +346,21 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 	// Flush debug draw.
 	if(m_debug)
 	{
-		DrawDebugBaseLine(drawingPosition);
+		// Draw last baseline.
+		DrawDebugBaseLine(baselinePosition);
 
+		// Draw all base lines.
 		Context::shapeRenderer->DrawLines(&debugLines[0], debugLines.size(), transform);
+
+		// Draw bounding box.
+		ShapeRenderer::Rectangle rectangle;
+		rectangle.position.x = position.x;
+		rectangle.position.y = baselinePosition.y + font->GetDescender();
+		rectangle.size.x = maxWidth;
+		rectangle.size.y = position.y - rectangle.position.y;
+		rectangle.color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+
+		Context::shapeRenderer->DrawRectangles(&rectangle, 1, transform);
 	}
 }
 

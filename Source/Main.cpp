@@ -344,18 +344,10 @@ int main(int argc, char* argv[])
 		// Draw console frame.
 		Context::consoleFrame->Draw();
 		
-		// Draw debug.
+		// Draw text.
 		glm::vec2 textPosition(10.0f, 500.0f);
 		float textWidth = 800.0f;
 
-		ShapeRenderer::Line lines[] =
-		{
-			{ glm::vec2(textPosition.x, 0.0f) + glm::vec2(textWidth, -1000.0f), glm::vec2(textPosition.x, 0.0f) + glm::vec2(textWidth, 1000.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) },
-		};
-
-		Context::shapeRenderer->DrawLines(&lines[0], StaticArraySize(lines), projection);
-
-		// Draw text.
 		wchar_t* text0 = 
 			L"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. "
 			L"Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, "
@@ -373,7 +365,9 @@ int main(int argc, char* argv[])
 
 		wchar_t* text1 = L"Hello world!!!\nHello world!!!\nGgqujf :)\nŒœÊe¥¹€£³Óóæ";
 
-		//Context::textRenderer->SetDebug(true);
+		wchar_t* text2 = L"AVAVAVAVAVAVAVAVAVAVAVAVA";
+
+		Context::textRenderer->SetDebug(true);
 		Context::textRenderer->Draw(&font, textPosition, textWidth, projection, text0);
 
 		// Present the window content.

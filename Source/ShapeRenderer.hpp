@@ -28,6 +28,13 @@ public:
 		glm::vec4 color;
 	};
 
+	struct Rectangle
+	{
+		glm::vec2 position;
+		glm::vec2 size;
+		glm::vec4 color;
+	};
+
 public:
 	ShapeRenderer();
 	~ShapeRenderer();
@@ -36,10 +43,10 @@ public:
 	void Cleanup();
 
 	void DrawLines(const Line* data, int count, const glm::mat4& transform);
-	void DrawBox();
-	void DrawQuad();
-	void DrawCircle();
-	void DrawSphere();
+	void DrawRectangles(const Rectangle* data, int count, const glm::mat4& transform);
+	void DrawQuads();
+	void DrawCircles();
+	void DrawSpheres();
 
 private:
 	Vertex*	m_bufferData;
