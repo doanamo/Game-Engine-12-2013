@@ -96,6 +96,8 @@ Set(SourceFiles_Main
 	"${SourceDir}/Context.cpp"
 	"${SourceDir}/Logger.hpp"
 	"${SourceDir}/Logger.cpp"
+	"${SourceDir}/ShapeRenderer.hpp"
+	"${SourceDir}/ShapeRenderer.cpp"
 	"${SourceDir}/Font.hpp"
 	"${SourceDir}/Font.cpp"
 	"${SourceDir}/TextRenderer.hpp"

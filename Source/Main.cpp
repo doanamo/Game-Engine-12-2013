@@ -8,6 +8,8 @@
 #include "Graphics/VertexInput.hpp"
 #include "Graphics/Texture.hpp"
 
+#include "ShapeRenderer.hpp"
+
 #include "Font.hpp"
 #include "TextRenderer.hpp"
 
@@ -241,6 +243,20 @@ int main(int argc, char* argv[])
 	SCOPE_GUARD(Context::consoleFrame = nullptr);
 
 	//
+	// Shape Renderer
+	//
+
+	// Initialize the shape renderer.
+	ShapeRenderer shapeRenderer;
+	if(!shapeRenderer.Initialize(8))
+		return -1;
+
+	// Make instance current.
+	Context::shapeRenderer = &shapeRenderer;
+
+	SCOPE_GUARD(Context::shapeRenderer = nullptr);
+
+	//
 	// Text Renderer
 	//
 
@@ -335,8 +351,18 @@ int main(int argc, char* argv[])
 		// Draw console frame.
 		Context::consoleFrame->Draw();
 		
+		// Draw debug.
+		glm::vec2 textPosition(10.0f, 10.0f);
+
+		ShapeRenderer::Line line[1] =
+		{
+			{ textPosition, textPosition + glm::vec2(1000.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) }
+		};
+
+		Context::shapeRenderer->DrawLines(&line[0], 1, projection);
+
 		// Draw text.
-		Context::textRenderer->Draw(&font, glm::vec2(10.0f, 10.0f), projection, L"Hello world!!! Ggqujf :) ŒœÊe¥¹€£³Óóæ");
+		Context::textRenderer->Draw(&font, textPosition, projection, L"Hello world!!! Ggqujf :) ŒœÊe¥¹€£³Óóæ");
 
 		// Present the window content.
 		SDL_GL_SetSwapInterval(0);
