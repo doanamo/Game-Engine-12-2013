@@ -130,6 +130,20 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, const glm::mat4& 
 	font->CacheGlyphs(text);
 	font->UpdateAtlasTexture();
 
+	// Bind render states.
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, font->GetTexture()->GetHandle());
+
+	glUseProgram(m_shader.GetHandle());
+	glUniformMatrix4fv(m_shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(projection));
+	glUniform1i(m_shader.GetUniform("texture"), 0);
+	
+	glBindVertexArray(m_vertexInput.GetHandle());
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.GetHandle());
+
 	// Calculate pixel size of the atlas texture.
 	glm::vec2 pixelSize(1.0f / font->GetAtlasWidth(), 1.0f / font->GetAtlasHeight());
 
@@ -182,27 +196,7 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, const glm::mat4& 
 			m_vertexBuffer.Update(&m_vertexData[0]);
 
 			// Draw character quads.
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-			glUseProgram(m_shader.GetHandle());
-
-			glUniformMatrix4fv(m_shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(projection));
-
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, font->GetTexture()->GetHandle());
-			glUniform1i(m_shader.GetUniform("texture"), 0);
-
-			glBindVertexArray(m_vertexInput.GetHandle());
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.GetHandle());
 			glDrawElements(GL_TRIANGLES, charactersBuffered * 6, m_indexBuffer.GetElementType(), (void*)0);
-			glBindVertexArray(0);
-
-			glBindTexture(GL_TEXTURE_2D, 0);
-
-			glUseProgram(0);
-
-			glDisable(GL_BLEND);
 
 			// Reset the counter.
 			charactersBuffered = 0;
@@ -212,4 +206,10 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, const glm::mat4& 
 		drawingPosition.x += glyph->advance.x;
 		drawingPosition.y += glyph->advance.y;
 	}
+
+	// Unbind render states.
+	glBindVertexArray(0);
+	glUseProgram(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_BLEND);
 }
