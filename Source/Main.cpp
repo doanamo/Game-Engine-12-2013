@@ -276,7 +276,7 @@ int main(int argc, char* argv[])
 
 	// Load font file.
 	Font font;
-	if(!font.Load(Context::workingDir + "Data/Fonts/SourceSansPro.ttf", 32, 512, 512))
+	if(!font.Load(Context::workingDir + "Data/Fonts/SourceSansPro.ttf", 22, 512, 512))
 		return -1;
 	
 	// Cache ASCII character set.
@@ -346,28 +346,35 @@ int main(int argc, char* argv[])
 		
 		// Draw debug.
 		glm::vec2 textPosition(10.0f, 500.0f);
+		float textWidth = 800.0f;
 
 		ShapeRenderer::Line lines[] =
 		{
-			{ textPosition, textPosition + glm::vec2(100.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) },
+			{ glm::vec2(textPosition.x, 0.0f) + glm::vec2(textWidth, -1000.0f), glm::vec2(textPosition.x, 0.0f) + glm::vec2(textWidth, 1000.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) },
 		};
 
-		//Context::shapeRenderer->DrawLines(&lines[0], StaticArraySize(lines), projection);
+		Context::shapeRenderer->DrawLines(&lines[0], StaticArraySize(lines), projection);
 
 		// Draw text.
 		wchar_t* text0 = 
-			L"Lorem ipsum dolor sit amet, consectetuer \n"
-			L"adipiscing elit. Aenean commodo ligula eget \n"
-			L"dolor. Aenean massa. Cum sociis natoque \n"
-			L"penatibus et magnis dis parturient montes, \n"
-			L"nascetur ridiculus mus. Donec quam felis, \n"
-			L"ultricies nec, pellentesque eu, pretium \n"
-			L"quis, sem.";
+			L"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. "
+			L"Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, "
+			L"ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, "
+			L"fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, "
+			L"justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper "
+			L"nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. "
+			L"Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius "
+			L"laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies "
+			L"nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, "
+			L"sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. "
+			L"Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. "
+			L"Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales "
+			L"sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc.";
 
 		wchar_t* text1 = L"Hello world!!!\nHello world!!!\nGgqujf :)\nŒœÊe¥¹€£³Óóæ";
 
-		Context::textRenderer->SetDebug(true);
-		Context::textRenderer->Draw(&font, textPosition, projection, text0);
+		//Context::textRenderer->SetDebug(true);
+		Context::textRenderer->Draw(&font, textPosition, textWidth, projection, text0);
 
 		// Present the window content.
 		SDL_GL_SetSwapInterval(0);

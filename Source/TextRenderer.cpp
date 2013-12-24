@@ -118,12 +118,15 @@ void TextRenderer::Cleanup()
 	m_debug = false;
 }
 
-void TextRenderer::Draw(Font* font, const glm::vec2& position, const glm::mat4& transform, wchar_t* text)
+void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, const glm::mat4& transform, wchar_t* text)
 {
 	if(!m_initialized)
 		return;
 
 	if(font == nullptr)
+		return;
+
+	if(maxWidth < 0.0f)
 		return;
 
 	if(text == nullptr)
@@ -168,9 +171,26 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, const glm::mat4& 
 		debugLines.push_back(line);
 	};
 
+	// Helper methods.
+	auto MoveNextLine = [&]()
+	{
+		// Draw debug base line.
+		if(m_debug)
+		{
+			DrawDebugBaseLine(drawingPosition);
+		}
+
+		// Move to the next line.
+		drawingPosition.x = position.x;
+		drawingPosition.y -= font->GetLineSpacing();
+
+		baselineBegin = drawingPosition;
+	};
+
 	// Draw characters.
 	size_t textLength = std::wcslen(text);
 	int charactersBuffered = 0;
+	bool wordProcessed = true;
 
 	for(size_t i = 0; i < textLength; ++i)
 	{
@@ -179,19 +199,57 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, const glm::mat4& 
 		// Check if it's one of the special characters.
 		if(character == '\n')
 		{
-			// Draw debug base line.
-			if(m_debug)
-			{
-				DrawDebugBaseLine(drawingPosition);
-			}
-
 			// Move to the next line.
-			drawingPosition.x = position.x;
-			drawingPosition.y -= font->GetLineSpacing();
-
-			baselineBegin = drawingPosition;
+			MoveNextLine();
 
 			continue;
+		}
+		else
+		if(character == ' ')
+		{
+			// Get glyph description.
+			const Glyph* glyph = font->GetGlyph(' ');
+
+			assert(glyph != nullptr);
+
+			// Advance drawing position.
+			drawingPosition.x += glyph->advance.x;
+			drawingPosition.y += glyph->advance.y;
+
+			wordProcessed = false;
+
+			continue;
+		}
+
+		// Check if a word will fit in the current line.
+		if(wordProcessed == false)
+		{
+			float wordSize = 0.0f;
+
+			for(size_t j = i; j < textLength; ++j)
+			{
+				FT_ULong wordCharacter = text[j];
+
+				if(wordCharacter == ' ')
+					break;
+
+				// Get glyph description.
+				const Glyph* glyph = font->GetGlyph(wordCharacter);
+
+				assert(glyph != nullptr);
+
+				// Check if the word will fit.
+				wordSize += glyph->advance.x;
+
+				if(drawingPosition.x - position.x + wordSize > maxWidth)
+				{
+					// Move to the next line.
+					MoveNextLine();
+					break;
+				}
+			}
+
+			wordProcessed = true;
 		}
 
 		// Get glyph description.
