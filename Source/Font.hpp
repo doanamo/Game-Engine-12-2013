@@ -37,8 +37,10 @@ public:
 
 	const Glyph* GetGlyph(FT_ULong character);
 
+	int GetKerning(FT_ULong left, FT_ULong right) const;
 	int GetLineSpacing() const;
-	int GetKerning(FT_ULong left, FT_ULong right);
+	int GetAscender() const;
+	int GetDescender() const;
 
 	int GetAtlasWidth() const
 	{

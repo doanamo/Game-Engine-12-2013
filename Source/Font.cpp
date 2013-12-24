@@ -308,15 +308,7 @@ const Glyph* Font::GetGlyph(FT_ULong character)
 	}
 }
 
-int Font::GetLineSpacing() const
-{
-	if(!m_initialized)
-		return 0;
-
-	return m_fontFace->size->metrics.height >> 6;
-}
-
-int Font::GetKerning(FT_ULong left, FT_ULong right)
+int Font::GetKerning(FT_ULong left, FT_ULong right) const
 {
 	FT_Vector kerning;
 
@@ -327,4 +319,28 @@ int Font::GetKerning(FT_ULong left, FT_ULong right)
 		return 0;
 
 	return kerning.x >> 6;
+}
+
+int Font::GetLineSpacing() const
+{
+	if(!m_initialized)
+		return 0;
+
+	return m_fontFace->size->metrics.height >> 6;
+}
+
+int Font::GetAscender() const
+{
+	if(!m_initialized)
+		return 0;
+
+	return m_fontFace->size->metrics.ascender >> 6;
+}
+
+int Font::GetDescender() const
+{
+	if(!m_initialized)
+		return 0;
+
+	return m_fontFace->size->metrics.descender >> 6;
 }

@@ -154,15 +154,19 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 	glm::vec2 pixelSize(1.0f / font->GetAtlasWidth(), 1.0f / font->GetAtlasHeight());
 
 	// Current drawing position.
-	glm::vec2 drawingPosition(position.x, position.y);
+	glm::vec2 baselinePosition;
+	baselinePosition.x = position.x;
+	baselinePosition.y = position.y - font->GetAscender();
 
 	// Debug drawing.
-	glm::vec2 baselineBegin(drawingPosition);
+	glm::vec2 baselineBegin(baselinePosition);
 
 	std::vector<ShapeRenderer::Line> debugLines;
 
 	auto DrawDebugBaseLine = [&](const glm::vec2& baselineEnd) -> void
 	{
+		assert(m_debug);
+
 		ShapeRenderer::Line line;
 		line.begin = baselineBegin;
 		line.end = baselineEnd;
@@ -177,14 +181,20 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 		// Draw debug base line.
 		if(m_debug)
 		{
-			DrawDebugBaseLine(drawingPosition);
+			DrawDebugBaseLine(baselinePosition);
 		}
 
 		// Move to the next line.
-		drawingPosition.x = position.x;
-		drawingPosition.y -= font->GetLineSpacing();
+		baselinePosition.x = position.x;
+		baselinePosition.y -= font->GetLineSpacing();
 
-		baselineBegin = drawingPosition;
+		baselineBegin = baselinePosition;
+	};
+
+	auto AdvanceBaseline = [&](const Glyph* glyph)
+	{
+		baselinePosition.x += glyph->advance.x;
+		baselinePosition.y += glyph->advance.y;
 	};
 
 	// Draw characters.
@@ -213,8 +223,7 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 			assert(glyph != nullptr);
 
 			// Advance drawing position.
-			drawingPosition.x += glyph->advance.x;
-			drawingPosition.y += glyph->advance.y;
+			AdvanceBaseline(glyph);
 
 			wordProcessed = false;
 
@@ -246,7 +255,7 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 				// Check if the word will fit.
 				wordSize += glyph->advance.x + kerning;
 
-				if(drawingPosition.x - position.x + wordSize > maxWidth)
+				if(baselinePosition.x - position.x + wordSize > maxWidth)
 				{
 					// Move to the next line.
 					MoveNextLine();
@@ -270,14 +279,14 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 			if(previous != '\n' && previous != ' ')
 			{
 				int kerning = font->GetKerning(previous, character);
-				drawingPosition.x += kerning;
+				baselinePosition.x += kerning;
 			}
 		}
 
 		// Create a character quad.
 		glm::vec4 rectangle;
-		rectangle.x = (float)(drawingPosition.x + glyph->offset.x);
-		rectangle.y = (float)(drawingPosition.y + glyph->offset.y);
+		rectangle.x = (float)(baselinePosition.x + glyph->offset.x);
+		rectangle.y = (float)(baselinePosition.y + glyph->offset.y);
 		rectangle.w = rectangle.x + (float)glyph->size.x;
 		rectangle.z = rectangle.y + (float)glyph->size.y;
 
@@ -313,9 +322,8 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 			charactersBuffered = 0;
 		}
 
-		// Move drawing position.
-		drawingPosition.x += glyph->advance.x;
-		drawingPosition.y += glyph->advance.y;
+		// Advance drawing position.
+		AdvanceBaseline(glyph);
 	}
 
 	// Unbind render states.
