@@ -120,11 +120,11 @@ void SaveSurface(SDL_Surface* surface, std::string filename)
 		SDL_UnlockSurface(output);
 
 		// Save converted surface to a file.
-		SDL_SaveBMP(output, "atlas.bmp");
+		SDL_SaveBMP(output, filename.c_str());
 	}
 	else
 	{
 		// Save surface normally.
-		SDL_SaveBMP(surface, "atlas.bmp");
+		SDL_SaveBMP(surface, filename.c_str());
 	}
 }
