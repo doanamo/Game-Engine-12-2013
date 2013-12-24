@@ -17,6 +17,12 @@ void ClearContainer(Type& container)
 	container.swap(empty);
 }
 
+// Upper multiple of a number.
+int UpperMultiple(int value, int multiplier);
+
+// Lower multiple of a number.
+int LowerMultiple(int value, int multiplier);
+
 // Gets the content of a text file.
 std::string GetTextFileContent(std::string filename);
 

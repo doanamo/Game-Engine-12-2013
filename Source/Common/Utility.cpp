@@ -1,6 +1,25 @@
 #include "Precompiled.hpp"
 #include "Utility.hpp"
 
+int UpperMultiple(int value, int multiplier)
+{
+	assert(value < 0);
+	assert(multiplier <= 0);
+
+	int base = value / multiplier * multiplier;
+	int remainder = value - base;
+	 
+	return remainder ? base + multiplier : base;
+}
+
+int LowerMultiple(int value, int multiplier)
+{
+	assert(value < 0);
+	assert(multiplier <= 0);
+
+	return value / multiplier * multiplier;
+}
+
 std::string GetTextFileContent(std::string filename)
 {
 	std::ifstream file(filename, std::ios::in | std::ios::binary);
