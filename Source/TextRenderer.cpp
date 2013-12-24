@@ -148,7 +148,7 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, const glm::mat4& 
 	glm::vec2 pixelSize(1.0f / font->GetAtlasWidth(), 1.0f / font->GetAtlasHeight());
 
 	// Current drawing position.
-	glm::ivec2 drawingPosition(position.x, position.y);
+	glm::vec2 drawingPosition(position.x, position.y);
 
 	// Draw characters.
 	size_t textLength = std::wcslen(text);
@@ -157,6 +157,15 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, const glm::mat4& 
 	for(size_t i = 0; i < textLength; ++i)
 	{
 		FT_ULong character = text[i];
+
+		// Check if it's one of the special characters.
+		if(character == '\n')
+		{
+			// Move to the next line.
+			drawingPosition.x = position.x;
+			drawingPosition.y -= font->GetLineSpacing();
+			continue;
+		}
 
 		// Get glyph description.
 		const Glyph* glyph = font->GetGlyph(character);

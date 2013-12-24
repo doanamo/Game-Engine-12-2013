@@ -296,3 +296,11 @@ const Glyph* Font::GetGlyph(FT_ULong character)
 		return m_glyphDefault;
 	}
 }
+
+int Font::GetLineSpacing() const
+{
+	if(!m_initialized)
+		return 0;
+
+	return m_fontFace->size->metrics.height >> 6;
+}

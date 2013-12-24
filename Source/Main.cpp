@@ -276,7 +276,7 @@ int main(int argc, char* argv[])
 
 	// Load font file.
 	Font font;
-	if(!font.Load(Context::workingDir + "Data/Fonts/SourceSansPro.ttf", 64, 512, 512))
+	if(!font.Load(Context::workingDir + "Data/Fonts/SourceSansPro.ttf", 32, 512, 512))
 		return -1;
 	
 	// Cache ASCII character set.
@@ -352,17 +352,28 @@ int main(int argc, char* argv[])
 		Context::consoleFrame->Draw();
 		
 		// Draw debug.
-		glm::vec2 textPosition(10.0f, 10.0f);
+		glm::vec2 textPosition(10.0f, 500.0f);
 
-		ShapeRenderer::Line line[1] =
+		ShapeRenderer::Line lines[] =
 		{
-			{ textPosition, textPosition + glm::vec2(1000.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) }
+			{ textPosition, textPosition + glm::vec2(100.0f, 0.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f) },
 		};
 
-		Context::shapeRenderer->DrawLines(&line[0], 1, projection);
+		//Context::shapeRenderer->DrawLines(&lines[0], StaticArraySize(lines), projection);
 
 		// Draw text.
-		Context::textRenderer->Draw(&font, textPosition, projection, L"Hello world!!! Ggqujf :) ŒœÊe¥¹€£³Óóæ");
+		wchar_t* text0 = 
+			L"Lorem ipsum dolor sit amet, consectetuer \n"
+			L"adipiscing elit. Aenean commodo ligula eget \n"
+			L"dolor. Aenean massa. Cum sociis natoque \n"
+			L"penatibus et magnis dis parturient montes, \n"
+			L"nascetur ridiculus mus. Donec quam felis, \n"
+			L"ultricies nec, pellentesque eu, pretium \n"
+			L"quis, sem.";
+
+		wchar_t* text1 = L"Hello world!!!\nHello world!!!\nGgqujf :)\nŒœÊe¥¹€£³Óóæ";
+
+		Context::textRenderer->Draw(&font, textPosition, projection, text0);
 
 		// Present the window content.
 		SDL_GL_SetSwapInterval(0);
