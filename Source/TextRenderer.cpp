@@ -1,5 +1,6 @@
 #include "Precompiled.hpp"
 #include "TextRenderer.hpp"
+#include "ShapeRenderer.hpp"
 #include "Font.hpp"
 
 namespace
@@ -18,7 +19,8 @@ TextRenderer::TextRenderer() :
 	m_vertexBuffer(),
 	m_indexBuffer(),
 	m_vertexInput(),
-	m_initialized(false)
+	m_initialized(false),
+	m_debug(false)
 {
 }
 
@@ -113,9 +115,10 @@ void TextRenderer::Cleanup()
 	m_vertexInput.Cleanup();
 
 	m_initialized = false;
+	m_debug = false;
 }
 
-void TextRenderer::Draw(Font* font, const glm::vec2& position, const glm::mat4& projection, wchar_t* text)
+void TextRenderer::Draw(Font* font, const glm::vec2& position, const glm::mat4& transform, wchar_t* text)
 {
 	if(!m_initialized)
 		return;
@@ -138,7 +141,7 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, const glm::mat4& 
 	glBindTexture(GL_TEXTURE_2D, font->GetTexture()->GetHandle());
 
 	glUseProgram(m_shader.GetHandle());
-	glUniformMatrix4fv(m_shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(projection));
+	glUniformMatrix4fv(m_shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(transform));
 	glUniform1i(m_shader.GetUniform("texture"), 0);
 	
 	glBindVertexArray(m_vertexInput.GetHandle());
@@ -149,6 +152,21 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, const glm::mat4& 
 
 	// Current drawing position.
 	glm::vec2 drawingPosition(position.x, position.y);
+
+	// Debug drawing.
+	glm::vec2 baselineBegin(drawingPosition);
+
+	std::vector<ShapeRenderer::Line> debugLines;
+
+	auto DrawDebugBaseLine = [&](const glm::vec2& baselineEnd) -> void
+	{
+		ShapeRenderer::Line line;
+		line.begin = baselineBegin;
+		line.end = baselineEnd;
+		line.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+
+		debugLines.push_back(line);
+	};
 
 	// Draw characters.
 	size_t textLength = std::wcslen(text);
@@ -161,9 +179,18 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, const glm::mat4& 
 		// Check if it's one of the special characters.
 		if(character == '\n')
 		{
+			// Draw debug base line.
+			if(m_debug)
+			{
+				DrawDebugBaseLine(drawingPosition);
+			}
+
 			// Move to the next line.
 			drawingPosition.x = position.x;
 			drawingPosition.y -= font->GetLineSpacing();
+
+			baselineBegin = drawingPosition;
+
 			continue;
 		}
 
@@ -221,4 +248,17 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, const glm::mat4& 
 	glUseProgram(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDisable(GL_BLEND);
+
+	// Flush debug draw.
+	if(m_debug)
+	{
+		DrawDebugBaseLine(drawingPosition);
+
+		Context::shapeRenderer->DrawLines(&debugLines[0], debugLines.size(), transform);
+	}
+}
+
+void TextRenderer::SetDebug(bool enabled)
+{
+	m_debug = enabled;
 }

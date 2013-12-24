@@ -366,6 +366,7 @@ int main(int argc, char* argv[])
 
 		wchar_t* text1 = L"Hello world!!!\nHello world!!!\nGgqujf :)\nŒœÊe¥¹€£³Óóæ";
 
+		Context::textRenderer->SetDebug(true);
 		Context::textRenderer->Draw(&font, textPosition, projection, text0);
 
 		// Present the window content.
