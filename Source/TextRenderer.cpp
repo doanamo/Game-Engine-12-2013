@@ -238,8 +238,13 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 
 				assert(glyph != nullptr);
 
+				// Get glyph kerning.
+				assert(i != 0);
+
+				int kerning = font->GetKerning(text[j - i], wordCharacter);
+
 				// Check if the word will fit.
-				wordSize += glyph->advance.x;
+				wordSize += glyph->advance.x + kerning;
 
 				if(drawingPosition.x - position.x + wordSize > maxWidth)
 				{
@@ -256,6 +261,18 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 		const Glyph* glyph = font->GetGlyph(character);
 
 		assert(glyph != nullptr);
+
+		// Apply glyph kerning.
+		if(i != 0)
+		{
+			FT_ULong previous = text[i - 1];
+
+			if(previous != '\n' && previous != ' ')
+			{
+				int kerning = font->GetKerning(previous, character);
+				drawingPosition.x += kerning;
+			}
+		}
 
 		// Create a character quad.
 		glm::vec4 rectangle;

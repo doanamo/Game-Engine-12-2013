@@ -315,3 +315,16 @@ int Font::GetLineSpacing() const
 
 	return m_fontFace->size->metrics.height >> 6;
 }
+
+int Font::GetKerning(FT_ULong left, FT_ULong right)
+{
+	FT_Vector kerning;
+
+	FT_UInt glyphLeft = FT_Get_Char_Index(m_fontFace, left);
+	FT_UInt glyphRight = FT_Get_Char_Index(m_fontFace, right);
+
+	if(FT_Get_Kerning(m_fontFace, glyphLeft, glyphRight, FT_KERNING_DEFAULT, &kerning) != 0)
+		return 0;
+
+	return kerning.x >> 6;
+}
