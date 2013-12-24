@@ -280,14 +280,7 @@ int main(int argc, char* argv[])
 		return -1;
 	
 	// Cache ASCII character set.
-	std::wstring ascii;
-
-	for(int i = 33; i <= 126; ++i)
-	{
-		ascii.push_back((wchar_t)i);
-	}
-
-	font.CacheGlyphs(ascii.c_str());
+	font.CacheASCII();
 
 	//
 	// Test

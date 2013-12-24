@@ -157,6 +157,17 @@ void Font::Cleanup()
 	m_initialized = false;
 }
 
+void Font::CacheASCII()
+{
+	if(!m_initialized)
+		return;
+
+	for(int i = '!'; i <= '~'; ++i)
+	{
+		CacheGlyph((FT_ULong)i);
+	}
+}
+
 void Font::CacheGlyphs(const wchar_t* characters)
 {
 	if(!m_initialized)

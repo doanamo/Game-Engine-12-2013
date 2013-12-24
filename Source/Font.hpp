@@ -31,6 +31,7 @@ public:
 	bool Load(std::string filename, int size, int atlasWidth, int atlasHeight);
 	void Cleanup();
 
+	void CacheASCII();
 	void CacheGlyphs(const wchar_t* characters);
 	void UpdateAtlasTexture();
 
