@@ -367,6 +367,8 @@ int main(int argc, char* argv[])
 
 		wchar_t* text2 = L"AVAVAVAVAVAVAVAVAVAVAVAVA";
 
+		wchar_t* text3 = L"A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C";
+
 		Context::textRenderer->SetDebug(true);
 		Context::textRenderer->Draw(&font, textPosition, textWidth, projection, text0);
 

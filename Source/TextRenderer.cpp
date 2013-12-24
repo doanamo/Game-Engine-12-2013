@@ -175,7 +175,7 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 		debugLines.push_back(line);
 	};
 
-	// Helper methods.
+	// Method that moves drawing position to the next line.
 	auto MoveNextLine = [&]()
 	{
 		// Draw debug base line.
@@ -195,6 +195,7 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 		}
 	};
 
+	// Method that advances drawing position after drawing a character.
 	auto AdvanceBaseline = [&](const Glyph* glyph)
 	{
 		// Advance position for next glyph.
@@ -202,9 +203,23 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 		baselinePosition.y += glyph->advance.y;
 	};
 
+	// Method that draws buffered characters.
+	int charactersBuffered = 0;
+
+	auto DrawBufferedCharacters = [&]()
+	{
+		// Update the vertex buffer.
+		m_vertexBuffer.Update(&m_vertexData[0]);
+
+		// Draw character quads.
+		glDrawElements(GL_TRIANGLES, charactersBuffered * 6, m_indexBuffer.GetElementType(), (void*)0);
+
+		// Reset the counter.
+		charactersBuffered = 0;
+	};
+
 	// Draw characters.
 	size_t textLength = std::wcslen(text);
-	int charactersBuffered = 0;
 	bool wordProcessed = true;
 
 	for(size_t i = 0; i < textLength; ++i)
@@ -235,6 +250,7 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 		// Check if a word will fit in the current line.
 		if(wordProcessed == false)
 		{
+			// Check if the next word will fit.
 			float wordSize = 0.0f;
 
 			for(size_t j = i; j < textLength; ++j)
@@ -321,20 +337,19 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 		++charactersBuffered;
 
 		// Draw if we reached the buffer size or the last character.
-		if(charactersBuffered == m_bufferSize || i == textLength - 1)
+		if(charactersBuffered == m_bufferSize)
 		{
-			// Update the vertex buffer.
-			m_vertexBuffer.Update(&m_vertexData[0]);
-
-			// Draw character quads.
-			glDrawElements(GL_TRIANGLES, charactersBuffered * 6, m_indexBuffer.GetElementType(), (void*)0);
-
-			// Reset the counter.
-			charactersBuffered = 0;
+			DrawBufferedCharacters();
 		}
 
 		// Advance drawing position.
 		AdvanceBaseline(glyph);
+	}
+
+	// Draw any remaining characters that were buffered.
+	if(charactersBuffered != 0)
+	{
+		DrawBufferedCharacters();
 	}
 
 	// Unbind render states.
