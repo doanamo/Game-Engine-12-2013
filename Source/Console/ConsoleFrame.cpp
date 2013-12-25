@@ -102,7 +102,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 		Context::textRenderer->Draw(&m_font, glm::vec2(5.0f, 576.0f - 1.0f), 1024.0f - 1.0f, transform, text.c_str());
 
 		// Draw console input.
-		const wchar_t* inputText = L"> r_health = 100";
+		const wchar_t* inputText = L">";
 
 		Context::textRenderer->Draw(&m_font, glm::vec2(5.0f, quad.position.y + m_font.GetLineSpacing()), 1024.0f - 1.0f, transform, inputText);
 	}

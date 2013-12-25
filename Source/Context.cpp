@@ -5,6 +5,7 @@ std::string Context::workingDir = "";
 
 Logger*			Context::logger			= nullptr;
 ConsoleSystem*	Context::consoleSystem	= nullptr;
+ConsoleHistory*	Context::consoleHistory	= nullptr;
 ConsoleFrame*	Context::consoleFrame	= nullptr;
 ShapeRenderer*	Context::shapeRenderer	= nullptr;
 TextRenderer*	Context::textRenderer	= nullptr;

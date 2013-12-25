@@ -120,6 +120,8 @@ Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Common})
 Set(SourceFiles_Console
 	"${SourceDir}/Console/ConsoleSystem.hpp"
 	"${SourceDir}/Console/ConsoleSystem.cpp"
+	"${SourceDir}/Console/ConsoleHistory.hpp"
+	"${SourceDir}/Console/ConsoleHistory.cpp"
 	"${SourceDir}/Console/ConsoleDefinition.hpp"
 	"${SourceDir}/Console/ConsoleDefinition.cpp"
 	"${SourceDir}/Console/ConsoleCommand.hpp"

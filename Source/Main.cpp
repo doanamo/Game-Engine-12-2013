@@ -1,6 +1,7 @@
 #include "Precompiled.hpp"
 
 #include "Console/ConsoleSystem.hpp"
+#include "Console/ConsoleHistory.hpp"
 #include "Console/ConsoleFrame.hpp"
 
 #include "Graphics/Shader.hpp"
@@ -126,6 +127,22 @@ int main(int argc, char* argv[])
 
 	// Register definitions created before the console system was initialized.
 	ConsoleDefinition::RegisterStatic();
+
+	//
+	// Console History
+	//
+
+	// Initialize the console history.
+	ConsoleHistory consoleHistory;
+	if(!consoleHistory.Initialize(2048))
+		return -1;
+
+	consoleHistory.Write(L"Welcome to my pretty console! :)");
+
+	// Make instance current.
+	Context::consoleHistory = &consoleHistory;
+
+	SCOPE_GUARD(Context::consoleHistory = nullptr);
 
 	//
 	// SDL
