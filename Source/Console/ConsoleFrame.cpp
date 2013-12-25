@@ -75,7 +75,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 		quad.position.y = 288.0f;
 		quad.size.x = 1024.0f;
 		quad.size.y = 288.0f;
-		quad.color = glm::vec4(0.0f, 0.0f, 0.0f, 0.8f);
+		quad.color = glm::vec4(0.0f, 0.0f, 0.0f, 0.85f);
 		quad.texture = nullptr;
 
 		Context::shapeRenderer->DrawQuads(&quad, 1, transform);

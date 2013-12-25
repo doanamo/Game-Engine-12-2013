@@ -232,7 +232,7 @@ int main(int argc, char* argv[])
 
 	// Create blank white texture.
 	unsigned char* textureBlankData[2 * 2 * 4];
-	memset(&textureBlankData[0], 255, sizeof(unsigned char) * 2 * 2);
+	memset(&textureBlankData[0], 255, sizeof(unsigned char) * 4 * 2 * 2);
 
 	Texture textureBlank;
 	if(!textureBlank.Initialize(2, 2, GL_RGBA, textureBlankData))
