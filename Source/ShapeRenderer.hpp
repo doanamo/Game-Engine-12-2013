@@ -5,6 +5,8 @@
 #include "Graphics/Buffer.hpp"
 #include "Graphics/VertexInput.hpp"
 
+class Texture;
+
 //
 // Shape Renderer
 //
@@ -35,6 +37,20 @@ public:
 		glm::vec4 color;
 	};
 
+	struct Quad
+	{
+		Quad() :
+			texture(nullptr)
+		{
+		}
+
+		glm::vec2 position;
+		glm::vec2 size;
+		glm::vec4 color;
+
+		const Texture* texture;
+	};
+
 public:
 	ShapeRenderer();
 	~ShapeRenderer();
@@ -44,9 +60,7 @@ public:
 
 	void DrawLines(const Line* data, int count, const glm::mat4& transform);
 	void DrawRectangles(const Rectangle* data, int count, const glm::mat4& transform);
-	void DrawQuads();
-	void DrawCircles();
-	void DrawSpheres();
+	void DrawQuads(const Quad* data, int count, const glm::mat4& transform);
 
 private:
 	Vertex*	m_bufferData;

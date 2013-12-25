@@ -28,6 +28,7 @@
 
 	void main()
 	{
-		outputColor = vec4(1.0f, 1.0f, 1.0f, texture2D(texture, fragmentTexture)) * fragmentColor;
+		//outputColor = texture2D(texture, fragmentTexture) * fragmentColor;
+		outputColor = fragmentColor;
 	}
 #endif

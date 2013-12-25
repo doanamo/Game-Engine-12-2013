@@ -2,10 +2,6 @@
 
 #include "Precompiled.hpp"
 
-#include "Graphics/Shader.hpp"
-#include "Graphics/Buffer.hpp"
-#include "Graphics/VertexInput.hpp"
-
 //
 // Console Frame
 //
@@ -23,13 +19,9 @@ public:
 	void Close();
 	void Toggle();
 
-	void Draw();
+	void Draw(const glm::mat4& transform);
 
 private:
-	bool m_valid;
 	bool m_open;
-
-	Shader			m_shader;
-	VertexBuffer	m_vertexBuffer;
-	VertexInput		m_vertexInput;
+	bool m_initialized;
 };

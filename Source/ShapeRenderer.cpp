@@ -1,5 +1,6 @@
 #include "Precompiled.hpp"
 #include "ShapeRenderer.hpp"
+#include "Graphics/Texture.hpp"
 
 namespace
 {
@@ -7,7 +8,7 @@ namespace
 	#define LogInitializeError() "Failed to initialize a shape renderer! "
 
 	// Minimum buffer size so certain shaped won't fail rendering.
-	const int MinimumBufferSize = 4;
+	const int MinimumBufferSize = 6;
 }
 
 ShapeRenderer::ShapeRenderer() :
@@ -99,7 +100,10 @@ void ShapeRenderer::DrawLines(const Line* data, int count, const glm::mat4& tran
 	if(count <= 0)
 		return;
 
-	assert(m_bufferSize >= 2);
+	// Minimum buffer size needed.
+	const int ShapeVerticeCount = 2;
+
+	assert(m_bufferSize >= ShapeVerticeCount);
 
 	// Bind rendering states.
 	glUseProgram(m_shader.GetHandle());
@@ -108,34 +112,32 @@ void ShapeRenderer::DrawLines(const Line* data, int count, const glm::mat4& tran
 	glUniformMatrix4fv(m_shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(transform));
 	glUniform1i(m_shader.GetUniform("texture"), 0);
 
-	// Batch lines and draw them.
-	const int LineVertices = 2;
-
+	// Batch shapes and draw them.
 	int verticesBatched = 0;
 
 	for(int i = 0; i < count; ++i)
 	{
 		const Line& line = data[i];
 
-		// Cretae line vertices.
-		Vertex lineVertices[LineVertices] =
+		// Create shapes vertices.
+		Vertex shapeVertices[ShapeVerticeCount] =
 		{
 			{ line.begin, glm::vec2(0.0f, 0.0f), line.color },
 			{ line.end,   glm::vec2(0.0f, 0.0f), line.color },
 		};
 
-		// Copy lines to a temporary buffer.
-		memcpy(&m_bufferData[verticesBatched], &lineVertices[0], sizeof(Vertex) * LineVertices);
+		// Copy vertices to a temporary buffer.
+		memcpy(&m_bufferData[verticesBatched], &shapeVertices[0], sizeof(Vertex) * ShapeVerticeCount);
 
-		verticesBatched += LineVertices;
+		verticesBatched += ShapeVerticeCount;
 
 		// Draw if we reached buffer size or last data element.
-		if(m_bufferSize - verticesBatched < LineVertices || i == count - 1)
+		if(m_bufferSize - verticesBatched < ShapeVerticeCount || i == count - 1)
 		{
 			// Update vertex buffer.
 			m_vertexBuffer.Update(m_bufferData);
 
-			// Draw lines.
+			// Draw shapes.
 			glDrawArrays(GL_LINES, 0, verticesBatched);
 
 			// Reset batch counter.
@@ -159,7 +161,10 @@ void ShapeRenderer::DrawRectangles(const Rectangle* data, int count, const glm::
 	if(count <= 0)
 		return;
 
-	assert(m_bufferSize >= 4);
+	// Minimum buffer size needed.
+	const int ShapeVerticeCount = 4;
+
+	assert(m_bufferSize >= ShapeVerticeCount);
 
 	// Bind rendering states.
 	glUseProgram(m_shader.GetHandle());
@@ -168,19 +173,17 @@ void ShapeRenderer::DrawRectangles(const Rectangle* data, int count, const glm::
 	glUniformMatrix4fv(m_shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(transform));
 	glUniform1i(m_shader.GetUniform("texture"), 0);
 
-	// Batch lines and draw them.
-	const int RectangleVertices = 4;
-
+	// Batch shapes and draw them.
 	int verticesBatched = 0;
 
 	for(int i = 0; i < count; ++i)
 	{
 		const Rectangle& rectangle = data[i];
 
-		// Cretae rectangle vertices.
+		// Create shape vertices.
 		glm::vec4 rect(rectangle.position, rectangle.position + rectangle.size);
 
-		Vertex rectangleVertices[RectangleVertices] =
+		Vertex shapeVertices[ShapeVerticeCount] =
 		{
 			{ glm::vec2(rect.x, rect.y), glm::vec2(0.0f, 0.0f), rectangle.color },
 			{ glm::vec2(rect.z, rect.y), glm::vec2(0.0f, 0.0f), rectangle.color },
@@ -188,18 +191,18 @@ void ShapeRenderer::DrawRectangles(const Rectangle* data, int count, const glm::
 			{ glm::vec2(rect.x, rect.w), glm::vec2(0.0f, 0.0f), rectangle.color },
 		};
 
-		// Copy lines to a temporary buffer.
-		memcpy(&m_bufferData[verticesBatched], &rectangleVertices[0], sizeof(Vertex) * RectangleVertices);
+		// Copy vertices to a temporary buffer.
+		memcpy(&m_bufferData[verticesBatched], &shapeVertices[0], sizeof(Vertex) * ShapeVerticeCount);
 
-		verticesBatched += RectangleVertices;
+		verticesBatched += ShapeVerticeCount;
 
 		// Draw if we reached buffer size or last data element.
-		if(m_bufferSize - verticesBatched < RectangleVertices || i == count - 1)
+		if(m_bufferSize - verticesBatched < ShapeVerticeCount || i == count - 1)
 		{
 			// Update vertex buffer.
 			m_vertexBuffer.Update(m_bufferData);
 
-			// Draw rectangles.
+			// Draw shapes.
 			glDrawArrays(GL_LINE_LOOP, 0, verticesBatched);
 
 			// Reset batch counter.
@@ -210,4 +213,111 @@ void ShapeRenderer::DrawRectangles(const Rectangle* data, int count, const glm::
 	// Unbind render states.
 	glBindVertexArray(0);
 	glUseProgram(0);
+}
+
+void ShapeRenderer::DrawQuads(const Quad* data, int count, const glm::mat4& transform)
+{
+	if(!m_initialized)
+		return;
+
+	if(data == nullptr)
+		return;
+
+	if(count <= 0)
+		return;
+
+	// Minimum buffer size needed.
+	const int ShapeVerticeCount = 6;
+
+	assert(m_bufferSize >= ShapeVerticeCount);
+
+	// Bind rendering states.
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glUseProgram(m_shader.GetHandle());
+	glBindVertexArray(m_vertexInput.GetHandle());
+
+	glUniformMatrix4fv(m_shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(transform));
+	glUniform1i(m_shader.GetUniform("texture"), 0);
+
+	// Batch shapes and draw them.
+	const Texture* currentTexture = nullptr;
+	int verticesBatched = 0;
+
+	for(int i = 0; i < count; ++i)
+	{
+		const Quad& quad = data[i];
+
+		// Create shape vertices.
+		glm::vec4 rect(quad.position, quad.position + quad.size);
+
+		Vertex shapeVertices[ShapeVerticeCount] =
+		{
+			{ glm::vec2(rect.x, rect.y), glm::vec2(0.0f, 0.0f), quad.color },
+			{ glm::vec2(rect.z, rect.y), glm::vec2(1.0f, 0.0f), quad.color },
+			{ glm::vec2(rect.z, rect.w), glm::vec2(1.0f, 1.0f), quad.color },
+
+			{ glm::vec2(rect.z, rect.w), glm::vec2(1.0f, 1.0f), quad.color },
+			{ glm::vec2(rect.x, rect.y), glm::vec2(0.0f, 0.0f), quad.color },
+			{ glm::vec2(rect.x, rect.w), glm::vec2(0.0f, 1.0f), quad.color },
+		};
+
+		// Copy vertices to a temporary buffer.
+		memcpy(&m_bufferData[verticesBatched], &shapeVertices[0], sizeof(Vertex) * ShapeVerticeCount);
+
+		verticesBatched += ShapeVerticeCount;
+
+		// Determine if we have to draw the batch.
+		bool drawBatch = false;
+
+		if(m_bufferSize - verticesBatched < ShapeVerticeCount)
+		{
+			// We reached the buffer size.
+			drawBatch = true;
+		}
+		else
+		if(i == count - 1)
+		{
+			// We reached the last element.
+			drawBatch = true;
+		}
+		else
+		if(quad.texture != data[i + 1].texture)
+		{
+			// Texture is going to change, we have to draw.
+			drawBatch = true;
+		}
+
+		// Draw the batch if needed.
+		if(drawBatch)
+		{
+			// Update vertex buffer.
+			m_vertexBuffer.Update(m_bufferData);
+
+			// Bind the texture.
+			glActiveTexture(GL_TEXTURE0);
+
+			if(quad.texture != nullptr)
+			{
+				glBindTexture(GL_TEXTURE_2D, quad.texture->GetHandle());
+			}
+			else
+			{
+				glBindTexture(GL_TEXTURE_2D, 0);
+			}
+
+			// Draw shapes.
+			glDrawArrays(GL_TRIANGLES, 0, verticesBatched);
+
+			// Reset batch counter.
+			verticesBatched = 0;
+		}
+	}
+
+	// Unbind render states.
+	glBindVertexArray(0);
+	glUseProgram(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisable(GL_BLEND);
 }

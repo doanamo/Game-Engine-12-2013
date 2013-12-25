@@ -227,22 +227,6 @@ int main(int argc, char* argv[])
 	SCOPE_GUARD(Context::Private::fontLibrary = nullptr);
 
 	//
-	// Console Frame
-	//
-
-	// Initialize the console frame.
-	ConsoleFrame consoleFrame;
-	if(!consoleFrame.Initialize())
-		return -1;
-
-	SCOPE_GUARD(consoleFrame.Cleanup());
-
-	// Make instance current.
-	Context::consoleFrame = &consoleFrame;
-
-	SCOPE_GUARD(Context::consoleFrame = nullptr);
-
-	//
 	// Shape Renderer
 	//
 
@@ -269,6 +253,22 @@ int main(int argc, char* argv[])
 	Context::textRenderer = &textRenderer;
 
 	SCOPE_GUARD(Context::textRenderer = nullptr);
+
+	//
+	// Console Frame
+	//
+
+	// Initialize the console frame.
+	ConsoleFrame consoleFrame;
+	if(!consoleFrame.Initialize())
+		return -1;
+
+	SCOPE_GUARD(consoleFrame.Cleanup());
+
+	// Make instance current.
+	Context::consoleFrame = &consoleFrame;
+
+	SCOPE_GUARD(Context::consoleFrame = nullptr);
 
 	//
 	// Font
@@ -341,11 +341,8 @@ int main(int argc, char* argv[])
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Draw console frame.
-		Context::consoleFrame->Draw();
-		
 		// Draw text.
-		glm::vec2 textPosition(10.0f, 500.0f);
+		glm::vec2 textPosition(10.0f, 576.0f - 10.0f);
 		float textWidth = 800.0f;
 
 		wchar_t* text0 = 
@@ -371,6 +368,9 @@ int main(int argc, char* argv[])
 
 		Context::textRenderer->SetDebug(true);
 		Context::textRenderer->Draw(&font, textPosition, textWidth, projection, text0);
+
+		// Draw console frame.
+		Context::consoleFrame->Draw(projection);
 
 		// Present the window content.
 		SDL_GL_SetSwapInterval(0);
