@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Precompiled.hpp"
+#include "Font.hpp"
 
 //
 // Console Frame
@@ -22,6 +23,8 @@ public:
 	void Draw(const glm::mat4& transform);
 
 private:
+	Font m_font;
+
 	bool m_open;
 	bool m_initialized;
 };

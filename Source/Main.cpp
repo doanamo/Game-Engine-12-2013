@@ -244,6 +244,18 @@ int main(int argc, char* argv[])
 	SCOPE_GUARD(Context::textureBlank = nullptr);
 
 	//
+	// Font
+	//
+
+	// Load font file.
+	Font font;
+	if(!font.Load(Context::workingDir + "Data/Fonts/SourceSansPro.ttf", 22, 512, 512))
+		return -1;
+	
+	// Cache ASCII character set.
+	font.CacheASCII();
+
+	//
 	// Shape Renderer
 	//
 
@@ -286,18 +298,6 @@ int main(int argc, char* argv[])
 	Context::consoleFrame = &consoleFrame;
 
 	SCOPE_GUARD(Context::consoleFrame = nullptr);
-
-	//
-	// Font
-	//
-
-	// Load font file.
-	Font font;
-	if(!font.Load(Context::workingDir + "Data/Fonts/SourceSansPro.ttf", 22, 512, 512))
-		return -1;
-	
-	// Cache ASCII character set.
-	font.CacheASCII();
 
 	//
 	// Test
@@ -385,6 +385,7 @@ int main(int argc, char* argv[])
 
 		Context::textRenderer->SetDebug(true);
 		Context::textRenderer->Draw(&font, textPosition, textWidth, projection, text0);
+		Context::textRenderer->SetDebug(false);
 
 		// Draw console frame.
 		Context::consoleFrame->Draw(projection);

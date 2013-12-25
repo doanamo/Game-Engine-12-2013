@@ -118,7 +118,7 @@ void TextRenderer::Cleanup()
 	m_debug = false;
 }
 
-void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, const glm::mat4& transform, wchar_t* text)
+void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, const glm::mat4& transform, const wchar_t* text)
 {
 	if(!m_initialized)
 		return;
@@ -230,7 +230,11 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 		if(character == '\n')
 		{
 			// Move to the next line.
-			MoveNextLine();
+			if(i != textLength - 1)
+			{
+				MoveNextLine();
+			}
+
 			continue;
 		}
 		else

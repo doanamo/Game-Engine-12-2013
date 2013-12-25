@@ -30,7 +30,7 @@ public:
 	bool Initialize(int bufferSize);
 	void Cleanup();
 
-	void Draw(Font* font, const glm::vec2& position, float maxWidth, const glm::mat4& transform, wchar_t* text);
+	void Draw(Font* font, const glm::vec2& position, float maxWidth, const glm::mat4& transform, const wchar_t* text);
 
 	void SetDebug(bool enabled);
 
