@@ -1,5 +1,6 @@
 #include "Precompiled.hpp"
 #include "ConsoleFrame.hpp"
+#include "ConsoleHistory.hpp"
 #include "ShapeRenderer.hpp"
 #include "TextRenderer.hpp"
 
@@ -96,10 +97,10 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 
 		for(int i = 0; i < ConsoleSize - 1; ++i)
 		{
-			text += L"Test log message: Hello world! How are you? <wink> :)\n";
-		}
+			const wchar_t* text = Context::consoleHistory->GetText(i);
 
-		Context::textRenderer->Draw(&m_font, glm::vec2(5.0f, 576.0f - 1.0f), 1024.0f - 1.0f, transform, text.c_str());
+			Context::textRenderer->Draw(&m_font, glm::vec2(5.0f, quad.position.y + (i + 2) * m_font.GetLineSpacing()), 1024.0f - 1.0f, transform, text);
+		}
 
 		// Draw console input.
 		const wchar_t* inputText = L">";

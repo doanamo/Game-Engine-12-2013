@@ -204,3 +204,66 @@ void ConsoleHistory::Write(const wchar_t* text)
 		m_bufferStart = searchPosition;
 	}
 }
+
+const wchar_t* ConsoleHistory::GetText(int index)
+{
+	if(IsEmpty())
+		return nullptr;
+
+	if(index < 0)
+		return nullptr;
+
+	//
+	// Search for text node by index.
+	//
+
+	int i = index;
+
+	int searchPosition = m_bufferEnd - 1;
+
+	while(true)
+	{
+		// Checks if it's the buffer start (we can't go below that).
+		if(searchPosition == m_bufferStart)
+		{
+			if(i == 0)
+			{
+				return &m_buffer[searchPosition];
+			}
+			else
+			{
+				return nullptr;
+			}
+		}
+
+		// Null characters is how we determine the end of text nodes.
+		if(m_buffer[searchPosition] == '\0')
+		{
+			if(i == 0)
+			{
+				// Return the the pointer after the null character.
+				++searchPosition;
+
+				if(searchPosition == m_bufferSize)
+				{
+					searchPosition = 0;
+				}
+
+				return &m_buffer[searchPosition];
+			}
+			else
+			{
+				// Not the node we are looking for.
+				--i;
+			}
+		}
+
+		// Advance further down.
+		--searchPosition;
+
+		if(searchPosition == -1)
+		{
+			searchPosition = m_bufferSize - 1;
+		}
+	}
+}

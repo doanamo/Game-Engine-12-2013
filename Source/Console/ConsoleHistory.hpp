@@ -17,6 +17,8 @@ public:
 
 	void Write(const wchar_t* text);
 
+	const wchar_t* GetText(int index);
+
 	bool IsEmpty() const
 	{
 		return m_bufferStart == -1;
