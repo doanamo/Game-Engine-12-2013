@@ -19,7 +19,7 @@ public:
 
 	bool IsEmpty() const
 	{
-		return m_bufferStart != -1;
+		return m_bufferStart == -1;
 	}
 
 private:
