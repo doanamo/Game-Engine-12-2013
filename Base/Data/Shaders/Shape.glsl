@@ -28,7 +28,6 @@
 
 	void main()
 	{
-		//outputColor = texture2D(texture, fragmentTexture) * fragmentColor;
-		outputColor = fragmentColor;
+		outputColor = texture2D(texture, fragmentTexture) * fragmentColor;
 	}
 #endif

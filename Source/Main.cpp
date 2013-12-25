@@ -227,6 +227,23 @@ int main(int argc, char* argv[])
 	SCOPE_GUARD(Context::Private::fontLibrary = nullptr);
 
 	//
+	// Blank Texture
+	//
+
+	// Create blank white texture.
+	unsigned char* textureBlankData[2 * 2 * 4];
+	memset(&textureBlankData[0], 255, sizeof(unsigned char) * 2 * 2);
+
+	Texture textureBlank;
+	if(!textureBlank.Initialize(2, 2, GL_RGBA, textureBlankData))
+		return -1;
+
+	// Make instance current.
+	Context::textureBlank = &textureBlank;
+
+	SCOPE_GUARD(Context::textureBlank = nullptr);
+
+	//
 	// Shape Renderer
 	//
 

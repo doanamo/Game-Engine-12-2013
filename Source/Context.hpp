@@ -16,6 +16,8 @@ struct Context
 	static class ShapeRenderer*	shapeRenderer;
 	static class TextRenderer*	textRenderer;
 
+	static class Texture* textureBlank;
+
 	struct Private
 	{
 		static FT_Library fontLibrary;
