@@ -32,6 +32,9 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+// UTF8
+#include <utf8.h>
+
 //
 // Project
 //
