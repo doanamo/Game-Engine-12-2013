@@ -97,13 +97,13 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 
 		for(int i = 0; i < ConsoleSize - 1; ++i)
 		{
-			const wchar_t* text = Context::consoleHistory->GetText(i);
+			const char* text = Context::consoleHistory->GetText(i);
 
 			Context::textRenderer->Draw(&m_font, glm::vec2(5.0f, quad.position.y + (i + 2) * m_font.GetLineSpacing()), 1024.0f - 1.0f, transform, text);
 		}
 
 		// Draw console input.
-		const wchar_t* inputText = L">";
+		const char* inputText = ">";
 
 		Context::textRenderer->Draw(&m_font, glm::vec2(5.0f, quad.position.y + m_font.GetLineSpacing()), 1024.0f - 1.0f, transform, inputText);
 	}

@@ -32,7 +32,7 @@ public:
 	void Cleanup();
 
 	void CacheASCII();
-	void CacheGlyphs(const wchar_t* characters);
+	void CacheGlyphs(const char* characters);
 	void UpdateAtlasTexture();
 
 	const Glyph* GetGlyph(FT_ULong character);

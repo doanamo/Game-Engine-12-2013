@@ -15,9 +15,9 @@ public:
 	bool Initialize(int bufferSize);
 	void Cleanup();
 
-	void Write(const wchar_t* text);
+	void Write(const char* text);
 
-	const wchar_t* GetText(int index);
+	const char* GetText(int index);
 
 	bool IsEmpty() const
 	{
@@ -26,7 +26,7 @@ public:
 
 private:
 	// Text ring buffer.
-	wchar_t* m_buffer;
+	char* m_buffer;
 	int m_bufferSize;
 
 	int m_bufferStart;

@@ -118,7 +118,7 @@ void TextRenderer::Cleanup()
 	m_debug = false;
 }
 
-void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, const glm::mat4& transform, const wchar_t* text)
+void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, const glm::mat4& transform, const char* text)
 {
 	if(!m_initialized)
 		return;
@@ -130,6 +130,12 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 		return;
 
 	if(text == nullptr)
+		return;
+
+	// Check text string.
+	size_t textSize = strlen(text);
+
+	if(!utf8::is_valid(text, text + textSize))
 		return;
 
 	// Update font texture atlas.
@@ -219,12 +225,17 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 	};
 
 	// Draw characters.
-	size_t textLength = std::wcslen(text);
+	size_t textLength = utf8::distance(text, text + textSize);
+
+	const char* it = text;
+	const char* end = text + textSize;
+
 	bool wordProcessed = true;
 
 	for(size_t i = 0; i < textLength; ++i)
 	{
-		FT_ULong character = text[i];
+		// Get next UTF-8 encoded character.
+		FT_ULong character = utf8::next(it, end);
 
 		// Check if it's one of the special characters.
 		if(character == '\n')

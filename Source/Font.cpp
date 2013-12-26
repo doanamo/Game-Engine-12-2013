@@ -168,16 +168,19 @@ void Font::CacheASCII()
 	}
 }
 
-void Font::CacheGlyphs(const wchar_t* characters)
+void Font::CacheGlyphs(const char* characters)
 {
 	if(!m_initialized)
 		return;
 
 	if(characters != nullptr)
 	{
-		for(size_t i = 0; i < std::wcslen(characters); ++i)
+		const char* it = characters;
+		const char* end = it + strlen(characters);
+
+		while(it != end)
 		{
-			CacheGlyph(characters[i]);
+			CacheGlyph(utf8::next(it, end));
 		}
 	}
 }

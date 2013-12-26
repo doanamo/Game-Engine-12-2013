@@ -34,7 +34,7 @@ bool ConsoleHistory::Initialize(int bufferSize)
 	m_bufferSize = bufferSize;
 
 	// Allocate buffer memory.
-	m_buffer = new wchar_t[bufferSize];
+	m_buffer = new char[bufferSize];
 
 	if(m_buffer == nullptr)
 	{
@@ -58,7 +58,7 @@ void ConsoleHistory::Cleanup()
 	m_bufferEnd = -1;
 }
 
-void ConsoleHistory::Write(const wchar_t* text)
+void ConsoleHistory::Write(const char* text)
 {
 	if(!m_initialized)
 		return;
@@ -67,8 +67,8 @@ void ConsoleHistory::Write(const wchar_t* text)
 	// Calculate variables.
 	//
 
-	// Calculate text length.
-	std::size_t textLength = wcslen(text);
+	// Calculate text size.
+	std::size_t textSize = strlen(text);
 
 	// Calculate buffer position where we will write the text.
 	int writeStart = m_bufferEnd + 1;
@@ -81,11 +81,11 @@ void ConsoleHistory::Write(const wchar_t* text)
 		writeStart = 0;
 	}
 
-	// Calculate write length and include the null character.
-	int writeLength = textLength + 1;
+	// Calculate write size and include the null character.
+	int writeSize = textSize + 1;
 
 	// Check if the text will fit in the buffer at all.
-	if(writeLength > m_bufferSize)
+	if(writeSize > m_bufferSize)
 		return;
 
 	// We are gonna see if we have overwritten any text nodes.
@@ -100,13 +100,13 @@ void ConsoleHistory::Write(const wchar_t* text)
 	int writeEnd;
 
 	// Check if we can copy the entire text at once. If not, split it into two segments.
-	if(writeStart + writeLength > m_bufferSize)
+	if(writeStart + writeSize > m_bufferSize)
 	{
 		assert(writeStart != 0);
 
 		// Calculate segment sizes.
 		int firstSegmentSize = m_bufferSize - writeStart;
-		int secondSegmentSize = writeLength - firstSegmentSize;
+		int secondSegmentSize = writeSize - firstSegmentSize;
 
 		// Calculate write end.
 		writeEnd = secondSegmentSize - 1;
@@ -116,8 +116,8 @@ void ConsoleHistory::Write(const wchar_t* text)
 			fullOverwrite = true;
 
 		// Write both text segments (include null character).
-		memcpy(&m_buffer[writeStart], &text[0], sizeof(wchar_t) * firstSegmentSize);
-		memcpy(&m_buffer[0], &text[firstSegmentSize], sizeof(wchar_t) * secondSegmentSize);
+		memcpy(&m_buffer[writeStart], &text[0], sizeof(char) * firstSegmentSize);
+		memcpy(&m_buffer[0], &text[firstSegmentSize], sizeof(char) * secondSegmentSize);
 
 		// Check if we overwritten any nodes.
 		if(writeStart <= m_bufferStart && m_bufferStart <= m_bufferSize - 1)
@@ -133,14 +133,14 @@ void ConsoleHistory::Write(const wchar_t* text)
 	else
 	{
 		// Calculate write end.
-		writeEnd = writeStart + writeLength - 1;
+		writeEnd = writeStart + writeSize - 1;
 
 		// Check if we did a full overwrite (if the last overwritten character was another null).
 		if(m_buffer[writeEnd] == '\0')
 			fullOverwrite = true;
 
 		// Write the entire text to buffer (include null character).
-		memcpy(&m_buffer[writeStart], &text[0], sizeof(wchar_t) * writeLength);
+		memcpy(&m_buffer[writeStart], &text[0], sizeof(char) * writeSize);
 
 		// Check if we overwritten any nodes.
 		if(writeStart <= m_bufferStart && m_bufferStart <= writeEnd)
@@ -205,7 +205,7 @@ void ConsoleHistory::Write(const wchar_t* text)
 	}
 }
 
-const wchar_t* ConsoleHistory::GetText(int index)
+const char* ConsoleHistory::GetText(int index)
 {
 	if(IsEmpty())
 		return nullptr;

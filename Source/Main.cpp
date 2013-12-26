@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
 	if(!consoleHistory.Initialize(2048))
 		return -1;
 
-	consoleHistory.Write(L"Welcome to my pretty console! :)");
+	consoleHistory.Write("Welcome to my pretty console! :)");
 
 	// Make instance current.
 	Context::consoleHistory = &consoleHistory;
@@ -379,26 +379,20 @@ int main(int argc, char* argv[])
 		glm::vec2 textPosition(10.0f, 576.0f - 10.0f);
 		float textWidth = 800.0f;
 
-		wchar_t* text0 = 
-			L"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. "
-			L"Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, "
-			L"ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, "
-			L"fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, "
-			L"justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper "
-			L"nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. "
-			L"Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius "
-			L"laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies "
-			L"nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, "
-			L"sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. "
-			L"Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. "
-			L"Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales "
-			L"sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc.";
-
-		wchar_t* text1 = L"Hello world!!!\nHello world!!!\nGgqujf :)\nŒœÊe¥¹€£³Óóæ";
-
-		wchar_t* text2 = L"AVAVAVAVAVAVAVAVAVAVAVAVA";
-
-		wchar_t* text3 = L"A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C A B C";
+		const char* text0 = 
+			"Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. "
+			"Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, "
+			"ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, "
+			"fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, "
+			"justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper "
+			"nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. "
+			"Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius "
+			"laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies "
+			"nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, "
+			"sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. "
+			"Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. "
+			"Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales "
+			"sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc.";
 
 		Context::textRenderer->SetDebug(true);
 		Context::textRenderer->Draw(&font, textPosition, textWidth, projection, text0);
