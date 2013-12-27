@@ -205,13 +205,21 @@ void ConsoleHistory::Write(const char* text)
 	}
 }
 
-const char* ConsoleHistory::GetText(int index)
+std::string ConsoleHistory::GetText(int index)
 {
 	if(IsEmpty())
 		return nullptr;
 
 	if(index < 0)
 		return nullptr;
+
+	// String containing text we will return.
+	// We can't return a text node pointer because it could be split in half.
+	// We could avoid this by making the ring buffer avoid splitting text data in two
+	// by always storing a text without any breaks. If split would be needed, just move 
+	// the string to the beginning of the buffer. This would result in wasted space 
+	// at the end of the buffer, but that would be perfectly fine.
+	std::string text;
 
 	//
 	// Search for text node by index.
@@ -220,6 +228,7 @@ const char* ConsoleHistory::GetText(int index)
 	int i = index;
 
 	int searchPosition = m_bufferEnd - 1;
+	int textSize = 0;
 
 	while(true)
 	{
@@ -228,11 +237,16 @@ const char* ConsoleHistory::GetText(int index)
 		{
 			if(i == 0)
 			{
-				return &m_buffer[searchPosition];
+				// Account the current character for the total size.
+				textSize += 1;
+
+				// We found the node we were are looking for.
+				break;
 			}
 			else
 			{
-				return nullptr;
+				// Return empty string.
+				return std::string();
 			}
 		}
 
@@ -241,20 +255,24 @@ const char* ConsoleHistory::GetText(int index)
 		{
 			if(i == 0)
 			{
-				// Return the the pointer after the null character.
-				++searchPosition;
+				// Return the the pointer after the null character (move search position back up).
+				searchPosition += 1;
 
 				if(searchPosition == m_bufferSize)
 				{
 					searchPosition = 0;
 				}
 
-				return &m_buffer[searchPosition];
+				// We found the next node we are looking for.
+				break;
 			}
 			else
 			{
 				// Not the node we are looking for.
 				--i;
+
+				// Reset text size (account for this null character).
+				textSize = -1;
 			}
 		}
 
@@ -265,5 +283,39 @@ const char* ConsoleHistory::GetText(int index)
 		{
 			searchPosition = m_bufferSize - 1;
 		}
+
+		// Increase text size counter.
+		++textSize;
 	}
+
+	//
+	// Copy text to a temporary string.
+	//
+
+	// Reserve memory to avoid extra allocations.
+	text.reserve(textSize);
+
+	// Copy characters to the text string.
+	while(true)
+	{
+		// We don't want the null character for the text string.
+ 		if(m_buffer[searchPosition] == '\0')
+			break;
+
+		// Push back the character at the end of text string.
+		text.push_back(m_buffer[searchPosition]);
+
+		// Advance further up.
+		++searchPosition;
+
+		if(searchPosition == m_bufferSize)
+		{
+			searchPosition = 0;
+		}
+	}
+
+	// Check if we copied more than we initially allocated.
+	assert(text.size() == textSize);
+
+	return text;
 }

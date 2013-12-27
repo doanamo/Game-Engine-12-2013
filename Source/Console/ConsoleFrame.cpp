@@ -111,9 +111,9 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 		// Draw console text.
 		for(int i = 0; i < ConsoleSize - 1; ++i)
 		{
-			const char* text = Context::consoleHistory->GetText(i);
+			std::string text = Context::consoleHistory->GetText(i);
 
-			Context::textRenderer->Draw(&m_font, glm::vec2(5.0f, quad.position.y + (i + 2) * m_font.GetLineSpacing()), 1024.0f - 1.0f, transform, text);
+			Context::textRenderer->Draw(&m_font, glm::vec2(5.0f, quad.position.y + (i + 2) * m_font.GetLineSpacing()), 1024.0f - 1.0f, transform, text.c_str());
 		}
 
 		// Draw console input.

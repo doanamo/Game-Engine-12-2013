@@ -17,7 +17,7 @@ public:
 
 	void Write(const char* text);
 
-	const char* GetText(int index);
+	std::string GetText(int index);
 
 	bool IsEmpty() const
 	{
