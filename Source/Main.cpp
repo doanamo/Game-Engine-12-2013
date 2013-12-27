@@ -1,6 +1,7 @@
 #include "Precompiled.hpp"
 
 #include "Logger/LoggerOutputFile.hpp"
+#include "Logger/LoggerOutputConsole.hpp"
 
 #include "Console/ConsoleSystem.hpp"
 #include "Console/ConsoleHistory.hpp"
@@ -115,6 +116,13 @@ int main(int argc, char* argv[])
 	logger.AddOutput(&outputFile);
 
 	SCOPE_GUARD(logger.RemoveOutput(&outputFile));
+
+	// Create and add console output.
+	LoggerOutputConsole outputConsole;
+
+	logger.AddOutput(&outputConsole);
+
+	SCOPE_GUARD(logger.RemoveOutput(&outputConsole));
 
 	//
 	// Console System
