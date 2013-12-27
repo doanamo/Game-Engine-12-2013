@@ -73,6 +73,11 @@ void ConsoleFrame::ClearInput()
 	m_input.clear();
 }
 
+void ConsoleFrame::EraseLastInputCharacter()
+{
+	m_input = m_input.substr(0, m_input.size() - 1);
+}
+
 void ConsoleFrame::AppendInput(const char* text)
 {
 	m_input.append(text);

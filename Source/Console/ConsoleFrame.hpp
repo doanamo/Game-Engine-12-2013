@@ -20,6 +20,7 @@ public:
 	void Close();
 
 	void ClearInput();
+	void EraseLastInputCharacter();
 	void AppendInput(const char* text);
 	void ExecuteInput();
 
