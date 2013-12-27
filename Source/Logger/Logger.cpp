@@ -10,98 +10,38 @@ Logger::Logger()
 
 Logger::~Logger()
 {
-	Close();
 }
 
-bool Logger::Open(std::string filename)
+void Logger::AddOutput(LoggerOutput* output)
 {
-	Close();
+	if(output == nullptr)
+		return;
 
-	// Open a file.
-	m_file.open(filename);
-
-	if(!m_file.is_open())
-		return false;
-
-	// Write session start.
-	time_t timeData = time(nullptr);
-	tm* timeInfo = localtime(&timeData);
-
-	m_file << "Session started at ";
-	m_file << std::setfill('0');
-	m_file << std::setw(4) << timeInfo->tm_year + 1900 << "-";
-	m_file << std::setw(2) << timeInfo->tm_mon + 1     << "-";
-	m_file << std::setw(2) << timeInfo->tm_mday        << " ";
-	m_file << std::setw(2) << timeInfo->tm_hour        << ":";
-	m_file << std::setw(2) << timeInfo->tm_min         << ":";
-	m_file << std::setw(2) << timeInfo->tm_sec;
-	m_file << "\n\n";
-
-	m_file.flush();
-
-	return true;
+	// Add logger output.
+	m_outputs.push_back(output);
 }
 
-void Logger::Close()
+void Logger::RemoveOutput(LoggerOutput* output)
 {
-	if(m_file.is_open())
+	if(output == nullptr)
+		return;
+
+	// Find and remove logger output.
+	auto it = std::find(m_outputs.begin(), m_outputs.end(), output);
+
+	if(it != m_outputs.end())
 	{
-		// Write session end.
-		time_t timeData = time(nullptr);
-		tm* timeInfo = localtime(&timeData);
-
-		m_file << "\n";
-		m_file << "Session ended at ";
-		m_file << std::setfill('0');
-		m_file << std::setw(4) << timeInfo->tm_year + 1900 << "-";
-		m_file << std::setw(2) << timeInfo->tm_mon + 1     << "-";
-		m_file << std::setw(2) << timeInfo->tm_mday        << " ";
-		m_file << std::setw(2) << timeInfo->tm_hour        << ":";
-		m_file << std::setw(2) << timeInfo->tm_min         << ":";
-		m_file << std::setw(2) << timeInfo->tm_sec;
-
-		m_file.flush();
-
-		// Close a file.
-		m_file.close();
+		m_outputs.erase(it);
 	}
 }
 
 void Logger::Write(const LoggerMessage& message)
 {
-	if(!m_file.is_open())
-		return;
+	// Write to every logger output.
+	auto it = m_outputs.begin();
 
-	if(message.IsEmpty())
-		return;
-
-	// Message prefix.
-	time_t timeData = time(nullptr);
-	tm* timeInfo = localtime(&timeData);
-
-	m_file << "[";
-	m_file << std::setfill('0');
-	m_file << std::setw(2) << timeInfo->tm_hour << ":";
-	m_file << std::setw(2) << timeInfo->tm_min  << ":";
-	m_file << std::setw(2) << timeInfo->tm_sec;
-	m_file << "] ";
-
-	// Message text.
-	m_file << message.GetText();
-
-	// Message source.
-	if(message.GetFilename() != nullptr && message.GetLine() != 0)
+	while(it != m_outputs.end())
 	{
-		m_file << " (";
-		m_file << message.GetFilename();
-		m_file << ":";
-		m_file << message.GetLine();
-		m_file << ")";
+		(*it++)->Write(message);
 	}
-
-	// Message suffix.
-	m_file << "\n";
-
-	// Flush the output.
-	m_file.flush();
 }

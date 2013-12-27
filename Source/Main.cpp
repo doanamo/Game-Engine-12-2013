@@ -1,5 +1,7 @@
 #include "Precompiled.hpp"
 
+#include "Logger/LoggerOutputFile.hpp"
+
 #include "Console/ConsoleSystem.hpp"
 #include "Console/ConsoleHistory.hpp"
 #include "Console/ConsoleFrame.hpp"
@@ -98,13 +100,21 @@ int main(int argc, char* argv[])
 	// Create a logger.
 	Logger logger;
 
-	if(!logger.Open("Log.txt"))
-		return -1;
-
 	// Make instance current.
 	Context::logger = &logger;
 
 	SCOPE_GUARD(Context::logger = nullptr);
+
+	//
+	// Logger Outputs
+	//
+
+	// Create and add file output.
+	LoggerOutputFile outputFile("Log.txt");
+
+	logger.AddOutput(&outputFile);
+
+	SCOPE_GUARD(logger.RemoveOutput(&outputFile));
 
 	//
 	// Console System

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/NonCopyable.hpp"
+#include "LoggerOutput.hpp"
 #include "LoggerMessage.hpp"
 #include "LoggerScopedMessage.hpp"
 
@@ -22,11 +23,11 @@ public:
 	Logger();
 	~Logger();
 
-	bool Open(std::string filename);
-	void Close();
+	void AddOutput(LoggerOutput* output);
+	void RemoveOutput(LoggerOutput* output);
 
 	void Write(const LoggerMessage& message);
 
 private:
-	std::ofstream m_file;
+	std::vector<LoggerOutput*> m_outputs;
 };

@@ -126,6 +126,9 @@ Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Common})
 Set(SourceFiles_Logger
 	"${SourceDir}/Logger/Logger.hpp"
 	"${SourceDir}/Logger/Logger.cpp"
+	"${SourceDir}/Logger/LoggerOutput.hpp"
+	"${SourceDir}/Logger/LoggerOutputFile.hpp"
+	"${SourceDir}/Logger/LoggerOutputFile.cpp"
 	"${SourceDir}/Logger/LoggerMessage.hpp"
 	"${SourceDir}/Logger/LoggerMessage.cpp"
 	"${SourceDir}/Logger/LoggerScopedMessage.hpp"
