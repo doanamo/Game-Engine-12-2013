@@ -106,9 +106,6 @@ int main(int argc, char* argv[])
 
 	SCOPE_GUARD(Context::logger = nullptr);
 
-	// Print the working directory path.
-	Log() << "Working directory: \"" << Context::workingDir << "\"";
-
 	//
 	// Console System
 	//
@@ -143,6 +140,13 @@ int main(int argc, char* argv[])
 	Context::consoleHistory = &consoleHistory;
 
 	SCOPE_GUARD(Context::consoleHistory = nullptr);
+
+	//
+	// Print configuration.
+	//
+
+	// Print the working directory path.
+	Log() << "Working directory: \"" << Context::workingDir << "\"";
 
 	//
 	// SDL

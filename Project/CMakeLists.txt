@@ -102,8 +102,6 @@ Set(SourceFiles_Main
 	"${SourceDir}/Main.cpp"
 	"${SourceDir}/Context.hpp"
 	"${SourceDir}/Context.cpp"
-	"${SourceDir}/Logger.hpp"
-	"${SourceDir}/Logger.cpp"
 	"${SourceDir}/ShapeRenderer.hpp"
 	"${SourceDir}/ShapeRenderer.cpp"
 	"${SourceDir}/Font.hpp"
@@ -124,6 +122,18 @@ Set(SourceFiles_Common
 
 Source_Group("Source\\Common" FILES ${SourceFiles_Common})
 Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Common})
+
+Set(SourceFiles_Logger
+	"${SourceDir}/Logger/Logger.hpp"
+	"${SourceDir}/Logger/Logger.cpp"
+	"${SourceDir}/Logger/LoggerMessage.hpp"
+	"${SourceDir}/Logger/LoggerMessage.cpp"
+	"${SourceDir}/Logger/LoggerScopedMessage.hpp"
+	"${SourceDir}/Logger/LoggerScopedMessage.cpp"
+)
+
+Source_Group("Source\\Logger" FILES ${SourceFiles_Logger})
+Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Logger})
 
 Set(SourceFiles_Console
 	"${SourceDir}/Console/ConsoleSystem.hpp"
