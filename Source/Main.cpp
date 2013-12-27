@@ -147,7 +147,7 @@ int main(int argc, char* argv[])
 
 	// Initialize the console history.
 	ConsoleHistory consoleHistory;
-	if(!consoleHistory.Initialize(4096))
+	if(!consoleHistory.Initialize(1024))
 		return -1;
 
 	consoleHistory.Write("Welcome to developer's console!");

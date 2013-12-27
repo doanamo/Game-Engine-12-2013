@@ -17,19 +17,20 @@ public:
 
 	void Write(const char* text);
 
-	std::string GetText(int index);
+	const char* GetText(int index) const;
 
 	bool IsEmpty() const
 	{
-		return m_bufferStart == -1;
+		return m_bufferBegin == m_bufferEnd;
 	}
 
 private:
 	// Text ring buffer.
 	char* m_buffer;
-	int m_bufferSize;
 
-	int m_bufferStart;
+	int m_bufferSize;
+	int m_bufferLimit;
+	int m_bufferBegin;
 	int m_bufferEnd;
 
 	bool m_initialized;

@@ -10,8 +10,9 @@ namespace
 ConsoleHistory::ConsoleHistory() :
 	m_buffer(nullptr),
 	m_bufferSize(0),
-	m_bufferStart(-1),
-	m_bufferEnd(-1)
+	m_bufferLimit(0),
+	m_bufferBegin(0),
+	m_bufferEnd(0)
 {
 }
 
@@ -34,7 +35,7 @@ bool ConsoleHistory::Initialize(int bufferSize)
 	m_bufferSize = bufferSize;
 
 	// Allocate buffer memory.
-	m_buffer = new char[bufferSize];
+	m_buffer = new char[m_bufferSize];
 
 	if(m_buffer == nullptr)
 	{
@@ -52,10 +53,11 @@ void ConsoleHistory::Cleanup()
 {
 	delete[] m_buffer;
 	m_buffer = nullptr;
-	m_bufferSize = 0;
 
-	m_bufferStart = -1;
-	m_bufferEnd = -1;
+	m_bufferSize = 0;
+	m_bufferLimit = 0;
+	m_bufferBegin = 0;
+	m_bufferEnd = 0;
 }
 
 void ConsoleHistory::Write(const char* text)
@@ -70,17 +72,6 @@ void ConsoleHistory::Write(const char* text)
 	// Calculate text size.
 	std::size_t textSize = strlen(text);
 
-	// Calculate buffer position where we will write the text.
-	int writeStart = m_bufferEnd + 1;
-
-	// If the buffer end pointer was in the last position, move writting position to the beginning of the buffer.
-	assert(writeStart <= m_bufferSize);
-	
-	if(writeStart == m_bufferSize)
-	{
-		writeStart = 0;
-	}
-
 	// Calculate write size and include the null character.
 	int writeSize = textSize + 1;
 
@@ -88,71 +79,59 @@ void ConsoleHistory::Write(const char* text)
 	if(writeSize > m_bufferSize)
 		return;
 
-	// We are gonna see if we have overwritten any text nodes.
-	bool nodeOverwritten = false;
-	bool fullOverwrite = false;
+	// Calculate buffer position where we will write the text.
+	int writeBegin = m_bufferEnd + 1;
+
+	// Check if the text will fit until the buffer ends.
+	if(writeBegin + writeSize > m_bufferSize)
+	{
+		// Check if we are going to overwrite buffer beginning.
+		if(m_bufferBegin >= writeBegin)
+		{
+			// Move buffer begin to the beginning of the buffer.
+			m_bufferBegin = 0;
+
+			// Move buffer limit to current buffer end.
+			m_bufferLimit = m_bufferEnd;
+		}
+
+		// Move write begin to the beginning of the buffer.
+		writeBegin = 0;
+	}
+
+	// Calculate write end (location of written null character).
+	int writeEnd = writeBegin + writeSize - 1;
 
 	//
 	// Write text to the buffer.
 	//
 
-	// Position where the write will end (to be determined).
-	int writeEnd;
+	// Check if we will overwrite any nodes.
+	bool nodeOverwritten = false;
+	bool fullOverwrite = false;
 
-	// Check if we can copy the entire text at once. If not, split it into two segments.
-	if(writeStart + writeSize > m_bufferSize)
+	if(writeBegin <= m_bufferBegin && m_bufferBegin <= writeEnd)
 	{
-		assert(writeStart != 0);
+		nodeOverwritten = true;
 
-		// Calculate segment sizes.
-		int firstSegmentSize = m_bufferSize - writeStart;
-		int secondSegmentSize = writeSize - firstSegmentSize;
-
-		// Calculate write end.
-		writeEnd = secondSegmentSize - 1;
-
-		// Check if we did a full overwrite (if the last overwritten character was another null).
+		// Check if we are doing a full overwrite (if the last character we are about to overwrite is another null).
 		if(m_buffer[writeEnd] == '\0')
+		{
 			fullOverwrite = true;
-
-		// Write both text segments (include null character).
-		memcpy(&m_buffer[writeStart], &text[0], sizeof(char) * firstSegmentSize);
-		memcpy(&m_buffer[0], &text[firstSegmentSize], sizeof(char) * secondSegmentSize);
-
-		// Check if we overwritten any nodes.
-		if(writeStart <= m_bufferStart && m_bufferStart <= m_bufferSize - 1)
-		{
-			nodeOverwritten = true;
-		}
-		else
-		if(0 <= m_bufferStart && m_bufferStart <= writeEnd)
-		{
-			nodeOverwritten = true;
 		}
 	}
-	else
-	{
-		// Calculate write end.
-		writeEnd = writeStart + writeSize - 1;
 
-		// Check if we did a full overwrite (if the last overwritten character was another null).
-		if(m_buffer[writeEnd] == '\0')
-			fullOverwrite = true;
-
-		// Write the entire text to buffer (include null character).
-		memcpy(&m_buffer[writeStart], &text[0], sizeof(char) * writeSize);
-
-		// Check if we overwritten any nodes.
-		if(writeStart <= m_bufferStart && m_bufferStart <= writeEnd)
-			nodeOverwritten = true;
-	}
+	// Write the entire text to buffer (include null character).
+	memcpy(&m_buffer[writeBegin], &text[0], sizeof(char) * writeSize);
 
 	// Move the buffer end to the write end (this is the position of new null character).
 	m_bufferEnd = writeEnd;
 
-	// Move the buffer start if its the first text we ever written.
-	if(m_bufferStart == -1)
-		m_bufferStart = 0;
+	// Move the buffer limit if needed.
+	if(writeEnd > m_bufferLimit)
+	{
+		m_bufferLimit = writeEnd;
+	}
 
 	//
 	// Discard text node we possibly overwritten.
@@ -163,63 +142,67 @@ void ConsoleHistory::Write(const char* text)
 	{
 		if(fullOverwrite)
 		{
-			m_bufferStart = writeEnd + 1;
+			// We already have to location of the new buffer start.
+			m_bufferBegin = writeEnd + 1;
 		}
-
-		// Search after the text (including null) we wrote.
-		int searchPosition = writeEnd + 1;
-
-		// Wrap the search position if it's past the buffer size.
-		assert(searchPosition <= m_bufferSize);
-
-		if(searchPosition == m_bufferSize)
+		else
 		{
-			searchPosition = 0;
-		}
-		
-		// Find the null character and close the node.
-		bool foundNull = false;
+			// Search after the text (including null) we wrote.
+			int searchPosition = writeEnd + 1;
 
-		while(!foundNull)
-		{
-			// If we already determined it was a full overwrite, use this position as a new buffer start.
-			if(fullOverwrite)
-				break;
-
-			// Look for null character of the text string we overwritten.
-			if(m_buffer[searchPosition] == '\0')
-				foundNull = true;
-
-			// Advance the search position.
-			++searchPosition;
-
-			// Wrap if needed.
-			if(searchPosition == m_bufferSize)
+			// Wrap the search position if it's past the buffer limit.
+			if(searchPosition > m_bufferLimit)
 			{
 				searchPosition = 0;
 			}
+		
+			// Find the null character and close the node.
+			bool foundNull = false;
+
+			while(!foundNull)
+			{
+				// Look for null character of the text string we overwritten.
+				if(m_buffer[searchPosition] == '\0')
+				{
+					foundNull = true;
+
+					// Check if we overwritten a text positioned next to the limit of the buffer.
+					// If yes, move the buffer limit to where we ended last write.
+					if(searchPosition == m_bufferLimit)
+					{
+						m_bufferLimit = writeEnd;
+					}
+				}
+
+				// Advance the search position.
+				++searchPosition;
+
+				// Wrap if needed.
+				if(searchPosition > m_bufferLimit)
+				{
+					searchPosition = 0;
+				}
+			}
+
+			// Set new buffer begin position.
+			m_bufferBegin = searchPosition;
 		}
 
-		// Set new buffer start position.
-		m_bufferStart = searchPosition;
+		// Check if we went past the buffer limit.
+		if(m_bufferBegin > m_bufferLimit)
+		{
+			m_bufferBegin = 0;
+		}
 	}
 }
 
-std::string ConsoleHistory::GetText(int index)
+const char* ConsoleHistory::GetText(int index) const
 {
 	if(IsEmpty())
 		return nullptr;
 
 	if(index < 0)
 		return nullptr;
-
-	// String containing text we will return.
-	// We can't return a text node pointer because it could be split in half.
-	// We could avoid this by making the ring buffer avoid splitting text data in two
-	// by always storing a text without any breaks. If split would be needed, just move 
-	// the string to the beginning of the buffer. This would result in wasted space 
-	// at the end of the buffer, but that would be perfectly fine.
-	std::string text;
 
 	//
 	// Search for text node by index.
@@ -228,25 +211,21 @@ std::string ConsoleHistory::GetText(int index)
 	int i = index;
 
 	int searchPosition = m_bufferEnd - 1;
-	int textSize = 0;
 
 	while(true)
 	{
-		// Checks if it's the buffer start (we can't go below that).
-		if(searchPosition == m_bufferStart)
+		// Checks if it's the buffer begin (we can't go below that).
+		if(searchPosition == m_bufferBegin)
 		{
 			if(i == 0)
 			{
-				// Account the current character for the total size.
-				textSize += 1;
-
 				// We found the node we were are looking for.
 				break;
 			}
 			else
 			{
 				// Return empty string.
-				return std::string();
+				return "";
 			}
 		}
 
@@ -258,7 +237,7 @@ std::string ConsoleHistory::GetText(int index)
 				// Return the the pointer after the null character (move search position back up).
 				searchPosition += 1;
 
-				if(searchPosition == m_bufferSize)
+				if(searchPosition == m_bufferLimit + 1)
 				{
 					searchPosition = 0;
 				}
@@ -270,9 +249,6 @@ std::string ConsoleHistory::GetText(int index)
 			{
 				// Not the node we are looking for.
 				--i;
-
-				// Reset text size (account for this null character).
-				textSize = -1;
 			}
 		}
 
@@ -281,41 +257,9 @@ std::string ConsoleHistory::GetText(int index)
 
 		if(searchPosition == -1)
 		{
-			searchPosition = m_bufferSize - 1;
-		}
-
-		// Increase text size counter.
-		++textSize;
-	}
-
-	//
-	// Copy text to a temporary string.
-	//
-
-	// Reserve memory to avoid extra allocations.
-	text.reserve(textSize);
-
-	// Copy characters to the text string.
-	while(true)
-	{
-		// We don't want the null character for the text string.
- 		if(m_buffer[searchPosition] == '\0')
-			break;
-
-		// Push back the character at the end of text string.
-		text.push_back(m_buffer[searchPosition]);
-
-		// Advance further up.
-		++searchPosition;
-
-		if(searchPosition == m_bufferSize)
-		{
-			searchPosition = 0;
+			searchPosition = m_bufferLimit;
 		}
 	}
 
-	// Check if we copied more than we initially allocated.
-	assert(text.size() == textSize);
-
-	return text;
+	return &m_buffer[searchPosition];
 }
