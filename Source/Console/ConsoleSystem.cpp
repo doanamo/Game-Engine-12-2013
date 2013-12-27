@@ -25,6 +25,9 @@ void ConsoleSystem::Cleanup()
 
 void ConsoleSystem::Execute(std::string input)
 {
+	// Print input string.
+	Log() << "> " << input;
+
 	// Locate the first white space.
 	std::size_t separator = input.find(' ');
 
