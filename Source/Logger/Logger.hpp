@@ -8,7 +8,11 @@
 #include <fstream>
 
 // Log macro.
-#define Log() LoggerScopedMessage(Context::logger).Source(__FILE__, __LINE__)
+#ifdef _DEBUG
+	#define Log() LoggerScopedMessage(Context::logger).Source(__FILE__, __LINE__)
+#else
+	#define Log() LoggerScopedMessage(Context::logger)
+#endif
 
 // Forward declarations.
 class LoggerMessage;
