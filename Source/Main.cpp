@@ -26,7 +26,7 @@ void CommandHelp(std::string arguments)
 	// Get some more help here.
 	if(arguments.empty())
 	{
-		std::cout << "Type \"help <definition>\" for more info on a particular command or variable." << std::endl;
+		Log() << "Type \"help <definition>\" for more info on a particular command or variable.";
 		return;
 	}
 
@@ -46,17 +46,17 @@ void CommandHelp(std::string arguments)
 
 	if(definition == nullptr)
 	{
-		std::cout << "Couldn't find \"" << name << "\" definition." << std::endl;
+		Log() << "Couldn't find \"" << name << "\" definition.";
 		return;
 	}
 
 	// Print the description.
-	std::cout << definition->GetDescription() << std::endl;
+	Log() << definition->GetDescription();
 }
 
 void CommandEcho(std::string arguments)
 {
-	std::cout << arguments << std::endl;
+	Log() << arguments;
 }
 
 bool isQuitting = false;
@@ -74,8 +74,6 @@ ConsoleCommand help("help", &CommandHelp, "Prints a description of a command or 
 ConsoleCommand echo("echo", &CommandEcho, "Prints provided arguments in the console.");
 ConsoleCommand quit("quit", &CommandQuit, "Quits the application.");
 
-//ConsoleVariable windowWidth("r_width", "1920", "Window width.");
-//ConsoleVariable windowHeight("r_height", "1024", "Window height.");
 ConsoleVariable mouseSensivity("i_sensivity", "4.2", "Mouse sensivity.");
 ConsoleVariable playerHealth("g_playerhealth", "100", "Current player health.");
 ConsoleVariable playerAlive("g_playeralive", "true", "Is player alive?");
@@ -210,6 +208,13 @@ int main(int argc, char* argv[])
 	}
 
 	SCOPE_GUARD(SDL_DestroyWindow(window));
+
+	// For some reason text input is enabled by default.
+	SDL_StopTextInput();
+
+	//
+	// OpenGL
+	//
 
 	// Create OpenGL context.
 	SDL_GLContext glContext = SDL_GL_CreateContext(window);
@@ -354,11 +359,9 @@ int main(int argc, char* argv[])
 		userProfile.SetString(argv[0]);
 	}
 
-	//std::cout << windowWidth.GetName() << " = " << windowWidth.GetString() << std::endl;
-	//std::cout << windowHeight.GetName() << " = " << windowHeight.GetString() << std::endl;
-	std::cout << mouseSensivity.GetName() << " = " << mouseSensivity.GetString() << std::endl;
-	std::cout << playerHealth.GetName() << " = " << playerHealth.GetString() << std::endl;
-	std::cout << playerAlive.GetName() << " = " << playerAlive.GetString() << std::endl;
+	Log() << mouseSensivity.GetName() << " = " << mouseSensivity.GetString();
+	Log() << playerHealth.GetName() << " = " << playerHealth.GetString();
+	Log() << playerAlive.GetName() << " = " << playerAlive.GetString();
 	
 	//
 	// Main Loop
@@ -379,7 +382,41 @@ int main(int argc, char* argv[])
 			case SDL_KEYDOWN:
 				if(event.key.keysym.scancode == SDL_SCANCODE_GRAVE && event.key.repeat == 0)
 				{
-					Context::consoleFrame->Toggle();
+					if(!Context::consoleFrame->IsOpen())
+					{
+						// Open console frame.
+						Context::consoleFrame->Open();
+
+						// Start text input.
+						SDL_StartTextInput();
+					}
+					else
+					{
+						// Close console frame.
+						Context::consoleFrame->Close();
+
+						// End text input.
+						SDL_StopTextInput();
+
+						// Clear text input (temp).
+						Context::consoleFrame->ClearInput();
+					}
+				}
+				else
+				if(event.key.keysym.scancode == SDL_SCANCODE_RETURN && event.key.repeat == 0)
+				{
+					if(Context::consoleFrame->IsOpen())
+					{
+						// Execute console input.
+						Context::consoleFrame->ExecuteInput();
+					}
+				}
+				break;
+
+			case SDL_TEXTINPUT:
+				if(Context::consoleFrame->IsOpen())
+				{
+					Context::consoleFrame->AppendInput(event.text.text);
 				}
 				break;
 			}
@@ -426,19 +463,6 @@ int main(int argc, char* argv[])
 		// Present the window content.
 		SDL_GL_SetSwapInterval(0);
 		SDL_GL_SwapWindow(window);
-
-		// Handle console input.
-		/*
-		std::cout << "> ";
-
-		std::string input;
-		std::getline(std::cin, input);
-
-		if(!input.empty())
-		{
-			Context::consoleSystem->Execute(input);
-		}
-		*/
 	}
 
 	return 0;

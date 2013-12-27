@@ -40,7 +40,7 @@ void ConsoleSystem::Execute(std::string input)
 	auto it = m_definitions.find(name);
 	if(it == m_definitions.end())
 	{
-		std::cout << "Couldn't find \"" << name << "\" definition." << std::endl;
+		Log() << "Couldn't find \"" << name << "\" definition.";
 		return;
 	}
 

@@ -14,7 +14,7 @@ void ConsoleVariable::Execute(std::string arguments)
 {
 	if(arguments.empty())
 	{
-		std::cout << GetName() << " = " << GetString() << std::endl;
+		Log() << GetName() << " = " << GetString();
 	}
 	else
 	{

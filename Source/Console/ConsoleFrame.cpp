@@ -1,5 +1,6 @@
 #include "Precompiled.hpp"
 #include "ConsoleFrame.hpp"
+#include "ConsoleSystem.hpp"
 #include "ConsoleHistory.hpp"
 #include "ShapeRenderer.hpp"
 #include "TextRenderer.hpp"
@@ -10,6 +11,8 @@ namespace
 }
 
 ConsoleFrame::ConsoleFrame() :
+	m_input(""),
+	m_font(),
 	m_open(false),
 	m_initialized(false)
 {
@@ -41,6 +44,8 @@ bool ConsoleFrame::Initialize()
 
 void ConsoleFrame::Cleanup()
 {
+	m_input.clear();
+
 	m_font.Cleanup();
 
 	m_open = false;
@@ -63,12 +68,23 @@ void ConsoleFrame::Close()
 	m_open = false;
 }
 
-void ConsoleFrame::Toggle()
+void ConsoleFrame::ClearInput()
 {
-	if(!m_initialized)
-		return;
+	m_input.clear();
+}
 
-	m_open = !m_open;
+void ConsoleFrame::AppendInput(const char* text)
+{
+	m_input.append(text);
+}
+
+void ConsoleFrame::ExecuteInput()
+{
+	// Execute input.
+	Context::consoleSystem->Execute(m_input);
+
+	// Clear input.
+	ClearInput();
 }
 
 void ConsoleFrame::Draw(const glm::mat4& transform)
@@ -93,8 +109,6 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 		Context::shapeRenderer->DrawQuads(&quad, 1, transform);
 
 		// Draw console text.
-		std::wstring text;
-
 		for(int i = 0; i < ConsoleSize - 1; ++i)
 		{
 			const char* text = Context::consoleHistory->GetText(i);
@@ -103,8 +117,9 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 		}
 
 		// Draw console input.
-		const char* inputText = ">";
+		std::string inputText = "> ";
+		inputText += m_input;
 
-		Context::textRenderer->Draw(&m_font, glm::vec2(5.0f, quad.position.y + m_font.GetLineSpacing()), 1024.0f - 1.0f, transform, inputText);
+		Context::textRenderer->Draw(&m_font, glm::vec2(5.0f, quad.position.y + m_font.GetLineSpacing()), 1024.0f - 1.0f, transform, inputText.c_str());
 	}
 }
