@@ -90,6 +90,7 @@ void LoggerOutputFile::Write(const LoggerMessage& message)
 	// Message text.
 	m_file << message.GetText();
 
+#ifdef _DEBUG
 	// Message source.
 	if(message.GetFilename() != nullptr && message.GetLine() != 0)
 	{
@@ -99,6 +100,7 @@ void LoggerOutputFile::Write(const LoggerMessage& message)
 		m_file << message.GetLine();
 		m_file << ")";
 	}
+#endif
 
 	// Message suffix.
 	m_file << "\n";
