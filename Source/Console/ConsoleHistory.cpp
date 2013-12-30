@@ -12,7 +12,8 @@ ConsoleHistory::ConsoleHistory() :
 	m_bufferSize(0),
 	m_bufferLimit(0),
 	m_bufferBegin(0),
-	m_bufferEnd(-1)
+	m_bufferEnd(-1),
+	m_initialized(false)
 {
 	// m_bufferEnd must start at -1 so we can avoid an extra check on the first write.
 }
@@ -59,6 +60,8 @@ void ConsoleHistory::Cleanup()
 	m_bufferLimit = 0;
 	m_bufferBegin = 0;
 	m_bufferEnd = -1;
+
+	m_initialized = false;
 }
 
 void ConsoleHistory::Write(const char* text)
