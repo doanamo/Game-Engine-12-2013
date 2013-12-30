@@ -21,7 +21,7 @@ public:
 
 	bool IsEmpty() const
 	{
-		return m_bufferBegin == m_bufferEnd;
+		return m_bufferEnd == -1;
 	}
 
 private:

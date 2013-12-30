@@ -12,8 +12,9 @@ ConsoleHistory::ConsoleHistory() :
 	m_bufferSize(0),
 	m_bufferLimit(0),
 	m_bufferBegin(0),
-	m_bufferEnd(0)
+	m_bufferEnd(-1)
 {
+	// m_bufferEnd must start at -1 so we can avoid an extra check on the first write.
 }
 
 ConsoleHistory::~ConsoleHistory()
@@ -57,7 +58,7 @@ void ConsoleHistory::Cleanup()
 	m_bufferSize = 0;
 	m_bufferLimit = 0;
 	m_bufferBegin = 0;
-	m_bufferEnd = 0;
+	m_bufferEnd = -1;
 }
 
 void ConsoleHistory::Write(const char* text)
@@ -66,10 +67,20 @@ void ConsoleHistory::Write(const char* text)
 		return;
 
 	//
+	// Two strings in a buffer: "Hello" and "world" (with null terminators).
+	//
+	//      End  Limit
+	//       |     |
+	// [world0Hello0000] Buffer
+	//        |       |
+	//       Begin  Size-1
+	//
+
+	//
 	// Calculate variables.
 	//
 
-	// Calculate text size.
+	// Calculate text size, not length (could be UTF-8).
 	std::size_t textSize = strlen(text);
 
 	// Calculate write size and include the null character.
@@ -88,7 +99,7 @@ void ConsoleHistory::Write(const char* text)
 		// Check if we are going to overwrite buffer beginning.
 		if(m_bufferBegin >= writeBegin)
 		{
-			// Move buffer begin to the beginning of the buffer.
+			// Move buffer begin to the beginning of the buffer (where last text node starts).
 			m_bufferBegin = 0;
 
 			// Move buffer limit to current buffer end.
