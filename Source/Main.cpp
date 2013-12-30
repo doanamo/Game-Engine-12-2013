@@ -311,7 +311,7 @@ int main(int argc, char* argv[])
 
 	// Initialize the shape renderer.
 	ShapeRenderer shapeRenderer;
-	if(!shapeRenderer.Initialize(8))
+	if(!shapeRenderer.Initialize(128))
 		return -1;
 
 	// Make instance current.

@@ -168,8 +168,9 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 	glm::vec2 baselineBegin(baselinePosition);
 
 	std::vector<ShapeRenderer::Line> debugLines;
+	std::vector<ShapeRenderer::Rectangle> debugRectangles;
 
-	auto DrawDebugBaseLine = [&](const glm::vec2& baselineEnd) -> void
+	auto AddDebugBaseLine = [&](const glm::vec2& baselineEnd) -> void
 	{
 		assert(m_debug);
 
@@ -181,13 +182,25 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 		debugLines.push_back(line);
 	};
 
+	auto AddDebugGlyphRectangle = [&](const glm::vec2& position, const glm::vec2& size)
+	{
+		assert(m_debug);
+
+		ShapeRenderer::Rectangle rectangle;
+		rectangle.position = position;
+		rectangle.size = size;
+		rectangle.color = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
+
+		debugRectangles.push_back(rectangle);
+	};
+
 	// Method that moves drawing position to the next line.
 	auto MoveNextLine = [&]()
 	{
 		// Draw debug base line.
 		if(m_debug)
 		{
-			DrawDebugBaseLine(baselinePosition);
+			AddDebugBaseLine(baselinePosition);
 		}
 
 		// Move to the next line.
@@ -346,6 +359,11 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 			{ glm::vec2(rectangle.x, rectangle.z), glm::vec2(texture.x, texture.z), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f) },
 		};
 
+		// Draw debug glyph rectangle.
+		if(m_debug)
+		{
+			AddDebugGlyphRectangle(glm::vec2(rectangle.x, rectangle.y), glm::vec2(glyph->size.x, glyph->size.y));
+		}
 		// Copy character quad to the vertex data.
 		memcpy(&m_vertexData[charactersBuffered * 4], &quad[0], sizeof(Vertex) * 4);
 
@@ -376,8 +394,11 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 	// Flush debug draw.
 	if(m_debug)
 	{
+		// Draw glyph rectangles.
+		Context::shapeRenderer->DrawRectangles(&debugRectangles[0], debugRectangles.size(), transform);
+
 		// Draw last baseline.
-		DrawDebugBaseLine(baselinePosition);
+		AddDebugBaseLine(baselinePosition);
 
 		// Draw all base lines.
 		Context::shapeRenderer->DrawLines(&debugLines[0], debugLines.size(), transform);
