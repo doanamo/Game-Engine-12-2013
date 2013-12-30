@@ -207,6 +207,17 @@ void ConsoleHistory::Write(const char* text)
 	}
 }
 
+void ConsoleHistory::Clear()
+{
+	if(!m_initialized)
+		return;
+
+	// No need to clear the buffer, just set the initial variables.
+	m_bufferLimit = 0;
+	m_bufferBegin = 0;
+	m_bufferEnd = -1;
+}
+
 const char* ConsoleHistory::GetText(int index) const
 {
 	if(IsEmpty())

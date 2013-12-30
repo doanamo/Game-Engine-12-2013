@@ -16,6 +16,7 @@ public:
 	void Cleanup();
 
 	void Write(const char* text);
+	void Clear();
 
 	const char* GetText(int index) const;
 
@@ -26,12 +27,11 @@ public:
 
 private:
 	// Text ring buffer.
-	char* m_buffer;
-
-	int m_bufferSize;
-	int m_bufferLimit;
-	int m_bufferBegin;
-	int m_bufferEnd;
+	char*	m_buffer;
+	int		m_bufferSize;
+	int		m_bufferLimit;
+	int		m_bufferBegin;
+	int		m_bufferEnd;
 
 	bool m_initialized;
 };

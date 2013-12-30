@@ -59,6 +59,14 @@ void CommandEcho(std::string arguments)
 	Log() << arguments;
 }
 
+void CommandClear(std::string arguments)
+{
+	if(Context::consoleHistory)
+	{
+		Context::consoleHistory->Clear();
+	}
+}
+
 bool isQuitting = false;
 
 void CommandQuit(std::string arguments)
@@ -72,6 +80,7 @@ void CommandQuit(std::string arguments)
 
 ConsoleCommand help("help", &CommandHelp, "Prints a description of a command or a variable.");
 ConsoleCommand echo("echo", &CommandEcho, "Prints provided arguments in the console.");
+ConsoleCommand clear("clear", &CommandClear, "Clears the console output.");
 ConsoleCommand quit("quit", &CommandQuit, "Quits the application.");
 
 ConsoleVariable mouseSensivity("i_sensivity", "4.2", "Mouse sensivity.");
@@ -147,7 +156,7 @@ int main(int argc, char* argv[])
 
 	// Initialize the console history.
 	ConsoleHistory consoleHistory;
-	if(!consoleHistory.Initialize(1024))
+	if(!consoleHistory.Initialize(128))
 		return -1;
 
 	consoleHistory.Write("Welcome to developer's console!");
