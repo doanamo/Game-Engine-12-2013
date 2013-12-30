@@ -165,7 +165,7 @@ void ShapeRenderer::DrawRectangles(const Rectangle* data, int count, const glm::
 		return;
 
 	// Minimum buffer size needed.
-	const int ShapeVerticeCount = 4;
+	const int ShapeVerticeCount = 8;
 
 	assert(m_bufferSize >= ShapeVerticeCount);
 
@@ -193,8 +193,15 @@ void ShapeRenderer::DrawRectangles(const Rectangle* data, int count, const glm::
 		{
 			{ glm::vec2(rect.x, rect.y), glm::vec2(0.0f, 0.0f), rectangle.color },
 			{ glm::vec2(rect.z, rect.y), glm::vec2(0.0f, 0.0f), rectangle.color },
+
+			{ glm::vec2(rect.z, rect.y), glm::vec2(0.0f, 0.0f), rectangle.color },
+			{ glm::vec2(rect.z, rect.w), glm::vec2(0.0f, 0.0f), rectangle.color },
+
 			{ glm::vec2(rect.z, rect.w), glm::vec2(0.0f, 0.0f), rectangle.color },
 			{ glm::vec2(rect.x, rect.w), glm::vec2(0.0f, 0.0f), rectangle.color },
+
+			{ glm::vec2(rect.x, rect.w), glm::vec2(0.0f, 0.0f), rectangle.color },
+			{ glm::vec2(rect.x, rect.y), glm::vec2(0.0f, 0.0f), rectangle.color },
 		};
 
 		// Copy vertices to a temporary buffer.
@@ -209,7 +216,7 @@ void ShapeRenderer::DrawRectangles(const Rectangle* data, int count, const glm::
 			m_vertexBuffer.Update(m_bufferData);
 
 			// Draw shapes.
-			glDrawArrays(GL_LINE_LOOP, 0, verticesBatched);
+			glDrawArrays(GL_LINES, 0, verticesBatched);
 
 			// Reset batch counter.
 			verticesBatched = 0;
