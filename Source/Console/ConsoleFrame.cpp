@@ -118,13 +118,15 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 		{
 			const char* text = Context::consoleHistory->GetText(i);
 
-			Context::textRenderer->Draw(&m_font, glm::vec2(5.0f, quad.position.y + (i + 2) * m_font.GetLineSpacing()), 1024.0f - 1.0f, transform, text);
+			Context::textRenderer->Draw(&m_font, glm::vec2(5.0f, quad.position.y + (i + 2) * m_font.GetLineSpacing()), 
+				1024.0f - 1.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), transform, text);
 		}
 
 		// Draw console input.
 		std::string inputText = "> ";
 		inputText += m_input;
 
-		Context::textRenderer->Draw(&m_font, glm::vec2(5.0f, quad.position.y + m_font.GetLineSpacing()), 1024.0f - 1.0f, transform, inputText.c_str());
+		Context::textRenderer->Draw(&m_font, glm::vec2(5.0f, quad.position.y + m_font.GetLineSpacing()), 
+			1024.0f - 1.0f, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), transform, inputText.c_str());
 	}
 }

@@ -118,7 +118,7 @@ void TextRenderer::Cleanup()
 	m_debug = false;
 }
 
-void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, const glm::mat4& transform, const char* text)
+void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, const glm::vec4& color, const glm::mat4& transform, const char* text)
 {
 	if(!m_initialized)
 		return;
@@ -353,10 +353,10 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 
 		Vertex quad[4] =
 		{
-			{ glm::vec2(rectangle.x, rectangle.y), glm::vec2(texture.x, texture.y), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f) },
-			{ glm::vec2(rectangle.w, rectangle.y), glm::vec2(texture.w, texture.y), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f) },
-			{ glm::vec2(rectangle.w, rectangle.z), glm::vec2(texture.w, texture.z), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f) },
-			{ glm::vec2(rectangle.x, rectangle.z), glm::vec2(texture.x, texture.z), glm::vec4(1.0f, 1.0f, 1.0f, 1.0f) },
+			{ glm::vec2(rectangle.x, rectangle.y), glm::vec2(texture.x, texture.y), color },
+			{ glm::vec2(rectangle.w, rectangle.y), glm::vec2(texture.w, texture.y), color },
+			{ glm::vec2(rectangle.w, rectangle.z), glm::vec2(texture.w, texture.z), color },
+			{ glm::vec2(rectangle.x, rectangle.z), glm::vec2(texture.x, texture.z), color },
 		};
 
 		// Draw debug glyph rectangle.
@@ -364,6 +364,7 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 		{
 			AddDebugGlyphRectangle(glm::vec2(rectangle.x, rectangle.y), glm::vec2(glyph->size.x, glyph->size.y));
 		}
+
 		// Copy character quad to the vertex data.
 		memcpy(&m_vertexData[charactersBuffered * 4], &quad[0], sizeof(Vertex) * 4);
 

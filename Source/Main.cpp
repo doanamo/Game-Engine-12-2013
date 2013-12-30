@@ -450,7 +450,7 @@ int main(int argc, char* argv[])
 		glViewport(0, 0, windowWidth, windowHeight);
 
 		// Clear the screen.
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClearDepth(1.0f);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -475,7 +475,7 @@ int main(int argc, char* argv[])
 			"sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc.";
 
 		Context::textRenderer->SetDebug(true);
-		Context::textRenderer->Draw(&font, textPosition, textWidth, projection, text0);
+		Context::textRenderer->Draw(&font, textPosition, textWidth, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), projection, text0);
 		Context::textRenderer->SetDebug(false);
 
 		// Draw console frame.
