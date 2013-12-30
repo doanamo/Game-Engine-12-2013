@@ -382,6 +382,9 @@ int main(int argc, char* argv[])
 	// Main Loop
 	//
 
+	uint32_t timePrevious = SDL_GetTicks();
+	uint32_t timeCurrent = timePrevious;
+
 	while(!isQuitting)
 	{
 		// Handle window events.
@@ -490,9 +493,22 @@ int main(int argc, char* argv[])
 		// Draw console frame.
 		Context::consoleFrame->Draw(projection);
 
+		// Draw frame rate.
+		uint32_t timeElapsed = timeCurrent - timePrevious;
+		float frameTime = (float)timeElapsed / 1000.0f;
+
+		std::stringstream frameCounterText;
+		frameCounterText << "FPS: " << std::fixed << std::setprecision(0) << 1.0f / frameTime << " (" << std::setprecision(4) << frameTime << "s)";
+
+		Context::textRenderer->Draw(&font, glm::vec2(10.0f, 5.0f + font.GetLineSpacing()), textWidth, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), projection, frameCounterText.str().c_str());
+
 		// Present the window content.
 		SDL_GL_SetSwapInterval(0);
 		SDL_GL_SwapWindow(window);
+
+		// Update frame counter.
+		timePrevious = timeCurrent;
+		timeCurrent = SDL_GetTicks();
 	}
 
 	return 0;
