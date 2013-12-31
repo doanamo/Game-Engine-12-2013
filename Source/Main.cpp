@@ -12,6 +12,8 @@
 #include "Graphics/VertexInput.hpp"
 #include "Graphics/Texture.hpp"
 
+#include "FrameCounter.hpp"
+
 #include "ShapeRenderer.hpp"
 
 #include "Font.hpp"
@@ -286,6 +288,15 @@ int main(int argc, char* argv[])
 	SCOPE_GUARD(Context::Private::fontLibrary = nullptr);
 
 	//
+	// Frame Counter
+	//
+
+	// Initialize the frame counter.
+	FrameCounter frameCounter;
+	if(!frameCounter.Initialize(30))
+		return -1;
+
+	//
 	// Blank Texture
 	//
 
@@ -334,7 +345,7 @@ int main(int argc, char* argv[])
 
 	// Initialize the text renderer.
 	TextRenderer textRenderer;
-	if(!textRenderer.Initialize(32))
+	if(!textRenderer.Initialize(64))
 		return -1;
 
 	// Make instance current.
@@ -455,6 +466,13 @@ int main(int argc, char* argv[])
 			}
 		}
 
+		// Calculate elapsed time.
+		uint32_t timeElapsed = timeCurrent - timePrevious;
+		float dt = (float)timeElapsed / 1000.0f;
+
+		// Update frame counter.
+		frameCounter.Update(dt);
+
 		// Setup the viewport.
 		int windowWidth, windowHeight;
 		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
@@ -494,11 +512,9 @@ int main(int argc, char* argv[])
 		Context::consoleFrame->Draw(projection);
 
 		// Draw frame rate.
-		uint32_t timeElapsed = timeCurrent - timePrevious;
-		float frameTime = (float)timeElapsed / 1000.0f;
-
 		std::stringstream frameCounterText;
-		frameCounterText << "FPS: " << std::fixed << std::setprecision(0) << 1.0f / frameTime << " (" << std::setprecision(4) << frameTime << "s)";
+		frameCounterText << "FPS: " << std::fixed << std::setprecision(0) << frameCounter.GetFrameRate() 
+			<< " (" << std::setprecision(4) << frameCounter.GetFrameTime() << "s)";
 
 		Context::textRenderer->Draw(&font, glm::vec2(10.0f, 5.0f + font.GetLineSpacing()), textWidth, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f), projection, frameCounterText.str().c_str());
 
@@ -506,7 +522,7 @@ int main(int argc, char* argv[])
 		SDL_GL_SetSwapInterval(0);
 		SDL_GL_SwapWindow(window);
 
-		// Update frame counter.
+		// Update frame time.
 		timePrevious = timeCurrent;
 		timeCurrent = SDL_GetTicks();
 	}
