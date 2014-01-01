@@ -11,8 +11,9 @@ namespace
 }
 
 ConsoleFrame::ConsoleFrame() :
-	m_input(""),
 	m_font(),
+	m_input(""),
+	m_cursorPosition(0),
 	m_open(false),
 	m_initialized(false)
 {
@@ -44,9 +45,10 @@ bool ConsoleFrame::Initialize()
 
 void ConsoleFrame::Cleanup()
 {
-	m_input.clear();
-
 	m_font.Cleanup();
+
+	m_input.clear();
+	m_cursorPosition = 0;
 
 	m_open = false;
 	m_initialized = false;
@@ -71,16 +73,47 @@ void ConsoleFrame::Close()
 void ConsoleFrame::ClearInput()
 {
 	m_input.clear();
+	m_cursorPosition = 0;
+}
+
+void ConsoleFrame::MoveInputCursor(InputCursor move)
+{
+	switch(move)
+	{
+	case InputCursor::Begin:
+		m_cursorPosition = 0;
+		break;
+
+	case InputCursor::End:
+		m_cursorPosition = m_input.size();
+		break;
+
+	case InputCursor::Left:
+		m_cursorPosition = std::max(0, m_cursorPosition - 1);
+		break;
+
+	case InputCursor::Right:
+		m_cursorPosition = std::min(m_cursorPosition + 1, (int)m_input.size());
+		break;
+	}
 }
 
 void ConsoleFrame::EraseLastInputCharacter()
 {
-	m_input = m_input.substr(0, m_input.size() - 1);
+	if(!m_input.empty())
+	{
+		m_input = m_input.substr(0, m_input.size() - 1);
+		m_cursorPosition -= 1;
+	}
 }
 
 void ConsoleFrame::AppendInput(const char* text)
 {
+	if(text == nullptr)
+		return;
+
 	m_input.append(text);
+	m_cursorPosition += utf8::distance(text, text + strlen(text));
 }
 
 void ConsoleFrame::ExecuteInput()
@@ -100,7 +133,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 	if(m_open)
 	{
 		float windowHeight = 576.0f;
-		float consoleHeight = (float)ConsoleSize * m_font.GetLineSpacing();
+		float consoleHeight = (float)ConsoleSize * m_font.GetLineSpacing() + 1.0f;
 
 		// Draw console background.
 		ShapeRenderer::Quad quad;
@@ -118,11 +151,14 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 		{
 			const char* text = Context::consoleHistory->GetText(i);
 
+			if(text == nullptr)
+				break;
+
 			TextRenderer::DrawInfo info;
 			info.font = &m_font;
 			info.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 			info.position.x = 5.0f;
-			info.position.y = quad.position.y + (i + 2) * m_font.GetLineSpacing();
+			info.position.y = quad.position.y + (i + 2) * m_font.GetLineSpacing() + 1.0f;
 			info.size.x = 1024.0f - 1.0f;
 			info.size.y = 0.0f;
 
@@ -138,9 +174,10 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 			info.font = &m_font;
 			info.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 			info.position.x = 5.0f;
-			info.position.y = quad.position.y + m_font.GetLineSpacing();
+			info.position.y = quad.position.y + m_font.GetLineSpacing() + 1.0f;
 			info.size.x = 1024.0f - 1.0f;
 			info.size.y = 0.0f;
+			info.cursorIndex = 2 + m_cursorPosition;
 
 			Context::textRenderer->Draw(info, transform, inputText.c_str());
 		}

@@ -140,31 +140,13 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
 	if(!utf8::is_valid(text, text + textSize))
 		return;
 
-	// Update font texture atlas.
-	info.font->CacheGlyphs(text);
-	info.font->UpdateAtlasTexture();
-
-	// Bind render states.
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, info.font->GetTexture()->GetHandle());
-
-	glUseProgram(m_shader.GetHandle());
-	glUniformMatrix4fv(m_shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(transform));
-	glUniform1i(m_shader.GetUniform("texture"), 0);
-	
-	glBindVertexArray(m_vertexInput.GetHandle());
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.GetHandle());
-
-	// Calculate pixel size of the atlas texture.
-	glm::vec2 pixelSize(1.0f / info.font->GetAtlasWidth(), 1.0f / info.font->GetAtlasHeight());
-
 	// Current drawing position.
 	glm::vec2 baselinePosition;
 	baselinePosition.x = info.position.x;
 	baselinePosition.y = info.position.y - info.font->GetAscender();
+
+	// Text cursor position (to be determined).
+	glm::vec2 cursorPosition = baselinePosition;
 
 	// Debug drawing.
 	glm::vec2 baselineBegin(baselinePosition);
@@ -217,12 +199,39 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
 	};
 
 	// Method that advances drawing position after drawing a character.
-	auto AdvanceBaseline = [&](const Glyph* glyph)
+	auto AdvanceBaseline = [&](int index, const Glyph* glyph)
 	{
 		// Advance position for next glyph.
 		baselinePosition.x += glyph->advance.x;
 		baselinePosition.y += glyph->advance.y;
+
+		// Save the position of the cursor for it to be drawn later.
+		if(info.cursorIndex == index + 1)
+		{
+			cursorPosition = baselinePosition;
+		}
 	};
+
+	// Update font texture atlas.
+	info.font->CacheGlyphs(text);
+	info.font->UpdateAtlasTexture();
+
+	// Bind render states.
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, info.font->GetTexture()->GetHandle());
+
+	glUseProgram(m_shader.GetHandle());
+	glUniformMatrix4fv(m_shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(transform));
+	glUniform1i(m_shader.GetUniform("texture"), 0);
+	
+	glBindVertexArray(m_vertexInput.GetHandle());
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.GetHandle());
+
+	// Calculate pixel size of the atlas texture.
+	glm::vec2 pixelSize(1.0f / info.font->GetAtlasWidth(), 1.0f / info.font->GetAtlasHeight());
 
 	// Method that draws buffered characters.
 	int charactersBuffered = 0;
@@ -271,7 +280,7 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
 			assert(glyph != nullptr);
 
 			// Advance drawing position.
-			AdvanceBaseline(glyph);
+			AdvanceBaseline(i, glyph);
 
 			// Process a new word.
 			wordProcessed = false;
@@ -387,7 +396,7 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
 		}
 
 		// Advance drawing position.
-		AdvanceBaseline(glyph);
+		AdvanceBaseline(i, glyph);
 	}
 
 	// Draw any remaining characters that were buffered.
@@ -401,6 +410,19 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
 	glUseProgram(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDisable(GL_BLEND);
+
+	// Draw text cursor.
+	if(info.cursorIndex >= 0)
+	{
+		ShapeRenderer::Line cursorLine;
+		cursorLine.color = info.color;
+		cursorLine.begin.x = cursorPosition.x;
+		cursorLine.begin.y = cursorPosition.y + info.font->GetAscender();
+		cursorLine.end.x = cursorPosition.x;
+		cursorLine.end.y = cursorPosition.y + info.font->GetDescender();
+
+		Context::shapeRenderer->DrawLines(&cursorLine, 1, transform);
+	}
 
 	// Flush debug draw.
 	if(info.debug)

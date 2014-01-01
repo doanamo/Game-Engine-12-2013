@@ -33,6 +33,7 @@ public:
 			color(0.0f, 0.0f, 0.0f, 0.0f),
 			position(0.0f, 0.0f),
 			size(0.0f, 0.0f),
+			cursorIndex(-1),
 			debug(false)
 		{
 		}
@@ -51,6 +52,10 @@ public:
 		// If a line exceeds the height, it will be cut out (possibly partially).
 		// Set width or height to 0.0f to disable each.
 		glm::vec2 size;
+
+		// Text cursor index (position).
+		// Set to -1 to disable.
+		int cursorIndex;
 
 		// Draws debug info.
 		bool debug;
