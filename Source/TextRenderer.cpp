@@ -346,19 +346,21 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
 			}
 		}
 
-		// Create a character quad.
+		// Calculate glyph rectangle.
 		glm::vec4 rectangle;
 		rectangle.x = (float)(baselinePosition.x + glyph->offset.x);
 		rectangle.y = (float)(baselinePosition.y + glyph->offset.y);
 		rectangle.w = rectangle.x + (float)glyph->size.x;
 		rectangle.z = rectangle.y + (float)glyph->size.y;
 
+		// Calculate glyph texture coordinates.
 		glm::vec4 texture;
 		texture.x = glyph->position.x * pixelSize.x;
 		texture.y = glyph->position.y * pixelSize.y;
 		texture.w = (glyph->position.x + glyph->size.x) * pixelSize.x;
 		texture.z = (glyph->position.y + glyph->size.y) * pixelSize.y;
 
+		// Create a character quad.
 		Vertex quad[4] =
 		{
 			{ glm::vec2(rectangle.x, rectangle.y), glm::vec2(texture.x, texture.y), info.color },
