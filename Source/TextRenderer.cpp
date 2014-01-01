@@ -19,8 +19,7 @@ TextRenderer::TextRenderer() :
 	m_vertexBuffer(),
 	m_indexBuffer(),
 	m_vertexInput(),
-	m_initialized(false),
-	m_debug(false)
+	m_initialized(false)
 {
 }
 
@@ -115,18 +114,21 @@ void TextRenderer::Cleanup()
 	m_vertexInput.Cleanup();
 
 	m_initialized = false;
-	m_debug = false;
 }
 
-void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, const glm::vec4& color, const glm::mat4& transform, const char* text)
+void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const char* text)
 {
 	if(!m_initialized)
 		return;
 
-	if(font == nullptr)
+	// Validate arguments.
+	if(info.font == nullptr)
 		return;
 
-	if(maxWidth < 0.0f)
+	if(info.size.x < 0.0f)
+		return;
+
+	if(info.size.y < 0.0f)
 		return;
 
 	if(text == nullptr)
@@ -139,15 +141,15 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 		return;
 
 	// Update font texture atlas.
-	font->CacheGlyphs(text);
-	font->UpdateAtlasTexture();
+	info.font->CacheGlyphs(text);
+	info.font->UpdateAtlasTexture();
 
 	// Bind render states.
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, font->GetTexture()->GetHandle());
+	glBindTexture(GL_TEXTURE_2D, info.font->GetTexture()->GetHandle());
 
 	glUseProgram(m_shader.GetHandle());
 	glUniformMatrix4fv(m_shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(transform));
@@ -157,12 +159,12 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.GetHandle());
 
 	// Calculate pixel size of the atlas texture.
-	glm::vec2 pixelSize(1.0f / font->GetAtlasWidth(), 1.0f / font->GetAtlasHeight());
+	glm::vec2 pixelSize(1.0f / info.font->GetAtlasWidth(), 1.0f / info.font->GetAtlasHeight());
 
 	// Current drawing position.
 	glm::vec2 baselinePosition;
-	baselinePosition.x = position.x;
-	baselinePosition.y = position.y - font->GetAscender();
+	baselinePosition.x = info.position.x;
+	baselinePosition.y = info.position.y - info.font->GetAscender();
 
 	// Debug drawing.
 	glm::vec2 baselineBegin(baselinePosition);
@@ -172,7 +174,7 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 
 	auto AddDebugBaseLine = [&](const glm::vec2& baselineEnd) -> void
 	{
-		assert(m_debug);
+		assert(info.debug);
 
 		ShapeRenderer::Line line;
 		line.begin = baselineBegin;
@@ -184,7 +186,7 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 
 	auto AddDebugGlyphRectangle = [&](const glm::vec2& position, const glm::vec2& size)
 	{
-		assert(m_debug);
+		assert(info.debug);
 
 		ShapeRenderer::Rectangle rectangle;
 		rectangle.position = position;
@@ -198,17 +200,17 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 	auto MoveNextLine = [&]()
 	{
 		// Draw debug base line.
-		if(m_debug)
+		if(info.debug)
 		{
 			AddDebugBaseLine(baselinePosition);
 		}
 
 		// Move to the next line.
-		baselinePosition.x = position.x;
-		baselinePosition.y -= font->GetLineSpacing();
+		baselinePosition.x = info.position.x;
+		baselinePosition.y -= info.font->GetLineSpacing();
 
 		// Set new baseline begining.
-		if(m_debug)
+		if(info.debug)
 		{
 			baselineBegin = baselinePosition;
 		}
@@ -265,13 +267,15 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 		if(character == ' ')
 		{
 			// Get glyph description.
-			const Glyph* glyph = font->GetGlyph(' ');
+			const Glyph* glyph = info.font->GetGlyph(' ');
 			assert(glyph != nullptr);
 
 			// Advance drawing position.
 			AdvanceBaseline(glyph);
 
+			// Process a new word.
 			wordProcessed = false;
+
 			continue;
 		}
 
@@ -279,42 +283,47 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 		if(wordProcessed == false)
 		{
 			// Check if the next word will fit.
-			float wordSize = 0.0f;
-
-			for(size_t j = i; j < textLength; ++j)
+			if(info.size.x > 0.0f)
 			{
-				FT_ULong wordCharacter = text[j];
+				float wordSize = 0.0f;
 
-				if(wordCharacter == ' ')
-					break;
-
-				// Get glyph description.
-				const Glyph* glyph = font->GetGlyph(wordCharacter);
-				assert(glyph != nullptr);
-
-				// Get glyph kerning.
-				assert(i != 0);
-
-				int kerning = font->GetKerning(text[j - i], wordCharacter);
-
-				// Check if the word will fit.
-				wordSize += glyph->advance.x + kerning;
-
-				if(baselinePosition.x - position.x + wordSize > maxWidth)
+				for(size_t j = i; j < textLength; ++j)
 				{
-					// Don't draw last space for debug base line.
-					if(m_debug)
+					FT_ULong wordCharacter = text[j];
+
+					// Space isn't a part of a ward.
+					if(wordCharacter == ' ')
+						break;
+
+					// We can't check if the first word will fit, it will cause problems.
+					assert(i != 0);
+
+					// Get glyph description.
+					const Glyph* glyph = info.font->GetGlyph(wordCharacter);
+					assert(glyph != nullptr);
+
+					// Get glyph kerning.
+					int kerning = info.font->GetKerning(text[j - i], wordCharacter);
+
+					// Check if the word will fit.
+					wordSize += glyph->advance.x + kerning;
+
+					if(baselinePosition.x - info.position.x + wordSize > info.size.x)
 					{
-						const Glyph* glyphSpace = font->GetGlyph(' ');
-						assert(glyphSpace != nullptr);
+						// Don't draw last space for debug base line.
+						if(info.debug)
+						{
+							const Glyph* glyphSpace = info.font->GetGlyph(' ');
+							assert(glyphSpace != nullptr);
 
-						baselinePosition.x -= glyphSpace->advance.x;
+							baselinePosition.x -= glyphSpace->advance.x;
+						}
+
+						// Move to the next line.
+						MoveNextLine();
+
+						break;
 					}
-
-					// Move to the next line.
-					MoveNextLine();
-
-					break;
 				}
 			}
 
@@ -322,8 +331,7 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 		}
 
 		// Get glyph description.
-		const Glyph* glyph = font->GetGlyph(character);
-
+		const Glyph* glyph = info.font->GetGlyph(character);
 		assert(glyph != nullptr);
 
 		// Apply glyph kerning.
@@ -333,7 +341,7 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 
 			if(previous != '\n' && previous != ' ')
 			{
-				int kerning = font->GetKerning(previous, character);
+				int kerning = info.font->GetKerning(previous, character);
 				baselinePosition.x += kerning;
 			}
 		}
@@ -353,14 +361,14 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 
 		Vertex quad[4] =
 		{
-			{ glm::vec2(rectangle.x, rectangle.y), glm::vec2(texture.x, texture.y), color },
-			{ glm::vec2(rectangle.w, rectangle.y), glm::vec2(texture.w, texture.y), color },
-			{ glm::vec2(rectangle.w, rectangle.z), glm::vec2(texture.w, texture.z), color },
-			{ glm::vec2(rectangle.x, rectangle.z), glm::vec2(texture.x, texture.z), color },
+			{ glm::vec2(rectangle.x, rectangle.y), glm::vec2(texture.x, texture.y), info.color },
+			{ glm::vec2(rectangle.w, rectangle.y), glm::vec2(texture.w, texture.y), info.color },
+			{ glm::vec2(rectangle.w, rectangle.z), glm::vec2(texture.w, texture.z), info.color },
+			{ glm::vec2(rectangle.x, rectangle.z), glm::vec2(texture.x, texture.z), info.color },
 		};
 
 		// Draw debug glyph rectangle.
-		if(m_debug)
+		if(info.debug)
 		{
 			AddDebugGlyphRectangle(glm::vec2(rectangle.x, rectangle.y), glm::vec2(glyph->size.x, glyph->size.y));
 		}
@@ -393,12 +401,12 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 	glDisable(GL_BLEND);
 
 	// Flush debug draw.
-	if(m_debug)
+	if(info.debug)
 	{
 		// Draw glyph rectangles.
 		Context::shapeRenderer->DrawRectangles(&debugRectangles[0], debugRectangles.size(), transform);
 
-		// Draw last baseline.
+		// Add last base line.
 		AddDebugBaseLine(baselinePosition);
 
 		// Draw all base lines.
@@ -406,17 +414,12 @@ void TextRenderer::Draw(Font* font, const glm::vec2& position, float maxWidth, c
 
 		// Draw bounding box.
 		ShapeRenderer::Rectangle rectangle;
-		rectangle.position.x = position.x;
-		rectangle.position.y = baselinePosition.y + font->GetDescender();
-		rectangle.size.x = maxWidth;
-		rectangle.size.y = position.y - rectangle.position.y;
+		rectangle.position.x = info.position.x;
+		rectangle.position.y = baselinePosition.y + info.font->GetDescender();
+		rectangle.size.x = info.size.x;
+		rectangle.size.y = info.position.y - rectangle.position.y;
 		rectangle.color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
 
 		Context::shapeRenderer->DrawRectangles(&rectangle, 1, transform);
 	}
-}
-
-void TextRenderer::SetDebug(bool enabled)
-{
-	m_debug = enabled;
 }
