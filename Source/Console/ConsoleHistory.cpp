@@ -11,7 +11,6 @@ ConsoleHistory::ConsoleHistory() :
 	m_outputHistorySize(0),
 	m_initialized(false)
 {
-	// m_bufferEnd must start at -1 so we can avoid an extra check on the first write.
 }
 
 ConsoleHistory::~ConsoleHistory()
@@ -63,7 +62,7 @@ void ConsoleHistory::Write(const char* text)
 		m_outputHistory.pop_back();
 	}
 
-	// Add string to history.
+	// Add string to the history.
 	m_outputHistory.emplace_front(text);
 }
 
