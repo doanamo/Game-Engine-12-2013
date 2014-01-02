@@ -98,6 +98,44 @@ void ConsoleFrame::Process(const SDL_Event& event)
 			}
 		}
 		else
+		if(event.key.keysym.scancode == SDL_SCANCODE_LEFT)
+		{
+			if(m_open)
+			{
+				// Move cursor to the left.
+				m_cursorPosition = std::max(0, m_cursorPosition - 1);
+			}
+		}
+		else
+		if(event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
+		{
+			if(m_open)
+			{
+				// Move cursor to the right.
+				int inputLength = utf8::distance(m_input.begin(), m_input.end());
+				m_cursorPosition = std::min(m_cursorPosition + 1, inputLength);
+			}
+		}
+		else
+		if(event.key.keysym.scancode == SDL_SCANCODE_HOME)
+		{
+			if(m_open)
+			{
+				// Move cursor to the beginning.
+				m_cursorPosition = 0;
+			}
+		}
+		else
+		if(event.key.keysym.scancode == SDL_SCANCODE_END)
+		{
+			if(m_open)
+			{
+				// Move cursor to the end.
+				int inputLength = utf8::distance(m_input.begin(), m_input.end());
+				m_cursorPosition = inputLength;
+			}
+		}
+		else
 		if(event.key.keysym.scancode == SDL_SCANCODE_RETURN && event.key.repeat == 0)
 		{
 			if(m_open)
@@ -114,11 +152,43 @@ void ConsoleFrame::Process(const SDL_Event& event)
 		{
 			if(m_open)
 			{
-				// Erase last character from console input.
-				if(!m_input.empty())
+				// Erase a character on the left of the cursor.
+				if(m_cursorPosition > 0)
 				{
-					m_input = m_input.substr(0, m_input.size() - 1);
+					// Determine part of the string we want to erase.
+					auto eraseBegin = m_input.begin();
+					utf8::unchecked::advance(eraseBegin, m_cursorPosition - 1);
+
+					auto eraseEnd = eraseBegin;
+					utf8::unchecked::advance(eraseEnd, 1);
+
+					// Erase a character.
+					m_input.erase(eraseBegin, eraseEnd);
+
+					// Move cursor back.
 					m_cursorPosition -= 1;
+				}
+			}
+		}
+		else
+		if(event.key.keysym.scancode == SDL_SCANCODE_DELETE)
+		{
+			if(m_open)
+			{
+				// Erase a character on the right of the cursor.
+				int inputLength = utf8::distance(m_input.begin(), m_input.end());
+
+				if(m_cursorPosition < inputLength)
+				{
+					// Determine part of the string we want to erase.
+					auto eraseBegin = m_input.begin();
+					utf8::unchecked::advance(eraseBegin, m_cursorPosition);
+
+					auto eraseEnd = eraseBegin;
+					utf8::unchecked::advance(eraseEnd, 1);
+
+					// Erase a character.
+					m_input.erase(eraseBegin, eraseEnd);
 				}
 			}
 		}
@@ -136,12 +206,17 @@ void ConsoleFrame::Process(const SDL_Event& event)
 	case SDL_TEXTINPUT:
 		if(m_open)
 		{
-			// Append entered characters at the end of the input buffer.
+			// Get the character string.
 			const char* text = event.text.text;
 			assert(text != nullptr);
 
-			m_input.append(text);
-			m_cursorPosition += utf8::distance(text, text + strlen(text));
+			// Determine cursor position on the input buffer.
+			auto insertBegin = m_input.begin();
+			utf8::unchecked::advance(insertBegin, m_cursorPosition);
+
+			// Insert entered characters at the cursor position.
+			m_input.insert(insertBegin, text, text + strlen(text));
+			m_cursorPosition += 1;
 		}
 		break;
 	}
@@ -212,26 +287,4 @@ void ConsoleFrame::ClearInput()
 {
 	m_input.clear();
 	m_cursorPosition = 0;
-}
-
-void ConsoleFrame::MoveInputCursor(InputCursor move)
-{
-	switch(move)
-	{
-	case InputCursor::Begin:
-		m_cursorPosition = 0;
-		break;
-
-	case InputCursor::End:
-		m_cursorPosition = m_input.size();
-		break;
-
-	case InputCursor::Left:
-		m_cursorPosition = std::max(0, m_cursorPosition - 1);
-		break;
-
-	case InputCursor::Right:
-		m_cursorPosition = std::min(m_cursorPosition + 1, (int)m_input.size());
-		break;
-	}
 }
