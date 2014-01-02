@@ -68,6 +68,7 @@ public:
 	bool Initialize(int bufferSize);
 	void Cleanup();
 
+	void Update(float dt);
 	void Draw(const DrawInfo& info, const glm::mat4& transform, const char* text);
 
 private:
@@ -78,6 +79,8 @@ private:
 	VertexBuffer	m_vertexBuffer;
 	IndexBuffer		m_indexBuffer;
 	VertexInput     m_vertexInput;
+
+	float m_cursorTime;
 
 	bool m_initialized;
 };

@@ -10,6 +10,9 @@ namespace
 
 	// Index type.
 	typedef unsigned int Index;
+
+	// Cursor blink time.
+	const float CursorBlinkTime = 2.0f * 0.530f;
 }
 
 TextRenderer::TextRenderer() :
@@ -19,6 +22,7 @@ TextRenderer::TextRenderer() :
 	m_vertexBuffer(),
 	m_indexBuffer(),
 	m_vertexInput(),
+	m_cursorTime(0.0f),
 	m_initialized(false)
 {
 }
@@ -113,7 +117,15 @@ void TextRenderer::Cleanup()
 	m_indexBuffer.Cleanup();
 	m_vertexInput.Cleanup();
 
+	m_cursorTime = 0.0f;
+
 	m_initialized = false;
+}
+
+void TextRenderer::Update(float dt)
+{
+	m_cursorTime += dt;
+	m_cursorTime = fmod(m_cursorTime, CursorBlinkTime);
 }
 
 void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const char* text)
@@ -412,7 +424,7 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
 	glDisable(GL_BLEND);
 
 	// Draw text cursor.
-	if(info.cursorIndex >= 0)
+	if(info.cursorIndex >= 0 && m_cursorTime < CursorBlinkTime * 0.5f)
 	{
 		ShapeRenderer::Line cursorLine;
 		cursorLine.color = info.color;

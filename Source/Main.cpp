@@ -473,6 +473,9 @@ int main(int argc, char* argv[])
 		// Update frame counter.
 		frameCounter.Update(dt);
 
+		// Update cursor blink time.
+		Context::textRenderer->Update(dt);
+
 		// Setup the viewport.
 		int windowWidth, windowHeight;
 		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
