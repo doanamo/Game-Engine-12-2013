@@ -12,7 +12,7 @@ public:
 	ConsoleHistory();
 	~ConsoleHistory();
 
-	bool Initialize(int bufferSize);
+	bool Initialize(int outputHistorySize);
 	void Cleanup();
 
 	void Write(const char* text);
@@ -22,16 +22,14 @@ public:
 
 	bool IsEmpty() const
 	{
-		return m_bufferEnd == -1;
+		return m_outputHistory.empty();
 	}
 
 private:
-	// Text ring buffer.
-	char*	m_buffer;
-	int		m_bufferSize;
-	int		m_bufferLimit;
-	int		m_bufferBegin;
-	int		m_bufferEnd;
+	typedef std::deque<std::string> StringQueue;
+
+	StringQueue	m_outputHistory;
+	int			m_outputHistorySize;
 
 	bool m_initialized;
 };
