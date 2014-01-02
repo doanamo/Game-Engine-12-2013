@@ -407,63 +407,10 @@ int main(int argc, char* argv[])
 			case SDL_QUIT:
 				isQuitting = true;
 				break;
-
-			case SDL_KEYDOWN:
-				if(event.key.keysym.scancode == SDL_SCANCODE_GRAVE && event.key.repeat == 0)
-				{
-					if(!Context::consoleFrame->IsOpen())
-					{
-						// Open console frame.
-						Context::consoleFrame->Open();
-
-						// Start text input.
-						SDL_StartTextInput();
-					}
-					else
-					{
-						// Close console frame.
-						Context::consoleFrame->Close();
-
-						// End text input.
-						SDL_StopTextInput();
-					}
-				}
-				else
-				if(event.key.keysym.scancode == SDL_SCANCODE_RETURN && event.key.repeat == 0)
-				{
-					if(Context::consoleFrame->IsOpen())
-					{
-						// Execute console input.
-						Context::consoleFrame->ExecuteInput();
-					}
-				}
-				else
-				if(event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE)
-				{
-					if(Context::consoleFrame->IsOpen())
-					{
-						// Erase last character from console input.
-						Context::consoleFrame->EraseLastInputCharacter();
-					}
-				}
-				else
-				if(event.key.keysym.scancode == SDL_SCANCODE_ESCAPE && event.key.repeat == 0)
-				{
-					if(Context::consoleFrame->IsOpen())
-					{
-						// Clear console input.
-						Context::consoleFrame->ClearInput();
-					}
-				}
-				break;
-
-			case SDL_TEXTINPUT:
-				if(Context::consoleFrame->IsOpen())
-				{
-					Context::consoleFrame->AppendInput(event.text.text);
-				}
-				break;
 			}
+
+			// Process an event by console frame.
+			Context::consoleFrame->Process(event);
 		}
 
 		// Calculate elapsed time.

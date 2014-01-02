@@ -70,59 +70,81 @@ void ConsoleFrame::Close()
 	m_open = false;
 }
 
-void ConsoleFrame::ClearInput()
+void ConsoleFrame::Process(const SDL_Event& event)
 {
-	m_input.clear();
-	m_cursorPosition = 0;
-}
-
-void ConsoleFrame::MoveInputCursor(InputCursor move)
-{
-	switch(move)
-	{
-	case InputCursor::Begin:
-		m_cursorPosition = 0;
-		break;
-
-	case InputCursor::End:
-		m_cursorPosition = m_input.size();
-		break;
-
-	case InputCursor::Left:
-		m_cursorPosition = std::max(0, m_cursorPosition - 1);
-		break;
-
-	case InputCursor::Right:
-		m_cursorPosition = std::min(m_cursorPosition + 1, (int)m_input.size());
-		break;
-	}
-}
-
-void ConsoleFrame::EraseLastInputCharacter()
-{
-	if(!m_input.empty())
-	{
-		m_input = m_input.substr(0, m_input.size() - 1);
-		m_cursorPosition -= 1;
-	}
-}
-
-void ConsoleFrame::AppendInput(const char* text)
-{
-	if(text == nullptr)
+	if(!m_initialized)
 		return;
 
-	m_input.append(text);
-	m_cursorPosition += utf8::distance(text, text + strlen(text));
-}
+	switch(event.type)
+	{
+	case SDL_KEYDOWN:
+		if(event.key.keysym.scancode == SDL_SCANCODE_GRAVE && event.key.repeat == 0)
+		{
+			if(!m_open)
+			{
+				// Open console frame.
+				m_open = true;
 
-void ConsoleFrame::ExecuteInput()
-{
-	// Execute input.
-	Context::consoleSystem->Execute(m_input);
+				// Start text input.
+				SDL_StartTextInput();
+			}
+			else
+			{
+				// Close console frame.
+				m_open = false;
 
-	// Clear input.
-	ClearInput();
+				// End text input.
+				SDL_StopTextInput();
+			}
+		}
+		else
+		if(event.key.keysym.scancode == SDL_SCANCODE_RETURN && event.key.repeat == 0)
+		{
+			if(m_open)
+			{
+				// Execute input.
+				Context::consoleSystem->Execute(m_input);
+
+				// Clear input.
+				this->ClearInput();
+			}
+		}
+		else
+		if(event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE)
+		{
+			if(m_open)
+			{
+				// Erase last character from console input.
+				if(!m_input.empty())
+				{
+					m_input = m_input.substr(0, m_input.size() - 1);
+					m_cursorPosition -= 1;
+				}
+			}
+		}
+		else
+		if(event.key.keysym.scancode == SDL_SCANCODE_ESCAPE && event.key.repeat == 0)
+		{
+			if(m_open)
+			{
+				// Clear console input.
+				this->ClearInput();
+			}
+		}
+		break;
+
+	case SDL_TEXTINPUT:
+		if(m_open)
+		{
+			// Append entered characters at the end of the input buffer.
+			const char* text = event.text.text;
+			assert(text != nullptr);
+
+			m_input.append(text);
+			m_cursorPosition += utf8::distance(text, text + strlen(text));
+		}
+		break;
+	}
 }
 
 void ConsoleFrame::Draw(const glm::mat4& transform)
@@ -183,5 +205,33 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 
 			Context::textRenderer->Draw(info, transform, inputText.c_str());
 		}
+	}
+}
+
+void ConsoleFrame::ClearInput()
+{
+	m_input.clear();
+	m_cursorPosition = 0;
+}
+
+void ConsoleFrame::MoveInputCursor(InputCursor move)
+{
+	switch(move)
+	{
+	case InputCursor::Begin:
+		m_cursorPosition = 0;
+		break;
+
+	case InputCursor::End:
+		m_cursorPosition = m_input.size();
+		break;
+
+	case InputCursor::Left:
+		m_cursorPosition = std::max(0, m_cursorPosition - 1);
+		break;
+
+	case InputCursor::Right:
+		m_cursorPosition = std::min(m_cursorPosition + 1, (int)m_input.size());
+		break;
 	}
 }
