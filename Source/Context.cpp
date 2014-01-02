@@ -1,6 +1,8 @@
 #include "Precompiled.hpp"
 #include "Context.hpp"
 
+bool Context::isQuitting = false;
+
 std::string Context::workingDir = "";
 
 Logger*			Context::logger			= nullptr;

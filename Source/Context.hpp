@@ -8,6 +8,8 @@
 
 struct Context
 {
+	static bool isQuitting;
+
 	static std::string workingDir;
 
 	static class Logger*			logger;

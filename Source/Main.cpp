@@ -20,70 +20,8 @@
 #include "TextRenderer.hpp"
 
 //
-// Console Commands
-//
-
-void CommandHelp(std::string arguments)
-{
-	// Get some more help here.
-	if(arguments.empty())
-	{
-		Log() << "Type \"help <definition>\" for more info on a particular command or variable.";
-		return;
-	}
-
-	// Locate the first white space.
-	std::size_t separator = arguments.find(' ');
-
-	// Get the first argument.
-	std::string name(arguments);
-
-	if(separator != std::string::npos)
-	{
-		name.erase(separator);
-	}
-
-	// Get the definition.
-	ConsoleDefinition* definition = Context::consoleSystem->FindDefinition(name);
-
-	if(definition == nullptr)
-	{
-		Log() << "Couldn't find \"" << name << "\" definition.";
-		return;
-	}
-
-	// Print the description.
-	Log() << definition->GetDescription();
-}
-
-void CommandEcho(std::string arguments)
-{
-	Log() << arguments;
-}
-
-void CommandClear(std::string arguments)
-{
-	if(Context::consoleHistory)
-	{
-		Context::consoleHistory->Clear();
-	}
-}
-
-bool isQuitting = false;
-
-void CommandQuit(std::string arguments)
-{
-	isQuitting = true;
-}
-
-//
 // Console Definitions
 //
-
-ConsoleCommand help("help", &CommandHelp, "Prints a description of a command or a variable.");
-ConsoleCommand echo("echo", &CommandEcho, "Prints provided arguments in the console.");
-ConsoleCommand clear("clear", &CommandClear, "Clears the console output.");
-ConsoleCommand quit("quit", &CommandQuit, "Quits the application.");
 
 ConsoleVariable mouseSensivity("i_sensivity", "4.2", "Mouse sensivity.");
 ConsoleVariable playerHealth("g_playerhealth", "100", "Current player health.");
@@ -396,7 +334,7 @@ int main(int argc, char* argv[])
 	uint32_t timePrevious = SDL_GetTicks();
 	uint32_t timeCurrent = timePrevious;
 
-	while(!isQuitting)
+	while(!Context::isQuitting)
 	{
 		// Handle window events.
 		SDL_Event event;
@@ -405,7 +343,7 @@ int main(int argc, char* argv[])
 			switch(event.type)
 			{
 			case SDL_QUIT:
-				isQuitting = true;
+				Context::isQuitting = true;
 				break;
 			}
 
