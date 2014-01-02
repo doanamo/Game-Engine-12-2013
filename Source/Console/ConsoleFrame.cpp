@@ -133,14 +133,16 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 	if(m_open)
 	{
 		float windowHeight = 576.0f;
-		float consoleHeight = (float)ConsoleSize * m_font.GetLineSpacing() + 1.0f;
+		float consoleExtra = 1.0f;
+		float consoleSize = (float)ConsoleSize * m_font.GetLineSpacing();
+		float consolePosition = windowHeight - consoleSize;
 
 		// Draw console background.
 		ShapeRenderer::Quad quad;
 		quad.position.x = 0.0f;
-		quad.position.y = windowHeight - consoleHeight;
+		quad.position.y = consolePosition - consoleExtra;
 		quad.size.x = 1024.0f;
-		quad.size.y = consoleHeight;
+		quad.size.y = consoleSize + consoleExtra;
 		quad.color = glm::vec4(0.0f, 0.0f, 0.0f, 0.85f);
 		quad.texture = nullptr;
 
@@ -158,7 +160,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 			info.font = &m_font;
 			info.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 			info.position.x = 5.0f;
-			info.position.y = quad.position.y + (i + 2) * m_font.GetLineSpacing() + 1.0f;
+			info.position.y = consolePosition + (i + 2) * m_font.GetLineSpacing();
 			info.size.x = 1024.0f - 1.0f;
 			info.size.y = 0.0f;
 
@@ -174,7 +176,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 			info.font = &m_font;
 			info.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 			info.position.x = 5.0f;
-			info.position.y = quad.position.y + m_font.GetLineSpacing() + 1.0f;
+			info.position.y = consolePosition + m_font.GetLineSpacing();
 			info.size.x = 1024.0f - 1.0f;
 			info.size.y = 0.0f;
 			info.cursorIndex = 2 + m_cursorPosition;
