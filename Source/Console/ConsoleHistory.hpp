@@ -12,7 +12,7 @@ public:
 	ConsoleHistory();
 	~ConsoleHistory();
 
-	bool Initialize(int outputHistorySize);
+	bool Initialize(int outputSize);
 	void Cleanup();
 
 	void Write(const char* text);
@@ -29,7 +29,7 @@ private:
 	typedef std::deque<std::string> StringQueue;
 
 	StringQueue	m_outputHistory;
-	int			m_outputHistorySize;
+	int			m_outputSize;
 
 	bool m_initialized;
 };

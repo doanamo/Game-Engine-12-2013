@@ -8,7 +8,7 @@ namespace
 }
 
 ConsoleHistory::ConsoleHistory() :
-	m_outputHistorySize(0),
+	m_outputSize(0),
 	m_initialized(false)
 {
 }
@@ -18,18 +18,18 @@ ConsoleHistory::~ConsoleHistory()
 	Cleanup();
 }
 
-bool ConsoleHistory::Initialize(int outputHistorySize)
+bool ConsoleHistory::Initialize(int outputSize)
 {
 	Cleanup();
 
 	// Validate arguments.
-	if(outputHistorySize <= 0)
+	if(outputSize <= 0)
 	{
-		Log() << LogInitializeError() << "Invalid argument - \"outputHistorySize\" is invalid.";
+		Log() << LogInitializeError() << "Invalid argument - \"outputSize\" is invalid.";
 		return false;
 	}
 
-	m_outputHistorySize = outputHistorySize;
+	m_outputSize = outputSize;
 
 	// Success!
 	m_initialized = true;
@@ -40,7 +40,7 @@ bool ConsoleHistory::Initialize(int outputHistorySize)
 void ConsoleHistory::Cleanup()
 {
 	ClearContainer(m_outputHistory);
-	m_outputHistorySize = 0;
+	m_outputSize = 0;
 
 	m_initialized = false;
 }
@@ -54,9 +54,9 @@ void ConsoleHistory::Write(const char* text)
 		return;
 
 	// Check if there is space for another string.
-	assert((int)m_outputHistory.size() <= m_outputHistorySize);
+	assert((int)m_outputHistory.size() <= m_outputSize);
 
-	if((int)m_outputHistory.size() == m_outputHistorySize)
+	if((int)m_outputHistory.size() == m_outputSize)
 	{
 		// Remove oldest string.
 		m_outputHistory.pop_back();
