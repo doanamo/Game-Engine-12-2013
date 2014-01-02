@@ -13,5 +13,7 @@ public:
 	LoggerOutputConsole();
 	~LoggerOutputConsole();
 
+	void Cleanup();
+
 	void Write(const LoggerMessage& message);
 };

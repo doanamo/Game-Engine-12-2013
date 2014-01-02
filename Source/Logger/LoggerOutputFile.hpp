@@ -10,11 +10,11 @@
 class LoggerOutputFile : public LoggerOutput
 {
 public:
-	LoggerOutputFile(std::string filename);
+	LoggerOutputFile();
 	~LoggerOutputFile();
 
 	bool Open(std::string filename);
-	void Close();
+	void Cleanup();
 
 	void Write(const LoggerMessage& message);
 

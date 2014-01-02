@@ -17,27 +17,26 @@ ConsoleDefinition::ConsoleDefinition(std::string name, std::string description) 
 	else
 	{
 		// Register a definition.
-		Context::consoleSystem->RegisterDefinition(this);
+		Context::ConsoleSystem().RegisterDefinition(this);
 	}
 }
 
 ConsoleDefinition::~ConsoleDefinition()
 {
 	// Unregister the definition.
-	if(Context::consoleSystem != nullptr)
-	{
-		Context::consoleSystem->UnregisterDefinition(this);
-	}
+	// If the definition is static, it could have already
+	// been unregistered on console system shutdown.
+	Context::ConsoleSystem().UnregisterDefinition(this);
 }
 
 void ConsoleDefinition::RegisterStatic()
 {
-	assert(Context::consoleSystem != nullptr);
+	assert(Context::ConsoleSystem().IsValid());
 
 	// Register all definitions that were created before the console system initialization.
 	for(auto definition = m_staticHead; definition != nullptr; definition = definition->m_staticNext)
 	{
-		Context::consoleSystem->RegisterDefinition(definition);
+		Context::ConsoleSystem().RegisterDefinition(definition);
 	}
 
 	// Static definitions initialized.

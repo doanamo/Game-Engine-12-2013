@@ -25,6 +25,11 @@ public:
 		return m_outputHistory.empty();
 	}
 
+	bool IsValid() const
+	{
+		return m_initialized;
+	}
+
 private:
 	typedef std::deque<std::string> StringQueue;
 

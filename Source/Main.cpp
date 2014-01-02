@@ -1,23 +1,13 @@
 #include "Precompiled.hpp"
 
-#include "Logger/LoggerOutputFile.hpp"
-#include "Logger/LoggerOutputConsole.hpp"
-
 #include "Console/ConsoleSystem.hpp"
-#include "Console/ConsoleHistory.hpp"
 #include "Console/ConsoleFrame.hpp"
 
-#include "Graphics/Shader.hpp"
-#include "Graphics/Buffer.hpp"
-#include "Graphics/VertexInput.hpp"
-#include "Graphics/Texture.hpp"
+#include "Font.hpp"
+#include "ShapeRenderer.hpp"
+#include "TextRenderer.hpp"
 
 #include "FrameCounter.hpp"
-
-#include "ShapeRenderer.hpp"
-
-#include "Font.hpp"
-#include "TextRenderer.hpp"
 
 //
 // Console Definitions
@@ -35,195 +25,13 @@ ConsoleVariable userProfile("s_userprofile", "./", "Current user's profile direc
 int main(int argc, char* argv[])
 {
 	//
-	// Config
+	// Context
 	//
 
-	// Get the path to the asset directory.
-	Context::workingDir = GetTextFileContent("WorkingDir.txt");
-
-	//
-	// Logger
-	//
-
-	// Create a logger.
-	Logger logger;
-
-	// Make instance current.
-	Context::logger = &logger;
-
-	SCOPE_GUARD(Context::logger = nullptr);
-
-	//
-	// Logger Outputs
-	//
-
-	// Create and add file output.
-	LoggerOutputFile outputFile("Log.txt");
-
-	logger.AddOutput(&outputFile);
-
-	SCOPE_GUARD(logger.RemoveOutput(&outputFile));
-
-	// Create and add console output.
-	LoggerOutputConsole outputConsole;
-
-	logger.AddOutput(&outputConsole);
-
-	SCOPE_GUARD(logger.RemoveOutput(&outputConsole));
-
-	//
-	// Console System
-	//
-
-	// Initialize the console system.
-	ConsoleSystem consoleSystem;
-	if(!consoleSystem.Initialize())
+	if(!Context::Initialize())
 		return -1;
 
-	SCOPE_GUARD(consoleSystem.Cleanup());
-
-	// Make instance current.
-	Context::consoleSystem = &consoleSystem;
-
-	SCOPE_GUARD(Context::consoleSystem = nullptr);
-
-	// Register definitions created before the console system was initialized.
-	ConsoleDefinition::RegisterStatic();
-
-	//
-	// Console History
-	//
-
-	// Initialize the console history.
-	ConsoleHistory consoleHistory;
-	if(!consoleHistory.Initialize(32))
-		return -1;
-
-	consoleHistory.Write("Welcome to developer's console!");
-
-	// Make instance current.
-	Context::consoleHistory = &consoleHistory;
-
-	SCOPE_GUARD(Context::consoleHistory = nullptr);
-
-	//
-	// Print configuration.
-	//
-
-	// Print the working directory path.
-	Log() << "Working directory: \"" << Context::workingDir << "\"";
-
-	//
-	// SDL
-	//
-
-	// Initialize SDL library.
-	if(SDL_Init(SDL_INIT_EVERYTHING) != 0)
-	{
-		Log() << "Failed to initialize SDL library! Error: " << SDL_GetError();
-		return -1;
-	}
-
-	SCOPE_GUARD(SDL_Quit());
-
-	// Set requested attributes.
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
-
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
- 
-	// Create a window.
-	int windowWidth = 1024;
-	int windowHeight = 576;
-
-	SDL_Window* window = SDL_CreateWindow(
-		"Game",
-		SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED,
-		windowWidth,
-		windowHeight,
-		SDL_WINDOW_SHOWN |
-		SDL_WINDOW_RESIZABLE |
-		SDL_WINDOW_OPENGL
-	);
-
-	if(window == nullptr)
-	{
-		Log() << "Failed to create a window! Error: " << SDL_GetError();
-		return -1;
-	}
-
-	SCOPE_GUARD(SDL_DestroyWindow(window));
-
-	// For some reason text input is enabled by default.
-	SDL_StopTextInput();
-
-	//
-	// OpenGL
-	//
-
-	// Create OpenGL context.
-	SDL_GLContext glContext = SDL_GL_CreateContext(window);
-
-	if(glContext == nullptr)
-	{
-		Log() << "Failed to create OpenGL context! Error: " << SDL_GetError();
-		return -1;
-	}
-
-	SCOPE_GUARD(SDL_GL_DeleteContext(glContext));
-
-	// Check the version of the created context.
-	int versionMajor, versionMinor;
-
-	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &versionMajor);
-	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &versionMinor);
-
-	Log() << "Created OpenGL " << versionMajor << "." << versionMinor << " context.";
-
-	//
-	// GLEW
-	//
-
-	// Initialize GLEW library.
-	glewExperimental = GL_TRUE;
-
-	GLenum glewError = glewInit();
-
-	if(glewError != GLEW_OK)
-	{
-		Log() << "Failed to initialize GLEW library! Error: " << glewGetErrorString(glewError);
-		return -1;
-	}
-
-	//
-	// FreeType
-	//
-
-	// Initialize FreeType library.
-	FT_Library fontLibrary;
-
-	if(FT_Init_FreeType(&fontLibrary) != 0)
-	{
-		Log() << "Failed to initialize FreeType library!";
-		return -1;
-	}
-
-	SCOPE_GUARD(FT_Done_FreeType(fontLibrary));
-
-	// Make instance current.
-	Context::Private::fontLibrary = fontLibrary;
-
-	SCOPE_GUARD(Context::Private::fontLibrary = nullptr);
+	SCOPE_GUARD(Context::Cleanup());
 
 	//
 	// Frame Counter
@@ -235,84 +43,23 @@ int main(int argc, char* argv[])
 		return -1;
 
 	//
-	// Blank Texture
-	//
-
-	// Create blank white texture.
-	unsigned char* textureBlankData[2 * 2 * 4];
-	memset(&textureBlankData[0], 255, sizeof(unsigned char) * 4 * 2 * 2);
-
-	Texture textureBlank;
-	if(!textureBlank.Initialize(2, 2, GL_RGBA, textureBlankData))
-		return -1;
-
-	// Make instance current.
-	Context::textureBlank = &textureBlank;
-
-	SCOPE_GUARD(Context::textureBlank = nullptr);
-
-	//
 	// Font
 	//
 
 	// Load font file.
 	Font font;
-	if(!font.Load(Context::workingDir + "Data/Fonts/SourceSansPro.ttf", 22, 512, 512))
+	if(!font.Load(Context::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 22, 512, 512))
 		return -1;
 	
 	// Cache ASCII character set.
 	font.CacheASCII();
 
 	//
-	// Shape Renderer
-	//
-
-	// Initialize the shape renderer.
-	ShapeRenderer shapeRenderer;
-	if(!shapeRenderer.Initialize(128))
-		return -1;
-
-	// Make instance current.
-	Context::shapeRenderer = &shapeRenderer;
-
-	SCOPE_GUARD(Context::shapeRenderer = nullptr);
-
-	//
-	// Text Renderer
-	//
-
-	// Initialize the text renderer.
-	TextRenderer textRenderer;
-	if(!textRenderer.Initialize(64))
-		return -1;
-
-	// Make instance current.
-	Context::textRenderer = &textRenderer;
-
-	SCOPE_GUARD(Context::textRenderer = nullptr);
-
-	//
-	// Console Frame
-	//
-
-	// Initialize the console frame.
-	ConsoleFrame consoleFrame;
-	if(!consoleFrame.Initialize())
-		return -1;
-
-	SCOPE_GUARD(consoleFrame.Cleanup());
-
-	// Make instance current.
-	Context::consoleFrame = &consoleFrame;
-
-	SCOPE_GUARD(Context::consoleFrame = nullptr);
-
-	//
 	// Test
 	//
 
 	// Projection.
-	glm::mat4x4 projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
+	glm::mat4x4 projection = glm::ortho(0.0f, (float)1024, 0.0f, (float)576);
 
 	//
 	// Example
@@ -334,7 +81,7 @@ int main(int argc, char* argv[])
 	uint32_t timePrevious = SDL_GetTicks();
 	uint32_t timeCurrent = timePrevious;
 
-	while(!Context::isQuitting)
+	while(!Context::IsQuitting())
 	{
 		// Handle window events.
 		SDL_Event event;
@@ -343,12 +90,12 @@ int main(int argc, char* argv[])
 			switch(event.type)
 			{
 			case SDL_QUIT:
-				Context::isQuitting = true;
+				Context::Quit();
 				break;
 			}
 
 			// Process an event by console frame.
-			Context::consoleFrame->Process(event);
+			Context::ConsoleFrame().Process(event);
 		}
 
 		// Calculate elapsed time.
@@ -359,11 +106,11 @@ int main(int argc, char* argv[])
 		frameCounter.Update(dt);
 
 		// Update cursor blink time.
-		Context::textRenderer->Update(dt);
+		Context::TextRenderer().Update(dt);
 
 		// Setup the viewport.
 		int windowWidth, windowHeight;
-		SDL_GetWindowSize(window, &windowWidth, &windowHeight);
+		SDL_GetWindowSize(Context::SystemWindow(), &windowWidth, &windowHeight);
 
 		glViewport(0, 0, windowWidth, windowHeight);
 
@@ -399,11 +146,11 @@ int main(int argc, char* argv[])
 			info.size.y = 0.0f;
 			info.debug = true;
 
-			Context::textRenderer->Draw(info, projection, text0);
+			Context::TextRenderer().Draw(info, projection, text0);
 		}
 
 		// Draw console frame.
-		Context::consoleFrame->Draw(projection);
+		Context::ConsoleFrame().Draw(projection);
 
 		// Draw frame rate.
 		{
@@ -417,12 +164,12 @@ int main(int argc, char* argv[])
 			info.position.x = 10.0f;
 			info.position.y = 5.0f + font.GetLineSpacing();
 
-			Context::textRenderer->Draw(info, projection, frameCounterText.str().c_str());
+			Context::TextRenderer().Draw(info, projection, frameCounterText.str().c_str());
 		}
 		
 		// Present the window content.
 		SDL_GL_SetSwapInterval(0);
-		SDL_GL_SwapWindow(window);
+		SDL_GL_SwapWindow(Context::SystemWindow());
 
 		// Update frame time.
 		timePrevious = timeCurrent;

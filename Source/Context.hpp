@@ -2,27 +2,42 @@
 
 #include "Precompiled.hpp"
 
+// Forward declarations.
+class Logger;
+class ConsoleSystem;
+class ConsoleHistory;
+class ConsoleFrame;
+class ShapeRenderer;
+class TextRenderer;
+class Texture;
+
 //
 // Context
 //
 
-struct Context
+namespace Context
 {
-	static bool isQuitting;
+	// Context methods.
+	bool Initialize();
+	void Cleanup();
 
-	static std::string workingDir;
+	void Quit();
 
-	static class Logger*			logger;
-	static class ConsoleSystem*		consoleSystem;
-	static class ConsoleHistory*	consoleHistory;
-	static class ConsoleFrame*		consoleFrame;
-	static class ShapeRenderer*		shapeRenderer;
-	static class TextRenderer*		textRenderer;
+	// Context accessors.
+	bool				IsInitialized();
+	bool				IsQuitting();
+	std::string			WorkingDir();
 
-	static class Texture* textureBlank;
+	Logger&				Logger();
+	ConsoleSystem&		ConsoleSystem();
+	ConsoleHistory&		ConsoleHistory();
+	ConsoleFrame&		ConsoleFrame();
+	ShapeRenderer&		ShapeRenderer();
+	TextRenderer&		TextRenderer();
 
-	struct Private
-	{
-		static FT_Library fontLibrary;
-	};
-};
+	Texture&			TextureBlank();
+
+	SDL_Window*			SystemWindow();
+	SDL_GLContext		GraphicsContext();
+	FT_Library			FontLibrary();
+}

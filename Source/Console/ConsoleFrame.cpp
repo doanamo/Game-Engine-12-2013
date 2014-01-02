@@ -29,7 +29,7 @@ bool ConsoleFrame::Initialize()
 	Cleanup();
 
 	// Load font file.
-	if(!m_font.Load(Context::workingDir + "Data/Fonts/SourceSansPro.ttf", 16, 512, 512))
+	if(!m_font.Load(Context::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 16, 512, 512))
 	{
 		Cleanup();
 		return false;
@@ -141,7 +141,7 @@ void ConsoleFrame::Process(const SDL_Event& event)
 			if(m_open)
 			{
 				// Execute input.
-				Context::consoleSystem->Execute(m_input);
+				Context::ConsoleSystem().Execute(m_input);
 
 				// Clear input.
 				this->ClearInput();
@@ -243,12 +243,12 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 		quad.color = glm::vec4(0.0f, 0.0f, 0.0f, 0.85f);
 		quad.texture = nullptr;
 
-		Context::shapeRenderer->DrawQuads(&quad, 1, transform);
+		Context::ShapeRenderer().DrawQuads(&quad, 1, transform);
 
 		// Draw console text.
 		for(int i = 0; i < ConsoleSize - 1; ++i)
 		{
-			const char* text = Context::consoleHistory->GetText(i);
+			const char* text = Context::ConsoleHistory().GetText(i);
 
 			if(text == nullptr)
 				break;
@@ -261,7 +261,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 			info.size.x = 1024.0f - 1.0f;
 			info.size.y = 0.0f;
 
-			Context::textRenderer->Draw(info, transform, text);
+			Context::TextRenderer().Draw(info, transform, text);
 		}
 
 		// Draw console input.
@@ -278,7 +278,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 			info.size.y = 0.0f;
 			info.cursorIndex = 2 + m_cursorPosition;
 
-			Context::textRenderer->Draw(info, transform, inputText.c_str());
+			Context::TextRenderer().Draw(info, transform, inputText.c_str());
 		}
 	}
 }

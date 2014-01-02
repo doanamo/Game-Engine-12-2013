@@ -10,6 +10,12 @@ Logger::Logger()
 
 Logger::~Logger()
 {
+	Cleanup();
+}
+
+void Logger::Cleanup()
+{
+	ClearContainer(m_outputs);
 }
 
 void Logger::AddOutput(LoggerOutput* output)

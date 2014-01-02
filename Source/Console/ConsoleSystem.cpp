@@ -1,7 +1,8 @@
 #include "Precompiled.hpp"
 #include "ConsoleSystem.hpp"
 
-ConsoleSystem::ConsoleSystem()
+ConsoleSystem::ConsoleSystem() :
+	m_initialized(false)
 {
 }
 
@@ -14,6 +15,8 @@ bool ConsoleSystem::Initialize()
 {
 	Cleanup();
 
+	m_initialized = true;
+
 	return true;
 }
 
@@ -21,10 +24,15 @@ void ConsoleSystem::Cleanup()
 {
 	// Clear all definitions.
 	ClearContainer(m_definitions);
+
+	m_initialized = false;
 }
 
 void ConsoleSystem::Execute(std::string input)
 {
+	if(!m_initialized)
+		return;
+
 	// Print input string.
 	Log() << "> " << input;
 
@@ -62,6 +70,9 @@ void ConsoleSystem::Execute(std::string input)
 
 void ConsoleSystem::RegisterDefinition(ConsoleDefinition* definition)
 {
+	if(!m_initialized)
+		return;
+
 	assert(definition != nullptr);
 
 	// White spaces (and special character) may cause problems.
@@ -75,6 +86,9 @@ void ConsoleSystem::RegisterDefinition(ConsoleDefinition* definition)
 
 void ConsoleSystem::UnregisterDefinition(ConsoleDefinition* definition)
 {
+	if(!m_initialized)
+		return;
+
 	// Unregister a definition.
 	auto result = m_definitions.erase(definition->GetName());
 
@@ -83,6 +97,9 @@ void ConsoleSystem::UnregisterDefinition(ConsoleDefinition* definition)
 
 ConsoleDefinition* ConsoleSystem::FindDefinition(std::string name)
 {
+	if(!m_initialized)
+		return nullptr;
+
 	// Find the definition by name.
 	auto it = m_definitions.find(name);
 	if(it == m_definitions.end())

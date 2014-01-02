@@ -25,7 +25,7 @@ void ConsoleCommand::Execute(std::string arguments)
 
 void CommandHelp(std::string arguments)
 {
-	assert(Context::consoleSystem != nullptr);
+	assert(Context::ConsoleSystem().IsValid());
 
 	// Get some more help here.
 	if(arguments.empty())
@@ -46,7 +46,7 @@ void CommandHelp(std::string arguments)
 	}
 
 	// Get the definition.
-	ConsoleDefinition* definition = Context::consoleSystem->FindDefinition(name);
+	ConsoleDefinition* definition = Context::ConsoleSystem().FindDefinition(name);
 
 	if(definition == nullptr)
 	{
@@ -65,14 +65,14 @@ void CommandEcho(std::string arguments)
 
 void CommandClear(std::string arguments)
 {
-	assert(Context::consoleHistory != nullptr);
+	assert(Context::ConsoleHistory().IsValid());
 
-	Context::consoleHistory->Clear();
+	Context::ConsoleHistory().Clear();
 }
 
 void CommandQuit(std::string arguments)
 {
-	Context::isQuitting = true;
+	Context::Quit();
 }
 
 ConsoleCommand help("help", &CommandHelp, "Prints the description of a command or variable.");

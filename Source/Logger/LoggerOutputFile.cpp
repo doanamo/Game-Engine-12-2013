@@ -4,19 +4,18 @@
 #include <ctime>
 #include <iomanip>
 
-LoggerOutputFile::LoggerOutputFile(std::string filename)
+LoggerOutputFile::LoggerOutputFile()
 {
-	Open(filename);
 }
 
 LoggerOutputFile::~LoggerOutputFile()
 {
-	Close();
+	Cleanup();
 }
 
 bool LoggerOutputFile::Open(std::string filename)
 {
-	Close();
+	Cleanup();
 
 	// Open a file.
 	m_file.open(filename);
@@ -43,8 +42,9 @@ bool LoggerOutputFile::Open(std::string filename)
 	return true;
 }
 
-void LoggerOutputFile::Close()
+void LoggerOutputFile::Cleanup()
 {
+	// Close the file.
 	if(m_file.is_open())
 	{
 		// Write session end.

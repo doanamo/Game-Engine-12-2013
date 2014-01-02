@@ -49,7 +49,7 @@ bool TextRenderer::Initialize(int bufferSize)
 	m_vertexData = new Vertex[m_bufferSize * 4];
 
 	// Load text shader.
-	if(!m_shader.Load(Context::workingDir + "Data/Shaders/Text.glsl"))
+	if(!m_shader.Load(Context::WorkingDir() + "Data/Shaders/Text.glsl"))
 	{
 		Log() << LogInitializeError() << "Couldn't load a shader.";
 		Cleanup();
@@ -433,20 +433,20 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
 		cursorLine.end.x = cursorPosition.x;
 		cursorLine.end.y = cursorPosition.y + info.font->GetDescender();
 
-		Context::shapeRenderer->DrawLines(&cursorLine, 1, transform);
+		Context::ShapeRenderer().DrawLines(&cursorLine, 1, transform);
 	}
 
 	// Flush debug draw.
 	if(info.debug)
 	{
 		// Draw glyph rectangles.
-		Context::shapeRenderer->DrawRectangles(&debugRectangles[0], debugRectangles.size(), transform);
+		Context::ShapeRenderer().DrawRectangles(&debugRectangles[0], debugRectangles.size(), transform);
 
 		// Add last base line.
 		AddDebugBaseLine(baselinePosition);
 
 		// Draw all base lines.
-		Context::shapeRenderer->DrawLines(&debugLines[0], debugLines.size(), transform);
+		Context::ShapeRenderer().DrawLines(&debugLines[0], debugLines.size(), transform);
 
 		// Draw bounding box.
 		ShapeRenderer::Rectangle rectangle;
@@ -456,6 +456,6 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
 		rectangle.size.y = info.position.y - rectangle.position.y;
 		rectangle.color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
 
-		Context::shapeRenderer->DrawRectangles(&rectangle, 1, transform);
+		Context::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
 	}
 }

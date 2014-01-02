@@ -25,6 +25,13 @@ public:
 
 	ConsoleDefinition* FindDefinition(std::string name);
 
+	bool IsValid() const
+	{
+		return m_initialized;
+	}
+
 private:
 	std::map<std::string, ConsoleDefinition*> m_definitions;
+
+	bool m_initialized;
 };

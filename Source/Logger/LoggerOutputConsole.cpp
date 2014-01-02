@@ -8,6 +8,11 @@ LoggerOutputConsole::LoggerOutputConsole()
 
 LoggerOutputConsole::~LoggerOutputConsole()
 {
+	Cleanup();
+}
+
+void LoggerOutputConsole::Cleanup()
+{
 }
 
 void LoggerOutputConsole::Write(const LoggerMessage& message)
@@ -15,8 +20,5 @@ void LoggerOutputConsole::Write(const LoggerMessage& message)
 	if(message.IsEmpty())
 		return;
 
-	if(Context::consoleHistory != nullptr)
-	{
-		Context::consoleHistory->Write(message.GetText().c_str());
-	}
+	Context::ConsoleHistory().Write(message.GetText().c_str());
 }

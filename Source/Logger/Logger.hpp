@@ -9,9 +9,9 @@
 
 // Log macro.
 #ifdef _DEBUG
-	#define Log() LoggerScopedMessage(Context::logger).Source(__FILE__, __LINE__)
+	#define Log() LoggerScopedMessage(&Context::Logger()).Source(__FILE__, __LINE__)
 #else
-	#define Log() LoggerScopedMessage(Context::logger)
+	#define Log() LoggerScopedMessage(&Context::Logger())
 #endif
 
 // Forward declarations.
@@ -26,6 +26,8 @@ class Logger : public NonCopyable
 public:
 	Logger();
 	~Logger();
+
+	void Cleanup();
 
 	void AddOutput(LoggerOutput* output);
 	void RemoveOutput(LoggerOutput* output);
