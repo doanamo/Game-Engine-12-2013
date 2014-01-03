@@ -281,6 +281,9 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     // Add glyph to the cache.
     auto result = m_glyphCache.insert(std::make_pair(character, glyph));
 
+    // Upload font atlas on next use.
+    m_atlasUpload = true;
+
     // Return inserted glyph.
     return &result.first->second;
 }
@@ -290,7 +293,11 @@ void Font::UpdateAtlasTexture()
     if(!m_initialized)
         return;
 
-    m_atlasTexture.Update(m_atlasSurface->pixels);
+    if(m_atlasUpload)
+    {
+        m_atlasTexture.Update(m_atlasSurface->pixels);
+        m_atlasUpload = false;
+    }
 }
 
 const Glyph* Font::GetGlyph(FT_ULong character)
