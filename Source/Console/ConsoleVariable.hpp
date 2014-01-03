@@ -49,12 +49,34 @@ public:
 
     int GetInteger() const
     {
-        return std::stoi(m_value);
+        int value;
+
+        try
+        {
+            value = std::stoi(m_value);
+        }
+        catch(const std::exception&)
+        {
+            value = 0;
+        }
+
+        return value;
     }
 
     float GetFloat() const
     {
-        return std::stof(m_value);
+        float value;
+
+        try
+        {
+            value = std::stof(m_value);
+        }
+        catch(const std::exception&)
+        {
+            value = 0.0f;
+        }
+
+        return value;
     }
 
 private:

@@ -7,7 +7,15 @@
 
 namespace
 {
+    // Console text rows.
     const int ConsoleSize = 16;
+}
+
+namespace Console
+{
+    // External console variables.
+    extern ConsoleVariable windowWidth;
+    extern ConsoleVariable windowHeight;
 }
 
 ConsoleFrame::ConsoleFrame() :
@@ -259,7 +267,10 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 
     if(m_open)
     {
-        float windowHeight = 576.0f;
+        // Calculate console metrics.
+        float windowWidth = Console::windowWidth.GetFloat();
+        float windowHeight = Console::windowHeight.GetFloat();
+
         float consoleExtra = 1.0f;
         float consoleSize = (float)ConsoleSize * m_font.GetLineSpacing();
         float consolePosition = windowHeight - consoleSize;
@@ -268,7 +279,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
         ShapeRenderer::Quad quad;
         quad.position.x = 0.0f;
         quad.position.y = consolePosition - consoleExtra;
-        quad.size.x = 1024.0f;
+        quad.size.x = windowWidth;
         quad.size.y = consoleSize + consoleExtra;
         quad.color = glm::vec4(0.0f, 0.0f, 0.0f, 0.85f);
         quad.texture = nullptr;
@@ -288,7 +299,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
             info.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
             info.position.x = 5.0f;
             info.position.y = consolePosition + (i + 2) * m_font.GetLineSpacing();
-            info.size.x = 1024.0f - 1.0f;
+            info.size.x = windowWidth - 1.0f;
             info.size.y = 0.0f;
 
             Context::TextRenderer().Draw(info, transform, text);
@@ -304,7 +315,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
             info.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
             info.position.x = 5.0f;
             info.position.y = consolePosition + m_font.GetLineSpacing();
-            info.size.x = 1024.0f - 1.0f;
+            info.size.x = windowWidth - 1.0f;
             info.size.y = 0.0f;
             info.cursorIndex = 2 + m_cursorPosition;
 

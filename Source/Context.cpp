@@ -15,6 +15,16 @@
 #include "TextRenderer.hpp"
 
 //
+// Console Variables
+//
+
+namespace Console
+{
+    extern ConsoleVariable windowWidth;
+    extern ConsoleVariable windowHeight;
+}
+
+//
 // Context
 //
 
@@ -138,19 +148,18 @@ bool Context::Initialize()
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
  
     // Create a window.
-    int windowWidth = 1024;
-    int windowHeight = 576;
-
     systemWindow = SDL_CreateWindow(
         "Game",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        windowWidth,
-        windowHeight,
+        Console::windowWidth.GetInteger(),
+        Console::windowHeight.GetInteger(),
         SDL_WINDOW_SHOWN |
         SDL_WINDOW_RESIZABLE |
         SDL_WINDOW_OPENGL
     );
+
+    Log() << "Created " << Console::windowWidth.GetInteger() << "x" << Console::windowHeight.GetInteger() << " window.";
 
     if(systemWindow == nullptr)
     {

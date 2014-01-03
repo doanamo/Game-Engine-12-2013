@@ -13,10 +13,11 @@
 // Console Definitions
 //
 
-ConsoleVariable mouseSensivity("i_sensivity", "4.2", "Mouse sensivity.");
-ConsoleVariable playerHealth("g_playerhealth", "100", "Current player health.");
-ConsoleVariable playerAlive("g_playeralive", "true", "Is player alive?");
-ConsoleVariable userProfile("s_userprofile", "./", "Current user's profile directory.");
+namespace Console
+{
+    ConsoleVariable windowWidth("r_width", "1024", "Current screen width.");
+    ConsoleVariable windowHeight("r_height", "576", "Current screen height.");
+}
 
 //
 // Main
@@ -53,26 +54,6 @@ int main(int argc, char* argv[])
     
     // Cache ASCII character set.
     font.CacheASCII();
-
-    //
-    // Test
-    //
-
-    // Projection.
-    glm::mat4x4 projection = glm::ortho(0.0f, (float)1024, 0.0f, (float)576);
-
-    //
-    // Example
-    //
-
-    if(argc >= 1)
-    {
-        userProfile.SetString(argv[0]);
-    }
-
-    Log() << mouseSensivity.GetName() << " = " << mouseSensivity.GetString();
-    Log() << playerHealth.GetName() << " = " << playerHealth.GetString();
-    Log() << playerAlive.GetName() << " = " << playerAlive.GetString();
     
     //
     // Main Loop
@@ -98,6 +79,14 @@ int main(int argc, char* argv[])
             Context::ConsoleFrame().Process(event);
         }
 
+        // Get current window size.
+        int windowWidth, windowHeight;
+        SDL_GetWindowSize(Context::SystemWindow(), &windowWidth, &windowHeight);
+
+        // Set console variables.
+        Console::windowWidth.SetInteger(windowWidth);
+        Console::windowHeight.SetInteger(windowHeight);
+
         // Calculate elapsed time.
         uint32_t timeElapsed = timeCurrent - timePrevious;
         float dt = (float)timeElapsed / 1000.0f;
@@ -109,10 +98,10 @@ int main(int argc, char* argv[])
         Context::TextRenderer().Update(dt);
 
         // Setup the viewport.
-        int windowWidth, windowHeight;
-        SDL_GetWindowSize(Context::SystemWindow(), &windowWidth, &windowHeight);
-
         glViewport(0, 0, windowWidth, windowHeight);
+
+        // Calculate projection.
+        glm::mat4x4 projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
 
         // Clear the screen.
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -165,6 +154,16 @@ int main(int argc, char* argv[])
             info.position.y = 5.0f + font.GetLineSpacing();
 
             Context::TextRenderer().Draw(info, projection, frameCounterText.str().c_str());
+        }
+
+        // Draw screen border.
+        {
+            ShapeRenderer::Rectangle rectangle;
+            rectangle.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+            rectangle.position = glm::vec2(0.0f, 0.0f);
+            rectangle.size = glm::vec2(windowWidth - 1.0f, windowHeight - 1.0f);
+
+            Context::ShapeRenderer().DrawRectangles(&rectangle, 1, projection);
         }
         
         // Present the window content.
