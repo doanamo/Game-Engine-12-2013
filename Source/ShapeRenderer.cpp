@@ -122,11 +122,17 @@ void ShapeRenderer::DrawLines(const Line* data, int count, const glm::mat4& tran
     {
         const Line& line = data[i];
 
+        // Line rasterization workaround.
+        // This will make line vertex positions pixel perfect.
+        // Could cause problems with antialiasing.
+        // See: http://stackoverflow.com/questions/10040961/opengl-pixel-perfect-2d-drawing
+        glm::vec2 offset(0.5f, 0.5f);
+
         // Create shapes vertices.
         Vertex shapeVertices[ShapeVerticeCount] =
         {
-            { line.begin, glm::vec2(0.0f, 0.0f), line.color },
-            { line.end,   glm::vec2(0.0f, 0.0f), line.color },
+            { line.begin + offset, glm::vec2(0.0f, 0.0f), line.color },
+            { line.end   + offset, glm::vec2(0.0f, 0.0f), line.color },
         };
 
         // Copy vertices to a temporary buffer.
@@ -186,22 +192,29 @@ void ShapeRenderer::DrawRectangles(const Rectangle* data, int count, const glm::
     {
         const Rectangle& rectangle = data[i];
 
-        // Create shape vertices.
+        // Calculate rectangle area.
         glm::vec4 rect(rectangle.position, rectangle.position + rectangle.size);
 
+        // Line rasterization workaround.
+        // This will make line vertex positions pixel perfect.
+        // Could cause problems with antialiasing.
+        // See: http://stackoverflow.com/questions/10040961/opengl-pixel-perfect-2d-drawing
+        glm::vec2 offset(0.5f, 0.5f);
+
+        // Create vertices.
         Vertex shapeVertices[ShapeVerticeCount] =
         {
-            { glm::vec2(rect.x, rect.y), glm::vec2(0.0f, 0.0f), rectangle.color },
-            { glm::vec2(rect.z, rect.y), glm::vec2(0.0f, 0.0f), rectangle.color },
+            { glm::vec2(rect.x, rect.y) + offset, glm::vec2(0.0f, 0.0f), rectangle.color },
+            { glm::vec2(rect.z, rect.y) + offset, glm::vec2(0.0f, 0.0f), rectangle.color },
 
-            { glm::vec2(rect.z, rect.y), glm::vec2(0.0f, 0.0f), rectangle.color },
-            { glm::vec2(rect.z, rect.w), glm::vec2(0.0f, 0.0f), rectangle.color },
+            { glm::vec2(rect.z, rect.y) + offset, glm::vec2(0.0f, 0.0f), rectangle.color },
+            { glm::vec2(rect.z, rect.w) + offset, glm::vec2(0.0f, 0.0f), rectangle.color },
 
-            { glm::vec2(rect.z, rect.w), glm::vec2(0.0f, 0.0f), rectangle.color },
-            { glm::vec2(rect.x, rect.w), glm::vec2(0.0f, 0.0f), rectangle.color },
+            { glm::vec2(rect.z, rect.w) + offset, glm::vec2(0.0f, 0.0f), rectangle.color },
+            { glm::vec2(rect.x, rect.w) + offset, glm::vec2(0.0f, 0.0f), rectangle.color },
 
-            { glm::vec2(rect.x, rect.w), glm::vec2(0.0f, 0.0f), rectangle.color },
-            { glm::vec2(rect.x, rect.y), glm::vec2(0.0f, 0.0f), rectangle.color },
+            { glm::vec2(rect.x, rect.w) + offset, glm::vec2(0.0f, 0.0f), rectangle.color },
+            { glm::vec2(rect.x, rect.y) + offset, glm::vec2(0.0f, 0.0f), rectangle.color },
         };
 
         // Copy vertices to a temporary buffer.
