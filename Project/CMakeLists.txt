@@ -42,11 +42,11 @@ Link_Directories("$ENV{DXSDK_DIR}/Lib/x86")
 
 # Disable annoying warnings that we can't do anything about.
 If(MSVC)
-	# C4996: "'x' was declared deprecated."
-	Set_Property(TARGET "SDL2-static" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4996 ")
+    # C4996: "'x' was declared deprecated."
+    Set_Property(TARGET "SDL2-static" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4996 ")
 
-	# C4018: "Signed/unsigned mismatch."
-	Set_Property(TARGET "SDL2-static" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4018 ")
+    # C4018: "Signed/unsigned mismatch."
+    Set_Property(TARGET "SDL2-static" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4018 ")
 EndIf()
 
 #
@@ -71,11 +71,11 @@ Include_Directories("../External/FreeType-2.5.2/include")
 
 # Disable annoying warnings that we can't do anything about.
 If(MSVC)
-	# C4996: "This function or variable may be unsafe. Consider using 'x' instead."
-	Set_Property(TARGET "freetype" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4996 ")
+    # C4996: "This function or variable may be unsafe. Consider using 'x' instead."
+    Set_Property(TARGET "freetype" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4996 ")
 
-	# C4244: "Conversion from 'x' to 'y', possible loss of data."
-	Set_Property(TARGET "freetype" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4244 ")
+    # C4244: "Conversion from 'x' to 'y', possible loss of data."
+    Set_Property(TARGET "freetype" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4244 ")
 EndIf()
 
 #
@@ -97,78 +97,78 @@ Set(PrecompiledHeader "Precompiled.hpp")
 Set(PrecompiledSource "Precompiled.cpp")
 
 Set(SourceFiles_Main
-	"${SourceDir}/${PrecompiledHeader}"
-	"${SourceDir}/${PrecompiledSource}"
-	"${SourceDir}/Main.cpp"
-	"${SourceDir}/Context.hpp"
-	"${SourceDir}/Context.cpp"
-	"${SourceDir}/ShapeRenderer.hpp"
-	"${SourceDir}/ShapeRenderer.cpp"
-	"${SourceDir}/Font.hpp"
-	"${SourceDir}/Font.cpp"
-	"${SourceDir}/TextRenderer.hpp"
-	"${SourceDir}/TextRenderer.cpp"
-	"${SourceDir}/FrameCounter.hpp"
-	"${SourceDir}/FrameCounter.cpp"
+    "${SourceDir}/${PrecompiledHeader}"
+    "${SourceDir}/${PrecompiledSource}"
+    "${SourceDir}/Main.cpp"
+    "${SourceDir}/Context.hpp"
+    "${SourceDir}/Context.cpp"
+    "${SourceDir}/ShapeRenderer.hpp"
+    "${SourceDir}/ShapeRenderer.cpp"
+    "${SourceDir}/Font.hpp"
+    "${SourceDir}/Font.cpp"
+    "${SourceDir}/TextRenderer.hpp"
+    "${SourceDir}/TextRenderer.cpp"
+    "${SourceDir}/FrameCounter.hpp"
+    "${SourceDir}/FrameCounter.cpp"
 )
 
 Source_Group("Source" FILES ${SourceFiles_Main})
 Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Main})
 
 Set(SourceFiles_Common
-	"${SourceDir}/Common/NonCopyable.hpp"
-	"${SourceDir}/Common/ScopeGuard.hpp"
-	"${SourceDir}/Common/Utility.hpp"
-	"${SourceDir}/Common/Utility.cpp"
+    "${SourceDir}/Common/NonCopyable.hpp"
+    "${SourceDir}/Common/ScopeGuard.hpp"
+    "${SourceDir}/Common/Utility.hpp"
+    "${SourceDir}/Common/Utility.cpp"
 )
 
 Source_Group("Source\\Common" FILES ${SourceFiles_Common})
 Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Common})
 
 Set(SourceFiles_Logger
-	"${SourceDir}/Logger/Logger.hpp"
-	"${SourceDir}/Logger/Logger.cpp"
-	"${SourceDir}/Logger/LoggerOutput.hpp"
-	"${SourceDir}/Logger/LoggerOutputFile.hpp"
-	"${SourceDir}/Logger/LoggerOutputFile.cpp"
-	"${SourceDir}/Logger/LoggerOutputConsole.hpp"
-	"${SourceDir}/Logger/LoggerOutputConsole.cpp"
-	"${SourceDir}/Logger/LoggerMessage.hpp"
-	"${SourceDir}/Logger/LoggerMessage.cpp"
-	"${SourceDir}/Logger/LoggerScopedMessage.hpp"
-	"${SourceDir}/Logger/LoggerScopedMessage.cpp"
+    "${SourceDir}/Logger/Logger.hpp"
+    "${SourceDir}/Logger/Logger.cpp"
+    "${SourceDir}/Logger/LoggerOutput.hpp"
+    "${SourceDir}/Logger/LoggerOutputFile.hpp"
+    "${SourceDir}/Logger/LoggerOutputFile.cpp"
+    "${SourceDir}/Logger/LoggerOutputConsole.hpp"
+    "${SourceDir}/Logger/LoggerOutputConsole.cpp"
+    "${SourceDir}/Logger/LoggerMessage.hpp"
+    "${SourceDir}/Logger/LoggerMessage.cpp"
+    "${SourceDir}/Logger/LoggerScopedMessage.hpp"
+    "${SourceDir}/Logger/LoggerScopedMessage.cpp"
 )
 
 Source_Group("Source\\Logger" FILES ${SourceFiles_Logger})
 Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Logger})
 
 Set(SourceFiles_Console
-	"${SourceDir}/Console/ConsoleSystem.hpp"
-	"${SourceDir}/Console/ConsoleSystem.cpp"
-	"${SourceDir}/Console/ConsoleHistory.hpp"
-	"${SourceDir}/Console/ConsoleHistory.cpp"
-	"${SourceDir}/Console/ConsoleDefinition.hpp"
-	"${SourceDir}/Console/ConsoleDefinition.cpp"
-	"${SourceDir}/Console/ConsoleCommand.hpp"
-	"${SourceDir}/Console/ConsoleCommand.cpp"
-	"${SourceDir}/Console/ConsoleVariable.hpp"
-	"${SourceDir}/Console/ConsoleVariable.cpp"
-	"${SourceDir}/Console/ConsoleFrame.hpp"
-	"${SourceDir}/Console/ConsoleFrame.cpp"
+    "${SourceDir}/Console/ConsoleSystem.hpp"
+    "${SourceDir}/Console/ConsoleSystem.cpp"
+    "${SourceDir}/Console/ConsoleHistory.hpp"
+    "${SourceDir}/Console/ConsoleHistory.cpp"
+    "${SourceDir}/Console/ConsoleDefinition.hpp"
+    "${SourceDir}/Console/ConsoleDefinition.cpp"
+    "${SourceDir}/Console/ConsoleCommand.hpp"
+    "${SourceDir}/Console/ConsoleCommand.cpp"
+    "${SourceDir}/Console/ConsoleVariable.hpp"
+    "${SourceDir}/Console/ConsoleVariable.cpp"
+    "${SourceDir}/Console/ConsoleFrame.hpp"
+    "${SourceDir}/Console/ConsoleFrame.cpp"
 )
 
 Source_Group("Source\\Console" FILES ${SourceFiles_Console})
 Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Console})
 
 Set(SourceFiles_Graphics
-	"${SourceDir}/Graphics/Shader.hpp"
-	"${SourceDir}/Graphics/Shader.cpp"
-	"${SourceDir}/Graphics/Buffer.hpp"
-	"${SourceDir}/Graphics/Buffer.cpp"
-	"${SourceDir}/Graphics/VertexInput.hpp"
-	"${SourceDir}/Graphics/VertexInput.cpp"
-	"${SourceDir}/Graphics/Texture.hpp"
-	"${SourceDir}/Graphics/Texture.cpp"
+    "${SourceDir}/Graphics/Shader.hpp"
+    "${SourceDir}/Graphics/Shader.cpp"
+    "${SourceDir}/Graphics/Buffer.hpp"
+    "${SourceDir}/Graphics/Buffer.cpp"
+    "${SourceDir}/Graphics/VertexInput.hpp"
+    "${SourceDir}/Graphics/VertexInput.cpp"
+    "${SourceDir}/Graphics/Texture.hpp"
+    "${SourceDir}/Graphics/Texture.cpp"
 )
 
 Source_Group("Source\\Graphics" FILES ${SourceFiles_Graphics})
@@ -222,27 +222,27 @@ File(WRITE "${CMAKE_BINARY_DIR}/WorkingDir.txt" "${WorkingDir}/")
 
 # Visual C++ specific.
 If(MSVC)
-	# Remove the console window.
-	Set_Property(TARGET ${TargetName} APPEND_STRING PROPERTY LINK_FLAGS "/SUBSYSTEM:Windows ")
-	
-	# Restore default main() entry instead of WinMain().
-	Set_Property(TARGET ${TargetName} APPEND_STRING PROPERTY LINK_FLAGS "/ENTRY:mainCRTStartup ")
+    # Remove the console window.
+    Set_Property(TARGET ${TargetName} APPEND_STRING PROPERTY LINK_FLAGS "/SUBSYSTEM:Windows ")
+    
+    # Restore default main() entry instead of WinMain().
+    Set_Property(TARGET ${TargetName} APPEND_STRING PROPERTY LINK_FLAGS "/ENTRY:mainCRTStartup ")
 
-	# Disable unsafe Standard C function warnings.
-	Set_Property(TARGET ${TargetName} APPEND_STRING PROPERTY COMPILE_DEFINITIONS "_CRT_SECURE_NO_WARNINGS")
-	
-	# Set the precompiled header.
-	Get_Filename_Component(PrecompiledName ${PrecompiledHeader} NAME_WE)
-	
-	Set(PrecompiledBinary "$(IntDir)/${PrecompiledName}.pch")
-	
-	Set_Source_Files_Properties(${SourceFiles} PROPERTIES 
-		COMPILE_FLAGS "/Yu\"${PrecompiledHeader}\" /Fp\"${PrecompiledBinary}\""
-		OBJECT_DEPENDS "${PrecompiledBinary}"
-	)
-	
-	Set_Source_Files_Properties("${SourceDir}/${PrecompiledSource}" PROPERTIES 
-		COMPILE_FLAGS "/Yc\"${PrecompiledHeader}\" /Fp\"${PrecompiledBinary}\""
-		OBJECT_OUTPUTS "${PrecompiledBinary}"
-	)
+    # Disable unsafe Standard C function warnings.
+    Set_Property(TARGET ${TargetName} APPEND_STRING PROPERTY COMPILE_DEFINITIONS "_CRT_SECURE_NO_WARNINGS")
+    
+    # Set the precompiled header.
+    Get_Filename_Component(PrecompiledName ${PrecompiledHeader} NAME_WE)
+    
+    Set(PrecompiledBinary "$(IntDir)/${PrecompiledName}.pch")
+    
+    Set_Source_Files_Properties(${SourceFiles} PROPERTIES 
+        COMPILE_FLAGS "/Yu\"${PrecompiledHeader}\" /Fp\"${PrecompiledBinary}\""
+        OBJECT_DEPENDS "${PrecompiledBinary}"
+    )
+    
+    Set_Source_Files_Properties("${SourceDir}/${PrecompiledSource}" PROPERTIES 
+        COMPILE_FLAGS "/Yc\"${PrecompiledHeader}\" /Fp\"${PrecompiledBinary}\""
+        OBJECT_OUTPUTS "${PrecompiledBinary}"
+    )
 EndIf()

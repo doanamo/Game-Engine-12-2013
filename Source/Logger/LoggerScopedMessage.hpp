@@ -13,10 +13,10 @@ class Logger;
 class LoggerScopedMessage : public LoggerMessage
 {
 public:
-	LoggerScopedMessage(Logger* logger);
-	LoggerScopedMessage(LoggerScopedMessage&& other);
-	~LoggerScopedMessage();
+    LoggerScopedMessage(Logger* logger);
+    LoggerScopedMessage(LoggerScopedMessage&& other);
+    ~LoggerScopedMessage();
 
 private:
-	Logger* m_logger;
+    Logger* m_logger;
 };

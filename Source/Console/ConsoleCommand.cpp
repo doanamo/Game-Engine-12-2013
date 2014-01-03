@@ -4,7 +4,7 @@
 #include "ConsoleHistory.hpp"
 
 ConsoleCommand::ConsoleCommand(std::string name, FunctionPointer function, std::string description) :
-	ConsoleDefinition(name, description), m_function(function)
+    ConsoleDefinition(name, description), m_function(function)
 {
 }
 
@@ -14,9 +14,9 @@ ConsoleCommand::~ConsoleCommand()
 
 void ConsoleCommand::Execute(std::string arguments)
 {
-	assert(m_function != nullptr);
+    assert(m_function != nullptr);
 
-	m_function(arguments);
+    m_function(arguments);
 }
 
 //
@@ -25,54 +25,54 @@ void ConsoleCommand::Execute(std::string arguments)
 
 void CommandHelp(std::string arguments)
 {
-	assert(Context::ConsoleSystem().IsValid());
+    assert(Context::ConsoleSystem().IsValid());
 
-	// Get some more help here.
-	if(arguments.empty())
-	{
-		Log() << "Type \"help <definition>\" for more info on a particular command or variable.";
-		return;
-	}
+    // Get some more help here.
+    if(arguments.empty())
+    {
+        Log() << "Type \"help <definition>\" for more info on a particular command or variable.";
+        return;
+    }
 
-	// Locate the first white space.
-	std::size_t separator = arguments.find(' ');
+    // Locate the first white space.
+    std::size_t separator = arguments.find(' ');
 
-	// Get the first argument.
-	std::string name(arguments);
+    // Get the first argument.
+    std::string name(arguments);
 
-	if(separator != std::string::npos)
-	{
-		name.erase(separator);
-	}
+    if(separator != std::string::npos)
+    {
+        name.erase(separator);
+    }
 
-	// Get the definition.
-	ConsoleDefinition* definition = Context::ConsoleSystem().FindDefinition(name);
+    // Get the definition.
+    ConsoleDefinition* definition = Context::ConsoleSystem().FindDefinition(name);
 
-	if(definition == nullptr)
-	{
-		Log() << "Couldn't find \"" << name << "\" definition.";
-		return;
-	}
+    if(definition == nullptr)
+    {
+        Log() << "Couldn't find \"" << name << "\" definition.";
+        return;
+    }
 
-	// Print the description.
-	Log() << definition->GetDescription();
+    // Print the description.
+    Log() << definition->GetDescription();
 }
 
 void CommandEcho(std::string arguments)
 {
-	Log() << arguments;
+    Log() << arguments;
 }
 
 void CommandClear(std::string arguments)
 {
-	assert(Context::ConsoleHistory().IsValid());
+    assert(Context::ConsoleHistory().IsValid());
 
-	Context::ConsoleHistory().Clear();
+    Context::ConsoleHistory().Clear();
 }
 
 void CommandQuit(std::string arguments)
 {
-	Context::Quit();
+    Context::Quit();
 }
 
 ConsoleCommand help("help", &CommandHelp, "Prints the description of a command or variable.");

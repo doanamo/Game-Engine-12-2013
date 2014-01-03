@@ -6,15 +6,15 @@
 template<typename Type, size_t Size>
 size_t StaticArraySize(const Type(&)[Size])
 {
-	return Size;
+    return Size;
 }
 
 // Frees STL container memory (for std::vector, std::list, etc.).
 template<typename Type>
 void ClearContainer(Type& container)
 {
-	Type empty;
-	container.swap(empty);
+    Type empty;
+    container.swap(empty);
 }
 
 // Upper multiple of a number.

@@ -2,22 +2,22 @@
 #include "LoggerMessage.hpp"
 
 LoggerMessage::LoggerMessage() :
-	std::ostream(&m_buffer),
-	m_filename(nullptr),
-	m_line(0)
+    std::ostream(&m_buffer),
+    m_filename(nullptr),
+    m_line(0)
 {
 }
 
 LoggerMessage::LoggerMessage(LoggerMessage&& other) :
-	std::ostream(&m_buffer)
+    std::ostream(&m_buffer)
 {
-	m_buffer = std::move(other.m_buffer);
+    m_buffer = std::move(other.m_buffer);
 
-	m_filename = other.m_filename;
-	other.m_filename = nullptr;
+    m_filename = other.m_filename;
+    other.m_filename = nullptr;
 
-	m_line = other.m_line;
-	other.m_line = 0;
+    m_line = other.m_line;
+    other.m_line = 0;
 }
 
 LoggerMessage::~LoggerMessage()
@@ -26,20 +26,20 @@ LoggerMessage::~LoggerMessage()
 
 LoggerMessage& LoggerMessage::Source(const char* filename, unsigned int line)
 {
-	m_filename = filename;
-	m_line = line;
+    m_filename = filename;
+    m_line = line;
 
-	return *this;
+    return *this;
 }
 
 LoggerMessage& LoggerMessage::Text(const char* text)
 {
-	m_buffer.str("");
+    m_buffer.str("");
 
-	if(text != nullptr)
-	{
-		m_buffer.sputn(text, strlen(text));
-	}
+    if(text != nullptr)
+    {
+        m_buffer.sputn(text, strlen(text));
+    }
 
-	return *this;
+    return *this;
 }

@@ -9,10 +9,10 @@
 
 struct Glyph
 {
-	glm::ivec2 position;
-	glm::ivec2 size;
-	glm::ivec2 offset;
-	glm::ivec2 advance;
+    glm::ivec2 position;
+    glm::ivec2 size;
+    glm::ivec2 offset;
+    glm::ivec2 advance;
 };
 
 //
@@ -22,66 +22,66 @@ struct Glyph
 class Font
 {
 public:
-	typedef std::map<FT_ULong, Glyph> GlyphCache;
+    typedef std::map<FT_ULong, Glyph> GlyphCache;
 
 public:
-	Font();
-	~Font();
+    Font();
+    ~Font();
 
-	bool Load(std::string filename, int size, int atlasWidth, int atlasHeight);
-	void Cleanup();
+    bool Load(std::string filename, int size, int atlasWidth, int atlasHeight);
+    void Cleanup();
 
-	void CacheASCII();
-	void CacheGlyphs(const char* characters);
-	void UpdateAtlasTexture();
+    void CacheASCII();
+    void CacheGlyphs(const char* characters);
+    void UpdateAtlasTexture();
 
-	const Glyph* GetGlyph(FT_ULong character);
+    const Glyph* GetGlyph(FT_ULong character);
 
-	int GetKerning(FT_ULong left, FT_ULong right) const;
-	int GetLineSpacing() const;
-	int GetAscender() const;
-	int GetDescender() const;
+    int GetKerning(FT_ULong left, FT_ULong right) const;
+    int GetLineSpacing() const;
+    int GetAscender() const;
+    int GetDescender() const;
 
-	int GetAtlasWidth() const
-	{
-		return m_atlasWidth;
-	}
+    int GetAtlasWidth() const
+    {
+        return m_atlasWidth;
+    }
 
-	int GetAtlasHeight() const
-	{
-		return m_atlasHeight;
-	}
+    int GetAtlasHeight() const
+    {
+        return m_atlasHeight;
+    }
 
-	const SDL_Surface* GetSurface() const
-	{
-		return m_atlasSurface;
-	}
+    const SDL_Surface* GetSurface() const
+    {
+        return m_atlasSurface;
+    }
 
-	const Texture* GetTexture() const
-	{
-		return &m_atlasTexture;
-	}
-
-private:
-	const Glyph* CacheGlyph(FT_ULong character);
+    const Texture* GetTexture() const
+    {
+        return &m_atlasTexture;
+    }
 
 private:
-	FT_Face m_fontFace;
+    const Glyph* CacheGlyph(FT_ULong character);
 
-	// Glyph registry.
-	GlyphCache		m_glyphCache;
-	const Glyph*	m_glyphDefault;
+private:
+    FT_Face m_fontFace;
 
-	// Font atlas where glyphs are stores.
-	int				m_atlasWidth;
-	int				m_atlasHeight;
-	SDL_Surface*	m_atlasSurface;
-	Texture			m_atlasTexture;
-	bool			m_atlasUpload;
+    // Glyph registry.
+    GlyphCache      m_glyphCache;
+    const Glyph*    m_glyphDefault;
 
-	// Current shelf used for packing glyphs.
-	glm::ivec2	m_shelfPosition;
-	int			m_shelfSize;
+    // Font atlas where glyphs are stores.
+    int             m_atlasWidth;
+    int             m_atlasHeight;
+    SDL_Surface*    m_atlasSurface;
+    Texture         m_atlasTexture;
+    bool            m_atlasUpload;
 
-	bool m_initialized;
+    // Current shelf used for packing glyphs.
+    glm::ivec2  m_shelfPosition;
+    int         m_shelfSize;
+
+    bool m_initialized;
 };

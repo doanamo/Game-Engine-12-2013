@@ -14,61 +14,61 @@ class Texture;
 class ShapeRenderer
 {
 private:
-	// Vertex structure.
-	struct Vertex
-	{
-		glm::vec2 position;
-		glm::vec2 texture;
-		glm::vec4 color;
-	};
+    // Vertex structure.
+    struct Vertex
+    {
+        glm::vec2 position;
+        glm::vec2 texture;
+        glm::vec4 color;
+    };
 
 public:
-	struct Line
-	{
-		glm::vec2 begin;
-		glm::vec2 end;
-		glm::vec4 color;
-	};
+    struct Line
+    {
+        glm::vec2 begin;
+        glm::vec2 end;
+        glm::vec4 color;
+    };
 
-	struct Rectangle
-	{
-		glm::vec2 position;
-		glm::vec2 size;
-		glm::vec4 color;
-	};
+    struct Rectangle
+    {
+        glm::vec2 position;
+        glm::vec2 size;
+        glm::vec4 color;
+    };
 
-	struct Quad
-	{
-		Quad() :
-			texture(nullptr)
-		{
-		}
+    struct Quad
+    {
+        Quad() :
+            texture(nullptr)
+        {
+        }
 
-		glm::vec2 position;
-		glm::vec2 size;
-		glm::vec4 color;
+        glm::vec2 position;
+        glm::vec2 size;
+        glm::vec4 color;
 
-		const Texture* texture;
-	};
+        const Texture* texture;
+    };
 
 public:
-	ShapeRenderer();
-	~ShapeRenderer();
+    ShapeRenderer();
+    ~ShapeRenderer();
 
-	bool Initialize(int bufferSize);
-	void Cleanup();
+    bool Initialize(int bufferSize);
+    void Cleanup();
 
-	void DrawLines(const Line* data, int count, const glm::mat4& transform);
-	void DrawRectangles(const Rectangle* data, int count, const glm::mat4& transform);
-	void DrawQuads(const Quad* data, int count, const glm::mat4& transform);
+    void DrawLines(const Line* data, int count, const glm::mat4& transform);
+    void DrawRectangles(const Rectangle* data, int count, const glm::mat4& transform);
+    void DrawQuads(const Quad* data, int count, const glm::mat4& transform);
 
 private:
-	Vertex*	m_bufferData;
-	int		m_bufferSize;
+    Vertex* m_bufferData;
+    int     m_bufferSize;
 
-	Shader			m_shader;
-	VertexBuffer	m_vertexBuffer;
-	VertexInput		m_vertexInput;
+    Shader          m_shader;
+    VertexBuffer    m_vertexBuffer;
+    VertexInput     m_vertexInput;
 
-	bool m_initialized;
+    bool m_initialized;
 };

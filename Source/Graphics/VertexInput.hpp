@@ -12,44 +12,44 @@ class VertexBuffer;
 // Vertex attribute types.
 enum class VertexAttributeTypes
 {
-	Invalid,
+    Invalid,
 
-	Float1,
-	Float2,
-	Float3,
-	Float4,
+    Float1,
+    Float2,
+    Float3,
+    Float4,
 
-	Count,
+    Count,
 };
 
 // Vertex attribute structure.
 struct VertexAttribute
 {
-	int location;
-	VertexBuffer* buffer;
-	VertexAttributeTypes type;
+    int location;
+    VertexBuffer* buffer;
+    VertexAttributeTypes type;
 };
 
 // Vertex input class.
 class VertexInput
 {
 public:
-	VertexInput();
-	~VertexInput();
+    VertexInput();
+    ~VertexInput();
 
-	// Initializes the vertex input.
-	bool Initialize(VertexAttribute* attributes, unsigned int count);
+    // Initializes the vertex input.
+    bool Initialize(VertexAttribute* attributes, unsigned int count);
 
-	// Restores class instance to it's original state.
-	void Cleanup();
+    // Restores class instance to it's original state.
+    void Cleanup();
 
-	// Gets the vertex array object handle.
-	GLuint GetHandle() const
-	{
-		return m_handle;
-	}
+    // Gets the vertex array object handle.
+    GLuint GetHandle() const
+    {
+        return m_handle;
+    }
 
 private:
-	// Vertex array object.
-	GLuint m_handle;
+    // Vertex array object.
+    GLuint m_handle;
 };

@@ -20,24 +20,24 @@
 
 namespace
 {
-	bool				isInitialized = false;
-	bool				isQuitting = false;
-	std::string			workingDir = "";
+    bool                isInitialized = false;
+    bool                isQuitting = false;
+    std::string         workingDir = "";
 
-	Logger				logger;
-	LoggerOutputFile	loggerOutputFile;
-	LoggerOutputConsole loggerOutputConsole;
-	ConsoleSystem		consoleSystem;
-	ConsoleHistory		consoleHistory;
-	ConsoleFrame		consoleFrame;
-	ShapeRenderer		shapeRenderer;
-	TextRenderer		textRenderer;
+    Logger              logger;
+    LoggerOutputFile    loggerOutputFile;
+    LoggerOutputConsole loggerOutputConsole;
+    ConsoleSystem       consoleSystem;
+    ConsoleHistory      consoleHistory;
+    ConsoleFrame        consoleFrame;
+    ShapeRenderer       shapeRenderer;
+    TextRenderer        textRenderer;
 
-	Texture				textureBlank;
+    Texture             textureBlank;
 
-	SDL_Window*			systemWindow = nullptr;
-	SDL_GLContext		graphicsContext = nullptr;
-	FT_Library			fontLibrary = nullptr;
+    SDL_Window*         systemWindow = nullptr;
+    SDL_GLContext       graphicsContext = nullptr;
+    FT_Library          fontLibrary = nullptr;
 }
 
 //
@@ -46,283 +46,283 @@ namespace
 
 bool Context::Initialize()
 {
-	assert(!isInitialized);
+    assert(!isInitialized);
 
-	//
-	// Scope Guard
-	//
+    //
+    // Scope Guard
+    //
 
-	// Emergency cleanup call on failure.
-	auto EmergenyCleanup = MakeScopeGuard([&]()
-	{
-		// Cleanup if initialization failed.
-		if(!isInitialized)
-		{
-			Cleanup();
-		}
-	});
+    // Emergency cleanup call on failure.
+    auto EmergenyCleanup = MakeScopeGuard([&]()
+    {
+        // Cleanup if initialization failed.
+        if(!isInitialized)
+        {
+            Cleanup();
+        }
+    });
 
-	//
-	// Config
-	//
+    //
+    // Config
+    //
 
-	// Get the path to the asset directory.
-	workingDir = GetTextFileContent("WorkingDir.txt");
+    // Get the path to the asset directory.
+    workingDir = GetTextFileContent("WorkingDir.txt");
 
-	//
-	// Logger Outputs
-	//
+    //
+    // Logger Outputs
+    //
 
-	// Add a logger file output.
-	if(!loggerOutputFile.Open("Log.txt"))
-		return false;
+    // Add a logger file output.
+    if(!loggerOutputFile.Open("Log.txt"))
+        return false;
 
-	logger.AddOutput(&loggerOutputFile);
+    logger.AddOutput(&loggerOutputFile);
 
-	// Add a logger console output.
-	logger.AddOutput(&loggerOutputConsole);
+    // Add a logger console output.
+    logger.AddOutput(&loggerOutputConsole);
 
-	//
-	// Console System
-	//
+    //
+    // Console System
+    //
 
-	// Initialize the console system.
-	if(!consoleSystem.Initialize())
-		return false;
+    // Initialize the console system.
+    if(!consoleSystem.Initialize())
+        return false;
 
-	// Register definitions created before the console system was initialized.
-	ConsoleDefinition::RegisterStatic();
+    // Register definitions created before the console system was initialized.
+    ConsoleDefinition::RegisterStatic();
 
-	//
-	// Console History
-	//
+    //
+    // Console History
+    //
 
-	// Initialize the console history.
-	if(!consoleHistory.Initialize(32))
-		return false;
+    // Initialize the console history.
+    if(!consoleHistory.Initialize(32))
+        return false;
 
-	// Write a welcoming message.
-	consoleHistory.Write("Welcome to developer's console!");
+    // Write a welcoming message.
+    consoleHistory.Write("Welcome to developer's console!");
 
-	//
-	// Print system info after logger systems are up.
-	//
+    //
+    // Print system info after logger systems are up.
+    //
 
-	// Print the working directory path.
-	Log() << "Working directory: \"" << workingDir << "\"";
+    // Print the working directory path.
+    Log() << "Working directory: \"" << workingDir << "\"";
 
-	//
-	// SDL
-	//
+    //
+    // SDL
+    //
 
-	// Initialize SDL library.
-	if(SDL_Init(SDL_INIT_EVERYTHING) != 0)
-	{
-		Log() << "Failed to initialize SDL library! Error: " << SDL_GetError();
-		return false;
-	}
+    // Initialize SDL library.
+    if(SDL_Init(SDL_INIT_EVERYTHING) != 0)
+    {
+        Log() << "Failed to initialize SDL library! Error: " << SDL_GetError();
+        return false;
+    }
 
-	// Set requested attributes.
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
+    // Set requested attributes.
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
 
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
  
-	// Create a window.
-	int windowWidth = 1024;
-	int windowHeight = 576;
+    // Create a window.
+    int windowWidth = 1024;
+    int windowHeight = 576;
 
-	systemWindow = SDL_CreateWindow(
-		"Game",
-		SDL_WINDOWPOS_CENTERED,
-		SDL_WINDOWPOS_CENTERED,
-		windowWidth,
-		windowHeight,
-		SDL_WINDOW_SHOWN |
-		SDL_WINDOW_RESIZABLE |
-		SDL_WINDOW_OPENGL
-	);
+    systemWindow = SDL_CreateWindow(
+        "Game",
+        SDL_WINDOWPOS_CENTERED,
+        SDL_WINDOWPOS_CENTERED,
+        windowWidth,
+        windowHeight,
+        SDL_WINDOW_SHOWN |
+        SDL_WINDOW_RESIZABLE |
+        SDL_WINDOW_OPENGL
+    );
 
-	if(systemWindow == nullptr)
-	{
-		Log() << "Failed to create a window! Error: " << SDL_GetError();
-		return false;
-	}
+    if(systemWindow == nullptr)
+    {
+        Log() << "Failed to create a window! Error: " << SDL_GetError();
+        return false;
+    }
 
-	// For some reason text input is enabled by default.
-	SDL_StopTextInput();
+    // For some reason text input is enabled by default.
+    SDL_StopTextInput();
 
-	//
-	// OpenGL
-	//
+    //
+    // OpenGL
+    //
 
-	// Create OpenGL context.
-	graphicsContext = SDL_GL_CreateContext(systemWindow);
+    // Create OpenGL context.
+    graphicsContext = SDL_GL_CreateContext(systemWindow);
 
-	if(graphicsContext == nullptr)
-	{
-		Log() << "Failed to create OpenGL context! Error: " << SDL_GetError();
-		return false;
-	}
+    if(graphicsContext == nullptr)
+    {
+        Log() << "Failed to create OpenGL context! Error: " << SDL_GetError();
+        return false;
+    }
 
-	// Check the version of the created context.
-	int versionMajor, versionMinor;
+    // Check the version of the created context.
+    int versionMajor, versionMinor;
 
-	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &versionMajor);
-	SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &versionMinor);
+    SDL_GL_GetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, &versionMajor);
+    SDL_GL_GetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, &versionMinor);
 
-	Log() << "Created OpenGL " << versionMajor << "." << versionMinor << " context.";
+    Log() << "Created OpenGL " << versionMajor << "." << versionMinor << " context.";
 
-	//
-	// GLEW
-	//
+    //
+    // GLEW
+    //
 
-	// Initialize GLEW library.
-	glewExperimental = GL_TRUE;
+    // Initialize GLEW library.
+    glewExperimental = GL_TRUE;
 
-	GLenum glewError = glewInit();
+    GLenum glewError = glewInit();
 
-	if(glewError != GLEW_OK)
-	{
-		Log() << "Failed to initialize GLEW library! Error: " << glewGetErrorString(glewError);
-		return false;
-	}
+    if(glewError != GLEW_OK)
+    {
+        Log() << "Failed to initialize GLEW library! Error: " << glewGetErrorString(glewError);
+        return false;
+    }
 
-	//
-	// FreeType
-	//
+    //
+    // FreeType
+    //
 
-	// Initialize FreeType library.
-	if(FT_Init_FreeType(&fontLibrary) != 0)
-	{
-		Log() << "Failed to initialize FreeType library!";
-		return false;
-	}
+    // Initialize FreeType library.
+    if(FT_Init_FreeType(&fontLibrary) != 0)
+    {
+        Log() << "Failed to initialize FreeType library!";
+        return false;
+    }
 
-	//
-	// Blank Texture
-	//
+    //
+    // Blank Texture
+    //
 
-	// Create blank white texture.
-	unsigned char* textureBlankData[2 * 2 * 4];
-	memset(&textureBlankData[0], 255, sizeof(unsigned char) * 4 * 2 * 2);
+    // Create blank white texture.
+    unsigned char* textureBlankData[2 * 2 * 4];
+    memset(&textureBlankData[0], 255, sizeof(unsigned char) * 4 * 2 * 2);
 
-	if(!textureBlank.Initialize(2, 2, GL_RGBA, textureBlankData))
-	{
-		Log() << "Failed to initialize a blank texture!";
-		return false;
-	}
+    if(!textureBlank.Initialize(2, 2, GL_RGBA, textureBlankData))
+    {
+        Log() << "Failed to initialize a blank texture!";
+        return false;
+    }
 
-	//
-	// Shape Renderer
-	//
+    //
+    // Shape Renderer
+    //
 
-	// Initialize the shape renderer.
-	if(!shapeRenderer.Initialize(128))
-		return false;
+    // Initialize the shape renderer.
+    if(!shapeRenderer.Initialize(128))
+        return false;
 
-	//
-	// Text Renderer
-	//
+    //
+    // Text Renderer
+    //
 
-	// Initialize the text renderer.
-	if(!textRenderer.Initialize(64))
-		return false;
+    // Initialize the text renderer.
+    if(!textRenderer.Initialize(64))
+        return false;
 
-	//
-	// Console Frame
-	//
+    //
+    // Console Frame
+    //
 
-	// Initialize the console frame.
-	if(!consoleFrame.Initialize())
-		return false;
+    // Initialize the console frame.
+    if(!consoleFrame.Initialize())
+        return false;
 
-	//
-	// Success!
-	//
+    //
+    // Success!
+    //
 
-	// Set initialized state.
-	isInitialized = true;
+    // Set initialized state.
+    isInitialized = true;
 
-	return true;
+    return true;
 }
 
 void Context::Cleanup()
 {
-	Log() << "Cleaning up...";
+    Log() << "Cleaning up...";
 
-	//
-	// Console Frame
-	//
+    //
+    // Console Frame
+    //
 
-	consoleFrame.Cleanup();
+    consoleFrame.Cleanup();
 
-	//
-	// Graphics
-	//
+    //
+    // Graphics
+    //
 
-	textRenderer.Cleanup();
-	shapeRenderer.Cleanup();
-	textureBlank.Cleanup();
+    textRenderer.Cleanup();
+    shapeRenderer.Cleanup();
+    textureBlank.Cleanup();
 
-	//
-	// FreeType
-	//
+    //
+    // FreeType
+    //
 
-	FT_Done_FreeType(fontLibrary);
-	fontLibrary = nullptr;
+    FT_Done_FreeType(fontLibrary);
+    fontLibrary = nullptr;
 
-	//
-	// SDL
-	//
+    //
+    // SDL
+    //
 
-	SDL_GL_DeleteContext(graphicsContext);
-	graphicsContext = nullptr;
+    SDL_GL_DeleteContext(graphicsContext);
+    graphicsContext = nullptr;
 
-	SDL_DestroyWindow(systemWindow);
-	systemWindow = nullptr;
+    SDL_DestroyWindow(systemWindow);
+    systemWindow = nullptr;
 
-	SDL_Quit();
+    SDL_Quit();
 
-	//
-	// Console
-	//
+    //
+    // Console
+    //
 
-	consoleHistory.Cleanup();
-	consoleSystem.Cleanup();
+    consoleHistory.Cleanup();
+    consoleSystem.Cleanup();
 
-	//
-	// Logger
-	//
+    //
+    // Logger
+    //
 
-	logger.Cleanup();
-	loggerOutputFile.Cleanup();
-	loggerOutputConsole.Cleanup();
+    logger.Cleanup();
+    loggerOutputFile.Cleanup();
+    loggerOutputConsole.Cleanup();
 
-	//
-	// Context
-	//
+    //
+    // Context
+    //
 
-	workingDir = "";
-	isQuitting = false;
-	isInitialized = false;
+    workingDir = "";
+    isQuitting = false;
+    isInitialized = false;
 }
 
 void Context::Quit()
 {
-	if(!isInitialized)
-		return;
+    if(!isInitialized)
+        return;
 
-	isQuitting = true;
+    isQuitting = true;
 }
 
 //
@@ -331,65 +331,65 @@ void Context::Quit()
 
 bool Context::IsInitialized()
 {
-	return isInitialized;
+    return isInitialized;
 }
 
 bool Context::IsQuitting()
 {
-	return isQuitting;
+    return isQuitting;
 }
 
 std::string Context::WorkingDir()
 {
-	return workingDir;
+    return workingDir;
 }
 
 Logger& Context::Logger()
 {
-	return logger;
+    return logger;
 }
 
 ConsoleSystem& Context::ConsoleSystem()
 {
-	return consoleSystem;
+    return consoleSystem;
 }
 
 ConsoleHistory& Context::ConsoleHistory()
 {
-	return consoleHistory;
+    return consoleHistory;
 }
 
 ConsoleFrame& Context::ConsoleFrame()
 {
-	return consoleFrame;
+    return consoleFrame;
 }
 
 ShapeRenderer& Context::ShapeRenderer()
 {
-	return shapeRenderer;
+    return shapeRenderer;
 }
 
 TextRenderer& Context::TextRenderer()
 {
-	return textRenderer;
+    return textRenderer;
 }
 
 Texture& Context::TextureBlank()
 {
-	return textureBlank;
+    return textureBlank;
 }
 
 SDL_Window* Context::SystemWindow()
 {
-	return systemWindow;
+    return systemWindow;
 }
 
 SDL_GLContext Context::GraphicsContext()
 {
-	return graphicsContext;
+    return graphicsContext;
 }
 
 FT_Library Context::FontLibrary()
 {
-	return fontLibrary;
+    return fontLibrary;
 }

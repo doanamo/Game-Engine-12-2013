@@ -10,10 +10,10 @@
 class LoggerOutputConsole : public LoggerOutput
 {
 public:
-	LoggerOutputConsole();
-	~LoggerOutputConsole();
+    LoggerOutputConsole();
+    ~LoggerOutputConsole();
 
-	void Cleanup();
+    void Cleanup();
 
-	void Write(const LoggerMessage& message);
+    void Write(const LoggerMessage& message);
 };

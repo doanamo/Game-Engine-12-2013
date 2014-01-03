@@ -10,5 +10,5 @@
 class LoggerOutput
 {
 public:
-	virtual void Write(const LoggerMessage& message) = 0;
+    virtual void Write(const LoggerMessage& message) = 0;
 };

@@ -12,26 +12,26 @@
 class ConsoleSystem : public NonCopyable
 {
 public:
-	ConsoleSystem();
-	~ConsoleSystem();
+    ConsoleSystem();
+    ~ConsoleSystem();
 
-	bool Initialize();
-	void Cleanup();
+    bool Initialize();
+    void Cleanup();
 
-	void Execute(std::string input);
+    void Execute(std::string input);
 
-	void RegisterDefinition(ConsoleDefinition* definition);
-	void UnregisterDefinition(ConsoleDefinition* definition);
+    void RegisterDefinition(ConsoleDefinition* definition);
+    void UnregisterDefinition(ConsoleDefinition* definition);
 
-	ConsoleDefinition* FindDefinition(std::string name);
+    ConsoleDefinition* FindDefinition(std::string name);
 
-	bool IsValid() const
-	{
-		return m_initialized;
-	}
+    bool IsValid() const
+    {
+        return m_initialized;
+    }
 
 private:
-	std::map<std::string, ConsoleDefinition*> m_definitions;
+    std::map<std::string, ConsoleDefinition*> m_definitions;
 
-	bool m_initialized;
+    bool m_initialized;
 };

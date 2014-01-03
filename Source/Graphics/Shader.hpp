@@ -9,22 +9,22 @@
 class Shader
 {
 public:
-	Shader();
-	~Shader();
+    Shader();
+    ~Shader();
 
-	bool Load(std::string filename);
-	void Cleanup();
+    bool Load(std::string filename);
+    void Cleanup();
 
-	GLuint GetHandle() const
-	{
-		return m_handle;
-	}
+    GLuint GetHandle() const
+    {
+        return m_handle;
+    }
 
-	GLint GetAttribute(std::string name) const;
-	GLint GetUniform(std::string name) const;
+    GLint GetAttribute(std::string name) const;
+    GLint GetUniform(std::string name) const;
 
-	bool IsValid() const;
+    bool IsValid() const;
 
 private:
-	GLuint m_handle;
+    GLuint m_handle;
 };

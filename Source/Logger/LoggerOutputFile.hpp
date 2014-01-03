@@ -10,14 +10,14 @@
 class LoggerOutputFile : public LoggerOutput
 {
 public:
-	LoggerOutputFile();
-	~LoggerOutputFile();
+    LoggerOutputFile();
+    ~LoggerOutputFile();
 
-	bool Open(std::string filename);
-	void Cleanup();
+    bool Open(std::string filename);
+    void Cleanup();
 
-	void Write(const LoggerMessage& message);
+    void Write(const LoggerMessage& message);
 
 private:
-	std::ofstream m_file;
+    std::ofstream m_file;
 };

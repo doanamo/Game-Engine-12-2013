@@ -9,21 +9,21 @@
 class FrameCounter
 {
 public:
-	FrameCounter();
-	~FrameCounter();
+    FrameCounter();
+    ~FrameCounter();
 
-	bool Initialize(int historySize);
-	void Cleanup();
+    bool Initialize(int historySize);
+    void Cleanup();
 
-	void Update(float dt);
+    void Update(float dt);
 
-	float GetFrameTime() const;
-	float GetFrameRate() const;
+    float GetFrameTime() const;
+    float GetFrameRate() const;
 
 private:
-	float*	m_history;
-	int		m_historySize;
-	int		m_historyPosition;
+    float*  m_history;
+    int     m_historySize;
+    int     m_historyPosition;
 
-	bool m_initialized;
+    bool m_initialized;
 };

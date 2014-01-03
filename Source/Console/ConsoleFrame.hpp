@@ -9,44 +9,44 @@
 
 enum class InputCursor
 {
-	Invalid,
+    Invalid,
 
-	Begin,
-	End,
-	Left,
-	Right,
+    Begin,
+    End,
+    Left,
+    Right,
 };
 
 class ConsoleFrame
 {
 public:
-	ConsoleFrame();
-	~ConsoleFrame();
+    ConsoleFrame();
+    ~ConsoleFrame();
 
-	bool Initialize();
-	void Cleanup();
+    bool Initialize();
+    void Cleanup();
 
-	void Open();
-	void Close();
+    void Open();
+    void Close();
 
-	void Process(const SDL_Event& event);
-	void Draw(const glm::mat4& transform);
+    void Process(const SDL_Event& event);
+    void Draw(const glm::mat4& transform);
 
-	bool IsOpen() const
-	{
-		return m_open;
-	}
-
-private:
-	void ClearInput();
-	void MoveInputCursor(InputCursor move);
+    bool IsOpen() const
+    {
+        return m_open;
+    }
 
 private:
-	Font m_font;
+    void ClearInput();
+    void MoveInputCursor(InputCursor move);
 
-	std::string m_input;
-	int m_cursorPosition;
+private:
+    Font m_font;
 
-	bool m_open;
-	bool m_initialized;
+    std::string m_input;
+    int m_cursorPosition;
+
+    bool m_open;
+    bool m_initialized;
 };

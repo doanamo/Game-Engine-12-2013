@@ -11,25 +11,25 @@ template<typename Type>
 class ScopeGuard : public NonCopyable
 {
 public:
-	ScopeGuard(Type function) :
-		m_function(function)
-	{
-	}
+    ScopeGuard(Type function) :
+        m_function(function)
+    {
+    }
 
-	~ScopeGuard()
-	{
-		m_function();
-	}
+    ~ScopeGuard()
+    {
+        m_function();
+    }
 
 private:
-	Type m_function;
+    Type m_function;
 };
 
 // Creates a scope guard.
 template<typename Type>
 ScopeGuard<Type> MakeScopeGuard(Type function)
 {
-	return ScopeGuard<Type>(function);
+    return ScopeGuard<Type>(function);
 }
 
 // Utility macros.

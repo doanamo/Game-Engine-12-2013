@@ -10,14 +10,14 @@
 class ConsoleCommand : public ConsoleDefinition
 {
 public:
-	typedef void (*FunctionPointer)(std::string);
+    typedef void (*FunctionPointer)(std::string);
 
 public:
-	ConsoleCommand(std::string name, FunctionPointer function, std::string description);
-	~ConsoleCommand();
+    ConsoleCommand(std::string name, FunctionPointer function, std::string description);
+    ~ConsoleCommand();
 
-	void Execute(std::string arguments);
+    void Execute(std::string arguments);
 
 private:
-	FunctionPointer m_function;
+    FunctionPointer m_function;
 };

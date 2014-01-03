@@ -2,108 +2,108 @@
 #include "ConsoleSystem.hpp"
 
 ConsoleSystem::ConsoleSystem() :
-	m_initialized(false)
+    m_initialized(false)
 {
 }
 
 ConsoleSystem::~ConsoleSystem()
 {
-	Cleanup();
+    Cleanup();
 }
 
 bool ConsoleSystem::Initialize()
 {
-	Cleanup();
+    Cleanup();
 
-	m_initialized = true;
+    m_initialized = true;
 
-	return true;
+    return true;
 }
 
 void ConsoleSystem::Cleanup()
 {
-	// Clear all definitions.
-	ClearContainer(m_definitions);
+    // Clear all definitions.
+    ClearContainer(m_definitions);
 
-	m_initialized = false;
+    m_initialized = false;
 }
 
 void ConsoleSystem::Execute(std::string input)
 {
-	if(!m_initialized)
-		return;
+    if(!m_initialized)
+        return;
 
-	// Print input string.
-	Log() << "> " << input;
+    // Print input string.
+    Log() << "> " << input;
 
-	// Locate the first white space.
-	std::size_t separator = input.find(' ');
+    // Locate the first white space.
+    std::size_t separator = input.find(' ');
 
-	// Get the definition name.
-	std::string name(input);
+    // Get the definition name.
+    std::string name(input);
 
-	if(separator != std::string::npos)
-	{
-		name.erase(separator);
-	}
+    if(separator != std::string::npos)
+    {
+        name.erase(separator);
+    }
 
-	// Find the definition.
-	auto it = m_definitions.find(name);
-	if(it == m_definitions.end())
-	{
-		Log() << "Couldn't find \"" << name << "\" definition.";
-		return;
-	}
+    // Find the definition.
+    auto it = m_definitions.find(name);
+    if(it == m_definitions.end())
+    {
+        Log() << "Couldn't find \"" << name << "\" definition.";
+        return;
+    }
 
-	// Get the arguments.
-	std::string arguments;
+    // Get the arguments.
+    std::string arguments;
 
-	if(separator != std::string::npos)
-	{
-		arguments = std::string(input, separator + 1);
-	}
+    if(separator != std::string::npos)
+    {
+        arguments = std::string(input, separator + 1);
+    }
 
-	// Execute the definition.
-	ConsoleDefinition* definition = it->second;
-	definition->Execute(arguments);
+    // Execute the definition.
+    ConsoleDefinition* definition = it->second;
+    definition->Execute(arguments);
 }
 
 void ConsoleSystem::RegisterDefinition(ConsoleDefinition* definition)
 {
-	if(!m_initialized)
-		return;
+    if(!m_initialized)
+        return;
 
-	assert(definition != nullptr);
+    assert(definition != nullptr);
 
-	// White spaces (and special character) may cause problems.
-	assert(definition->GetName().find(' ') == std::string::npos);
+    // White spaces (and special character) may cause problems.
+    assert(definition->GetName().find(' ') == std::string::npos);
 
-	// Register a definition.
-	auto result = m_definitions.insert(std::make_pair(definition->GetName(), definition));
+    // Register a definition.
+    auto result = m_definitions.insert(std::make_pair(definition->GetName(), definition));
 
-	assert(result.second == true);
+    assert(result.second == true);
 }
 
 void ConsoleSystem::UnregisterDefinition(ConsoleDefinition* definition)
 {
-	if(!m_initialized)
-		return;
+    if(!m_initialized)
+        return;
 
-	// Unregister a definition.
-	auto result = m_definitions.erase(definition->GetName());
+    // Unregister a definition.
+    auto result = m_definitions.erase(definition->GetName());
 
-	assert(result == 1);
+    assert(result == 1);
 }
 
 ConsoleDefinition* ConsoleSystem::FindDefinition(std::string name)
 {
-	if(!m_initialized)
-		return nullptr;
+    if(!m_initialized)
+        return nullptr;
 
-	// Find the definition by name.
-	auto it = m_definitions.find(name);
-	if(it == m_definitions.end())
-		return nullptr;
+    // Find the definition by name.
+    auto it = m_definitions.find(name);
+    if(it == m_definitions.end())
+        return nullptr;
 
-	return it->second;
+    return it->second;
 }

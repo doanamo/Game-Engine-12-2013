@@ -17,27 +17,27 @@ class Texture;
 
 namespace Context
 {
-	// Context methods.
-	bool Initialize();
-	void Cleanup();
+    // Context methods.
+    bool Initialize();
+    void Cleanup();
 
-	void Quit();
+    void Quit();
 
-	// Context accessors.
-	bool				IsInitialized();
-	bool				IsQuitting();
-	std::string			WorkingDir();
+    // Context accessors.
+    bool                IsInitialized();
+    bool                IsQuitting();
+    std::string         WorkingDir();
 
-	Logger&				Logger();
-	ConsoleSystem&		ConsoleSystem();
-	ConsoleHistory&		ConsoleHistory();
-	ConsoleFrame&		ConsoleFrame();
-	ShapeRenderer&		ShapeRenderer();
-	TextRenderer&		TextRenderer();
+    Logger&             Logger();
+    ConsoleSystem&      ConsoleSystem();
+    ConsoleHistory&     ConsoleHistory();
+    ConsoleFrame&       ConsoleFrame();
+    ShapeRenderer&      ShapeRenderer();
+    TextRenderer&       TextRenderer();
 
-	Texture&			TextureBlank();
+    Texture&            TextureBlank();
 
-	SDL_Window*			SystemWindow();
-	SDL_GLContext		GraphicsContext();
-	FT_Library			FontLibrary();
+    SDL_Window*         SystemWindow();
+    SDL_GLContext       GraphicsContext();
+    FT_Library          FontLibrary();
 }
