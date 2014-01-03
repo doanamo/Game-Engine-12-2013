@@ -161,7 +161,7 @@ int main(int argc, char* argv[])
             ShapeRenderer::Rectangle rectangle;
             rectangle.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
             rectangle.position = glm::vec2(0.0f, 0.0f);
-            rectangle.size = glm::vec2(windowWidth - 1.0f, windowHeight - 1.0f);
+            rectangle.size = glm::vec2(windowWidth, windowHeight);
 
             Context::ShapeRenderer().DrawRectangles(&rectangle, 1, projection);
         }

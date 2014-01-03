@@ -193,7 +193,7 @@ void ShapeRenderer::DrawRectangles(const Rectangle* data, int count, const glm::
         const Rectangle& rectangle = data[i];
 
         // Calculate rectangle area.
-        glm::vec4 rect(rectangle.position, rectangle.position + rectangle.size);
+        glm::vec4 rect(rectangle.position, rectangle.position + rectangle.size - glm::vec2(1.0f, 1.0f));
 
         // Line rasterization workaround.
         // This will make line vertex positions pixel perfect.
