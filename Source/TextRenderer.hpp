@@ -71,6 +71,8 @@ public:
     void Update(float dt);
     void Draw(const DrawInfo& info, const glm::mat4& transform, const char* text);
 
+    void ResetCursorBlink();
+
 private:
     Vertex* m_vertexData;
     int     m_bufferSize;

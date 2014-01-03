@@ -459,3 +459,11 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
         Context::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
     }
 }
+
+void TextRenderer::ResetCursorBlink()
+{
+    if(!m_initialized)
+        return;
+
+    m_cursorTime = 0.0f;
+}

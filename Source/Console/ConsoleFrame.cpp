@@ -87,6 +87,9 @@ void ConsoleFrame::Process(const SDL_Event& event)
 
                 // Start text input.
                 SDL_StartTextInput();
+
+                // Reset cursor blink.
+                Context::TextRenderer().ResetCursorBlink();
             }
             else
             {
@@ -104,6 +107,9 @@ void ConsoleFrame::Process(const SDL_Event& event)
             {
                 // Move cursor to the left.
                 m_cursorPosition = std::max(0, m_cursorPosition - 1);
+
+                // Reset cursor blink.
+                Context::TextRenderer().ResetCursorBlink();
             }
         }
         else
@@ -114,6 +120,9 @@ void ConsoleFrame::Process(const SDL_Event& event)
                 // Move cursor to the right.
                 int inputLength = utf8::distance(m_input.begin(), m_input.end());
                 m_cursorPosition = std::min(m_cursorPosition + 1, inputLength);
+
+                // Reset cursor blink.
+                Context::TextRenderer().ResetCursorBlink();
             }
         }
         else
@@ -123,6 +132,9 @@ void ConsoleFrame::Process(const SDL_Event& event)
             {
                 // Move cursor to the beginning.
                 m_cursorPosition = 0;
+
+                // Reset cursor blink.
+                Context::TextRenderer().ResetCursorBlink();
             }
         }
         else
@@ -133,6 +145,9 @@ void ConsoleFrame::Process(const SDL_Event& event)
                 // Move cursor to the end.
                 int inputLength = utf8::distance(m_input.begin(), m_input.end());
                 m_cursorPosition = inputLength;
+
+                // Reset cursor blink.
+                Context::TextRenderer().ResetCursorBlink();
             }
         }
         else
@@ -145,6 +160,9 @@ void ConsoleFrame::Process(const SDL_Event& event)
 
                 // Clear input.
                 this->ClearInput();
+
+                // Reset cursor blink.
+                Context::TextRenderer().ResetCursorBlink();
             }
         }
         else
@@ -167,6 +185,9 @@ void ConsoleFrame::Process(const SDL_Event& event)
 
                     // Move cursor back.
                     m_cursorPosition -= 1;
+
+                    // Reset cursor blink.
+                    Context::TextRenderer().ResetCursorBlink();
                 }
             }
         }
@@ -189,6 +210,9 @@ void ConsoleFrame::Process(const SDL_Event& event)
 
                     // Erase a character.
                     m_input.erase(eraseBegin, eraseEnd);
+
+                    // Reset cursor blink.
+                    Context::TextRenderer().ResetCursorBlink();
                 }
             }
         }
@@ -199,6 +223,9 @@ void ConsoleFrame::Process(const SDL_Event& event)
             {
                 // Clear console input.
                 this->ClearInput();
+
+                // Reset cursor blink.
+                Context::TextRenderer().ResetCursorBlink();
             }
         }
         break;
@@ -217,6 +244,9 @@ void ConsoleFrame::Process(const SDL_Event& event)
             // Insert entered characters at the cursor position.
             m_input.insert(insertBegin, text, text + strlen(text));
             m_cursorPosition += 1;
+
+            // Reset cursor blink.
+            Context::TextRenderer().ResetCursorBlink();
         }
         break;
     }
