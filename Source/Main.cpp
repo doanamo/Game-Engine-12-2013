@@ -138,9 +138,6 @@ int main(int argc, char* argv[])
             Context::TextRenderer().Draw(info, projection, text0);
         }
 
-        // Draw console frame.
-        Context::ConsoleFrame().Draw(projection);
-
         // Draw frame rate.
         {
             std::stringstream frameCounterText;
@@ -155,6 +152,9 @@ int main(int argc, char* argv[])
 
             Context::TextRenderer().Draw(info, projection, frameCounterText.str().c_str());
         }
+
+        // Draw console frame.
+        Context::ConsoleFrame().Draw(projection);
 
         // Draw screen border.
         {
