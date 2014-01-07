@@ -260,6 +260,12 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
         charactersBuffered = 0;
     };
 
+    // Check if we want to apply word wrap.
+    bool wordWrap = false;
+
+    if(info.size.x > 0.0f)
+        wordWrap = true;
+
     // Draw characters.
     size_t textLength = utf8::distance(text, text + textSize);
 
@@ -304,7 +310,7 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
         if(wordProcessed == false)
         {
             // Check if the next word will fit.
-            if(info.size.x > 0.0f)
+            if(wordWrap)
             {
                 float wordSize = 0.0f;
 
@@ -450,11 +456,21 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
 
         // Draw bounding box.
         ShapeRenderer::Rectangle rectangle;
+        rectangle.color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
         rectangle.position.x = info.position.x;
         rectangle.position.y = baselinePosition.y + info.font->GetDescender();
-        rectangle.size.x = info.size.x;
         rectangle.size.y = info.position.y - rectangle.position.y;
-        rectangle.color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+
+        if(wordWrap)
+        {
+            // Draw to the word wrap width.
+            rectangle.size.x = info.size.x;
+        }
+        else
+        {
+            // Draw to the end of base line.
+            rectangle.size.x = baselinePosition.x - info.position.x;
+        }
 
         Context::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
     }
