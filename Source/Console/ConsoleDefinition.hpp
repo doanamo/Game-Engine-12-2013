@@ -10,8 +10,12 @@ class ConsoleSystem;
 
 class ConsoleDefinition : public NonCopyable
 {
+public:
+    // Use this string as a name to mark definition as internal.
+    static const char* Internal;
+
 protected:
-    ConsoleDefinition(std::string name, std::string description);
+    ConsoleDefinition(std::string name, std::string description = "");
 
 public:
     virtual ~ConsoleDefinition();

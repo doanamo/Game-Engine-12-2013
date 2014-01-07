@@ -47,4 +47,7 @@
 
 #include "Logger/Logger.hpp"
 
+#include "Console/ConsoleCommand.hpp"
+#include "Console/ConsoleVariable.hpp"
+
 #include "Context.hpp"

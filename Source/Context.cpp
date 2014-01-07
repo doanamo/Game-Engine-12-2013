@@ -11,10 +11,10 @@
 
 #include "Graphics/Texture.hpp"
 
-#include "ShapeRenderer.hpp"
-#include "TextRenderer.hpp"
+#include "Graphics/ShapeRenderer.hpp"
+#include "Graphics/TextRenderer.hpp"
 
-#include "FrameCounter.hpp"
+#include "System/FrameCounter.hpp"
 
 //
 // Console Variables
@@ -22,8 +22,10 @@
 
 namespace Console
 {
-    extern ConsoleVariable windowWidth;
-    extern ConsoleVariable windowHeight;
+    ConsoleVariable windowName(ConsoleDefinition::Internal, "");
+    ConsoleVariable windowWidth("r_width", 1024, "Current screen width.");
+    ConsoleVariable windowHeight("r_height", 576, "Current screen height.");
+    ConsoleVariable windowResize(ConsoleDefinition::Internal, false);
 }
 
 //
@@ -151,15 +153,20 @@ bool Context::Initialize()
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
  
     // Create a window.
+    Uint32 windowFlags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL;
+
+    if(Console::windowResize.GetBool())
+    {
+        windowFlags |= SDL_WINDOW_RESIZABLE;
+    }
+
     systemWindow = SDL_CreateWindow(
-        "Game",
+        Console::windowName.GetString().c_str(),
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         Console::windowWidth.GetInteger(),
         Console::windowHeight.GetInteger(),
-        SDL_WINDOW_SHOWN |
-        SDL_WINDOW_RESIZABLE |
-        SDL_WINDOW_OPENGL
+        windowFlags
     );
 
     Log() << "Created " << Console::windowWidth.GetInteger() << "x" << Console::windowHeight.GetInteger() << " window.";

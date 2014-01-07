@@ -3,21 +3,11 @@
 #include "Console/ConsoleSystem.hpp"
 #include "Console/ConsoleFrame.hpp"
 
-#include "Font.hpp"
-#include "ShapeRenderer.hpp"
-#include "TextRenderer.hpp"
+#include "Graphics/Font.hpp"
+#include "Graphics/TextRenderer.hpp"
+#include "Graphics/ShapeRenderer.hpp"
 
-#include "FrameCounter.hpp"
-
-//
-// Console Definitions
-//
-
-namespace Console
-{
-    ConsoleVariable windowWidth("r_width", "1024", "Current screen width.");
-    ConsoleVariable windowHeight("r_height", "576", "Current screen height.");
-}
+#include "System/FrameCounter.hpp"
 
 //
 // Main
@@ -25,6 +15,16 @@ namespace Console
 
 int main(int argc, char* argv[])
 {
+    //
+    // Configuration
+    //
+
+    // Window settings.
+    Console::windowName = "Game";
+    Console::windowWidth = 1024;
+    Console::windowHeight = 576;
+    Console::windowResize = false;
+
     //
     // Context
     //

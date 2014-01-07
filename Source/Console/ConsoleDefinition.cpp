@@ -2,8 +2,9 @@
 #include "ConsoleDefinition.hpp"
 #include "ConsoleSystem.hpp"
 
-ConsoleDefinition*  ConsoleDefinition::m_staticHead = nullptr;
-bool                ConsoleDefinition::m_staticDone = false;
+const char*        ConsoleDefinition::Internal = "internal";
+ConsoleDefinition* ConsoleDefinition::m_staticHead = nullptr;
+bool               ConsoleDefinition::m_staticDone = false;
 
 ConsoleDefinition::ConsoleDefinition(std::string name, std::string description) :
     m_name(name), m_description(description), m_staticNext(nullptr)

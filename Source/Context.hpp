@@ -13,6 +13,18 @@ class FrameCounter;
 class Texture;
 
 //
+// Console Definitions
+//
+
+namespace Console
+{
+    extern ConsoleVariable windowName;
+    extern ConsoleVariable windowWidth;
+    extern ConsoleVariable windowHeight;
+    extern ConsoleVariable windowResize;
+}
+
+//
 // Context
 //
 
