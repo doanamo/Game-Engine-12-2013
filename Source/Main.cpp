@@ -29,6 +29,7 @@ int main(int argc, char* argv[])
     // Context
     //
     
+    // Initialize the context.
     if(!Context::Initialize())
         return -1;
 
