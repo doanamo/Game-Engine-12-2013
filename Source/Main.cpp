@@ -104,35 +104,6 @@ int main(int argc, char* argv[])
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Draw text.
-        {
-            const char* text0 = 
-                "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. "
-                "Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, "
-                "ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, "
-                "fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, "
-                "justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper "
-                "nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. "
-                "Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius "
-                "laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies "
-                "nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, "
-                "sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. "
-                "Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. "
-                "Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales "
-                "sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc.";
-
-            TextRenderer::DrawInfo info;
-            info.font = &font;
-            info.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-            info.position.x = 10.0f;
-            info.position.y = 576.0f - 10.0f;
-            info.size.x = 800.0f;
-            info.size.y = 0.0f;
-            info.debug = true;
-
-            Context::TextRenderer().Draw(info, projection, text0);
-        }
-
         // Draw frame rate.
         {
             std::stringstream frameCounterText;
@@ -150,16 +121,6 @@ int main(int argc, char* argv[])
 
         // Draw console frame.
         Context::ConsoleFrame().Draw(projection);
-
-        // Draw screen border.
-        {
-            ShapeRenderer::Rectangle rectangle;
-            rectangle.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-            rectangle.position = glm::vec2(0.0f, 0.0f);
-            rectangle.size = glm::vec2(windowWidth, windowHeight);
-
-            Context::ShapeRenderer().DrawRectangles(&rectangle, 1, projection);
-        }
         
         // Present the window content.
         SDL_GL_SetSwapInterval(0);
