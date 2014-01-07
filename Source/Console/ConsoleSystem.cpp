@@ -70,10 +70,20 @@ void ConsoleSystem::Execute(std::string input)
 
 void ConsoleSystem::RegisterDefinition(ConsoleDefinition* definition)
 {
+    assert(definition != nullptr);
+
     if(!m_initialized)
         return;
 
-    assert(definition != nullptr);
+    if(definition == nullptr)
+        return;
+
+    // Definition name can't be empty.
+    assert(definition->GetName() != "");
+
+    // Check if a definition is meant to be used as internal.
+    if(definition->GetName() == ConsoleDefinition::Internal)
+        return;
 
     // White spaces (and special character) may cause problems.
     assert(definition->GetName().find(' ') == std::string::npos);

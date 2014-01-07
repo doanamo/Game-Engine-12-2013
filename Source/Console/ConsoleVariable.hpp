@@ -7,15 +7,48 @@
 // Console Variable
 //
 
-// TODO: Handle invalid string to numeric conversions (for now it just crashes).
-
 class ConsoleVariable : public ConsoleDefinition
 {
 public:
-    ConsoleVariable(std::string name, std::string value, std::string description);
+    ConsoleVariable(std::string name, std::string value, std::string description = "");
+    ConsoleVariable(std::string name, const char* value, std::string description = "");
+    ConsoleVariable(std::string name, bool        value, std::string description = "");
+    ConsoleVariable(std::string name, int         value, std::string description = "");
+    ConsoleVariable(std::string name, float       value, std::string description = "");
+
     ~ConsoleVariable();
 
     void Execute(std::string arguments);
+
+    ConsoleVariable& operator=(const std::string& right)
+    {
+        m_value = right;
+        return *this;
+    }
+
+    ConsoleVariable& operator=(const char* right)
+    {
+        m_value = right;
+        return *this;
+    }
+
+    ConsoleVariable& operator=(bool right)
+    {
+        this->SetBool(right);
+        return *this;
+    }
+
+    ConsoleVariable& operator=(int right)
+    {
+        this->SetInteger(right);
+        return *this;
+    }
+
+    ConsoleVariable& operator=(float right)
+    {
+        this->SetFloat(right);
+        return *this;
+    }
 
     void SetString(const char* value)
     {
