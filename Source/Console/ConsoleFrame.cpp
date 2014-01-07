@@ -2,8 +2,8 @@
 #include "ConsoleFrame.hpp"
 #include "ConsoleSystem.hpp"
 #include "ConsoleHistory.hpp"
-#include "ShapeRenderer.hpp"
-#include "TextRenderer.hpp"
+#include "Graphics/ShapeRenderer.hpp"
+#include "Graphics/TextRenderer.hpp"
 
 namespace
 {

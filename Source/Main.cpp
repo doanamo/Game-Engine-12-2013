@@ -3,11 +3,11 @@
 #include "Console/ConsoleSystem.hpp"
 #include "Console/ConsoleFrame.hpp"
 
-#include "Font.hpp"
-#include "ShapeRenderer.hpp"
-#include "TextRenderer.hpp"
+#include "Graphics/Font.hpp"
+#include "Graphics/TextRenderer.hpp"
+#include "Graphics/ShapeRenderer.hpp"
 
-#include "FrameCounter.hpp"
+#include "System/FrameCounter.hpp"
 
 //
 // Main

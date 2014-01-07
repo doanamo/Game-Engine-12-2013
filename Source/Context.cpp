@@ -11,10 +11,10 @@
 
 #include "Graphics/Texture.hpp"
 
-#include "ShapeRenderer.hpp"
-#include "TextRenderer.hpp"
+#include "Graphics/ShapeRenderer.hpp"
+#include "Graphics/TextRenderer.hpp"
 
-#include "FrameCounter.hpp"
+#include "System/FrameCounter.hpp"
 
 //
 // Console Variables

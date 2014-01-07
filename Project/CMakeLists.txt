@@ -102,14 +102,6 @@ Set(SourceFiles_Main
     "${SourceDir}/Main.cpp"
     "${SourceDir}/Context.hpp"
     "${SourceDir}/Context.cpp"
-    "${SourceDir}/ShapeRenderer.hpp"
-    "${SourceDir}/ShapeRenderer.cpp"
-    "${SourceDir}/Font.hpp"
-    "${SourceDir}/Font.cpp"
-    "${SourceDir}/TextRenderer.hpp"
-    "${SourceDir}/TextRenderer.cpp"
-    "${SourceDir}/FrameCounter.hpp"
-    "${SourceDir}/FrameCounter.cpp"
 )
 
 Source_Group("Source" FILES ${SourceFiles_Main})
@@ -160,6 +152,14 @@ Set(SourceFiles_Console
 Source_Group("Source\\Console" FILES ${SourceFiles_Console})
 Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Console})
 
+Set(SourceFiles_System
+    "${SourceDir}/System/FrameCounter.hpp"
+    "${SourceDir}/System/FrameCounter.cpp"
+)
+
+Source_Group("Source\\System" FILES ${SourceFiles_System})
+Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_System})
+
 Set(SourceFiles_Graphics
     "${SourceDir}/Graphics/Shader.hpp"
     "${SourceDir}/Graphics/Shader.cpp"
@@ -169,6 +169,12 @@ Set(SourceFiles_Graphics
     "${SourceDir}/Graphics/VertexInput.cpp"
     "${SourceDir}/Graphics/Texture.hpp"
     "${SourceDir}/Graphics/Texture.cpp"
+    "${SourceDir}/Graphics/ShapeRenderer.hpp"
+    "${SourceDir}/Graphics/ShapeRenderer.cpp"
+    "${SourceDir}/Graphics/Font.hpp"
+    "${SourceDir}/Graphics/Font.cpp"
+    "${SourceDir}/Graphics/TextRenderer.hpp"
+    "${SourceDir}/Graphics/TextRenderer.cpp"
 )
 
 Source_Group("Source\\Graphics" FILES ${SourceFiles_Graphics})

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Precompiled.hpp"
-#include "Font.hpp"
+#include "Graphics/Font.hpp"
 
 //
 // Console Frame
