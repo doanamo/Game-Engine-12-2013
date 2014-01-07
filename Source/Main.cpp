@@ -55,6 +55,14 @@ int main(int argc, char* argv[])
 
     while(!Context::IsQuitting())
     {
+        // Update frame time.
+        timePrevious = timeCurrent;
+        timeCurrent = SDL_GetTicks();
+
+        // Calculate elapsed time.
+        uint32_t timeElapsed = timeCurrent - timePrevious;
+        float dt = (float)timeElapsed / 1000.0f;
+
         // Handle window events.
         SDL_Event event;
         while(SDL_PollEvent(&event))
@@ -77,10 +85,6 @@ int main(int argc, char* argv[])
         // Set console variables.
         Console::windowWidth.SetInteger(windowWidth);
         Console::windowHeight.SetInteger(windowHeight);
-
-        // Calculate elapsed time.
-        uint32_t timeElapsed = timeCurrent - timePrevious;
-        float dt = (float)timeElapsed / 1000.0f;
 
         // Update frame counter.
         Context::FrameCounter().Update(dt);
@@ -160,10 +164,6 @@ int main(int argc, char* argv[])
         // Present the window content.
         SDL_GL_SetSwapInterval(0);
         SDL_GL_SwapWindow(Context::SystemWindow());
-
-        // Update frame time.
-        timePrevious = timeCurrent;
-        timeCurrent = SDL_GetTicks();
     }
 
     return 0;
