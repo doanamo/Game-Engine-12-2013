@@ -161,6 +161,7 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
     glm::vec2 cursorPosition = baselinePosition;
 
     // Debug drawing.
+    float baselineMaxWidth = baselinePosition.x;
     glm::vec2 baselineBegin(baselinePosition);
 
     std::vector<ShapeRenderer::Line> debugLines;
@@ -170,6 +171,10 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
     {
         assert(info.debug);
 
+        // Set max reached baseline width.
+        baselineMaxWidth = std::max(baselineMaxWidth, baselineEnd.x);
+
+        // Add line shape.
         ShapeRenderer::Line line;
         line.begin = baselineBegin;
         line.end = baselineEnd;
@@ -469,7 +474,7 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
         else
         {
             // Draw to the end of base line.
-            rectangle.size.x = baselinePosition.x - info.position.x;
+            rectangle.size.x = baselineMaxWidth - info.position.x;
         }
 
         Context::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
