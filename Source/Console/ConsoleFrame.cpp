@@ -299,7 +299,8 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
             info.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
             info.position.x = 5.0f;
             info.position.y = consolePosition + (i + 2) * m_font.GetLineSpacing();
-            info.size.x = windowWidth - 1.0f;
+            //info.size.x = windowWidth - 1.0f;
+            info.size.x = 0.0f; // Text wrap doesn't work in console.
             info.size.y = 0.0f;
 
             Context::TextRenderer().Draw(info, transform, text);
@@ -315,7 +316,8 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
             info.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
             info.position.x = 5.0f;
             info.position.y = consolePosition + m_font.GetLineSpacing();
-            info.size.x = windowWidth - 1.0f;
+            //info.size.x = windowWidth - 1.0f;
+            info.size.x = 0.0f; // Text wrap doesn't work in console.
             info.size.y = 0.0f;
             info.cursorIndex = 2 + m_cursorPosition;
 
