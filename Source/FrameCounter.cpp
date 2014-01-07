@@ -71,7 +71,7 @@ void FrameCounter::Update(float dt)
     // Set current frame time.
     m_history[m_historyPosition] = dt;
 
-    // Advance next history position write.
+    // Advance to next history position write.
     ++m_historyPosition;
 
     if(m_historyPosition >= m_historySize)

@@ -14,6 +14,8 @@
 #include "ShapeRenderer.hpp"
 #include "TextRenderer.hpp"
 
+#include "FrameCounter.hpp"
+
 //
 // Console Variables
 //
@@ -42,6 +44,7 @@ namespace
     ConsoleFrame        consoleFrame;
     ShapeRenderer       shapeRenderer;
     TextRenderer        textRenderer;
+    FrameCounter        frameCounter;
 
     Texture             textureBlank;
 
@@ -256,6 +259,14 @@ bool Context::Initialize()
         return false;
 
     //
+    // Frame Counter
+    //
+
+    // Initialize the frame counter.
+    if(!frameCounter.Initialize(30))
+        return false;
+
+    //
     // Success!
     //
 
@@ -268,6 +279,12 @@ bool Context::Initialize()
 void Context::Cleanup()
 {
     Log() << "Cleaning up...";
+
+    //
+    // Frame Counter
+    //
+
+    frameCounter.Cleanup();
 
     //
     // Console Frame
@@ -381,6 +398,11 @@ ShapeRenderer& Context::ShapeRenderer()
 TextRenderer& Context::TextRenderer()
 {
     return textRenderer;
+}
+
+FrameCounter& Context::FrameCounter()
+{
+    return frameCounter;
 }
 
 Texture& Context::TextureBlank()

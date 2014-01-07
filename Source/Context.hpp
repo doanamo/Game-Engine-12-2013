@@ -9,6 +9,7 @@ class ConsoleHistory;
 class ConsoleFrame;
 class ShapeRenderer;
 class TextRenderer;
+class FrameCounter;
 class Texture;
 
 //
@@ -24,20 +25,21 @@ namespace Context
     void Quit();
 
     // Context accessors.
-    bool                IsInitialized();
-    bool                IsQuitting();
-    std::string         WorkingDir();
+    bool            IsInitialized();
+    bool            IsQuitting();
+    std::string     WorkingDir();
 
-    Logger&             Logger();
-    ConsoleSystem&      ConsoleSystem();
-    ConsoleHistory&     ConsoleHistory();
-    ConsoleFrame&       ConsoleFrame();
-    ShapeRenderer&      ShapeRenderer();
-    TextRenderer&       TextRenderer();
+    Logger&         Logger();
+    ConsoleSystem&  ConsoleSystem();
+    ConsoleHistory& ConsoleHistory();
+    ConsoleFrame&   ConsoleFrame();
+    ShapeRenderer&  ShapeRenderer();
+    TextRenderer&   TextRenderer();
+    FrameCounter&   FrameCounter();
 
-    Texture&            TextureBlank();
+    Texture&        TextureBlank();
 
-    SDL_Window*         SystemWindow();
-    SDL_GLContext       GraphicsContext();
-    FT_Library          FontLibrary();
+    SDL_Window*     SystemWindow();
+    SDL_GLContext   GraphicsContext();
+    FT_Library      FontLibrary();
 }

@@ -35,15 +35,6 @@ int main(int argc, char* argv[])
     SCOPE_GUARD(Context::Cleanup());
 
     //
-    // Frame Counter
-    //
-
-    // Initialize the frame counter.
-    FrameCounter frameCounter;
-    if(!frameCounter.Initialize(30))
-        return -1;
-
-    //
     // Font
     //
 
@@ -92,7 +83,7 @@ int main(int argc, char* argv[])
         float dt = (float)timeElapsed / 1000.0f;
 
         // Update frame counter.
-        frameCounter.Update(dt);
+        Context::FrameCounter().Update(dt);
 
         // Update cursor blink time.
         Context::TextRenderer().Update(dt);
@@ -141,8 +132,8 @@ int main(int argc, char* argv[])
         // Draw frame rate.
         {
             std::stringstream frameCounterText;
-            frameCounterText << "FPS: " << std::fixed << std::setprecision(0) << frameCounter.GetFrameRate() 
-                << " (" << std::setprecision(4) << frameCounter.GetFrameTime() << "s)";
+            frameCounterText << "FPS: " << std::fixed << std::setprecision(0) << Context::FrameCounter().GetFrameRate() 
+                << " (" << std::setprecision(4) << Context::FrameCounter().GetFrameTime() << "s)";
 
             TextRenderer::DrawInfo info;
             info.font = &font;

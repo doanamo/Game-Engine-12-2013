@@ -21,9 +21,9 @@ public:
     float GetFrameRate() const;
 
 private:
-    float*  m_history;
-    int     m_historySize;
-    int     m_historyPosition;
+    float* m_history;
+    int    m_historySize;
+    int    m_historyPosition;
 
     bool m_initialized;
 };
