@@ -180,6 +180,14 @@ Set(SourceFiles_Graphics
 Source_Group("Source\\Graphics" FILES ${SourceFiles_Graphics})
 Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Graphics})
 
+Set(SourceFiles_Game
+    "${SourceDir}/Game/MenuFrame.hpp"
+    "${SourceDir}/Game/MenuFrame.cpp"
+)
+
+Source_Group("Source\\Game" FILES ${SourceFiles_Game})
+Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Game})
+
 # Add the main source folder as an include directory.
 Include_Directories(${SourceDir})
 

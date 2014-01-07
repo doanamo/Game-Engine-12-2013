@@ -9,6 +9,8 @@
 
 #include "System/FrameCounter.hpp"
 
+#include "Game/MenuFrame.hpp"
+
 //
 // Main
 //
@@ -46,6 +48,14 @@ int main(int argc, char* argv[])
     
     // Cache ASCII character set.
     font.CacheASCII();
+
+    //
+    // Menu Frame
+    //
+
+    MenuFrame menuFrame;
+    if(!menuFrame.Initialize())
+        return -1;
     
     //
     // Main Loop
@@ -104,6 +114,9 @@ int main(int argc, char* argv[])
         glClearDepth(1.0f);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Draw menu frame.
+        menuFrame.Draw(projection);
 
         // Draw frame rate.
         {
