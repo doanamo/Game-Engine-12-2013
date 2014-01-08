@@ -18,10 +18,14 @@ class Texture;
 
 namespace Console
 {
+    // Window settings.
     extern ConsoleVariable windowName;
     extern ConsoleVariable windowWidth;
     extern ConsoleVariable windowHeight;
     extern ConsoleVariable windowResize;
+
+    // Render settings.
+    extern ConsoleVariable renderVsync;
 }
 
 //

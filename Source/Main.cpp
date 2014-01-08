@@ -25,6 +25,9 @@ int main(int argc, char* argv[])
     Console::windowHeight = 576;
     Console::windowResize = false;
 
+    // Render settings.
+    Console::renderVsync = true;
+
     //
     // Context
     //
@@ -124,7 +127,14 @@ int main(int argc, char* argv[])
         Context::ConsoleFrame().Draw(projection);
         
         // Present the window content.
-        SDL_GL_SetSwapInterval(0);
+        bool verticalSync = false;
+
+        if(Console::renderVsync.GetBool())
+        {
+            verticalSync = true;
+        }
+
+        SDL_GL_SetSwapInterval((int)verticalSync);
         SDL_GL_SwapWindow(Context::SystemWindow());
     }
 

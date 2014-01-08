@@ -22,10 +22,14 @@
 
 namespace Console
 {
+    // Window settings.
     ConsoleVariable windowName(ConsoleDefinition::Internal, "");
     ConsoleVariable windowWidth("r_width", 1024, "Current screen width.");
     ConsoleVariable windowHeight("r_height", 576, "Current screen height.");
     ConsoleVariable windowResize(ConsoleDefinition::Internal, false);
+
+    // Render settings.
+    ConsoleVariable renderVsync("r_vsync", true, "Enables vertical synchronization.");
 }
 
 //
