@@ -92,6 +92,9 @@ bool Context::Initialize()
     // Logger Outputs
     //
 
+    // Set logger instance as global.
+    Logger::SetGlobal(&logger);
+
     // Add a logger file output.
     if(!loggerOutputFile.Open("Log.txt"))
         return false;
@@ -344,6 +347,8 @@ void Context::Cleanup()
     logger.Cleanup();
     loggerOutputFile.Cleanup();
     loggerOutputConsole.Cleanup();
+
+    Logger::SetGlobal(nullptr);
 
     //
     // Context

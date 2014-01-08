@@ -1,3 +1,4 @@
+#include "Precompiled.hpp"
 #include "Buffer.hpp"
 
 namespace

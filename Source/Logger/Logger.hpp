@@ -9,9 +9,9 @@
 
 // Log macro.
 #ifdef _DEBUG
-    #define Log() LoggerScopedMessage(&Context::Logger()).Source(__FILE__, __LINE__)
+    #define Log() LoggerScopedMessage(Logger::GetGlobal()).Source(__FILE__, __LINE__)
 #else
-    #define Log() LoggerScopedMessage(&Context::Logger())
+    #define Log() LoggerScopedMessage(Logger::GetGlobal())
 #endif
 
 // Forward declarations.
@@ -34,6 +34,13 @@ public:
 
     void Write(const LoggerMessage& message);
 
+public:
+    static void SetGlobal(Logger* logger);
+    static Logger* GetGlobal();
+
 private:
     std::vector<LoggerOutput*> m_outputs;
+
+    // Global logger instance.
+    static Logger* m_global;
 };

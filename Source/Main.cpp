@@ -9,6 +9,8 @@
 
 #include "System/FrameCounter.hpp"
 
+#include "Context.hpp"
+
 //
 // Main
 //

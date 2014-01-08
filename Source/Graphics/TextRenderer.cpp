@@ -2,6 +2,7 @@
 #include "TextRenderer.hpp"
 #include "ShapeRenderer.hpp"
 #include "Font.hpp"
+#include "Context.hpp"
 
 namespace
 {
