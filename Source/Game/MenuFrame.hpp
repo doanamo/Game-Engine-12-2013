@@ -2,6 +2,7 @@
 
 #include "Precompiled.hpp"
 #include "Graphics/Font.hpp"
+#include "Graphics/TextRenderer.hpp"
 
 //
 // Menu Frame
@@ -23,6 +24,11 @@ public:
 private:
     Font m_fontTitle;
     Font m_fontOption;
+
+    static const int       OptionCount = 4;
+    const char*            m_optionText[OptionCount];
+    TextRenderer::DrawInfo m_optionDrawInfo[OptionCount];
+    glm::vec4              m_optionBoundingBox[OptionCount];
 
     bool m_initialized;
 };

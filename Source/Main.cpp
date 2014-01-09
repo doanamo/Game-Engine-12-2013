@@ -108,6 +108,9 @@ int main(int argc, char* argv[])
         // Update cursor blink time.
         Context::TextRenderer().UpdateCursorBlink(dt);
 
+        // Update menu frame.
+        menuFrame.Update(dt);
+
         // Setup the viewport.
         glViewport(0, 0, windowWidth, windowHeight);
 
