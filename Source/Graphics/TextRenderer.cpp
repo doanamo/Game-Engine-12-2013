@@ -730,8 +730,10 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
         {
             ShapeRenderer::Rectangle rectangle;
             rectangle.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-            rectangle.position = state.GetBoundingBox().xy;
-            rectangle.size = state.GetBoundingBox().zw - rectangle.position;
+            rectangle.position.x = state.GetBoundingBox().x;
+            rectangle.position.y = state.GetBoundingBox().y;
+            rectangle.size.x = state.GetBoundingBox().z - rectangle.position.x + 1;
+            rectangle.size.y = state.GetBoundingBox().w - rectangle.position.y + 1;
 
             Context::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
         }
@@ -740,8 +742,10 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
         {
             ShapeRenderer::Rectangle rectangle;
             rectangle.color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
-            rectangle.position = state.GetDrawArea().xy;
-            rectangle.size = state.GetDrawArea().zw - rectangle.position;
+            rectangle.position.x = state.GetDrawArea().x;
+            rectangle.position.y = state.GetDrawArea().y;
+            rectangle.size.x = state.GetDrawArea().z - rectangle.position.x + 1;
+            rectangle.size.y = state.GetDrawArea().w - rectangle.position.y + 1;
 
             Context::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
         }
