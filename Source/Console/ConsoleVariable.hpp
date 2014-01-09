@@ -77,7 +77,22 @@ public:
 
     bool GetBool() const
     {
-        return m_value == "true";
+        if(m_value == "true")
+        {
+            return true;
+        }
+        else
+        if(m_value == "false")
+        {
+            return false;
+        }
+        else
+        if(GetFloat() != 0.0)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     int GetInteger() const

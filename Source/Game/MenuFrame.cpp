@@ -1,6 +1,7 @@
 #include "Precompiled.hpp"
 #include "MenuFrame.hpp"
 #include "Graphics/TextRenderer.hpp"
+#include "Context.hpp"
 
 MenuFrame::MenuFrame() :
     m_initialized(false)

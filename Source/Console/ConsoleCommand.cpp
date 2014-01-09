@@ -2,6 +2,7 @@
 #include "ConsoleCommand.hpp"
 #include "ConsoleSystem.hpp"
 #include "ConsoleHistory.hpp"
+#include "Context.hpp"
 
 ConsoleCommand::ConsoleCommand(std::string name, FunctionPointer function, std::string description) :
     ConsoleDefinition(name, description), m_function(function)

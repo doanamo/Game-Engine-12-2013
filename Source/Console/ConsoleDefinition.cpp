@@ -1,6 +1,7 @@
 #include "Precompiled.hpp"
 #include "ConsoleDefinition.hpp"
 #include "ConsoleSystem.hpp"
+#include "Context.hpp"
 
 const char*        ConsoleDefinition::Internal = "internal";
 ConsoleDefinition* ConsoleDefinition::m_staticHead = nullptr;

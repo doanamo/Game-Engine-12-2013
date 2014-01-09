@@ -4,6 +4,7 @@
 #include "ConsoleHistory.hpp"
 #include "Graphics/ShapeRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
+#include "Context.hpp"
 
 namespace
 {

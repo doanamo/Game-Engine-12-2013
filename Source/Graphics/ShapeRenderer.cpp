@@ -1,6 +1,7 @@
 #include "Precompiled.hpp"
 #include "ShapeRenderer.hpp"
-#include "Graphics/Texture.hpp"
+#include "Texture.hpp"
+#include "Context.hpp"
 
 namespace
 {

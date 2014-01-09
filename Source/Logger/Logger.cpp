@@ -4,6 +4,8 @@
 #include <ctime>
 #include <iomanip>
 
+Logger* Logger::m_global = nullptr;
+
 Logger::Logger()
 {
 }
@@ -50,4 +52,14 @@ void Logger::Write(const LoggerMessage& message)
     {
         (*it++)->Write(message);
     }
+}
+
+void Logger::SetGlobal(Logger* logger)
+{
+    m_global = logger;
+}
+
+Logger* Logger::GetGlobal()
+{
+    return m_global;
 }

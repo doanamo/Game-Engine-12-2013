@@ -22,10 +22,14 @@
 
 namespace Console
 {
+    // Window settings.
     ConsoleVariable windowName(ConsoleDefinition::Internal, "");
     ConsoleVariable windowWidth("r_width", 1024, "Current screen width.");
     ConsoleVariable windowHeight("r_height", 576, "Current screen height.");
     ConsoleVariable windowResize(ConsoleDefinition::Internal, false);
+
+    // Render settings.
+    ConsoleVariable renderVsync("r_vsync", true, "Enables vertical synchronization.");
 }
 
 //
@@ -87,6 +91,9 @@ bool Context::Initialize()
     //
     // Logger Outputs
     //
+
+    // Set logger instance as global.
+    Logger::SetGlobal(&logger);
 
     // Add a logger file output.
     if(!loggerOutputFile.Open("Log.txt"))
@@ -340,6 +347,8 @@ void Context::Cleanup()
     logger.Cleanup();
     loggerOutputFile.Cleanup();
     loggerOutputConsole.Cleanup();
+
+    Logger::SetGlobal(nullptr);
 
     //
     // Context

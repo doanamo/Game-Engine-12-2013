@@ -1,5 +1,6 @@
 #include "Precompiled.hpp"
 #include "Font.hpp"
+#include "Context.hpp"
 
 namespace
 {

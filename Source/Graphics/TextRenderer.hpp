@@ -61,6 +61,27 @@ public:
         bool debug;
     };
 
+    // Draw metrics.
+    struct DrawMetrics
+    {
+        // Default constructor.
+        DrawMetrics() :
+            boundingBox(0.0f, 0.0f, 0.0f, 0.0f),
+            drawingArea(0.0f, 0.0f, 0.0f, 0.0f),
+            lines(0)
+        {
+        }
+
+        // Text bounding box.
+        glm::vec4 boundingBox;
+
+        // Text drawing area.
+        glm::vec4 drawingArea;
+
+        // Text lines.
+        int lines;
+    };
+
 public:
     TextRenderer();
     ~TextRenderer();
@@ -68,21 +89,22 @@ public:
     bool Initialize(int bufferSize);
     void Cleanup();
 
-    void Update(float dt);
-    void Draw(const DrawInfo& info, const glm::mat4& transform, const char* text);
-
+    void UpdateCursorBlink(float dt);
     void ResetCursorBlink();
+
+    DrawMetrics Measure(const DrawInfo& info, const char* text);
+    void Draw(const DrawInfo& info, const glm::mat4& transform, const char* text);
 
 private:
     Vertex* m_vertexData;
     int     m_bufferSize;
 
-    Shader          m_shader;
-    VertexBuffer    m_vertexBuffer;
-    IndexBuffer     m_indexBuffer;
-    VertexInput     m_vertexInput;
+    Shader       m_shader;
+    VertexBuffer m_vertexBuffer;
+    IndexBuffer  m_indexBuffer;
+    VertexInput  m_vertexInput;
 
-    float m_cursorTime;
+    float m_cursorBlinkTime;
 
     bool m_initialized;
 };
