@@ -23,7 +23,7 @@ TextRenderer::TextRenderer() :
     m_vertexBuffer(),
     m_indexBuffer(),
     m_vertexInput(),
-    m_cursorTime(0.0f),
+    m_cursorBlinkTime(0.0f),
     m_initialized(false)
 {
 }
@@ -118,15 +118,23 @@ void TextRenderer::Cleanup()
     m_indexBuffer.Cleanup();
     m_vertexInput.Cleanup();
 
-    m_cursorTime = 0.0f;
+    m_cursorBlinkTime = 0.0f;
 
     m_initialized = false;
 }
 
-void TextRenderer::Update(float dt)
+void TextRenderer::UpdateCursorBlink(float dt)
 {
-    m_cursorTime += dt;
-    m_cursorTime = fmod(m_cursorTime, CursorBlinkTime);
+    m_cursorBlinkTime += dt;
+    m_cursorBlinkTime = fmod(m_cursorBlinkTime, CursorBlinkTime);
+}
+
+void TextRenderer::ResetCursorBlink()
+{
+    if(!m_initialized)
+        return;
+
+    m_cursorBlinkTime = 0.0f;
 }
 
 void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const char* text)
@@ -436,7 +444,7 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
     glDisable(GL_BLEND);
 
     // Draw text cursor.
-    if(info.cursorIndex >= 0 && m_cursorTime < CursorBlinkTime * 0.5f)
+    if(info.cursorIndex >= 0 && m_cursorBlinkTime < CursorBlinkTime * 0.5f)
     {
         ShapeRenderer::Line cursorLine;
         cursorLine.color = info.color;
@@ -480,12 +488,4 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
 
         Context::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
     }
-}
-
-void TextRenderer::ResetCursorBlink()
-{
-    if(!m_initialized)
-        return;
-
-    m_cursorTime = 0.0f;
 }

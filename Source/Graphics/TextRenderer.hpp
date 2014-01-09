@@ -68,21 +68,21 @@ public:
     bool Initialize(int bufferSize);
     void Cleanup();
 
-    void Update(float dt);
-    void Draw(const DrawInfo& info, const glm::mat4& transform, const char* text);
-
+    void UpdateCursorBlink(float dt);
     void ResetCursorBlink();
+
+    void Draw(const DrawInfo& info, const glm::mat4& transform, const char* text);
 
 private:
     Vertex* m_vertexData;
     int     m_bufferSize;
 
-    Shader          m_shader;
-    VertexBuffer    m_vertexBuffer;
-    IndexBuffer     m_indexBuffer;
-    VertexInput     m_vertexInput;
+    Shader       m_shader;
+    VertexBuffer m_vertexBuffer;
+    IndexBuffer  m_indexBuffer;
+    VertexInput  m_vertexInput;
 
-    float m_cursorTime;
+    float m_cursorBlinkTime;
 
     bool m_initialized;
 };

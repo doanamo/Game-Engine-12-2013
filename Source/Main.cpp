@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
         Context::FrameCounter().Update(dt);
 
         // Update cursor blink time.
-        Context::TextRenderer().Update(dt);
+        Context::TextRenderer().UpdateCursorBlink(dt);
 
         // Setup the viewport.
         glViewport(0, 0, windowWidth, windowHeight);
