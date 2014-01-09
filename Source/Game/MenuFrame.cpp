@@ -50,7 +50,7 @@ bool MenuFrame::Initialize()
         info.font = &m_fontOption;
         info.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
         info.position.x = 200.0f;
-        info.position.y = windowHeight - 200.0f - i * (m_fontOption.GetLineSpacing() + 1);
+        info.position.y = windowHeight - 200.0f - i * m_fontOption.GetLineSpacing();
         //info.debug = true;
     }
 
@@ -99,8 +99,8 @@ void MenuFrame::Update(float dt)
     {
         const glm::vec4& boundingBox = m_optionBoundingBox[i];
 
-        if(boundingBox.x <= cursorPosition.x && cursorPosition.x <= boundingBox.z &&
-            boundingBox.y <= cursorPosition.y && cursorPosition.y <= boundingBox.w)
+        if(boundingBox.x <= cursorPosition.x && cursorPosition.x < boundingBox.z &&
+            boundingBox.y <= cursorPosition.y && cursorPosition.y < boundingBox.w)
         {
             m_optionDrawInfo[i].color = SelectedColor;
         }
