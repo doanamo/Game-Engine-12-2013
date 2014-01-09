@@ -25,7 +25,7 @@ private:
     Font m_fontTitle;
     Font m_fontOption;
 
-    static const int       OptionCount = 4;
+    static const int       OptionCount = 5;
     const char*            m_optionText[OptionCount];
     TextRenderer::DrawInfo m_optionDrawInfo[OptionCount];
     glm::vec4              m_optionBoundingBox[OptionCount];

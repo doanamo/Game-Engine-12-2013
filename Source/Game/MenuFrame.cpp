@@ -34,10 +34,11 @@ bool MenuFrame::Initialize()
         return false;
 
     // Calculate menu option data.
-    m_optionText[0] = "New Game";
-    m_optionText[1] = "Options";
-    m_optionText[2] = "Credits";
-    m_optionText[3] = "Quit";
+    m_optionText[0] = "Continue";
+    m_optionText[1] = "New Game";
+    m_optionText[2] = "Options";
+    m_optionText[3] = "Credits";
+    m_optionText[4] = "Quit";
 
     for(int i = 0; i < OptionCount; ++i)
     {
@@ -48,9 +49,18 @@ bool MenuFrame::Initialize()
         // Calculate draw info.
         TextRenderer::DrawInfo& info = m_optionDrawInfo[i];
         info.font = &m_fontOption;
-        info.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+        if(i == 0 || i == 2 || i == 3)
+        {
+            info.color = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+        }
+        else
+        {
+            info.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        }
+
         info.position.x = 200.0f;
-        info.position.y = windowHeight - 200.0f - i * m_fontOption.GetLineSpacing();
+        info.position.y = windowHeight - 185.0f - i * m_fontOption.GetLineSpacing();
         //info.debug = true;
     }
 
@@ -97,6 +107,9 @@ void MenuFrame::Update(float dt)
 
     for(int i = 0; i < OptionCount; ++i)
     {
+        if(i == 0 || i == 2 || i == 3)
+            continue;
+
         const glm::vec4& boundingBox = m_optionBoundingBox[i];
 
         if(boundingBox.x <= cursorPosition.x && cursorPosition.x < boundingBox.z &&
