@@ -35,9 +35,11 @@ public:
         m_wordProcessed(true),
         m_wordWrap(false),
         m_drawPosition(0.0f, 0.0f),
+        m_drawArea(0.0f, 0.0f, 0.0f, 0.0f),
         m_glyph(nullptr),
         m_cursorPosition(0.0f, 0.0f),
         m_cursorPresent(false),
+        m_boundingBox(0.0f, 0.0f, 0.0f, 0.0f),
         m_initialized(false)
     {
     }
@@ -221,6 +223,35 @@ public:
             m_cursorPosition.y = m_drawPosition.y + glyph->advance.y;
         }
 
+        // Set initial bounding box.
+        if(m_characterIndex == 0)
+        {
+            m_boundingBox.x = m_boundingBox.y = std::numeric_limits<float>::max();
+            m_boundingBox.z = m_boundingBox.w = std::numeric_limits<float>::min();
+        }
+
+        // Calculate current bounding box.
+        m_boundingBox.x = std::min(m_boundingBox.x, m_drawPosition.x + glyph->offset.x);
+        m_boundingBox.y = std::min(m_boundingBox.y, m_drawPosition.y + glyph->offset.y);
+        m_boundingBox.z = std::max(m_boundingBox.z, m_drawPosition.x + glyph->offset.x + glyph->size.x);
+        m_boundingBox.w = std::max(m_boundingBox.w, m_drawPosition.y + glyph->offset.y + glyph->size.y);
+
+        // Calculate current draw area.
+        m_drawArea.x = m_drawInfo->position.x;
+        m_drawArea.y = m_drawPosition.y + m_drawInfo->font->GetDescender();
+
+        if(m_wordWrap)
+        {
+            m_drawArea.z = m_drawInfo->position.x + m_drawInfo->size.x;
+        }
+        else
+        {
+            m_drawArea.z = std::max(m_drawArea.z, m_drawPosition.x + glyph->advance.x);
+            //m_drawArea.z = m_boundingBox.z;
+        }
+
+        m_drawArea.w = m_drawInfo->position.y;
+
         return false;
     }
 
@@ -279,6 +310,11 @@ public:
         return m_drawPosition;
     }
 
+    const glm::vec4& GetDrawArea() const
+    {
+        return m_drawArea;
+    }
+
     const Glyph* GetCurrentGlyph() const
     {
         return m_glyph;
@@ -287,6 +323,11 @@ public:
     const glm::vec2& GetCursorPosition() const
     {
         return m_cursorPosition;
+    }
+
+    const glm::vec4& GetBoundingBox() const
+    {
+        return m_boundingBox;
     }
 
     bool IsWordWrapEnabled() const
@@ -321,12 +362,18 @@ private:
     // Draw position.
     glm::vec2 m_drawPosition;
 
+    // Text draw area.
+    glm::vec4 m_drawArea;
+
     // Current character glyph.
     const Glyph* m_glyph;
 
     // Text cursor.
     glm::vec2 m_cursorPosition;
     bool      m_cursorPresent;
+
+    // Text bounding box.
+    glm::vec4 m_boundingBox;
 
     bool m_initialized;
 };
@@ -454,6 +501,32 @@ void TextRenderer::ResetCursorBlink()
         return;
 
     m_cursorBlinkTime = 0.0f;
+}
+
+TextRenderer::DrawMetrics TextRenderer::Measure(const DrawInfo& info, const char* text)
+{
+    DrawMetrics output;
+
+    if(!m_initialized)
+        return output;
+
+    // Initialize the text draw state.
+    DrawState state;
+    if(!state.Initialize(info, text))
+        return output;
+
+    // Process all characters.
+    while(!state.IsDone())
+    {
+        state.ProcessNext();
+    }
+
+    // Return draw metrics.
+    output.boundingBox = state.GetBoundingBox();
+    output.drawingArea = state.GetDrawArea();
+    output.lines = state.GetCurrentLine() + 1;
+
+    return output;
 }
 
 void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const char* text)
@@ -654,23 +727,23 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
         Context::ShapeRenderer().DrawLines(&debugLines[0], debugLines.size(), transform);
 
         // Draw bounding box.
-        ShapeRenderer::Rectangle rectangle;
-        rectangle.color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
-        rectangle.position.x = info.position.x;
-        rectangle.position.y = state.GetDrawPosition().y + info.font->GetDescender();
-        rectangle.size.y = info.position.y - rectangle.position.y;
+        {
+            ShapeRenderer::Rectangle rectangle;
+            rectangle.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+            rectangle.position = state.GetBoundingBox().xy;
+            rectangle.size = state.GetBoundingBox().zw - rectangle.position;
 
-        if(state.IsWordWrapEnabled())
-        {
-            // Draw to the word wrap width.
-            rectangle.size.x = info.size.x;
-        }
-        else
-        {
-            // Draw to the end of base line.
-            rectangle.size.x = baselineMaxWidth - info.position.x;
+            Context::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
         }
 
-        Context::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
+        // Draw text area.
+        {
+            ShapeRenderer::Rectangle rectangle;
+            rectangle.color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+            rectangle.position = state.GetDrawArea().xy;
+            rectangle.size = state.GetDrawArea().zw - rectangle.position;
+
+            Context::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
+        }
     }
 }
