@@ -12,6 +12,15 @@
 #include "Context.hpp"
 
 //
+// Console Variables
+//
+
+namespace Console
+{
+    ConsoleVariable drawFrameRate("r_drawfps", true, "Displays current frame rate on the screen.");
+}
+
+//
 // Main
 //
 
@@ -111,6 +120,7 @@ int main(int argc, char* argv[])
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Draw frame rate.
+        if(Console::drawFrameRate.GetBool())
         {
             std::stringstream frameCounterText;
             frameCounterText << "FPS: " << std::fixed << std::setprecision(0) << Context::FrameCounter().GetFrameRate() 
