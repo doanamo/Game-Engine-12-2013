@@ -14,6 +14,15 @@
 #include "Context.hpp"
 
 //
+// Console Variables
+//
+
+namespace Console
+{
+    ConsoleVariable drawFrameRate("r_drawfps", true, "Displays current frame rate on the screen.");
+}
+
+//
 // Main
 //
 
@@ -88,19 +97,21 @@ int main(int argc, char* argv[])
             case SDL_QUIT:
                 Context::Quit();
                 break;
+
+            case SDL_WINDOWEVENT_RESIZED:
+                Console::windowWidth.SetInteger(event.window.data1);
+                Console::windowHeight.SetInteger(event.window.data2);
+                break;
             }
 
             // Process an event by console frame.
-            Context::ConsoleFrame().Process(event);
+            if(Context::ConsoleFrame().Process(event))
+                continue;
         }
 
         // Get current window size.
         int windowWidth, windowHeight;
         SDL_GetWindowSize(Context::SystemWindow(), &windowWidth, &windowHeight);
-
-        // Set console variables.
-        Console::windowWidth.SetInteger(windowWidth);
-        Console::windowHeight.SetInteger(windowHeight);
 
         // Update frame counter.
         Context::FrameCounter().Update(dt);
@@ -127,6 +138,7 @@ int main(int argc, char* argv[])
         menuFrame.Draw(projection);
 
         // Draw frame rate.
+        if(Console::drawFrameRate.GetBool())
         {
             std::stringstream frameCounterText;
             frameCounterText << "FPS: " << std::fixed << std::setprecision(0) << Context::FrameCounter().GetFrameRate() 

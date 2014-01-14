@@ -29,7 +29,7 @@ public:
     void Open();
     void Close();
 
-    void Process(const SDL_Event& event);
+    bool Process(const SDL_Event& event);
     void Draw(const glm::mat4& transform);
 
     bool IsOpen() const
