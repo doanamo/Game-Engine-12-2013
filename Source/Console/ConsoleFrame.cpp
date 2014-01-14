@@ -79,10 +79,10 @@ void ConsoleFrame::Close()
     m_open = false;
 }
 
-void ConsoleFrame::Process(const SDL_Event& event)
+bool ConsoleFrame::Process(const SDL_Event& event)
 {
     if(!m_initialized)
-        return;
+        return false;
 
     switch(event.type)
     {
@@ -259,6 +259,9 @@ void ConsoleFrame::Process(const SDL_Event& event)
         }
         break;
     }
+
+    // Block all input events when console is open.
+    return m_open;
 }
 
 void ConsoleFrame::Draw(const glm::mat4& transform)

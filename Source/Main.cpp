@@ -90,7 +90,8 @@ int main(int argc, char* argv[])
             }
 
             // Process an event by console frame.
-            Context::ConsoleFrame().Process(event);
+            if(Context::ConsoleFrame().Process(event))
+                continue;
         }
 
         // Get current window size.
