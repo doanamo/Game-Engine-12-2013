@@ -3,7 +3,21 @@
 #include "Graphics/TextRenderer.hpp"
 #include "Context.hpp"
 
+namespace
+{
+    // Menu element text.
+    const char* MenuElementText[MenuFrame::MenuElements::Count] =
+    {
+        "Continue",
+        "New Game",
+        "Options",
+        "Credits",
+        "Quit",
+    };
+}
+
 MenuFrame::MenuFrame() :
+    m_elementSelected(MenuElements::None),
     m_initialized(false)
 {
 }
@@ -30,45 +44,43 @@ bool MenuFrame::Initialize()
     if(!m_fontTitle.Load(Context::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 128, 512, 512))
         return false;
 
-    if(!m_fontOption.Load(Context::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 48, 512, 512))
+    if(!m_fontElement.Load(Context::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 48, 512, 512))
         return false;
 
-    // Calculate menu option data.
-    m_optionText[0] = "Continue";
-    m_optionText[1] = "New Game";
-    m_optionText[2] = "Options";
-    m_optionText[3] = "Credits";
-    m_optionText[4] = "Quit";
+    // Get window size.
+    int windowWidth = Console::windowWidth.GetInteger();
+    int windowHeight = Console::windowHeight.GetInteger();
 
-    for(int i = 0; i < OptionCount; ++i)
+    // Fill element data array.
+    for(int i = 0; i < MenuElements::Count; ++i)
     {
-        // Get window size.
-        int windowWidth = Console::windowWidth.GetInteger();
-        int windowHeight = Console::windowHeight.GetInteger();
+        ElementData& element = m_elements[i];
 
-        // Calculate draw info.
-        TextRenderer::DrawInfo& info = m_optionDrawInfo[i];
-        info.font = &m_fontOption;
-
-        if(i == 0 || i == 2 || i == 3)
+        // Set enabled state.
+        if(i == MenuElements::Quit)
         {
-            info.color = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+            element.enabled = true;
         }
         else
         {
-            info.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+            element.enabled = false;
         }
 
-        info.position.x = 200.0f;
-        info.position.y = windowHeight - 185.0f - i * m_fontOption.GetLineSpacing();
-        //info.debug = true;
-    }
+        // Set element text.
+        element.text = MenuElementText[i];
 
-    for(int i = 0; i < OptionCount; ++i)
-    {
-        TextRenderer::DrawMetrics metrics = Context::TextRenderer().Measure(m_optionDrawInfo[i], m_optionText[i]);
+        // Set element draw data.
+        element.position.x = 200.0f;
+        element.position.y = windowHeight - 185.0f - i * m_fontElement.GetLineSpacing();
 
-        m_optionBoundingBox[i] = metrics.drawingArea;
+        // Calculate a bounding box.
+        TextRenderer::DrawInfo info;
+        info.font = &m_fontElement;
+        info.position = element.position;
+
+        TextRenderer::DrawMetrics metrics = Context::TextRenderer().Measure(info, element.text);
+
+        element.boundingBox = metrics.drawingArea;
     }
 
     // Success!
@@ -79,14 +91,30 @@ bool MenuFrame::Initialize()
 
 void MenuFrame::Cleanup()
 {
+    m_elementSelected = MenuElements::None;
+
     m_fontTitle.Cleanup();
-    m_fontOption.Cleanup();
+    m_fontElement.Cleanup();
 
     m_initialized = false;
 }
 
-void MenuFrame::Process(const SDL_Event& event)
+bool MenuFrame::Process(const SDL_Event& event)
 {
+    switch(event.type)
+    {
+    case SDL_MOUSEBUTTONDOWN:
+        if(event.button.button == SDL_BUTTON_LEFT)
+        {
+            if(m_elementSelected == MenuElements::Quit)
+            {
+                Context::Quit();
+            }
+        }
+        return true;
+    }
+
+    return false;
 }
 
 void MenuFrame::Update(float dt)
@@ -101,25 +129,25 @@ void MenuFrame::Update(float dt)
 
     cursorPosition.y = (windowHeight - 1) - cursorPosition.y;
 
-    // Check 
-    static const glm::vec4 DefaultColor(0.0f, 0.0f, 0.0f, 1.0f);
-    static const glm::vec4 SelectedColor(1.0f, 0.0f, 0.0f, 1.0f);
+    // Check which element is currently selected.
+    m_elementSelected = MenuElements::None;
 
-    for(int i = 0; i < OptionCount; ++i)
+    for(int i = 0; i < MenuElements::Count; ++i)
     {
-        if(i == 0 || i == 2 || i == 3)
+        ElementData& element = m_elements[i];
+
+        // Check if element is enabled.
+        if(!element.enabled)
             continue;
 
-        const glm::vec4& boundingBox = m_optionBoundingBox[i];
+        // Check if the cursor is over this element.
+        const glm::vec4& boundingBox = element.boundingBox;
 
         if(boundingBox.x <= cursorPosition.x && cursorPosition.x < boundingBox.z &&
             boundingBox.y <= cursorPosition.y && cursorPosition.y < boundingBox.w)
         {
-            m_optionDrawInfo[i].color = SelectedColor;
-        }
-        else
-        {
-            m_optionDrawInfo[i].color = DefaultColor;
+            m_elementSelected = i;
+            break;
         }
     }
 }
@@ -141,9 +169,33 @@ void MenuFrame::Draw(const glm::mat4& projection)
         Context::TextRenderer().Draw(info, projection, "Awesome Game");
     }
 
-    // Draw menu options.
-    for(int i = 0; i < OptionCount; ++i)
+    // Draw menu elements.
+    for(int i = 0; i < MenuElements::Count; ++i)
     {
-        Context::TextRenderer().Draw(m_optionDrawInfo[i], projection, m_optionText[i]);
+        ElementData& element = m_elements[i];
+
+        // Draw an element.
+        TextRenderer::DrawInfo info;
+        info.font = &m_fontElement;
+        
+        if(m_elementSelected == i)
+        {
+            info.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+        }
+        else
+        {
+            if(element.enabled)
+            {
+                info.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+            }
+            else
+            {
+                info.color = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+            }
+        }
+
+        info.position = element.position;
+
+        Context::TextRenderer().Draw(info, projection, element.text);
     }
 }

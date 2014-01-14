@@ -17,18 +17,45 @@ public:
     bool Initialize();
     void Cleanup();
 
-    void Process(const SDL_Event& event);
+    bool Process(const SDL_Event& event);
     void Update(float dt);
     void Draw(const glm::mat4& projection);
 
-private:
-    Font m_fontTitle;
-    Font m_fontOption;
+public:
+    // Menu elements.
+    struct MenuElements
+    {
+        enum Type
+        {
+            Continue,
+            NewGame,
+            Options,
+            Credits,
+            Quit,
+    
+            Count,
+            None,
+        };
+    };
 
-    static const int       OptionCount = 5;
-    const char*            m_optionText[OptionCount];
-    TextRenderer::DrawInfo m_optionDrawInfo[OptionCount];
-    glm::vec4              m_optionBoundingBox[OptionCount];
+private:
+    // Menu graphics.
+    Font m_fontTitle;
+    Font m_fontElement;
+
+    // Menu elements.
+    struct ElementData
+    {
+        bool        enabled;
+        const char* text;
+        glm::vec2   position;
+        glm::vec4   boundingBox;
+    };
+
+    typedef std::array<ElementData, MenuElements::Count> ElementArray;
+
+    ElementArray m_elements;
+    int          m_elementSelected;
 
     bool m_initialized;
 };
