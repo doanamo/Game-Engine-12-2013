@@ -9,7 +9,9 @@
 
 #include "System/FrameCounter.hpp"
 
-#include "Game/MenuFrame.hpp"
+#include "Common/StateMachine.hpp"
+#include "Game/BaseFrame.hpp"
+#include "Game/Game.hpp"
 
 #include "Context.hpp"
 
@@ -52,6 +54,16 @@ int main(int argc, char* argv[])
     SCOPE_GUARD(Context::Cleanup());
 
     //
+    // Game
+    //
+
+    // Initialize the game.
+    if(!Game::Initialize())
+        return -1;
+
+    SCOPE_GUARD(Game::Cleanup());
+
+    //
     // Font
     //
 
@@ -62,14 +74,6 @@ int main(int argc, char* argv[])
     
     // Cache ASCII character set.
     font.CacheASCII();
-
-    //
-    // Menu Frame
-    //
-
-    MenuFrame menuFrame;
-    if(!menuFrame.Initialize())
-        return -1;
     
     //
     // Main Loop
@@ -108,8 +112,8 @@ int main(int argc, char* argv[])
             if(Context::ConsoleFrame().Process(event))
                 continue;
 
-            // Process an event by menu frame.
-            if(menuFrame.Process(event))
+            // Process an event by the current state frame.
+            if(Game::StateMachine().GetState()->Process(event))
                 continue;
         }
 
@@ -123,8 +127,8 @@ int main(int argc, char* argv[])
         // Update cursor blink time.
         Context::TextRenderer().UpdateCursorBlink(dt);
 
-        // Update menu frame.
-        menuFrame.Update(dt);
+        // Update the current state frame.
+        Game::StateMachine().GetState()->Update(dt);
 
         // Setup the viewport.
         glViewport(0, 0, windowWidth, windowHeight);
@@ -138,8 +142,8 @@ int main(int argc, char* argv[])
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Draw menu frame.
-        menuFrame.Draw(projection);
+        // Draw the current state frame.
+        Game::StateMachine().GetState()->Draw(projection);
 
         // Draw frame rate.
         if(Console::drawFrameRate.GetBool())

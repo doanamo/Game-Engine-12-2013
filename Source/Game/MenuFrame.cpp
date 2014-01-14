@@ -1,7 +1,9 @@
 #include "Precompiled.hpp"
 #include "MenuFrame.hpp"
+#include "GameFrame.hpp"
 #include "Graphics/TextRenderer.hpp"
 #include "Context.hpp"
+#include "Game.hpp"
 
 namespace
 {
@@ -32,13 +34,14 @@ bool MenuFrame::Initialize()
     Cleanup();
 
     // Setup emergency cleanup.
-    SCOPE_GUARD
-    (
+    auto EmergenyCleanup = MakeScopeGuard([&]()
+    {
+        // Cleanup if initialization failed.
         if(!m_initialized)
         {
             Cleanup();
         }
-    );
+    });
 
     // Load fonts.
     if(!m_fontTitle.Load(Context::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 128, 512, 512))
@@ -57,7 +60,7 @@ bool MenuFrame::Initialize()
         ElementData& element = m_elements[i];
 
         // Set enabled state.
-        if(i == MenuElements::Quit)
+        if(i == MenuElements::NewGame || i == MenuElements::Quit)
         {
             element.enabled = true;
         }
@@ -106,9 +109,15 @@ bool MenuFrame::Process(const SDL_Event& event)
     case SDL_MOUSEBUTTONDOWN:
         if(event.button.button == SDL_BUTTON_LEFT)
         {
-            if(m_elementSelected == MenuElements::Quit)
+            switch(m_elementSelected)
             {
+            case MenuElements::NewGame:
+                Game::StateMachine().ChangeState(&Game::GameFrame());
+                break;
+
+            case MenuElements::Quit:
                 Context::Quit();
+                break;
             }
         }
         return true;
@@ -152,7 +161,7 @@ void MenuFrame::Update(float dt)
     }
 }
 
-void MenuFrame::Draw(const glm::mat4& projection)
+void MenuFrame::Draw(const glm::mat4& transform)
 {
     // Get window size.
     int windowWidth = Console::windowWidth.GetInteger();
@@ -166,7 +175,7 @@ void MenuFrame::Draw(const glm::mat4& projection)
         info.position.x = 50.0f;
         info.position.y = windowHeight - 10.0f;
 
-        Context::TextRenderer().Draw(info, projection, "Awesome Game");
+        Context::TextRenderer().Draw(info, transform, "Awesome Game");
     }
 
     // Draw menu elements.
@@ -196,6 +205,6 @@ void MenuFrame::Draw(const glm::mat4& projection)
 
         info.position = element.position;
 
-        Context::TextRenderer().Draw(info, projection, element.text);
+        Context::TextRenderer().Draw(info, transform, element.text);
     }
 }

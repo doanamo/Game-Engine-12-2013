@@ -2,13 +2,13 @@
 
 #include "Precompiled.hpp"
 #include "Graphics/Font.hpp"
-#include "Graphics/TextRenderer.hpp"
+#include "BaseFrame.hpp"
 
 //
 // Menu Frame
 //
 
-class MenuFrame
+class MenuFrame : public BaseFrame
 {
 public:
     MenuFrame();
@@ -19,7 +19,7 @@ public:
 
     bool Process(const SDL_Event& event);
     void Update(float dt);
-    void Draw(const glm::mat4& projection);
+    void Draw(const glm::mat4& transform);
 
 public:
     // Menu elements.
