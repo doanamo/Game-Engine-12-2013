@@ -87,6 +87,11 @@ int main(int argc, char* argv[])
             case SDL_QUIT:
                 Context::Quit();
                 break;
+
+            case SDL_WINDOWEVENT_RESIZED:
+                Console::windowWidth.SetInteger(event.window.data1);
+                Console::windowHeight.SetInteger(event.window.data2);
+                break;
             }
 
             // Process an event by console frame.
@@ -97,10 +102,6 @@ int main(int argc, char* argv[])
         // Get current window size.
         int windowWidth, windowHeight;
         SDL_GetWindowSize(Context::SystemWindow(), &windowWidth, &windowHeight);
-
-        // Set console variables.
-        Console::windowWidth.SetInteger(windowWidth);
-        Console::windowHeight.SetInteger(windowHeight);
 
         // Update frame counter.
         Context::FrameCounter().Update(dt);
