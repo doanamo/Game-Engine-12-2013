@@ -112,6 +112,7 @@ Set(SourceFiles_Common
     "${SourceDir}/Common/ScopeGuard.hpp"
     "${SourceDir}/Common/Utility.hpp"
     "${SourceDir}/Common/Utility.cpp"
+    "${SourceDir}/Common/StateMachine.hpp"
 )
 
 Source_Group("Source\\Common" FILES ${SourceFiles_Common})

@@ -114,8 +114,8 @@ int main(int argc, char* argv[])
         }
 
         // Get current window size.
-        int windowWidth, windowHeight;
-        SDL_GetWindowSize(Context::SystemWindow(), &windowWidth, &windowHeight);
+        int windowWidth = Console::windowWidth.GetInteger();
+        int windowHeight = Console::windowHeight.GetInteger();
 
         // Update frame counter.
         Context::FrameCounter().Update(dt);
