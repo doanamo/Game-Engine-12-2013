@@ -100,8 +100,8 @@ Set(SourceFiles_Main
     "${SourceDir}/${PrecompiledHeader}"
     "${SourceDir}/${PrecompiledSource}"
     "${SourceDir}/Main.cpp"
-    "${SourceDir}/Context.hpp"
-    "${SourceDir}/Context.cpp"
+    "${SourceDir}/MainContext.hpp"
+    "${SourceDir}/MainContext.cpp"
 )
 
 Source_Group("Source" FILES ${SourceFiles_Main})

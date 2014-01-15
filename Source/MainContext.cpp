@@ -1,9 +1,11 @@
 #include "Precompiled.hpp"
-#include "Context.hpp"
+#include "MainContext.hpp"
 
 #include "Logger/Logger.hpp"
 #include "Logger/LoggerOutputFile.hpp"
 #include "Logger/LoggerOutputConsole.hpp"
+
+#include "System/FrameCounter.hpp"
 
 #include "Console/ConsoleSystem.hpp"
 #include "Console/ConsoleHistory.hpp"
@@ -13,8 +15,6 @@
 
 #include "Graphics/ShapeRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
-
-#include "System/FrameCounter.hpp"
 
 //
 // Console Variables
@@ -33,7 +33,7 @@ namespace Console
 }
 
 //
-// Context
+// Context Data
 //
 
 namespace
@@ -63,7 +63,7 @@ namespace
 // Context Methods
 //
 
-bool Context::Initialize()
+bool Main::Initialize()
 {
     assert(!isInitialized);
 
@@ -290,9 +290,9 @@ bool Context::Initialize()
     return true;
 }
 
-void Context::Cleanup()
+void Main::Cleanup()
 {
-    Log() << "Cleaning up...";
+    Log() << "Cleaning up the main context...";
 
     //
     // Frame Counter
@@ -359,7 +359,7 @@ void Context::Cleanup()
     isInitialized = false;
 }
 
-void Context::Quit()
+void Main::Quit()
 {
     if(!isInitialized)
         return;
@@ -371,72 +371,72 @@ void Context::Quit()
 // Context Accessors
 //
 
-bool Context::IsInitialized()
+bool Main::IsInitialized()
 {
     return isInitialized;
 }
 
-bool Context::IsQuitting()
+bool Main::IsQuitting()
 {
     return isQuitting;
 }
 
-std::string Context::WorkingDir()
+std::string Main::WorkingDir()
 {
     return workingDir;
 }
 
-Logger& Context::Logger()
+Logger& Main::Logger()
 {
     return logger;
 }
 
-ConsoleSystem& Context::ConsoleSystem()
+ConsoleSystem& Main::ConsoleSystem()
 {
     return consoleSystem;
 }
 
-ConsoleHistory& Context::ConsoleHistory()
+ConsoleHistory& Main::ConsoleHistory()
 {
     return consoleHistory;
 }
 
-ConsoleFrame& Context::ConsoleFrame()
+ConsoleFrame& Main::ConsoleFrame()
 {
     return consoleFrame;
 }
 
-ShapeRenderer& Context::ShapeRenderer()
+ShapeRenderer& Main::ShapeRenderer()
 {
     return shapeRenderer;
 }
 
-TextRenderer& Context::TextRenderer()
+TextRenderer& Main::TextRenderer()
 {
     return textRenderer;
 }
 
-FrameCounter& Context::FrameCounter()
+FrameCounter& Main::FrameCounter()
 {
     return frameCounter;
 }
 
-Texture& Context::TextureBlank()
+Texture& Main::TextureBlank()
 {
     return textureBlank;
 }
 
-SDL_Window* Context::SystemWindow()
+SDL_Window* Main::SystemWindow()
 {
     return systemWindow;
 }
 
-SDL_GLContext Context::GraphicsContext()
+SDL_GLContext Main::GraphicsContext()
 {
     return graphicsContext;
 }
 
-FT_Library Context::FontLibrary()
+FT_Library Main::FontLibrary()
 {
     return fontLibrary;
 }

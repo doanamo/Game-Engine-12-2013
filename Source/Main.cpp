@@ -9,7 +9,7 @@
 
 #include "System/FrameCounter.hpp"
 
-#include "Context.hpp"
+#include "MainContext.hpp"
 
 //
 // Console Variables
@@ -43,11 +43,11 @@ int main(int argc, char* argv[])
     // Context
     //
     
-    // Initialize the context.
-    if(!Context::Initialize())
+    // Initialize the main context.
+    if(!Main::Initialize())
         return -1;
 
-    SCOPE_GUARD(Context::Cleanup());
+    SCOPE_GUARD(Main::Cleanup());
 
     //
     // Font
@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
 
     // Load font file.
     Font font;
-    if(!font.Load(Context::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 22, 512, 512))
+    if(!font.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 22, 512, 512))
         return -1;
     
     // Cache ASCII character set.
@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
     uint32_t timePrevious = SDL_GetTicks();
     uint32_t timeCurrent = timePrevious;
 
-    while(!Context::IsQuitting())
+    while(!Main::IsQuitting())
     {
         // Update frame time.
         timePrevious = timeCurrent;
@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
             switch(event.type)
             {
             case SDL_QUIT:
-                Context::Quit();
+                Main::Quit();
                 break;
 
             case SDL_WINDOWEVENT_RESIZED:
@@ -95,7 +95,7 @@ int main(int argc, char* argv[])
             }
 
             // Process an event by console frame.
-            if(Context::ConsoleFrame().Process(event))
+            if(Main::ConsoleFrame().Process(event))
                 continue;
         }
 
@@ -104,10 +104,10 @@ int main(int argc, char* argv[])
         int windowHeight = Console::windowHeight.GetInteger();
 
         // Update frame counter.
-        Context::FrameCounter().Update(dt);
+        Main::FrameCounter().Update(dt);
 
         // Update cursor blink time.
-        Context::TextRenderer().UpdateCursorBlink(dt);
+        Main::TextRenderer().UpdateCursorBlink(dt);
 
         // Setup the viewport.
         glViewport(0, 0, windowWidth, windowHeight);
@@ -125,8 +125,8 @@ int main(int argc, char* argv[])
         if(Console::drawFrameRate.GetBool())
         {
             std::stringstream frameCounterText;
-            frameCounterText << "FPS: " << std::fixed << std::setprecision(0) << Context::FrameCounter().GetFrameRate() 
-                << " (" << std::setprecision(4) << Context::FrameCounter().GetFrameTime() << "s)";
+            frameCounterText << "FPS: " << std::fixed << std::setprecision(0) << Main::FrameCounter().GetFrameRate() 
+                << " (" << std::setprecision(4) << Main::FrameCounter().GetFrameTime() << "s)";
 
             TextRenderer::DrawInfo info;
             info.font = &font;
@@ -134,11 +134,11 @@ int main(int argc, char* argv[])
             info.position.x = 10.0f;
             info.position.y = 5.0f + font.GetLineSpacing();
 
-            Context::TextRenderer().Draw(info, projection, frameCounterText.str().c_str());
+            Main::TextRenderer().Draw(info, projection, frameCounterText.str().c_str());
         }
 
         // Draw console frame.
-        Context::ConsoleFrame().Draw(projection);
+        Main::ConsoleFrame().Draw(projection);
         
         // Present the window content.
         bool verticalSync = false;
@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
         }
 
         SDL_GL_SetSwapInterval((int)verticalSync);
-        SDL_GL_SwapWindow(Context::SystemWindow());
+        SDL_GL_SwapWindow(Main::SystemWindow());
     }
 
     return 0;

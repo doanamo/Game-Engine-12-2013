@@ -2,7 +2,7 @@
 #include "TextRenderer.hpp"
 #include "ShapeRenderer.hpp"
 #include "Font.hpp"
-#include "Context.hpp"
+#include "MainContext.hpp"
 
 namespace
 {
@@ -416,7 +416,7 @@ bool TextRenderer::Initialize(int bufferSize)
     m_vertexData = new Vertex[m_bufferSize * 4];
 
     // Load text shader.
-    if(!m_shader.Load(Context::WorkingDir() + "Data/Shaders/Text.glsl"))
+    if(!m_shader.Load(Main::WorkingDir() + "Data/Shaders/Text.glsl"))
     {
         Log() << LogInitializeError() << "Couldn't load a shader.";
         Cleanup();
@@ -711,20 +711,20 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
         cursorLine.end.x = state.GetCursorPosition().x;
         cursorLine.end.y = state.GetCursorPosition().y + info.font->GetDescender();
 
-        Context::ShapeRenderer().DrawLines(&cursorLine, 1, transform);
+        Main::ShapeRenderer().DrawLines(&cursorLine, 1, transform);
     }
 
     // Flush debug draw.
     if(info.debug)
     {
         // Draw glyph rectangles.
-        Context::ShapeRenderer().DrawRectangles(&debugRectangles[0], debugRectangles.size(), transform);
+        Main::ShapeRenderer().DrawRectangles(&debugRectangles[0], debugRectangles.size(), transform);
 
         // Add last base line.
         AddDebugBaseline();
 
         // Draw all base lines.
-        Context::ShapeRenderer().DrawLines(&debugLines[0], debugLines.size(), transform);
+        Main::ShapeRenderer().DrawLines(&debugLines[0], debugLines.size(), transform);
 
         // Draw bounding box.
         {
@@ -735,7 +735,7 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
             rectangle.size.x = state.GetBoundingBox().z - rectangle.position.x;
             rectangle.size.y = state.GetBoundingBox().w - rectangle.position.y;
 
-            Context::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
+            Main::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
         }
 
         // Draw text area.
@@ -747,7 +747,7 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
             rectangle.size.x = state.GetDrawArea().z - rectangle.position.x;
             rectangle.size.y = state.GetDrawArea().w - rectangle.position.y;
 
-            Context::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
+            Main::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
         }
     }
 }

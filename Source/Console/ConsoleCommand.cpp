@@ -2,7 +2,7 @@
 #include "ConsoleCommand.hpp"
 #include "ConsoleSystem.hpp"
 #include "ConsoleHistory.hpp"
-#include "Context.hpp"
+#include "MainContext.hpp"
 
 ConsoleCommand::ConsoleCommand(std::string name, FunctionPointer function, std::string description) :
     ConsoleDefinition(name, description), m_function(function)
@@ -26,7 +26,7 @@ void ConsoleCommand::Execute(std::string arguments)
 
 void CommandHelp(std::string arguments)
 {
-    assert(Context::ConsoleSystem().IsValid());
+    assert(Main::ConsoleSystem().IsValid());
 
     // Get some more help here.
     if(arguments.empty())
@@ -47,7 +47,7 @@ void CommandHelp(std::string arguments)
     }
 
     // Get the definition.
-    ConsoleDefinition* definition = Context::ConsoleSystem().FindDefinition(name);
+    ConsoleDefinition* definition = Main::ConsoleSystem().FindDefinition(name);
 
     if(definition == nullptr)
     {
@@ -66,14 +66,14 @@ void CommandEcho(std::string arguments)
 
 void CommandClear(std::string arguments)
 {
-    assert(Context::ConsoleHistory().IsValid());
+    assert(Main::ConsoleHistory().IsValid());
 
-    Context::ConsoleHistory().Clear();
+    Main::ConsoleHistory().Clear();
 }
 
 void CommandQuit(std::string arguments)
 {
-    Context::Quit();
+    Main::Quit();
 }
 
 ConsoleCommand help("help", &CommandHelp, "Prints the description of a command or variable.");
