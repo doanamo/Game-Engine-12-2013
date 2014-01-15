@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "ShapeRenderer.hpp"
 #include "Texture.hpp"
-#include "Context.hpp"
+#include "MainContext.hpp"
 
 namespace
 {
@@ -40,7 +40,7 @@ bool ShapeRenderer::Initialize(int bufferSize)
     m_bufferData = new Vertex[m_bufferSize];
 
     // Load a shader.
-    if(!m_shader.Load(Context::WorkingDir() + "Data/Shaders/Shape.glsl"))
+    if(!m_shader.Load(Main::WorkingDir() + "Data/Shaders/Shape.glsl"))
     {
         Log() << LogInitializeError() << "Failed to load a shader.";
         Cleanup();
@@ -108,7 +108,7 @@ void ShapeRenderer::DrawLines(const Line* data, int count, const glm::mat4& tran
 
     // Bind rendering states.
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, Context::TextureBlank().GetHandle());
+    glBindTexture(GL_TEXTURE_2D, Main::TextureBlank().GetHandle());
 
     glUseProgram(m_shader.GetHandle());
     glBindVertexArray(m_vertexInput.GetHandle());
@@ -178,7 +178,7 @@ void ShapeRenderer::DrawRectangles(const Rectangle* data, int count, const glm::
 
     // Bind rendering states.
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, Context::TextureBlank().GetHandle());
+    glBindTexture(GL_TEXTURE_2D, Main::TextureBlank().GetHandle());
 
     glUseProgram(m_shader.GetHandle());
     glBindVertexArray(m_vertexInput.GetHandle());
@@ -331,7 +331,7 @@ void ShapeRenderer::DrawQuads(const Quad* data, int count, const glm::mat4& tran
             }
             else
             {
-                glBindTexture(GL_TEXTURE_2D, Context::TextureBlank().GetHandle());
+                glBindTexture(GL_TEXTURE_2D, Main::TextureBlank().GetHandle());
             }
 
             // Draw shapes.

@@ -4,7 +4,7 @@
 #include "ConsoleHistory.hpp"
 #include "Graphics/ShapeRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
-#include "Context.hpp"
+#include "MainContext.hpp"
 
 namespace
 {
@@ -38,7 +38,7 @@ bool ConsoleFrame::Initialize()
     Cleanup();
 
     // Load font file.
-    if(!m_font.Load(Context::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 16, 512, 512))
+    if(!m_font.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 16, 512, 512))
     {
         Cleanup();
         return false;
@@ -98,7 +98,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                 SDL_StartTextInput();
 
                 // Reset cursor blink.
-                Context::TextRenderer().ResetCursorBlink();
+                Main::TextRenderer().ResetCursorBlink();
             }
             else
             {
@@ -118,7 +118,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                 m_cursorPosition = std::max(0, m_cursorPosition - 1);
 
                 // Reset cursor blink.
-                Context::TextRenderer().ResetCursorBlink();
+                Main::TextRenderer().ResetCursorBlink();
             }
         }
         else
@@ -131,7 +131,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                 m_cursorPosition = std::min(m_cursorPosition + 1, inputLength);
 
                 // Reset cursor blink.
-                Context::TextRenderer().ResetCursorBlink();
+                Main::TextRenderer().ResetCursorBlink();
             }
         }
         else
@@ -143,7 +143,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                 m_cursorPosition = 0;
 
                 // Reset cursor blink.
-                Context::TextRenderer().ResetCursorBlink();
+                Main::TextRenderer().ResetCursorBlink();
             }
         }
         else
@@ -156,7 +156,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                 m_cursorPosition = inputLength;
 
                 // Reset cursor blink.
-                Context::TextRenderer().ResetCursorBlink();
+                Main::TextRenderer().ResetCursorBlink();
             }
         }
         else
@@ -165,13 +165,13 @@ bool ConsoleFrame::Process(const SDL_Event& event)
             if(m_open)
             {
                 // Execute input.
-                Context::ConsoleSystem().Execute(m_input);
+                Main::ConsoleSystem().Execute(m_input);
 
                 // Clear input.
                 this->ClearInput();
 
                 // Reset cursor blink.
-                Context::TextRenderer().ResetCursorBlink();
+                Main::TextRenderer().ResetCursorBlink();
             }
         }
         else
@@ -196,7 +196,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                     m_cursorPosition -= 1;
 
                     // Reset cursor blink.
-                    Context::TextRenderer().ResetCursorBlink();
+                    Main::TextRenderer().ResetCursorBlink();
                 }
             }
         }
@@ -221,7 +221,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                     m_input.erase(eraseBegin, eraseEnd);
 
                     // Reset cursor blink.
-                    Context::TextRenderer().ResetCursorBlink();
+                    Main::TextRenderer().ResetCursorBlink();
                 }
             }
         }
@@ -234,7 +234,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                 this->ClearInput();
 
                 // Reset cursor blink.
-                Context::TextRenderer().ResetCursorBlink();
+                Main::TextRenderer().ResetCursorBlink();
             }
         }
         break;
@@ -255,7 +255,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
             m_cursorPosition += 1;
 
             // Reset cursor blink.
-            Context::TextRenderer().ResetCursorBlink();
+            Main::TextRenderer().ResetCursorBlink();
         }
         break;
     }
@@ -288,12 +288,12 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
         quad.color = glm::vec4(0.0f, 0.0f, 0.0f, 0.85f);
         quad.texture = nullptr;
 
-        Context::ShapeRenderer().DrawQuads(&quad, 1, transform);
+        Main::ShapeRenderer().DrawQuads(&quad, 1, transform);
 
         // Draw console text.
         for(int i = 0; i < ConsoleSize - 1; ++i)
         {
-            const char* text = Context::ConsoleHistory().GetText(i);
+            const char* text = Main::ConsoleHistory().GetText(i);
 
             if(text == nullptr)
                 break;
@@ -307,7 +307,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
             info.size.x = 0.0f; // Text wrap doesn't work in console.
             info.size.y = 0.0f;
 
-            Context::TextRenderer().Draw(info, transform, text);
+            Main::TextRenderer().Draw(info, transform, text);
         }
 
         // Draw console input.
@@ -325,7 +325,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
             info.size.y = 0.0f;
             info.cursorIndex = 2 + m_cursorPosition;
 
-            Context::TextRenderer().Draw(info, transform, inputText.c_str());
+            Main::TextRenderer().Draw(info, transform, inputText.c_str());
         }
     }
 }

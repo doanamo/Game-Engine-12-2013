@@ -1,6 +1,6 @@
 #include "Precompiled.hpp"
 #include "Font.hpp"
-#include "Context.hpp"
+#include "MainContext.hpp"
 
 namespace
 {
@@ -38,7 +38,7 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
 {
     Cleanup();
 
-    assert(Context::FontLibrary() != nullptr);
+    assert(Main::FontLibrary() != nullptr);
 
     // Validate arguments.
     if(filename.empty())
@@ -69,7 +69,7 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
     m_atlasHeight = atlasHeight;
 
     // Load font face.
-    if(FT_New_Face(Context::FontLibrary(), filename.c_str(), 0, &m_fontFace) != 0)
+    if(FT_New_Face(Main::FontLibrary(), filename.c_str(), 0, &m_fontFace) != 0)
     {
         Log() << LogLoadError(filename) << "Couldn't load the font.";
         Cleanup();

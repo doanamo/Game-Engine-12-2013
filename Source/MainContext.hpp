@@ -29,10 +29,10 @@ namespace Console
 }
 
 //
-// Context
+// Main Context
 //
 
-namespace Context
+namespace Main
 {
     // Context methods.
     bool Initialize();

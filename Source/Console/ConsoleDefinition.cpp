@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "ConsoleDefinition.hpp"
 #include "ConsoleSystem.hpp"
-#include "Context.hpp"
+#include "MainContext.hpp"
 
 const char*        ConsoleDefinition::Internal = "internal";
 ConsoleDefinition* ConsoleDefinition::m_staticHead = nullptr;
@@ -19,7 +19,7 @@ ConsoleDefinition::ConsoleDefinition(std::string name, std::string description) 
     else
     {
         // Register a definition.
-        Context::ConsoleSystem().RegisterDefinition(this);
+        Main::ConsoleSystem().RegisterDefinition(this);
     }
 }
 
@@ -28,17 +28,17 @@ ConsoleDefinition::~ConsoleDefinition()
     // Unregister the definition.
     // If the definition is static, it could have already
     // been unregistered on console system shutdown.
-    Context::ConsoleSystem().UnregisterDefinition(this);
+    Main::ConsoleSystem().UnregisterDefinition(this);
 }
 
 void ConsoleDefinition::RegisterStatic()
 {
-    assert(Context::ConsoleSystem().IsValid());
+    assert(Main::ConsoleSystem().IsValid());
 
     // Register all definitions that were created before the console system initialization.
     for(auto definition = m_staticHead; definition != nullptr; definition = definition->m_staticNext)
     {
-        Context::ConsoleSystem().RegisterDefinition(definition);
+        Main::ConsoleSystem().RegisterDefinition(definition);
     }
 
     // Static definitions initialized.

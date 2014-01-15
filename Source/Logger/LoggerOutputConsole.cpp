@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "LoggerOutputConsole.hpp"
 #include "Console/ConsoleHistory.hpp"
-#include "Context.hpp"
+#include "MainContext.hpp"
 
 LoggerOutputConsole::LoggerOutputConsole()
 {
@@ -21,5 +21,5 @@ void LoggerOutputConsole::Write(const LoggerMessage& message)
     if(message.IsEmpty())
         return;
 
-    Context::ConsoleHistory().Write(message.GetText().c_str());
+    Main::ConsoleHistory().Write(message.GetText().c_str());
 }
