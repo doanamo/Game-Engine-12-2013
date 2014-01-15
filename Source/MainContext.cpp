@@ -162,17 +162,17 @@ bool Main::Initialize()
     // Create a window.
     Uint32 windowFlags = SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL;
 
-    if(Console::windowResize.GetBool())
+    if(Console::windowResize)
     {
         windowFlags |= SDL_WINDOW_RESIZABLE;
     }
 
     systemWindow = SDL_CreateWindow(
-        Console::windowName.GetString().c_str(),
+        Console::windowName,
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        Console::windowWidth.GetInteger(),
-        Console::windowHeight.GetInteger(),
+        Console::windowWidth,
+        Console::windowHeight,
         windowFlags
     );
 

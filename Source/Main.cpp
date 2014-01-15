@@ -37,7 +37,7 @@ int main(int argc, char* argv[])
     Console::windowName = "Game";
     Console::windowWidth = 1024;
     Console::windowHeight = 576;
-    Console::windowResize = false;
+    Console::windowResize = true;
 
     // Render settings.
     Console::renderVsync = true;
@@ -97,9 +97,14 @@ int main(int argc, char* argv[])
                 Main::Quit();
                 break;
 
-            case SDL_WINDOWEVENT_RESIZED:
-                Console::windowWidth.SetInteger(event.window.data1);
-                Console::windowHeight.SetInteger(event.window.data2);
+            case SDL_WINDOWEVENT:
+                switch(event.window.event)
+                {
+                case SDL_WINDOWEVENT_RESIZED:
+                    Console::windowWidth = event.window.data1;
+                    Console::windowHeight = event.window.data2;
+                    break;
+                }
                 break;
             }
 
@@ -113,8 +118,8 @@ int main(int argc, char* argv[])
         }
 
         // Get current window size.
-        int windowWidth = Console::windowWidth.GetInteger();
-        int windowHeight = Console::windowHeight.GetInteger();
+        int windowWidth = Console::windowWidth;
+        int windowHeight = Console::windowHeight;
 
         // Update frame counter.
         Main::FrameCounter().Update(dt);
@@ -141,7 +146,7 @@ int main(int argc, char* argv[])
         Game::StateMachine().GetState()->Draw(projection);
 
         // Draw frame rate.
-        if(Console::drawFrameRate.GetBool())
+        if(Console::drawFrameRate)
         {
             std::stringstream frameCounterText;
             frameCounterText << "FPS: " << std::fixed << std::setprecision(0) << Main::FrameCounter().GetFrameRate() 
@@ -162,7 +167,7 @@ int main(int argc, char* argv[])
         // Present the window content.
         bool verticalSync = false;
 
-        if(Console::renderVsync.GetBool())
+        if(Console::renderVsync)
         {
             verticalSync = true;
         }

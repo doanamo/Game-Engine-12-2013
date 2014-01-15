@@ -51,8 +51,8 @@ bool MenuFrame::Initialize()
         return false;
 
     // Get window size.
-    int windowWidth = Console::windowWidth.GetInteger();
-    int windowHeight = Console::windowHeight.GetInteger();
+    int windowWidth = Console::windowWidth;
+    int windowHeight = Console::windowHeight;
 
     // Fill element data array.
     for(int i = 0; i < MenuElements::Count; ++i)
@@ -164,8 +164,8 @@ void MenuFrame::Update(float dt)
 void MenuFrame::Draw(const glm::mat4& transform)
 {
     // Get window size.
-    int windowWidth = Console::windowWidth.GetInteger();
-    int windowHeight = Console::windowHeight.GetInteger();
+    int windowWidth = Console::windowWidth;
+    int windowHeight = Console::windowHeight;
 
     // Draw menu title.
     {

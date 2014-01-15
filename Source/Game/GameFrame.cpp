@@ -68,8 +68,8 @@ void GameFrame::Update(float dt)
 void GameFrame::Draw(const glm::mat4& transform)
 {
     // Get window size.
-    int windowWidth = Console::windowWidth.GetInteger();
-    int windowHeight = Console::windowHeight.GetInteger();
+    int windowWidth = Console::windowWidth;
+    int windowHeight = Console::windowHeight;
 
     // Draw menu title.
     {

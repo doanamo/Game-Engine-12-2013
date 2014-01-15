@@ -272,8 +272,8 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
     if(m_open)
     {
         // Calculate console metrics.
-        float windowWidth = Console::windowWidth.GetFloat();
-        float windowHeight = Console::windowHeight.GetFloat();
+        float windowWidth = Console::windowWidth;
+        float windowHeight = Console::windowHeight;
 
         float consoleExtra = 1.0f;
         float consoleSize = (float)ConsoleSize * m_font.GetLineSpacing();
