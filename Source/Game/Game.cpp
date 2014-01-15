@@ -54,8 +54,8 @@ bool Game::Initialize()
     if(!frameMenu.Initialize())
         return false;
 
-    // Set this frame as default.
-    stateMachine.SetCurrentState(&frameMenu);
+    // Set this frame as current state.
+    stateMachine.ChangeState(&frameMenu);
 
     //
     // Game Frame
