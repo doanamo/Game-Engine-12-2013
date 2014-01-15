@@ -31,10 +31,10 @@ int main(int argc, char* argv[])
     //
 
     // Window settings.
-    Console::windowName = "Game";
+    Console::windowName = "Window";
     Console::windowWidth = 1024;
     Console::windowHeight = 576;
-    Console::windowResize = false;
+    Console::windowResize = true;
 
     // Render settings.
     Console::renderVsync = true;
@@ -88,9 +88,14 @@ int main(int argc, char* argv[])
                 Main::Quit();
                 break;
 
-            case SDL_WINDOWEVENT_RESIZED:
-                Console::windowWidth.SetInteger(event.window.data1);
-                Console::windowHeight.SetInteger(event.window.data2);
+            case SDL_WINDOWEVENT:
+                switch(event.window.event)
+                {
+                case SDL_WINDOWEVENT_RESIZED:
+                    Console::windowWidth = event.window.data1;
+                    Console::windowHeight = event.window.data2;
+                    break;
+                }
                 break;
             }
 
