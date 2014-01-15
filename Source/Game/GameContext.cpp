@@ -1,20 +1,18 @@
 #include "Precompiled.hpp"
-#include "Game.hpp"
+#include "GameContext.hpp"
+#include "MainContext.hpp"
 
 #include "MenuFrame.hpp"
 #include "GameFrame.hpp"
-#include "Context.hpp"
 
 //
-// Context
+// Context Data
 //
 
 namespace
 {
-    // Context state.
     bool isInitialized;
 
-    // Game state.
     StateMachine<BaseFrame> stateMachine;
     MenuFrame               frameMenu;
     GameFrame               frameGame;
@@ -29,7 +27,7 @@ bool Game::Initialize()
     assert(!isInitialized);
 
     // Check if the main context is initialized.
-    if(!Context::IsInitialized())
+    if(!Main::IsInitialized())
         return false;
 
     //
@@ -73,6 +71,8 @@ bool Game::Initialize()
 
 void Game::Cleanup()
 {
+    Log() << "Cleaning up the game context...";
+
     //
     // Game Frames
     //

@@ -182,8 +182,8 @@ Source_Group("Source\\Graphics" FILES ${SourceFiles_Graphics})
 Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Graphics})
 
 Set(SourceFiles_Game
-    "${SourceDir}/Game/Game.hpp"
-    "${SourceDir}/Game/Game.cpp"
+    "${SourceDir}/Game/GameContext.hpp"
+    "${SourceDir}/Game/GameContext.cpp"
     "${SourceDir}/Game/BaseFrame.hpp"
     "${SourceDir}/Game/MenuFrame.hpp"
     "${SourceDir}/Game/MenuFrame.cpp"

@@ -14,11 +14,11 @@ class GameFrame;
 
 namespace Game
 {
-    // Game context methods.
+    // Context methods.
     bool Initialize();
     void Cleanup();
 
-    // Game context accessors.
+    // Context accessors.
     bool IsInitialized();
 
     StateMachine<BaseFrame>& StateMachine();

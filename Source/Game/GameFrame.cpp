@@ -2,8 +2,8 @@
 #include "GameFrame.hpp"
 #include "MenuFrame.hpp"
 #include "Graphics/TextRenderer.hpp"
-#include "Context.hpp"
-#include "Game.hpp"
+#include "MainContext.hpp"
+#include "GameContext.hpp"
 
 GameFrame::GameFrame() :
     m_initialized(false)
@@ -30,7 +30,7 @@ bool GameFrame::Initialize()
     });
 
     // Load font.
-    if(!m_font.Load(Context::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 64, 512, 512))
+    if(!m_font.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 64, 512, 512))
         return false;
 
     // Success!
@@ -79,6 +79,6 @@ void GameFrame::Draw(const glm::mat4& transform)
         info.position.x = 175.0f;
         info.position.y = (windowHeight + m_font.GetLineSpacing()) * 0.5f;
 
-        Context::TextRenderer().Draw(info, transform, "Insert gameplay here :P");
+        Main::TextRenderer().Draw(info, transform, "Insert gameplay here :P");
     }
 }

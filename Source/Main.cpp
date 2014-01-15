@@ -9,9 +9,8 @@
 
 #include "System/FrameCounter.hpp"
 
-#include "Common/StateMachine.hpp"
+#include "Game/GameContext.hpp"
 #include "Game/BaseFrame.hpp"
-#include "Game/Game.hpp"
 
 #include "MainContext.hpp"
 
@@ -53,11 +52,7 @@ int main(int argc, char* argv[])
 
     SCOPE_GUARD(Main::Cleanup());
 
-    //
-    // Game
-    //
-
-    // Initialize the game.
+    // Initialize the game context.
     if(!Game::Initialize())
         return -1;
 
