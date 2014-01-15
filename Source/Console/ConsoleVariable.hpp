@@ -50,6 +50,31 @@ public:
         return *this;
     }
 
+    operator std::string() const
+    {
+        return this->GetString();
+    }
+
+    operator const char*() const
+    {
+        return m_value.c_str();
+    }
+
+    operator bool() const
+    {
+        return this->GetBool();
+    }
+
+    operator int() const
+    {
+        return this->GetInteger();
+    }
+
+    operator float() const
+    {
+        return this->GetFloat();
+    }
+
     void SetString(const char* value)
     {
         m_value = value;

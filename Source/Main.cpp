@@ -105,8 +105,8 @@ int main(int argc, char* argv[])
         }
 
         // Get current window size.
-        int windowWidth = Console::windowWidth.GetInteger();
-        int windowHeight = Console::windowHeight.GetInteger();
+        int windowWidth = Console::windowWidth;
+        int windowHeight = Console::windowHeight;
 
         // Update frame counter.
         Main::FrameCounter().Update(dt);
@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Draw frame rate.
-        if(Console::drawFrameRate.GetBool())
+        if(Console::drawFrameRate)
         {
             std::stringstream frameCounterText;
             frameCounterText << "FPS: " << std::fixed << std::setprecision(0) << Main::FrameCounter().GetFrameRate() 
@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
         // Present the window content.
         bool verticalSync = false;
 
-        if(Console::renderVsync.GetBool())
+        if(Console::renderVsync)
         {
             verticalSync = true;
         }
