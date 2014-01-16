@@ -199,6 +199,8 @@ Set(SourceFiles_Game
     "${SourceDir}/Game/EntitySystem.cpp"
     "${SourceDir}/Game/EntityManager.hpp"
     "${SourceDir}/Game/EntityManager.cpp"
+    "${SourceDir}/Game/Transform.hpp"
+    "${SourceDir}/Game/Transform.cpp"
 )
 
 Source_Group("Source\\Game" FILES ${SourceFiles_Game})
