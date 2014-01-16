@@ -102,7 +102,7 @@ bool EntitySystem::RegisterSystem(ComponentSystem* system)
     return true;
 }
 
-EntityHandle EntitySystem::CreateEntity()
+EntitySystem::EntityResult EntitySystem::CreateEntity()
 {
     // Check if we reached the numerical limits.
     assert(m_handles.size() != MaximumIdentifier);
@@ -169,7 +169,7 @@ EntityHandle EntitySystem::CreateEntity()
     OnCreateEntity(&entity);
 
     // Return the handle.
-    return handleEntry.handle;
+    return EntityResult(&entity);
 }
 
 Entity* EntitySystem::LookupEntity(const EntityHandle& handle)

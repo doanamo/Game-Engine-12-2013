@@ -22,6 +22,31 @@ private:
         int nextFree;
     };
 
+    // Entity result structure.
+    struct EntityResult
+    {
+        // Constructor.
+        EntityResult(Entity* entity) :
+            entity(entity)
+        {
+            assert(entity != nullptr);
+        }
+
+        // Conversion operators.
+        operator Entity*() const
+        {
+            return entity;
+        }
+
+        operator EntityHandle() const
+        {
+            return entity->GetHandle();
+        }
+
+        // Result data.
+        Entity* entity;
+    };
+
 private:
     // Type declarations.
     typedef std::vector<ComponentSystem*> SystemList;
@@ -43,7 +68,7 @@ public:
     bool RegisterSystem(ComponentSystem* system);
 
     // Creates an entity.
-    EntityHandle CreateEntity();
+    EntityResult CreateEntity();
 
     // Lookups an entity.
     Entity* LookupEntity(const EntityHandle& handle);
