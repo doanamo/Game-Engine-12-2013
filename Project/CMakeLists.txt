@@ -189,6 +189,16 @@ Set(SourceFiles_Game
     "${SourceDir}/Game/MenuFrame.cpp"
     "${SourceDir}/Game/GameFrame.hpp"
     "${SourceDir}/Game/GameFrame.cpp"
+    "${SourceDir}/Game/Component.hpp"
+    "${SourceDir}/Game/ComponentSystem.hpp"
+    "${SourceDir}/Game/ComponentSystem.cpp"
+    "${SourceDir}/Game/Entity.hpp"
+    "${SourceDir}/Game/Entity.cpp"
+    "${SourceDir}/Game/EntityHandle.hpp"
+    "${SourceDir}/Game/EntitySystem.hpp"
+    "${SourceDir}/Game/EntitySystem.cpp"
+    "${SourceDir}/Game/EntityManager.hpp"
+    "${SourceDir}/Game/EntityManager.cpp"
 )
 
 Source_Group("Source\\Game" FILES ${SourceFiles_Game})
