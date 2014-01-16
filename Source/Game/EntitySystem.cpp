@@ -1,7 +1,6 @@
 #include "Precompiled.hpp"
 #include "EntitySystem.hpp"
-#include "EntityManager.hpp"
-#include "ComponentSystem.hpp"
+#include "EntitySubsystem.hpp"
 
 namespace
 {
@@ -39,65 +38,34 @@ void EntitySystem::Cleanup()
     m_freeListEnqueue = InvalidQueueElement;
     m_freeListEmpty = true;
 
-    // Remove all systems.
-    for(auto it = m_systems.begin(); it != m_systems.end(); ++it)
+    // Remove all subsystems.
+    for(auto it = m_subsystems.begin(); it != m_subsystems.end(); ++it)
     {
         (*it)->m_entitySystem = nullptr;
     }
 
-    ClearContainer(m_systems);
-
-    // Remove all managers.
-    for(auto it = m_managers.begin(); it != m_managers.end(); ++it)
-    {
-        (*it)->m_entitySystem = nullptr;
-    }
-
-    ClearContainer(m_managers);
+    ClearContainer(m_subsystems);
 }
 
-bool EntitySystem::RegisterManager(EntityManager* manager)
+bool EntitySystem::RegisterSubsystem(EntitySubsystem* subsystem)
 {
     // Check if pointer is null.
-    if(manager == nullptr)
+    if(subsystem == nullptr)
         return false;
 
-    // Check if the manager is already in use.
-    if(manager->m_entitySystem != nullptr)
+    // Check if the subsystem is already in use.
+    if(subsystem->m_entitySystem != nullptr)
         return false;
 
-    // Check if we already have the manager added.
-    auto it = std::find(m_managers.begin(), m_managers.end(), manager);
+    // Check if we already have the subsystem added.
+    auto it = std::find(m_subsystems.begin(), m_subsystems.end(), subsystem);
 
-    if(it != m_managers.end())
+    if(it != m_subsystems.end())
         return false;
 
-    // Add manager to the list.
-    manager->m_entitySystem = this;
-    m_managers.push_back(manager);
-
-    return true;
-}
-
-bool EntitySystem::RegisterSystem(ComponentSystem* system)
-{
-    // Check if pointer is null.
-    if(system == nullptr)
-        return false;
-
-    // Check if the system is already in use.
-    if(system->m_entitySystem != nullptr)
-        return false;
-
-    // Check if we already have the system added.
-    auto it = std::find(m_systems.begin(), m_systems.end(), system);
-
-    if(it != m_systems.end())
-        return false;
-
-    // Add system to the list.
-    system->m_entitySystem = this;
-    m_systems.push_back(system);
+    // Add subsystem to the list.
+    subsystem->m_entitySystem = this;
+    m_subsystems.push_back(subsystem);
 
     return true;
 }
@@ -320,8 +288,8 @@ bool EntitySystem::IsHandleValid(const EntityHandle& handle) const
 
 void EntitySystem::OnCreateEntity(Entity* entity)
 {
-    // Inform managers about entity insertion.
-    for(auto it = m_managers.begin(); it != m_managers.end(); ++it)
+    // Inform subsystems about entity creation.
+    for(auto it = m_subsystems.begin(); it != m_subsystems.end(); ++it)
     {
         (*it)->OnCreateEntity(entity);
     }
@@ -329,29 +297,29 @@ void EntitySystem::OnCreateEntity(Entity* entity)
 
 void EntitySystem::OnDestroyEntity(Entity* entity)
 {
-    // Inform managers about entity removal.
-    for(auto it = m_managers.begin(); it != m_managers.end(); ++it)
+    // Inform managers about entity destroyal.
+    for(auto it = m_subsystems.begin(); it != m_subsystems.end(); ++it)
     {
         (*it)->OnDestroyEntity(entity);
     }
 }
 
-void EntitySystem::Update(float TimeDelta)
+void EntitySystem::Update(float timeDelta)
 {
     // Set the current time delta.
-    m_timeDelta = TimeDelta;
+    m_timeDelta = timeDelta;
 
     // Process entities with each system.
-    for(auto system = m_systems.begin(); system != m_systems.end(); ++system)
+    for(auto subsystem = m_subsystems.begin(); subsystem != m_subsystems.end(); ++subsystem)
     {
-        (*system)->PrepareProcessing();
+        (*subsystem)->PrepareProcessing();
 
         for(auto entity = m_entities.begin(); entity != m_entities.end(); ++entity)
         {
-            (*system)->Process(&(*entity));
+            (*subsystem)->Process(&(*entity));
         }
 
-        (*system)->FinishProcessing();
+        (*subsystem)->FinishProcessing();
     }
 }
 

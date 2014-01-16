@@ -4,8 +4,7 @@
 #include "Entity.hpp"
 
 // Forward declarations.
-class ComponentSystem;
-class EntityManager;
+class EntitySubsystem;
 
 //
 // Entity System
@@ -49,8 +48,7 @@ private:
 
 private:
     // Type declarations.
-    typedef std::vector<ComponentSystem*> SystemList;
-    typedef std::vector<EntityManager*>   ManagerList;
+    typedef std::vector<EntitySubsystem*> SubsystemList;
     typedef std::vector<Entity>           EntityList;
     typedef std::vector<HandleEntry>      HandleList;
 
@@ -61,11 +59,8 @@ public:
     // Restores class instance to it's original state.
     void Cleanup();
 
-    // Registers an entity manager.
-    bool RegisterManager(EntityManager* manager);
-
-    // Registers a component system.
-    bool RegisterSystem(ComponentSystem* system);
+    // Registers an entity subsystem.
+    bool RegisterSubsystem(EntitySubsystem* subsystem);
 
     // Creates an entity.
     EntityResult CreateEntity();
@@ -96,9 +91,8 @@ private:
     void OnDestroyEntity(Entity* entity);
 
 private:
-    // List of systems and managers.
-    SystemList m_systems;
-    ManagerList m_managers;
+    // List of entity subsystems.
+    SubsystemList m_subsystems;
 
     // List of entities.
     EntityList m_entities;

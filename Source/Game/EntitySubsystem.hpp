@@ -7,32 +7,38 @@ class EntitySystem;
 class Entity;
 
 //
-// Component System
+// Entity Subsystem
 //
 
-class ComponentSystem
+class EntitySubsystem
 {
 private:
     // Friend declarations.
     friend EntitySystem;
 
 protected:
-    ComponentSystem();
+    EntitySubsystem();
 
 public:
-    virtual ~ComponentSystem();
+    virtual ~EntitySubsystem();
 
+    // Entity processing.
     virtual void PrepareProcessing() { }
     virtual void Process(Entity* entity) = 0;
     virtual void FinishProcessing() { }
 
-    float GetTimeDelta() const;
-
-    // Gets the entity system that owns this system.
+    // Gets the entity system that owns this subsystem.
     EntitySystem*       GetEntitySystem();
     const EntitySystem* GetEntitySystem() const;
 
 private:
-    // Owner of this component system.
+    // Called when the entity system creates an entity.
+    virtual void OnCreateEntity(Entity* entity) { }
+
+    // Called when the entity system destroys an entity.
+    virtual void OnDestroyEntity(Entity* entity) { }
+
+private:
+    // Owner of this entity subsystem.
     EntitySystem* m_entitySystem;
 };
