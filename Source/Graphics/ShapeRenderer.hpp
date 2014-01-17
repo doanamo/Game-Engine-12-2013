@@ -5,6 +5,7 @@
 #include "Graphics/Buffer.hpp"
 #include "Graphics/VertexInput.hpp"
 
+// Forward declarations.
 class Texture;
 
 //
@@ -23,6 +24,7 @@ private:
     };
 
 public:
+    // Line shape structure.
     struct Line
     {
         glm::vec2 begin;
@@ -30,6 +32,7 @@ public:
         glm::vec4 color;
     };
 
+    // Rectangle shape structure.
     struct Rectangle
     {
         glm::vec2 position;
@@ -37,6 +40,7 @@ public:
         glm::vec4 color;
     };
 
+    // Quad shape structure.
     struct Quad
     {
         Quad() :
@@ -66,9 +70,9 @@ private:
     Vertex* m_bufferData;
     int     m_bufferSize;
 
-    Shader          m_shader;
-    VertexBuffer    m_vertexBuffer;
-    VertexInput     m_vertexInput;
+    Shader       m_shader;
+    VertexBuffer m_vertexBuffer;
+    VertexInput  m_vertexInput;
 
     bool m_initialized;
 };
