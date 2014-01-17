@@ -3,6 +3,9 @@
 #include "Precompiled.hpp"
 #include "BaseFrame.hpp"
 
+#include "EntitySystem.hpp"
+#include "RenderSystem.hpp"
+
 //
 // Game Frame
 //
@@ -21,5 +24,9 @@ public:
     void Draw();
 
 private:
+    EntitySystem m_entitySystem;
+    RenderSystem m_renderSystem;
+    EntityHandle m_playerHandle;
+
     bool m_initialized;
 };
