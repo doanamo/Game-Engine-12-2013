@@ -106,6 +106,52 @@ bool GameFrame::Process(const SDL_Event& event)
 
 void GameFrame::Update(float dt)
 {
+    // Handle player input.
+    Entity* player = m_entitySystem.LookupEntity(m_playerHandle);
+
+    if(player != nullptr)
+    {
+        Transform* transform = player->GetComponent<Transform>();
+
+        if(transform != nullptr)
+        {
+            // Get keyboard state.
+            const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
+
+            // Create a direction vector.
+            glm::vec2 direction(0.0f, 0.0f);
+
+            if(keyboardState[SDL_SCANCODE_D])
+            {
+                direction.x = 1.0f;
+            }
+
+            if(keyboardState[SDL_SCANCODE_A])
+            {
+                direction.x = -1.0f;
+            }
+
+            if(keyboardState[SDL_SCANCODE_W])
+            {
+                direction.y = 1.0f;
+            }
+
+            if(keyboardState[SDL_SCANCODE_S])
+            {
+                direction.y = -1.0f;
+            }
+
+            // Update player position.
+            if(direction != glm::vec2(0.0f))
+            {
+                glm::vec2 position = transform->GetPosition();
+                position += glm::normalize(direction) * 400.0f * dt;
+                transform->SetPosition(position);
+            }
+        }
+    }
+
+    // Update entities.
     m_entitySystem.Update(dt);
 }
 
