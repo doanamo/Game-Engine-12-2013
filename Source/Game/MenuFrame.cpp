@@ -161,11 +161,20 @@ void MenuFrame::Update(float dt)
     }
 }
 
-void MenuFrame::Draw(const glm::mat4& transform)
+void MenuFrame::Draw()
 {
     // Get window size.
     int windowWidth = Console::windowWidth;
     int windowHeight = Console::windowHeight;
+
+    // Calculate projection.
+    glm::mat4x4 projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
+
+    // Clear the screen.
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearDepth(1.0f);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Draw menu title.
     {
@@ -175,7 +184,7 @@ void MenuFrame::Draw(const glm::mat4& transform)
         info.position.x = 50.0f;
         info.position.y = windowHeight - 10.0f;
 
-        Main::TextRenderer().Draw(info, transform, "Awesome Game");
+        Main::TextRenderer().Draw(info, projection, "Awesome Game");
     }
 
     // Draw menu elements.
@@ -205,6 +214,6 @@ void MenuFrame::Draw(const glm::mat4& transform)
 
         info.position = element.position;
 
-        Main::TextRenderer().Draw(info, transform, element.text);
+        Main::TextRenderer().Draw(info, projection, element.text);
     }
 }

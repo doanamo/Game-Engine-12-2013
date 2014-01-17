@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Precompiled.hpp"
-#include "Graphics/Font.hpp"
 #include "BaseFrame.hpp"
 
 //
@@ -19,10 +18,8 @@ public:
 
     bool Process(const SDL_Event& event);
     void Update(float dt);
-    void Draw(const glm::mat4& transform);
+    void Draw();
 
 private:
-    Font m_font;
-
     bool m_initialized;
 };

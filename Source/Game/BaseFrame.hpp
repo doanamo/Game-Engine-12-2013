@@ -19,7 +19,7 @@ public:
     {
     }
 
-    virtual void Draw(const glm::mat4& transform)
+    virtual void Draw()
     {
     }
 };

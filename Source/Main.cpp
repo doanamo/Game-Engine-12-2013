@@ -143,7 +143,7 @@ int main(int argc, char* argv[])
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Draw the current state frame.
-        Game::StateMachine().GetState()->Draw(projection);
+        Game::StateMachine().GetState()->Draw();
 
         // Draw frame rate.
         if(Console::drawFrameRate)

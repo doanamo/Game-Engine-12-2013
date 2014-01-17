@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "GameFrame.hpp"
 #include "MenuFrame.hpp"
-#include "Graphics/TextRenderer.hpp"
+
 #include "MainContext.hpp"
 #include "GameContext.hpp"
 
@@ -29,10 +29,6 @@ bool GameFrame::Initialize()
         }
     });
 
-    // Load font.
-    if(!m_font.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 64, 512, 512))
-        return false;
-
     // Success!
     m_initialized = true;
 
@@ -41,8 +37,6 @@ bool GameFrame::Initialize()
 
 void GameFrame::Cleanup()
 {
-    m_font.Cleanup();
-
     m_initialized = false;
 }
 
@@ -65,20 +59,11 @@ void GameFrame::Update(float dt)
 {
 }
 
-void GameFrame::Draw(const glm::mat4& transform)
+void GameFrame::Draw()
 {
-    // Get window size.
-    int windowWidth = Console::windowWidth;
-    int windowHeight = Console::windowHeight;
+    // Clear the screen.
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClearDepth(1.0f);
 
-    // Draw menu title.
-    {
-        TextRenderer::DrawInfo info;
-        info.font = &m_font;
-        info.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-        info.position.x = 175.0f;
-        info.position.y = (windowHeight + m_font.GetLineSpacing()) * 0.5f;
-
-        Main::TextRenderer().Draw(info, transform, "Insert gameplay here :P");
-    }
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

@@ -19,7 +19,7 @@ public:
 
     bool Process(const SDL_Event& event);
     void Update(float dt);
-    void Draw(const glm::mat4& transform);
+    void Draw();
 
 public:
     // Menu elements.
