@@ -82,7 +82,6 @@ EndIf()
 # UTF8
 #
 
-
 # Add include directory.
 Include_Directories("../External/UTF8-2.3.4/source")
 
