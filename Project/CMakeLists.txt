@@ -97,89 +97,97 @@ Set(PrecompiledHeader "Precompiled.hpp")
 Set(PrecompiledSource "Precompiled.cpp")
 
 Set(SourceFiles_Main
-    "${SourceDir}/${PrecompiledHeader}"
-    "${SourceDir}/${PrecompiledSource}"
-    "${SourceDir}/Main.cpp"
-    "${SourceDir}/MainContext.hpp"
-    "${SourceDir}/MainContext.cpp"
+    "${PrecompiledHeader}"
+    "${PrecompiledSource}"
+    "Main.cpp"
+    "MainContext.hpp"
+    "MainContext.cpp"
 )
 
 Source_Group("Source" FILES ${SourceFiles_Main})
 Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Main})
 
 Set(SourceFiles_Common
-    "${SourceDir}/Common/NonCopyable.hpp"
-    "${SourceDir}/Common/ScopeGuard.hpp"
-    "${SourceDir}/Common/Utility.hpp"
-    "${SourceDir}/Common/Utility.cpp"
-    "${SourceDir}/Common/StateMachine.hpp"
+    "Common/NonCopyable.hpp"
+    "Common/ScopeGuard.hpp"
+    "Common/Utility.hpp"
+    "Common/Utility.cpp"
+    "Common/StateMachine.hpp"
 )
 
 Source_Group("Source\\Common" FILES ${SourceFiles_Common})
 Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Common})
 
 Set(SourceFiles_Logger
-    "${SourceDir}/Logger/Logger.hpp"
-    "${SourceDir}/Logger/Logger.cpp"
-    "${SourceDir}/Logger/LoggerOutput.hpp"
-    "${SourceDir}/Logger/LoggerOutputFile.hpp"
-    "${SourceDir}/Logger/LoggerOutputFile.cpp"
-    "${SourceDir}/Logger/LoggerOutputConsole.hpp"
-    "${SourceDir}/Logger/LoggerOutputConsole.cpp"
-    "${SourceDir}/Logger/LoggerMessage.hpp"
-    "${SourceDir}/Logger/LoggerMessage.cpp"
-    "${SourceDir}/Logger/LoggerScopedMessage.hpp"
-    "${SourceDir}/Logger/LoggerScopedMessage.cpp"
+    "Logger/Logger.hpp"
+    "Logger/Logger.cpp"
+    "Logger/LoggerOutput.hpp"
+    "Logger/LoggerOutputFile.hpp"
+    "Logger/LoggerOutputFile.cpp"
+    "Logger/LoggerOutputConsole.hpp"
+    "Logger/LoggerOutputConsole.cpp"
+    "Logger/LoggerMessage.hpp"
+    "Logger/LoggerMessage.cpp"
+    "Logger/LoggerScopedMessage.hpp"
+    "Logger/LoggerScopedMessage.cpp"
 )
 
 Source_Group("Source\\Logger" FILES ${SourceFiles_Logger})
 Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Logger})
 
 Set(SourceFiles_Console
-    "${SourceDir}/Console/ConsoleSystem.hpp"
-    "${SourceDir}/Console/ConsoleSystem.cpp"
-    "${SourceDir}/Console/ConsoleHistory.hpp"
-    "${SourceDir}/Console/ConsoleHistory.cpp"
-    "${SourceDir}/Console/ConsoleDefinition.hpp"
-    "${SourceDir}/Console/ConsoleDefinition.cpp"
-    "${SourceDir}/Console/ConsoleCommand.hpp"
-    "${SourceDir}/Console/ConsoleCommand.cpp"
-    "${SourceDir}/Console/ConsoleVariable.hpp"
-    "${SourceDir}/Console/ConsoleVariable.cpp"
-    "${SourceDir}/Console/ConsoleFrame.hpp"
-    "${SourceDir}/Console/ConsoleFrame.cpp"
+    "Console/ConsoleSystem.hpp"
+    "Console/ConsoleSystem.cpp"
+    "Console/ConsoleHistory.hpp"
+    "Console/ConsoleHistory.cpp"
+    "Console/ConsoleDefinition.hpp"
+    "Console/ConsoleDefinition.cpp"
+    "Console/ConsoleCommand.hpp"
+    "Console/ConsoleCommand.cpp"
+    "Console/ConsoleVariable.hpp"
+    "Console/ConsoleVariable.cpp"
+    "Console/ConsoleFrame.hpp"
+    "Console/ConsoleFrame.cpp"
 )
 
 Source_Group("Source\\Console" FILES ${SourceFiles_Console})
 Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Console})
 
 Set(SourceFiles_System
-    "${SourceDir}/System/FrameCounter.hpp"
-    "${SourceDir}/System/FrameCounter.cpp"
+    "System/FrameCounter.hpp"
+    "System/FrameCounter.cpp"
 )
 
 Source_Group("Source\\System" FILES ${SourceFiles_System})
 Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_System})
 
 Set(SourceFiles_Graphics
-    "${SourceDir}/Graphics/Shader.hpp"
-    "${SourceDir}/Graphics/Shader.cpp"
-    "${SourceDir}/Graphics/Buffer.hpp"
-    "${SourceDir}/Graphics/Buffer.cpp"
-    "${SourceDir}/Graphics/VertexInput.hpp"
-    "${SourceDir}/Graphics/VertexInput.cpp"
-    "${SourceDir}/Graphics/Texture.hpp"
-    "${SourceDir}/Graphics/Texture.cpp"
-    "${SourceDir}/Graphics/ShapeRenderer.hpp"
-    "${SourceDir}/Graphics/ShapeRenderer.cpp"
-    "${SourceDir}/Graphics/Font.hpp"
-    "${SourceDir}/Graphics/Font.cpp"
-    "${SourceDir}/Graphics/TextRenderer.hpp"
-    "${SourceDir}/Graphics/TextRenderer.cpp"
+    "Graphics/Shader.hpp"
+    "Graphics/Shader.cpp"
+    "Graphics/Buffer.hpp"
+    "Graphics/Buffer.cpp"
+    "Graphics/VertexInput.hpp"
+    "Graphics/VertexInput.cpp"
+    "Graphics/Texture.hpp"
+    "Graphics/Texture.cpp"
+    "Graphics/ShapeRenderer.hpp"
+    "Graphics/ShapeRenderer.cpp"
+    "Graphics/Font.hpp"
+    "Graphics/Font.cpp"
+    "Graphics/TextRenderer.hpp"
+    "Graphics/TextRenderer.cpp"
 )
 
 Source_Group("Source\\Graphics" FILES ${SourceFiles_Graphics})
 Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Graphics})
+
+# Add the source directory prefix to each file path.
+ForEach(SourceFile ${SourceFiles_All})
+    List(APPEND SourceFiles_Temp "${SourceDir}/${SourceFile}")
+EndForEach()
+
+Set(SourceFiles_All ${SourceFiles_Temp})
+Set(SourceFiles_Temp)
 
 # Add the main source folder as an include directory.
 Include_Directories(${SourceDir})
