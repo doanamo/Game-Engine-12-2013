@@ -4,6 +4,7 @@
 #include "BaseFrame.hpp"
 
 #include "EntitySystem.hpp"
+#include "ScriptSystem.hpp"
 #include "RenderSystem.hpp"
 
 //
@@ -25,7 +26,9 @@ public:
 
 private:
     EntitySystem m_entitySystem;
+    ScriptSystem m_scriptSystem;
     RenderSystem m_renderSystem;
+
     EntityHandle m_playerHandle;
 
     bool m_initialized;

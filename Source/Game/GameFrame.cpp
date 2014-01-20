@@ -6,7 +6,57 @@
 #include "GameContext.hpp"
 
 #include "Transform.hpp"
+#include "Script.hpp"
 #include "Render.hpp"
+
+namespace
+{
+    // Entity scripts.
+    void ScriptPlayer(Entity* entity, float timeDelta)
+    {
+        // Validate the entity.
+        if(entity == nullptr)
+            return;
+
+        // Check if entit yhas needed components.
+        Transform* transform = entity->GetComponent<Transform>();
+        if(transform == nullptr) return;
+
+        // Get keyboard state.
+        const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
+
+        // Create a direction vector.
+        glm::vec2 direction(0.0f, 0.0f);
+
+        if(keyboardState[SDL_SCANCODE_D])
+        {
+            direction.x = 1.0f;
+        }
+
+        if(keyboardState[SDL_SCANCODE_A])
+        {
+            direction.x = -1.0f;
+        }
+
+        if(keyboardState[SDL_SCANCODE_W])
+        {
+            direction.y = 1.0f;
+        }
+
+        if(keyboardState[SDL_SCANCODE_S])
+        {
+            direction.y = -1.0f;
+        }
+
+        // Update player position.
+        if(direction != glm::vec2(0.0f))
+        {
+            glm::vec2 position = transform->GetPosition();
+            position += glm::normalize(direction) * 400.0f * timeDelta;
+            transform->SetPosition(position);
+        }
+    }
+}
 
 GameFrame::GameFrame() :
     m_initialized(false)
@@ -32,6 +82,12 @@ bool GameFrame::Initialize()
         }
     });
 
+    // Initialize the script system.
+    if(!m_scriptSystem.Initialize())
+        return false;
+
+    m_entitySystem.RegisterSubsystem(&m_scriptSystem);
+
     // Initialize the render system.
     if(!m_renderSystem.Initialize())
         return false;
@@ -50,6 +106,10 @@ bool GameFrame::Initialize()
         transform->SetScale(glm::vec2(1.0f, 1.0f));
         transform->SetRotation(0.0f);
         entity->InsertComponent(transform);
+
+        std::unique_ptr<Script> script(new Script());
+        script->SetFunction(&ScriptPlayer);
+        entity->InsertComponent(script);
 
         std::unique_ptr<Render> render(new Render());
         render->SetColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
@@ -84,6 +144,7 @@ void GameFrame::Cleanup()
     m_playerHandle = EntityHandle();
 
     m_entitySystem.Cleanup();
+    m_scriptSystem.Cleanup();
     m_renderSystem.Cleanup();
 
     m_initialized = false;
@@ -106,51 +167,6 @@ bool GameFrame::Process(const SDL_Event& event)
 
 void GameFrame::Update(float dt)
 {
-    // Handle player input.
-    Entity* player = m_entitySystem.LookupEntity(m_playerHandle);
-
-    if(player != nullptr)
-    {
-        Transform* transform = player->GetComponent<Transform>();
-
-        if(transform != nullptr)
-        {
-            // Get keyboard state.
-            const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
-
-            // Create a direction vector.
-            glm::vec2 direction(0.0f, 0.0f);
-
-            if(keyboardState[SDL_SCANCODE_D])
-            {
-                direction.x = 1.0f;
-            }
-
-            if(keyboardState[SDL_SCANCODE_A])
-            {
-                direction.x = -1.0f;
-            }
-
-            if(keyboardState[SDL_SCANCODE_W])
-            {
-                direction.y = 1.0f;
-            }
-
-            if(keyboardState[SDL_SCANCODE_S])
-            {
-                direction.y = -1.0f;
-            }
-
-            // Update player position.
-            if(direction != glm::vec2(0.0f))
-            {
-                glm::vec2 position = transform->GetPosition();
-                position += glm::normalize(direction) * 400.0f * dt;
-                transform->SetPosition(position);
-            }
-        }
-    }
-
     // Update entities.
     m_entitySystem.Update(dt);
 }

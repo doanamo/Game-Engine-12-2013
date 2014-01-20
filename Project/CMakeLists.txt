@@ -165,6 +165,10 @@ Set(SourceFiles
     "Game/Render.cpp"
     "Game/RenderSystem.hpp"
     "Game/RenderSystem.cpp"
+    "Game/Script.hpp"
+    "Game/Script.cpp"
+    "Game/ScriptSystem.hpp"
+    "Game/ScriptSystem.cpp"
 )
 
 # Add the source directory prefix to each file path.
