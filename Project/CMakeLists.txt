@@ -91,33 +91,20 @@ Include_Directories("../External/UTF8-2.3.4/source")
 
 # Source files.
 Set(SourceDir "../Source")
-Set(SourceFiles_All "")
 Set(PrecompiledHeader "Precompiled.hpp")
 Set(PrecompiledSource "Precompiled.cpp")
 
-Set(SourceFiles_Main
+Set(SourceFiles
     "${PrecompiledHeader}"
     "${PrecompiledSource}"
     "Main.cpp"
     "MainContext.hpp"
     "MainContext.cpp"
-)
-
-Source_Group("Source" FILES ${SourceFiles_Main})
-Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Main})
-
-Set(SourceFiles_Common
     "Common/NonCopyable.hpp"
     "Common/ScopeGuard.hpp"
     "Common/Utility.hpp"
     "Common/Utility.cpp"
     "Common/StateMachine.hpp"
-)
-
-Source_Group("Source\\Common" FILES ${SourceFiles_Common})
-Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Common})
-
-Set(SourceFiles_Logger
     "Logger/Logger.hpp"
     "Logger/Logger.cpp"
     "Logger/LoggerOutput.hpp"
@@ -129,12 +116,6 @@ Set(SourceFiles_Logger
     "Logger/LoggerMessage.cpp"
     "Logger/LoggerScopedMessage.hpp"
     "Logger/LoggerScopedMessage.cpp"
-)
-
-Source_Group("Source\\Logger" FILES ${SourceFiles_Logger})
-Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Logger})
-
-Set(SourceFiles_Console
     "Console/ConsoleSystem.hpp"
     "Console/ConsoleSystem.cpp"
     "Console/ConsoleHistory.hpp"
@@ -147,20 +128,8 @@ Set(SourceFiles_Console
     "Console/ConsoleVariable.cpp"
     "Console/ConsoleFrame.hpp"
     "Console/ConsoleFrame.cpp"
-)
-
-Source_Group("Source\\Console" FILES ${SourceFiles_Console})
-Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Console})
-
-Set(SourceFiles_System
     "System/FrameCounter.hpp"
     "System/FrameCounter.cpp"
-)
-
-Source_Group("Source\\System" FILES ${SourceFiles_System})
-Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_System})
-
-Set(SourceFiles_Graphics
     "Graphics/Shader.hpp"
     "Graphics/Shader.cpp"
     "Graphics/Buffer.hpp"
@@ -177,16 +146,43 @@ Set(SourceFiles_Graphics
     "Graphics/TextRenderer.cpp"
 )
 
-Source_Group("Source\\Graphics" FILES ${SourceFiles_Graphics})
-Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Graphics})
-
 # Add the source directory prefix to each file path.
-ForEach(SourceFile ${SourceFiles_All})
-    List(APPEND SourceFiles_Temp "${SourceDir}/${SourceFile}")
+ForEach(SourceFile ${SourceFiles})
+    List(APPEND SourceFilesTemp "${SourceDir}/${SourceFile}")
 EndForEach()
 
-Set(SourceFiles_All ${SourceFiles_Temp})
-Set(SourceFiles_Temp)
+Set(SourceFiles ${SourceFilesTemp})
+Set(SourceFilesTemp)
+
+# Setup automatic source grouping.
+ForEach(SourceFile ${SourceFiles})
+    # Get source file path.
+    Get_Filename_Component(SourceFilePath ${SourceFile} PATH)
+    
+    # Remove the base path.
+    String(REPLACE "${SourceDir}" "" SourceFilePath ${SourceFilePath})
+
+    # Add source file to a group.
+    If(NOT ${SourceFilePath} STREQUAL "")
+        # Remove leading folder separator.
+        String(SUBSTRING ${SourceFilePath} 0 1 FirstCharacter)
+        
+        If(FirstCharacter STREQUAL "/" OR FirstCharacter STREQUAL "\\")
+            String(LENGTH ${SourceFilePath} SourceFilePathLength)
+            Math(EXPR SourceFilePathLength "${SourceFilePathLength} - 1")
+            String(SUBSTRING ${SourceFilePath} 1 ${SourceFilePathLength} SourceFilePath)
+        EndIf()
+    
+        # Replace folder separators.
+        String(REPLACE "/" "\\" SourceFilePath ${SourceFilePath})
+    
+        # Add source file to a group.
+        Source_Group("Source\\${SourceFilePath}" FILES ${SourceFile})
+    Else()
+        # Add source file to a default group.
+        Source_Group("Source" FILES ${SourceFile})
+    EndIf()
+EndForEach()
 
 # Add the main source folder as an include directory.
 Include_Directories(${SourceDir})
@@ -198,7 +194,7 @@ Include_Directories(${SourceDir})
 # Create an executable target.
 Set(TargetName "Game")
 
-Add_Executable(${TargetName} ${SourceFiles_All})
+Add_Executable(${TargetName} ${SourceFiles})
 
 # Link SDL2 library.
 Add_Dependencies(${TargetName} "SDL2-static" "SDL2main")
