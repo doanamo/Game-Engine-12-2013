@@ -82,7 +82,6 @@ EndIf()
 # UTF8
 #
 
-
 # Add include directory.
 Include_Directories("../External/UTF8-2.3.4/source")
 
@@ -92,121 +91,119 @@ Include_Directories("../External/UTF8-2.3.4/source")
 
 # Source files.
 Set(SourceDir "../Source")
-Set(SourceFiles_All "")
 Set(PrecompiledHeader "Precompiled.hpp")
 Set(PrecompiledSource "Precompiled.cpp")
 
-Set(SourceFiles_Main
-    "${SourceDir}/${PrecompiledHeader}"
-    "${SourceDir}/${PrecompiledSource}"
-    "${SourceDir}/Main.cpp"
-    "${SourceDir}/MainContext.hpp"
-    "${SourceDir}/MainContext.cpp"
+Set(SourceFiles
+    "${PrecompiledHeader}"
+    "${PrecompiledSource}"
+    "Main.cpp"
+    "MainContext.hpp"
+    "MainContext.cpp"
+    "Common/NonCopyable.hpp"
+    "Common/ScopeGuard.hpp"
+    "Common/Utility.hpp"
+    "Common/Utility.cpp"
+    "Common/StateMachine.hpp"
+    "Logger/Logger.hpp"
+    "Logger/Logger.cpp"
+    "Logger/LoggerOutput.hpp"
+    "Logger/LoggerOutputFile.hpp"
+    "Logger/LoggerOutputFile.cpp"
+    "Logger/LoggerOutputConsole.hpp"
+    "Logger/LoggerOutputConsole.cpp"
+    "Logger/LoggerMessage.hpp"
+    "Logger/LoggerMessage.cpp"
+    "Logger/LoggerScopedMessage.hpp"
+    "Logger/LoggerScopedMessage.cpp"
+    "Console/ConsoleSystem.hpp"
+    "Console/ConsoleSystem.cpp"
+    "Console/ConsoleHistory.hpp"
+    "Console/ConsoleHistory.cpp"
+    "Console/ConsoleDefinition.hpp"
+    "Console/ConsoleDefinition.cpp"
+    "Console/ConsoleCommand.hpp"
+    "Console/ConsoleCommand.cpp"
+    "Console/ConsoleVariable.hpp"
+    "Console/ConsoleVariable.cpp"
+    "Console/ConsoleFrame.hpp"
+    "Console/ConsoleFrame.cpp"
+    "System/FrameCounter.hpp"
+    "System/FrameCounter.cpp"
+    "Graphics/Shader.hpp"
+    "Graphics/Shader.cpp"
+    "Graphics/Buffer.hpp"
+    "Graphics/Buffer.cpp"
+    "Graphics/VertexInput.hpp"
+    "Graphics/VertexInput.cpp"
+    "Graphics/Texture.hpp"
+    "Graphics/Texture.cpp"
+    "Graphics/ShapeRenderer.hpp"
+    "Graphics/ShapeRenderer.cpp"
+    "Graphics/Font.hpp"
+    "Graphics/Font.cpp"
+    "Graphics/TextRenderer.hpp"
+    "Graphics/TextRenderer.cpp"
+    "Game/GameContext.hpp"
+    "Game/GameContext.cpp"
+    "Game/BaseFrame.hpp"
+    "Game/MenuFrame.hpp"
+    "Game/MenuFrame.cpp"
+    "Game/GameFrame.hpp"
+    "Game/GameFrame.cpp"
+    "Game/Component.hpp"
+    "Game/Entity.hpp"
+    "Game/Entity.cpp"
+    "Game/EntityHandle.hpp"
+    "Game/EntitySystem.hpp"
+    "Game/EntitySystem.cpp"
+    "Game/EntitySubsystem.hpp"
+    "Game/EntitySubsystem.cpp"
+    "Game/Transform.hpp"
+    "Game/Transform.cpp"
+    "Game/Render.hpp"
+    "Game/Render.cpp"
+    "Game/RenderSystem.hpp"
+    "Game/RenderSystem.cpp"
 )
 
-Source_Group("Source" FILES ${SourceFiles_Main})
-Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Main})
+# Add the source directory prefix to each file path.
+ForEach(SourceFile ${SourceFiles})
+    List(APPEND SourceFilesTemp "${SourceDir}/${SourceFile}")
+EndForEach()
 
-Set(SourceFiles_Common
-    "${SourceDir}/Common/NonCopyable.hpp"
-    "${SourceDir}/Common/ScopeGuard.hpp"
-    "${SourceDir}/Common/Utility.hpp"
-    "${SourceDir}/Common/Utility.cpp"
-    "${SourceDir}/Common/StateMachine.hpp"
-)
+Set(SourceFiles ${SourceFilesTemp})
+Set(SourceFilesTemp)
 
-Source_Group("Source\\Common" FILES ${SourceFiles_Common})
-Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Common})
+# Setup automatic source grouping.
+ForEach(SourceFile ${SourceFiles})
+    # Get source file path.
+    Get_Filename_Component(SourceFilePath ${SourceFile} PATH)
+    
+    # Remove the base path.
+    String(REPLACE "${SourceDir}" "" SourceFilePath ${SourceFilePath})
 
-Set(SourceFiles_Logger
-    "${SourceDir}/Logger/Logger.hpp"
-    "${SourceDir}/Logger/Logger.cpp"
-    "${SourceDir}/Logger/LoggerOutput.hpp"
-    "${SourceDir}/Logger/LoggerOutputFile.hpp"
-    "${SourceDir}/Logger/LoggerOutputFile.cpp"
-    "${SourceDir}/Logger/LoggerOutputConsole.hpp"
-    "${SourceDir}/Logger/LoggerOutputConsole.cpp"
-    "${SourceDir}/Logger/LoggerMessage.hpp"
-    "${SourceDir}/Logger/LoggerMessage.cpp"
-    "${SourceDir}/Logger/LoggerScopedMessage.hpp"
-    "${SourceDir}/Logger/LoggerScopedMessage.cpp"
-)
-
-Source_Group("Source\\Logger" FILES ${SourceFiles_Logger})
-Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Logger})
-
-Set(SourceFiles_Console
-    "${SourceDir}/Console/ConsoleSystem.hpp"
-    "${SourceDir}/Console/ConsoleSystem.cpp"
-    "${SourceDir}/Console/ConsoleHistory.hpp"
-    "${SourceDir}/Console/ConsoleHistory.cpp"
-    "${SourceDir}/Console/ConsoleDefinition.hpp"
-    "${SourceDir}/Console/ConsoleDefinition.cpp"
-    "${SourceDir}/Console/ConsoleCommand.hpp"
-    "${SourceDir}/Console/ConsoleCommand.cpp"
-    "${SourceDir}/Console/ConsoleVariable.hpp"
-    "${SourceDir}/Console/ConsoleVariable.cpp"
-    "${SourceDir}/Console/ConsoleFrame.hpp"
-    "${SourceDir}/Console/ConsoleFrame.cpp"
-)
-
-Source_Group("Source\\Console" FILES ${SourceFiles_Console})
-Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Console})
-
-Set(SourceFiles_System
-    "${SourceDir}/System/FrameCounter.hpp"
-    "${SourceDir}/System/FrameCounter.cpp"
-)
-
-Source_Group("Source\\System" FILES ${SourceFiles_System})
-Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_System})
-
-Set(SourceFiles_Graphics
-    "${SourceDir}/Graphics/Shader.hpp"
-    "${SourceDir}/Graphics/Shader.cpp"
-    "${SourceDir}/Graphics/Buffer.hpp"
-    "${SourceDir}/Graphics/Buffer.cpp"
-    "${SourceDir}/Graphics/VertexInput.hpp"
-    "${SourceDir}/Graphics/VertexInput.cpp"
-    "${SourceDir}/Graphics/Texture.hpp"
-    "${SourceDir}/Graphics/Texture.cpp"
-    "${SourceDir}/Graphics/ShapeRenderer.hpp"
-    "${SourceDir}/Graphics/ShapeRenderer.cpp"
-    "${SourceDir}/Graphics/Font.hpp"
-    "${SourceDir}/Graphics/Font.cpp"
-    "${SourceDir}/Graphics/TextRenderer.hpp"
-    "${SourceDir}/Graphics/TextRenderer.cpp"
-)
-
-Source_Group("Source\\Graphics" FILES ${SourceFiles_Graphics})
-Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Graphics})
-
-Set(SourceFiles_Game
-    "${SourceDir}/Game/GameContext.hpp"
-    "${SourceDir}/Game/GameContext.cpp"
-    "${SourceDir}/Game/BaseFrame.hpp"
-    "${SourceDir}/Game/MenuFrame.hpp"
-    "${SourceDir}/Game/MenuFrame.cpp"
-    "${SourceDir}/Game/GameFrame.hpp"
-    "${SourceDir}/Game/GameFrame.cpp"
-    "${SourceDir}/Game/Component.hpp"
-    "${SourceDir}/Game/Entity.hpp"
-    "${SourceDir}/Game/Entity.cpp"
-    "${SourceDir}/Game/EntityHandle.hpp"
-    "${SourceDir}/Game/EntitySystem.hpp"
-    "${SourceDir}/Game/EntitySystem.cpp"
-    "${SourceDir}/Game/EntitySubsystem.hpp"
-    "${SourceDir}/Game/EntitySubsystem.cpp"
-    "${SourceDir}/Game/Transform.hpp"
-    "${SourceDir}/Game/Transform.cpp"
-    "${SourceDir}/Game/Render.hpp"
-    "${SourceDir}/Game/Render.cpp"
-    "${SourceDir}/Game/RenderSystem.hpp"
-    "${SourceDir}/Game/RenderSystem.cpp"
-)
-
-Source_Group("Source\\Game" FILES ${SourceFiles_Game})
-Set(SourceFiles_All ${SourceFiles_All} ${SourceFiles_Game})
+    # Add source file to a group.
+    If(NOT ${SourceFilePath} STREQUAL "")
+        # Remove leading folder separator.
+        String(SUBSTRING ${SourceFilePath} 0 1 FirstCharacter)
+        
+        If(FirstCharacter STREQUAL "/" OR FirstCharacter STREQUAL "\\")
+            String(LENGTH ${SourceFilePath} SourceFilePathLength)
+            Math(EXPR SourceFilePathLength "${SourceFilePathLength} - 1")
+            String(SUBSTRING ${SourceFilePath} 1 ${SourceFilePathLength} SourceFilePath)
+        EndIf()
+    
+        # Replace folder separators.
+        String(REPLACE "/" "\\" SourceFilePath ${SourceFilePath})
+    
+        # Add source file to a group.
+        Source_Group("Source\\${SourceFilePath}" FILES ${SourceFile})
+    Else()
+        # Add source file to a default group.
+        Source_Group("Source" FILES ${SourceFile})
+    EndIf()
+EndForEach()
 
 # Add the main source folder as an include directory.
 Include_Directories(${SourceDir})
@@ -218,7 +215,7 @@ Include_Directories(${SourceDir})
 # Create an executable target.
 Set(TargetName "Game")
 
-Add_Executable(${TargetName} ${SourceFiles_All})
+Add_Executable(${TargetName} ${SourceFiles})
 
 # Link SDL2 library.
 Add_Dependencies(${TargetName} "SDL2-static" "SDL2main")

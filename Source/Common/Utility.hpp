@@ -26,7 +26,7 @@ int LowerMultiple(int value, int multiplier);
 // Gets the content of a text file.
 std::string GetTextFileContent(std::string filename);
 
-// Gest the content of a binary file.
+// Gets the content of a binary file.
 std::vector<char> GetBinaryFileContent(std::string filename);
 
 // Flips SDL surface upside down.
