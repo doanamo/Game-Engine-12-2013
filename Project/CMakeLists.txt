@@ -161,14 +161,18 @@ Set(SourceFiles
     "Game/EntitySubsystem.cpp"
     "Game/Transform.hpp"
     "Game/Transform.cpp"
-    "Game/Render.hpp"
-    "Game/Render.cpp"
-    "Game/RenderSystem.hpp"
-    "Game/RenderSystem.cpp"
+    "Game/Input.hpp"
+    "Game/Input.cpp"
+    "Game/InputState.hpp"
+    "Game/InputState.cpp"
     "Game/Script.hpp"
     "Game/Script.cpp"
     "Game/ScriptSystem.hpp"
     "Game/ScriptSystem.cpp"
+    "Game/Render.hpp"
+    "Game/Render.cpp"
+    "Game/RenderSystem.hpp"
+    "Game/RenderSystem.cpp"
 )
 
 # Add the source directory prefix to each file path.
