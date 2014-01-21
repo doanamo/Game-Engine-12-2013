@@ -1,5 +1,6 @@
 #include "Precompiled.hpp"
 #include "InputState.hpp"
+#include "UserEvents.hpp"
 
 InputState::InputState() :
     m_keyboardState(nullptr),
@@ -64,6 +65,13 @@ void InputState::Process(const SDL_Event& event)
             {
                 m_keyboardState[event.key.keysym.scancode] = 0;
             }
+        }
+        break;
+
+    case SDL_USEREVENT:
+        if(event.user.code == UserEvents::ResetInput)
+        {
+            Reset();
         }
         break;
     }
