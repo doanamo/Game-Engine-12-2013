@@ -100,6 +100,7 @@ Set(SourceFiles
     "Main.cpp"
     "MainContext.hpp"
     "MainContext.cpp"
+    "UserEvents.hpp"
     "Common/NonCopyable.hpp"
     "Common/ScopeGuard.hpp"
     "Common/Utility.hpp"

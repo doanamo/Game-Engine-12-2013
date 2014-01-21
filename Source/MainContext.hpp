@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Precompiled.hpp"
+#include "UserEvents.hpp"
 
 // Forward declarations.
 class Logger;
@@ -37,6 +38,8 @@ namespace Main
     // Context methods.
     bool Initialize();
     void Cleanup();
+
+    void SendEvent(UserEvents::Type type);
 
     void Quit();
 
