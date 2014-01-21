@@ -33,8 +33,8 @@ void ScriptSystem::Process(Entity* entity)
         return;
 
     // Execute script function.
-    if(script->m_function != nullptr)
+    if(script->m_object != nullptr)
     {
-        script->m_function(entity, GetEntitySystem()->GetTimeDelta());
+        script->m_object->Execute(entity, GetEntitySystem()->GetTimeDelta());
     }
 }

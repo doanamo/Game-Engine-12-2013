@@ -11,51 +11,138 @@
 
 namespace
 {
-    // Entity scripts.
-    void ScriptPlayer(Entity* entity, float timeDelta)
+    // Projectile script.
+    class ScriptProjectile : public ScriptObject
     {
-        // Validate the entity.
-        if(entity == nullptr)
-            return;
-
-        // Check if entit yhas needed components.
-        Transform* transform = entity->GetComponent<Transform>();
-        if(transform == nullptr) return;
-
-        // Get keyboard state.
-        const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
-
-        // Create a direction vector.
-        glm::vec2 direction(0.0f, 0.0f);
-
-        if(keyboardState[SDL_SCANCODE_D])
+    public:
+        ScriptProjectile() :
+            m_lifeTime(0.0f)
         {
-            direction.x = 1.0f;
         }
 
-        if(keyboardState[SDL_SCANCODE_A])
+        void Execute(Entity* entity, float timeDelta)
         {
-            direction.x = -1.0f;
-        }
+            assert(entity != nullptr);
 
-        if(keyboardState[SDL_SCANCODE_W])
-        {
-            direction.y = 1.0f;
-        }
+            // Check if entity has needed components.
+            Transform* transform = entity->GetComponent<Transform>();
+            if(transform == nullptr) return;
 
-        if(keyboardState[SDL_SCANCODE_S])
-        {
-            direction.y = -1.0f;
-        }
+            // Check if the projectile reached it's lifetime.
+            m_lifeTime += timeDelta;
 
-        // Update player position.
-        if(direction != glm::vec2(0.0f))
-        {
+            if(m_lifeTime >= 1.0f)
+            {
+                entity->Destroy();
+                return;
+            }
+
+            // Move entity to the right.
             glm::vec2 position = transform->GetPosition();
-            position += glm::normalize(direction) * 400.0f * timeDelta;
+            position.x += 700.0f * timeDelta;
             transform->SetPosition(position);
         }
+
+    private:
+        float m_lifeTime;
+    };
+
+    void CreateProjectile(EntitySystem* entitySystem, glm::vec2 position)
+    {
+        
     }
+
+    // Player script.
+    class ScriptPlayer : public ScriptObject
+    {
+    public:
+        ScriptPlayer() :
+            m_shootTime(0.0f)
+        {
+        }
+
+        void Execute(Entity* entity, float timeDelta)
+        {
+            assert(entity != nullptr);
+
+            // Check if entity has needed components.
+            Transform* transform = entity->GetComponent<Transform>();
+            if(transform == nullptr) return;
+
+            // Get keyboard state.
+            const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
+
+            // Shoot a projectile.
+            m_shootTime = std::max(0.0f, m_shootTime - timeDelta);
+
+            if(keyboardState[SDL_SCANCODE_SPACE])
+            {
+                if(m_shootTime == 0.0f)
+                {
+                    // Projectile factory method.
+                    auto CreateProjectile = [](EntitySystem* entitySystem, glm::vec2 position)
+                    {
+                        // Create an entity.
+                        Entity* entity = entitySystem->CreateEntity();
+
+                        // Create components.
+                        std::unique_ptr<Transform> transform(new Transform());
+                        transform->SetPosition(position);
+                        transform->SetScale(glm::vec2(1.0f, 1.0f));
+                        transform->SetRotation(0.0f);
+                        entity->InsertComponent(transform);
+
+                        std::unique_ptr<Script> script(new Script());
+                        script->SetScript(std::make_unique<ScriptProjectile>());
+                        entity->InsertComponent(script);
+
+                        std::unique_ptr<Render> render(new Render());
+                        render->SetColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+                        entity->InsertComponent(render);
+                    };
+
+                    // Create a projectile entity.
+                    CreateProjectile(entity->GetEntitySystem(), transform->GetPosition());
+
+                    m_shootTime = 0.2f;
+                }
+            }
+
+            // Create a direction vector.
+            glm::vec2 direction(0.0f, 0.0f);
+
+            if(keyboardState[SDL_SCANCODE_D])
+            {
+                direction.x = 1.0f;
+            }
+
+            if(keyboardState[SDL_SCANCODE_A])
+            {
+                direction.x = -1.0f;
+            }
+
+            if(keyboardState[SDL_SCANCODE_W])
+            {
+                direction.y = 1.0f;
+            }
+
+            if(keyboardState[SDL_SCANCODE_S])
+            {
+                direction.y = -1.0f;
+            }
+
+            // Update player position.
+            if(direction != glm::vec2(0.0f))
+            {
+                glm::vec2 position = transform->GetPosition();
+                position += glm::normalize(direction) * 400.0f * timeDelta;
+                transform->SetPosition(position);
+            }
+        }
+
+    public:
+        float m_shootTime;
+    };
 }
 
 GameFrame::GameFrame() :
@@ -108,7 +195,7 @@ bool GameFrame::Initialize()
         entity->InsertComponent(transform);
 
         std::unique_ptr<Script> script(new Script());
-        script->SetFunction(&ScriptPlayer);
+        script->SetScript(std::make_unique<ScriptPlayer>());
         entity->InsertComponent(script);
 
         std::unique_ptr<Render> render(new Render());
