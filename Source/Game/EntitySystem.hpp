@@ -46,11 +46,30 @@ private:
         Entity* entity;
     };
 
+    // Entity commands.
+    struct EntityCommands
+    {
+        enum Type
+        {
+            Invalid,
+
+            Create,
+            Destroy,
+        };
+    };
+
+    struct EntityCommand
+    {
+        EntityCommands::Type type;
+        HandleEntry handleEntry;
+    };
+
 private:
     // Type declarations.
     typedef std::vector<EntitySubsystem*> SubsystemList;
     typedef std::vector<Entity>           EntityList;
     typedef std::vector<HandleEntry>      HandleList;
+    typedef std::vector<EntityCommand>    CommandList;
 
 public:
     EntitySystem();
@@ -84,6 +103,9 @@ public:
     float GetTimeDelta();
 
 private:
+    // Process commands.
+    void ProcessCommands();
+
     // Called on creating an entity.
     void OnCreateEntity(Entity* entity);
 
@@ -94,9 +116,15 @@ private:
     // List of entity subsystems.
     SubsystemList m_subsystems;
 
+    // List of commands.
+    CommandList m_commands;
+
     // List of entities.
     EntityList m_entities;
     HandleList m_handles;
+
+    // Range of valid entities.
+    int m_validEntityIndex;
 
     // List of free handles.
     int  m_freeListDequeue;

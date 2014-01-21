@@ -13,6 +13,7 @@ namespace
 }
 
 EntitySystem::EntitySystem() :
+    m_validEntityIndex(InvalidEntityIndex),
     m_freeListDequeue(InvalidQueueElement),
     m_freeListEnqueue(InvalidQueueElement),
     m_freeListEmpty(true),
@@ -27,11 +28,19 @@ EntitySystem::~EntitySystem()
 
 void EntitySystem::Cleanup()
 {
+    // Process remaining commands.
+    ProcessCommands();
+
+    ClearContainer(m_commands);
+
     // Remove all entities.
     DestroyAllEntities();
 
     ClearContainer(m_entities);
     ClearContainer(m_handles);
+
+    // Reset valid entity index range.
+    m_validEntityIndex = InvalidEntityIndex;
 
     // Reset the free list queue.
     m_freeListDequeue = InvalidQueueElement;
@@ -133,8 +142,12 @@ EntitySystem::EntityResult EntitySystem::CreateEntity()
     // Update the handle entry to point to the newly created entity.
     handleEntry.entityIndex = entityIndex;
 
-    // Inform about the created entity.
-    OnCreateEntity(&entity);
+    // Add a create entity commands.
+    EntityCommand command;
+    command.type = EntityCommands::Create;
+    command.handleEntry = handleEntry;
+    
+    m_commands.push_back(command);
 
     // Return the handle.
     return EntityResult(&entity);
@@ -149,6 +162,10 @@ Entity* EntitySystem::LookupEntity(const EntityHandle& handle)
     // Locate the handle entry.
     int handleIndex = handle.identifier - 1;
     HandleEntry& handleEntry = m_handles[handleIndex];
+
+    // Check if entity index is in a valid range.
+    if(handleEntry.entityIndex > InvalidEntityIndex)
+        return nullptr;
 
     // Locate the entity.
     Entity& entity = m_entities[handleEntry.entityIndex];
@@ -176,54 +193,19 @@ void EntitySystem::DestroyEntity(const EntityHandle& handle)
     if(entity.m_entitySystem != this)
         return;
 
-    // Inform about the soon to be destroyed entity.
-    OnDestroyEntity(&entity);
+    // Add a destroy entity command.
+    EntityCommand command;
+    command.type = EntityCommands::Destroy;
+    command.handleEntry = handleEntry;
 
-    // Reallocate the entity that handle entry points at.
-    if(handleEntry.entityIndex != m_entities.size() - 1)
-    {
-        // Move the last entity in the place of the one that will be removed 
-        // to preserve contiguous memory of valid entities without holes.
-        m_entities[handleEntry.entityIndex] = std::move(m_entities[m_entities.size() - 1]);
-
-        // Update the handle entry of the moved entity.
-        Entity& movedEntity = m_entities[handleEntry.entityIndex];
-
-        int movedHandleIndex = movedEntity.m_handle.identifier - 1;
-        HandleEntry& movedHandleEntry = m_handles[movedHandleIndex];
-        movedHandleEntry.entityIndex = handleEntry.entityIndex;
-    }
-
-    m_entities.pop_back();
-
-    // Set the invalid entity index.
-    handleEntry.entityIndex = InvalidEntityIndex;
-
-    // Increment the handle version to invalidate it.
-    handleEntry.handle.version += 1;
-
-    // Add the handle entry to the free list queue.
-    if(m_freeListEmpty)
-    {
-        // If there are no elements in the queue.
-        // Set the element as the only one in the queue.
-        m_freeListDequeue = handleIndex;
-        m_freeListEnqueue = handleIndex;
-        m_freeListEmpty = false;
-    }
-    else
-    {
-        assert(m_handles[m_freeListEnqueue].nextFree == InvalidNextFree);
-
-        // If there are already other elements in the queue.
-        // Add the element to the end of the queue chain.
-        m_handles[m_freeListEnqueue].nextFree = handleIndex;
-        m_freeListEnqueue = handleIndex;
-    }
+    m_commands.push_back(command);
 }
 
 void EntitySystem::DestroyAllEntities()
 {
+    // Process entity commands.
+    ProcessCommands();
+
     // Don't do anything if there are no entities.
     if(m_entities.empty())
         return;
@@ -236,6 +218,9 @@ void EntitySystem::DestroyAllEntities()
 
     // Destroy all entities.
     m_entities.clear();
+
+    // Reset the range of valid entities.
+    m_validEntityIndex = InvalidEntityIndex;
 
     // Invalidate all handles.
     for(unsigned int i = 0; i < m_handles.size(); ++i)
@@ -279,6 +264,10 @@ bool EntitySystem::IsHandleValid(const EntityHandle& handle) const
     if(handleEntry.entityIndex == InvalidEntityIndex)
         return false;
 
+    // Check if the entity index is valid.
+    if(handleEntry.entityIndex > m_validEntityIndex)
+        return false;
+
     // Check if the handle versions match.
     if(handleEntry.handle.version != handle.version)
         return false;
@@ -304,8 +293,102 @@ void EntitySystem::OnDestroyEntity(Entity* entity)
     }
 }
 
+void EntitySystem::ProcessCommands()
+{
+    // Process entity commands.
+    for(auto command = m_commands.begin(); command != m_commands.end(); ++command)
+    {
+        switch(command->type)
+        {
+        case EntityCommands::Create:
+            {
+                // Increase the valid entity range.
+                m_validEntityIndex += 1;
+
+                // The index of this entity should match.
+                assert(m_validEntityIndex == command->handleEntry.entityIndex);
+                
+                // Inform about the created entity.
+                OnCreateEntity(&m_entities[command->handleEntry.entityIndex]);
+            }
+            break;
+
+        case EntityCommands::Destroy:
+            {
+                // Locate the current handle entry.
+                int handleIndex = command->handleEntry.handle.identifier - 1;
+                HandleEntry& handleEntry = m_handles[handleIndex];
+
+                // Check if the command handle entry is still valid.
+                assert(handleEntry.handle.identifier == command->handleEntry.handle.identifier);
+
+                if(handleEntry.handle.version != command->handleEntry.handle.version)
+                {
+                    // Entity was propably destroyed twice in a single frame.
+                    continue;
+                }
+
+                // Decrease the valid entity range.
+                m_validEntityIndex -= 1;
+
+                // Inform about the soon to be destroyed entity.
+                OnDestroyEntity(&m_entities[handleEntry.entityIndex]);
+
+                // Reallocate the entity that handle entry points at.
+                if(handleEntry.entityIndex != m_entities.size() - 1)
+                {
+                    // Move the last entity in the place of the one that will be removed 
+                    // to preserve contiguous memory of valid entities without holes.
+                    m_entities[handleEntry.entityIndex] = std::move(m_entities[m_entities.size() - 1]);
+
+                    // Update the handle entry of the moved entity.
+                    Entity& movedEntity = m_entities[handleEntry.entityIndex];
+
+                    int movedHandleIndex = movedEntity.m_handle.identifier - 1;
+                    HandleEntry& movedHandleEntry = m_handles[movedHandleIndex];
+                    movedHandleEntry.entityIndex = handleEntry.entityIndex;
+                }
+
+                m_entities.pop_back();
+
+                // Set the invalid entity index.
+                handleEntry.entityIndex = InvalidEntityIndex;
+
+                // Increment the handle version to invalidate it.
+                handleEntry.handle.version += 1;
+
+                // Add the handle entry to the free list queue.
+                if(m_freeListEmpty)
+                {
+                    // If there are no elements in the queue.
+                    // Set the element as the only one in the queue.
+                    m_freeListDequeue = handleIndex;
+                    m_freeListEnqueue = handleIndex;
+                    m_freeListEmpty = false;
+                }
+                else
+                {
+                    assert(m_handles[m_freeListEnqueue].nextFree == InvalidNextFree);
+
+                    // If there are already other elements in the queue.
+                    // Add the element to the end of the queue chain.
+                    m_handles[m_freeListEnqueue].nextFree = handleIndex;
+                    m_freeListEnqueue = handleIndex;
+                }
+            }
+            break;
+        }
+    }
+
+    // Clear processed entity commands.
+    m_commands.clear();
+}
+
 void EntitySystem::Update(float timeDelta)
 {
+    // Process entity commands.
+    ProcessCommands();
+
     // Set the current time delta.
     m_timeDelta = timeDelta;
 
@@ -314,9 +397,14 @@ void EntitySystem::Update(float timeDelta)
     {
         (*subsystem)->PrepareProcessing();
 
-        for(auto entity = m_entities.begin(); entity != m_entities.end(); ++entity)
+        for(int entityIndex = 0; entityIndex < (int)m_entities.size(); ++entityIndex)
         {
-            (*subsystem)->Process(&(*entity));
+            // Check if entity is in a valid range (it could have not been processed yet after creating).
+            if(entityIndex > m_validEntityIndex)
+                break;
+
+            // Process an entity.
+            (*subsystem)->Process(&m_entities[entityIndex]);
         }
 
         (*subsystem)->FinishProcessing();
