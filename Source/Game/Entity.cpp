@@ -1,5 +1,6 @@
 #include "Precompiled.hpp"
 #include "Entity.hpp"
+#include "EntitySystem.hpp"
 
 Entity::Entity() :
     m_entitySystem(nullptr)
@@ -35,6 +36,11 @@ Entity& Entity::operator=(Entity&& other)
     }
 
     return *this;
+}
+
+void Entity::Destroy()
+{
+    m_entitySystem->DestroyEntity(m_handle);
 }
 
 EntitySystem* Entity::GetEntitySystem()

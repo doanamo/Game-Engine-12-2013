@@ -25,6 +25,9 @@ public:
     Entity(Entity&& other);
     Entity& operator=(Entity&& other);
 
+    // Destroys the entity.
+    void Destroy();
+
     // Adds a component.
     template<typename Type>
     bool InsertComponent(std::unique_ptr<Type>& component);
