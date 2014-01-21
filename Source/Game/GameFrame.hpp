@@ -3,6 +3,8 @@
 #include "Precompiled.hpp"
 #include "BaseFrame.hpp"
 
+#include "InputState.hpp"
+
 #include "EntitySystem.hpp"
 #include "ScriptSystem.hpp"
 #include "RenderSystem.hpp"
@@ -25,6 +27,8 @@ public:
     void Draw();
 
 private:
+    InputState m_inputState;
+
     EntitySystem m_entitySystem;
     ScriptSystem m_scriptSystem;
     RenderSystem m_renderSystem;

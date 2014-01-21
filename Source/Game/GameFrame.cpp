@@ -6,6 +6,7 @@
 #include "GameContext.hpp"
 
 #include "Transform.hpp"
+#include "Input.hpp"
 #include "Script.hpp"
 #include "Render.hpp"
 
@@ -47,11 +48,6 @@ namespace
         float m_lifeTime;
     };
 
-    void CreateProjectile(EntitySystem* entitySystem, glm::vec2 position)
-    {
-        
-    }
-
     // Player script.
     class ScriptPlayer : public ScriptObject
     {
@@ -69,13 +65,16 @@ namespace
             Transform* transform = entity->GetComponent<Transform>();
             if(transform == nullptr) return;
 
+            Input* input = entity->GetComponent<Input>();
+            if(input == nullptr) return;
+
             // Get keyboard state.
             const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 
             // Shoot a projectile.
             m_shootTime = std::max(0.0f, m_shootTime - timeDelta);
 
-            if(keyboardState[SDL_SCANCODE_SPACE])
+            if(input->GetState()->IsKeyDown(SDL_SCANCODE_SPACE))
             {
                 if(m_shootTime == 0.0f)
                 {
@@ -104,29 +103,29 @@ namespace
                     // Create a projectile entity.
                     CreateProjectile(entity->GetEntitySystem(), transform->GetPosition());
 
-                    m_shootTime = 0.2f;
+                    m_shootTime = 0.34f;
                 }
             }
 
             // Create a direction vector.
             glm::vec2 direction(0.0f, 0.0f);
 
-            if(keyboardState[SDL_SCANCODE_D])
+            if(input->GetState()->IsKeyDown(SDL_SCANCODE_D))
             {
                 direction.x = 1.0f;
             }
 
-            if(keyboardState[SDL_SCANCODE_A])
+            if(input->GetState()->IsKeyDown(SDL_SCANCODE_A))
             {
                 direction.x = -1.0f;
             }
 
-            if(keyboardState[SDL_SCANCODE_W])
+            if(input->GetState()->IsKeyDown(SDL_SCANCODE_W))
             {
                 direction.y = 1.0f;
             }
 
-            if(keyboardState[SDL_SCANCODE_S])
+            if(input->GetState()->IsKeyDown(SDL_SCANCODE_S))
             {
                 direction.y = -1.0f;
             }
@@ -169,6 +168,10 @@ bool GameFrame::Initialize()
         }
     });
 
+    // Initialize the input state.
+    if(!m_inputState.Initialize())
+        return false;
+
     // Initialize the script system.
     if(!m_scriptSystem.Initialize())
         return false;
@@ -193,6 +196,10 @@ bool GameFrame::Initialize()
         transform->SetScale(glm::vec2(1.0f, 1.0f));
         transform->SetRotation(0.0f);
         entity->InsertComponent(transform);
+
+        std::unique_ptr<Input> input(new Input());
+        input->SetStateReference(&m_inputState);
+        entity->InsertComponent(input);
 
         std::unique_ptr<Script> script(new Script());
         script->SetScript(std::make_unique<ScriptPlayer>());
@@ -246,8 +253,11 @@ bool GameFrame::Process(const SDL_Event& event)
         {
             Game::StateMachine().ChangeState(&Game::MenuFrame());
         }
-        return true;
+        break;
     }
+
+    // Update current input state.
+    m_inputState.Process(event);
 
     return false;
 }
