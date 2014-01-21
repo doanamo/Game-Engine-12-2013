@@ -61,6 +61,9 @@ void RenderSystem::FinishProcessing()
 
 void RenderSystem::Draw()
 {
+    if(m_shapes.empty())
+        return;
+
     // Draw shapes.
     Main::ShapeRenderer().DrawQuads(&m_shapes[0], m_shapes.size(), m_projection);
 
