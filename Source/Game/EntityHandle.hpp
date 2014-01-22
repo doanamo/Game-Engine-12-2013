@@ -16,7 +16,7 @@ struct EntityHandle
     }
 
     // Comparison operator.
-    bool operator==(const EntityHandle& other)
+    bool operator==(const EntityHandle& other) const
     {
         return identifier == other.identifier && version == other.version;
     }
