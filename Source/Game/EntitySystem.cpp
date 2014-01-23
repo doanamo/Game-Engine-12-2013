@@ -115,7 +115,7 @@ EntityHandle EntitySystem::CreateEntity()
     // Add a create entity commands.
     EntityCommand command;
     command.type = EntityCommands::Create;
-    command.handleIndex = handleIndex;
+    command.handle = handleEntry.handle;
     
     m_commands.push_back(command);
 
@@ -136,7 +136,7 @@ void EntitySystem::DestroyEntity(const EntityHandle& entity)
     // Add a destroy entity command.
     EntityCommand command;
     command.type = EntityCommands::Destroy;
-    command.handleIndex = handleIndex;
+    command.handle = handleEntry.handle;
 
     m_commands.push_back(command);
 }
@@ -219,10 +219,15 @@ void EntitySystem::ProcessCommands()
         case EntityCommands::Create:
             {
                 // Locate the handle entry.
-                int handleIndex = command->handleIndex;
+                int handleIndex = command->handle.identifier - 1;
                 HandleEntry& handleEntry = m_handles[handleIndex];
 
-                // Marks handle as active.
+                // Make sure handles match.
+                assert(command->handle == handleEntry.handle);
+
+                // Mark handle as active.
+                assert(handleEntry.active == false);
+
                 handleEntry.active = true;
 
                 // Inform about the created entity.
@@ -233,13 +238,22 @@ void EntitySystem::ProcessCommands()
         case EntityCommands::Destroy:
             {
                 // Locate the handle entry.
-                int handleIndex = command->handleIndex;
+                int handleIndex = command->handle.identifier - 1;
                 HandleEntry& handleEntry = m_handles[handleIndex];
+
+                // Check if handles match.
+                if(command->handle != handleEntry.handle)
+                {
+                    // Trying to destroy an enity twice.
+                    continue;
+                }
 
                 // Inform about the soon to be destroyed entity.
                 OnDestroyEntity(handleEntry.handle);
 
                 // Mark handle as inactive.
+                assert(handleEntry.active == true);
+
                 handleEntry.active = false;
 
                 // Increment the handle version to invalidate it.

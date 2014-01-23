@@ -34,7 +34,7 @@ public:
     struct EntityCommand
     {
         EntityCommands::Type type;
-        int handleIndex;
+        EntityHandle handle;
     };
 
 private:

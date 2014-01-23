@@ -21,6 +21,11 @@ struct EntityHandle
         return identifier == other.identifier && version == other.version;
     }
 
+    bool operator!=(const EntityHandle& other) const
+    {
+        return identifier != other.identifier || version != other.version;
+    }
+
     // Handle data.
     int identifier;
     int version;
