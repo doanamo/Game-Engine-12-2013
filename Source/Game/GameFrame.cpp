@@ -6,11 +6,14 @@
 #include "GameContext.hpp"
 
 #include "InputState.hpp"
+
 #include "EntitySystem.hpp"
+#include "CollisionSystem.hpp"
 #include "ScriptSystem.hpp"
 #include "RenderSystem.hpp"
 
 #include "Transform.hpp"
+#include "Collision.hpp"
 #include "Input.hpp"
 #include "Script.hpp"
 #include "Render.hpp"
@@ -85,6 +88,9 @@ namespace
                         transform->SetPosition(position);
                         transform->SetScale(glm::vec2(1.0f, 1.0f));
                         transform->SetRotation(0.0f);
+
+                        Collision* collision = Game::CollisionComponents().Create(entity);
+                        collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
 
                         Script* script = Game::ScriptComponents().Create(entity);
                         script->SetScript(std::make_shared<ScriptProjectile>());
@@ -180,14 +186,18 @@ bool GameFrame::Initialize()
         render->SetColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
     }
 
-    for(int i = 0; i < 4; ++i)
+    for(int x = 0; x < 10; ++x)
+    for(int y = 0; y < 8; ++y)
     {
         EntityHandle entity = Game::EntitySystem().CreateEntity();
 
         Transform* transform = Game::TransformComponents().Create(entity);
-        transform->SetPosition(glm::vec2(900.0f, 100.0f + i * 100.0f));
+        transform->SetPosition(glm::vec2(320.0f + x * 70.0f, 20.0f + y * 70.0f));
         transform->SetScale(glm::vec2(1.0f, 1.0f));
         transform->SetRotation(0.0f);
+
+        Collision* collision = Game::CollisionComponents().Create(entity);
+        collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
 
         Render* render = Game::RenderComponents().Create(entity);
         render->SetColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
@@ -226,6 +236,9 @@ void GameFrame::Update(float timeDelta)
 {
     // Process entity commands.
     Game::EntitySystem().ProcessCommands();
+
+    // Update collision system.
+    Game::CollisionSystem().Update();
 
     // Update script system.
     Game::ScriptSystem().Update(timeDelta);

@@ -7,10 +7,12 @@
 #include "InputState.hpp"
 
 #include "EntitySystem.hpp"
+#include "CollisionSystem.hpp"
 #include "ScriptSystem.hpp"
 #include "RenderSystem.hpp"
 
 #include "Transform.hpp"
+#include "Collision.hpp"
 #include "Input.hpp"
 #include "Script.hpp"
 #include "Render.hpp"
@@ -28,11 +30,13 @@ namespace
 
     InputState inputState;
 
-    EntitySystem entitySystem;
-    ScriptSystem scriptSystem;
-    RenderSystem renderSystem;
+    EntitySystem    entitySystem;
+    CollisionSystem collisionSystem;
+    ScriptSystem    scriptSystem;
+    RenderSystem    renderSystem;
 
     ComponentPool<Transform> transformComponents;
+    ComponentPool<Collision> collisionComponents;
     ComponentPool<Input>     inputComponents;
     ComponentPool<Script>    scriptComponents;
     ComponentPool<Render>    renderComponents;
@@ -80,6 +84,10 @@ bool Game::Initialize()
     // Entity Systems
     //
 
+    // Initialize the collision system.
+    if(!collisionSystem.Initialize())
+        return false;
+
     // Initialize the script system.
     if(!scriptSystem.Initialize())
         return false;
@@ -94,6 +102,7 @@ bool Game::Initialize()
 
     // Subscribe component pools to the entity system.
     entitySystem.RegisterSubscriber(&transformComponents);
+    entitySystem.RegisterSubscriber(&collisionComponents);
     entitySystem.RegisterSubscriber(&inputComponents);
     entitySystem.RegisterSubscriber(&scriptComponents);
     entitySystem.RegisterSubscriber(&renderComponents);
@@ -137,8 +146,10 @@ void Game::Cleanup()
     // Entity Systems
     //
     
+    collisionSystem.Cleanup();
     scriptSystem.Cleanup();
     renderSystem.Cleanup();
+
     entitySystem.Cleanup();
 
     //
@@ -146,6 +157,7 @@ void Game::Cleanup()
     //
 
     transformComponents.Cleanup();
+    collisionComponents.Cleanup();
     inputComponents.Cleanup();
     scriptComponents.Cleanup();
     renderComponents.Cleanup();
@@ -199,6 +211,11 @@ EntitySystem& Game::EntitySystem()
     return entitySystem;
 }
 
+CollisionSystem& Game::CollisionSystem()
+{
+    return collisionSystem;
+}
+
 ScriptSystem& Game::ScriptSystem()
 {
     return scriptSystem;
@@ -212,6 +229,11 @@ RenderSystem& Game::RenderSystem()
 ComponentPool<Transform>& Game::TransformComponents()
 {
     return transformComponents;
+}
+
+ComponentPool<Collision>& Game::CollisionComponents()
+{
+    return collisionComponents;
 }
 
 ComponentPool<Input>& Game::InputComponents()
