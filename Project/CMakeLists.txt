@@ -153,7 +153,7 @@ Set(SourceFiles
     "Game/GameFrame.hpp"
     "Game/GameFrame.cpp"
     "Game/Component.hpp"
-    "Game/ComponentContainer.hpp"
+    "Game/ComponentPool.hpp"
     "Game/EntityHandle.hpp"
     "Game/EntitySubscriber.hpp"
     "Game/EntitySystem.hpp"

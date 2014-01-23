@@ -32,10 +32,10 @@ namespace
     ScriptSystem scriptSystem;
     RenderSystem renderSystem;
 
-    ComponentContainer<Transform> transformComponents;
-    ComponentContainer<Input>     inputComponents;
-    ComponentContainer<Script>    scriptComponents;
-    ComponentContainer<Render>    renderComponents;
+    ComponentPool<Transform> transformComponents;
+    ComponentPool<Input>     inputComponents;
+    ComponentPool<Script>    scriptComponents;
+    ComponentPool<Render>    renderComponents;
 
     StateMachine<BaseFrame> stateMachine;
     MenuFrame               frameMenu;
@@ -89,10 +89,10 @@ bool Game::Initialize()
         return false;
 
     //
-    // Component Containers
+    // Component Pools
     //
 
-    // Subscribe component containers to the entity system.
+    // Subscribe component pools to the entity system.
     entitySystem.RegisterSubscriber(&transformComponents);
     entitySystem.RegisterSubscriber(&inputComponents);
     entitySystem.RegisterSubscriber(&scriptComponents);
@@ -142,7 +142,7 @@ void Game::Cleanup()
     entitySystem.Cleanup();
 
     //
-    // Component Containers
+    // Component Pools
     //
 
     transformComponents.Cleanup();
@@ -209,22 +209,22 @@ RenderSystem& Game::RenderSystem()
     return renderSystem;
 }
 
-ComponentContainer<Transform>& Game::TransformComponents()
+ComponentPool<Transform>& Game::TransformComponents()
 {
     return transformComponents;
 }
 
-ComponentContainer<Input>& Game::InputComponents()
+ComponentPool<Input>& Game::InputComponents()
 {
     return inputComponents;
 }
 
-ComponentContainer<Script>& Game::ScriptComponents()
+ComponentPool<Script>& Game::ScriptComponents()
 {
     return scriptComponents;
 }
 
-ComponentContainer<Render>& Game::RenderComponents()
+ComponentPool<Render>& Game::RenderComponents()
 {
     return renderComponents;
 }

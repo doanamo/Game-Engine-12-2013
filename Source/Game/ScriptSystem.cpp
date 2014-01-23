@@ -4,7 +4,6 @@
 
 #include "GameContext.hpp"
 #include "EntitySystem.hpp"
-#include "ComponentContainer.hpp"
 
 ScriptSystem::ScriptSystem()
 {

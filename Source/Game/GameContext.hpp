@@ -2,7 +2,7 @@
 
 #include "Precompiled.hpp"
 #include "Common/StateMachine.hpp"
-#include "ComponentContainer.hpp"
+#include "ComponentPool.hpp"
 
 // Forward declarations.
 class InputState;
@@ -39,10 +39,10 @@ namespace Game
     ScriptSystem& ScriptSystem();
     RenderSystem& RenderSystem();
 
-    ComponentContainer<Transform>& TransformComponents();
-    ComponentContainer<Input>&     InputComponents();
-    ComponentContainer<Script>&    ScriptComponents();
-    ComponentContainer<Render>&    RenderComponents();
+    ComponentPool<Transform>& TransformComponents();
+    ComponentPool<Input>&     InputComponents();
+    ComponentPool<Script>&    ScriptComponents();
+    ComponentPool<Render>&    RenderComponents();
 
     StateMachine<BaseFrame>& StateMachine();
     MenuFrame&               MenuFrame();

@@ -6,11 +6,11 @@
 #include "EntitySubscriber.hpp"
 
 //
-// Component Container
+// Component Pool
 //
 
 template<typename Type>
-class ComponentContainer : public EntitySubscriber
+class ComponentPool : public EntitySubscriber
 {
 public:
     // Check template type.
@@ -21,11 +21,11 @@ public:
     typedef typename ComponentList::iterator       ComponentIterator;
 
 public:
-    ComponentContainer()
+    ComponentPool()
     {
     }
 
-    ~ComponentContainer()
+    ~ComponentPool()
     {
     }
 
