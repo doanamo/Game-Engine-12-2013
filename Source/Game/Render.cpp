@@ -9,13 +9,3 @@ Render::Render() :
 Render::~Render()
 {
 }
-
-void Render::SetColor(const glm::vec4& color)
-{
-    m_color = color;
-}
-
-const glm::vec4& Render::GetColor() const
-{
-    return m_color;
-}

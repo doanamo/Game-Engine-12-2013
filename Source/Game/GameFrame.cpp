@@ -5,6 +5,11 @@
 #include "MainContext.hpp"
 #include "GameContext.hpp"
 
+#include "InputState.hpp"
+#include "EntitySystem.hpp"
+#include "ScriptSystem.hpp"
+#include "RenderSystem.hpp"
+
 #include "Transform.hpp"
 #include "Input.hpp"
 #include "Script.hpp"
@@ -21,12 +26,10 @@ namespace
         {
         }
 
-        void Execute(Entity* entity, float timeDelta)
+        void Execute(EntityHandle entity, float timeDelta)
         {
-            assert(entity != nullptr);
-
             // Check if entity has needed components.
-            Transform* transform = entity->GetComponent<Transform>();
+            Transform* transform = Game::TransformComponents().Lookup(entity);
             if(transform == nullptr) return;
 
             // Check if the projectile reached it's lifetime.
@@ -34,7 +37,7 @@ namespace
 
             if(m_lifeTime >= 1.0f)
             {
-                entity->Destroy();
+                Game::EntitySystem().DestroyEntity(entity);
                 return;
             }
 
@@ -57,19 +60,14 @@ namespace
         {
         }
 
-        void Execute(Entity* entity, float timeDelta)
+        void Execute(EntityHandle entity, float timeDelta)
         {
-            assert(entity != nullptr);
-
             // Check if entity has needed components.
-            Transform* transform = entity->GetComponent<Transform>();
+            Transform* transform = Game::TransformComponents().Lookup(entity);
             if(transform == nullptr) return;
 
-            Input* input = entity->GetComponent<Input>();
+            Input* input = Game::InputComponents().Lookup(entity);
             if(input == nullptr) return;
-
-            // Get keyboard state.
-            const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
 
             // Shoot a projectile.
             m_shootTime = std::max(0.0f, m_shootTime - timeDelta);
@@ -79,29 +77,24 @@ namespace
                 if(m_shootTime == 0.0f)
                 {
                     // Projectile factory method.
-                    auto CreateProjectile = [](EntitySystem* entitySystem, glm::vec2 position)
+                    auto CreateProjectile = [](glm::vec2 position)
                     {
-                        // Create an entity.
-                        Entity* entity = entitySystem->CreateEntity();
+                        EntityHandle entity = Game::EntitySystem().CreateEntity();
 
-                        // Create components.
-                        std::unique_ptr<Transform> transform(new Transform());
+                        Transform* transform = Game::TransformComponents().Create(entity);
                         transform->SetPosition(position);
                         transform->SetScale(glm::vec2(1.0f, 1.0f));
                         transform->SetRotation(0.0f);
-                        entity->InsertComponent(transform);
 
-                        std::unique_ptr<Script> script(new Script());
-                        script->SetScript(std::make_unique<ScriptProjectile>());
-                        entity->InsertComponent(script);
+                        Script* script = Game::ScriptComponents().Create(entity);
+                        script->SetScript(std::make_shared<ScriptProjectile>());
 
-                        std::unique_ptr<Render> render(new Render());
+                        Render* render = Game::RenderComponents().Create(entity);
                         render->SetColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
-                        entity->InsertComponent(render);
                     };
 
                     // Create a projectile entity.
-                    CreateProjectile(entity->GetEntitySystem(), transform->GetPosition());
+                    CreateProjectile(transform->GetPosition());
 
                     m_shootTime = 0.34f;
                 }
@@ -168,63 +161,36 @@ bool GameFrame::Initialize()
         }
     });
 
-    // Initialize the input state.
-    if(!m_inputState.Initialize())
-        return false;
-
-    // Initialize the script system.
-    if(!m_scriptSystem.Initialize())
-        return false;
-
-    m_entitySystem.RegisterSubsystem(&m_scriptSystem);
-
-    // Initialize the render system.
-    if(!m_renderSystem.Initialize())
-        return false;
-
-    m_entitySystem.RegisterSubsystem(&m_renderSystem);
-
     // Create entities.
     {
-        // Create an entity.
-        Entity* entity = m_entitySystem.CreateEntity();
-        m_playerHandle = entity->GetHandle();
+        EntityHandle entity = Game::EntitySystem().CreateEntity();
 
-        // Create components.
-        std::unique_ptr<Transform> transform(new Transform());
+        Transform* transform = Game::TransformComponents().Create(entity);
         transform->SetPosition(glm::vec2(50.0f, 275.0f));
         transform->SetScale(glm::vec2(1.0f, 1.0f));
         transform->SetRotation(0.0f);
-        entity->InsertComponent(transform);
 
-        std::unique_ptr<Input> input(new Input());
-        input->SetStateReference(&m_inputState);
-        entity->InsertComponent(input);
+        Input* input = Game::InputComponents().Create(entity);
+        input->SetStateReference(&Game::InputState());
 
-        std::unique_ptr<Script> script(new Script());
-        script->SetScript(std::make_unique<ScriptPlayer>());
-        entity->InsertComponent(script);
+        Script* script = Game::ScriptComponents().Create(entity);
+        script->SetScript(std::make_shared<ScriptPlayer>());
 
-        std::unique_ptr<Render> render(new Render());
+        Render* render = Game::RenderComponents().Create(entity);
         render->SetColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-        entity->InsertComponent(render);
     }
 
     for(int i = 0; i < 4; ++i)
     {
-        // Create an entity.
-        Entity* entity = m_entitySystem.CreateEntity();
+        EntityHandle entity = Game::EntitySystem().CreateEntity();
 
-        // Create components.
-        std::unique_ptr<Transform> transform(new Transform());
+        Transform* transform = Game::TransformComponents().Create(entity);
         transform->SetPosition(glm::vec2(900.0f, 100.0f + i * 100.0f));
         transform->SetScale(glm::vec2(1.0f, 1.0f));
         transform->SetRotation(0.0f);
-        entity->InsertComponent(transform);
 
-        std::unique_ptr<Render> render(new Render());
+        Render* render = Game::RenderComponents().Create(entity);
         render->SetColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-        entity->InsertComponent(render);
     }
 
     // Success!
@@ -235,12 +201,6 @@ bool GameFrame::Initialize()
 
 void GameFrame::Cleanup()
 {
-    m_playerHandle = EntityHandle();
-
-    m_entitySystem.Cleanup();
-    m_scriptSystem.Cleanup();
-    m_renderSystem.Cleanup();
-
     m_initialized = false;
 }
 
@@ -256,16 +216,22 @@ bool GameFrame::Process(const SDL_Event& event)
         break;
     }
 
-    // Update current input state.
-    m_inputState.Process(event);
+    // Process input events.
+    Game::InputState().Process(event);
 
     return false;
 }
 
-void GameFrame::Update(float dt)
+void GameFrame::Update(float timeDelta)
 {
-    // Update entities.
-    m_entitySystem.Update(dt);
+    // Process entity commands.
+    Game::EntitySystem().ProcessCommands();
+
+    // Update script system.
+    Game::ScriptSystem().Update(timeDelta);
+
+    // Update render system.
+    Game::RenderSystem().Update();
 }
 
 void GameFrame::Draw()
@@ -277,5 +243,5 @@ void GameFrame::Draw()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Render entities.
-    m_renderSystem.Draw();
+    Game::RenderSystem().Draw();
 }

@@ -2,9 +2,7 @@
 
 #include "Precompiled.hpp"
 #include "Component.hpp"
-
-// Forward declarations.
-class Entity;
+#include "EntityHandle.hpp"
 
 //
 // Script Object
@@ -13,7 +11,7 @@ class Entity;
 class ScriptObject
 {
 public:
-    virtual void Execute(Entity* entity, float timeDelta) = 0;
+    virtual void Execute(EntityHandle entity, float timeDelta) = 0;
 };
 
 //
@@ -26,20 +24,24 @@ public:
     // Friend declarations.
     friend class ScriptSystem;
 
+    // Type declarations.
+    typedef std::shared_ptr<ScriptObject> ScriptPtr;
+
 public:
     Script();
     ~Script();
 
-    template<typename Type>
-    void SetScript(std::unique_ptr<Type>& object);
+    void SetScript(ScriptPtr script)
+    {
+        m_script = script;
+    }
 
+    ScriptPtr GetScript()
+    {
+        return m_script;
+    }
+    
 private:
     // Script object.
-    std::unique_ptr<ScriptObject> m_object;
+    ScriptPtr m_script;
 };
-
-template<typename Type>
-void Script::SetScript(std::unique_ptr<Type>& object)
-{
-    m_object = std::move(object);
-}

@@ -25,3 +25,20 @@ struct EntityHandle
     int identifier;
     int version;
 };
+
+//
+// Handle Hash
+//
+
+namespace std
+{
+    template<>
+    struct hash<EntityHandle>
+    {
+        std::size_t operator()(const EntityHandle& handle) const
+        {
+            // Use the identifier as a hash.
+            return handle.identifier;
+        }
+    };
+}

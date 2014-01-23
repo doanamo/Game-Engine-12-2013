@@ -2,9 +2,10 @@
 #include "RenderSystem.hpp"
 #include "Transform.hpp"
 #include "Render.hpp"
-#include "Entity.hpp"
 
 #include "MainContext.hpp"
+#include "GameContext.hpp"
+#include "EntitySystem.hpp"
 
 RenderSystem::RenderSystem()
 {
@@ -27,7 +28,7 @@ bool RenderSystem::Initialize()
     return true;
 }
 
-void RenderSystem::PrepareProcessing()
+void RenderSystem::Update()
 {
     // Get current window size.
     int windowWidth = Console::windowWidth;
@@ -35,28 +36,31 @@ void RenderSystem::PrepareProcessing()
 
     // Setup projection.
     m_projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
-}
 
-void RenderSystem::Process(Entity* entity)
-{
-    // Check if entity contains needed components.
-    Transform* transform = entity->GetComponent<Transform>();
-    if(transform == nullptr) return;
+    // Process render components.
+    for(auto it = Game::RenderComponents().Begin(); it != Game::RenderComponents().End(); ++it)
+    {
+        // Check if entity is active.
+        if(!Game::EntitySystem().IsHandleValid(it->first))
+            continue;
 
-    Render* render = entity->GetComponent<Render>();
-    if(render == nullptr) return;
+        // Get the render component.
+        Render& render = it->second;
+    
+        // Get other components.
+        Transform* transform = Game::TransformComponents().Lookup(it->first);
 
-    // Add a shape to render.
-    ShapeRenderer::Quad shape;
-    shape.color = render->GetColor();
-    shape.size = glm::vec2(50.0f, 50.0f);
-    shape.position = transform->GetPosition();
+        if(transform == nullptr)
+            continue;
 
-    m_shapes.push_back(shape);
-}
+        // Add a shape to render.
+        ShapeRenderer::Quad shape;
+        shape.color = render.GetColor();
+        shape.size = glm::vec2(50.0f, 50.0f);
+        shape.position = transform->GetPosition();
 
-void RenderSystem::FinishProcessing()
-{
+        m_shapes.push_back(shape);
+    }
 }
 
 void RenderSystem::Draw()

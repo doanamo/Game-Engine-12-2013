@@ -1,10 +1,8 @@
 #pragma once
 
 #include "Precompiled.hpp"
-#include "Entity.hpp"
-
-// Forward declarations.
-class EntitySubsystem;
+#include "EntityHandle.hpp"
+#include "EntitySubscriber.hpp"
 
 //
 // Entity System
@@ -12,38 +10,13 @@ class EntitySubsystem;
 
 class EntitySystem
 {
-private:
+public:
     // Handle entry structure.
     struct HandleEntry
     {
         EntityHandle handle;
-        int entityIndex;
         int nextFree;
-    };
-
-    // Entity result structure.
-    struct EntityResult
-    {
-        // Constructor.
-        EntityResult(Entity* entity) :
-            entity(entity)
-        {
-            assert(entity != nullptr);
-        }
-
-        // Conversion operators.
-        operator Entity*() const
-        {
-            return entity;
-        }
-
-        operator EntityHandle() const
-        {
-            return entity->GetHandle();
-        }
-
-        // Result data.
-        Entity* entity;
+        bool active;
     };
 
     // Entity commands.
@@ -61,15 +34,14 @@ private:
     struct EntityCommand
     {
         EntityCommands::Type type;
-        HandleEntry handleEntry;
+        int handleIndex;
     };
 
 private:
     // Type declarations.
-    typedef std::vector<EntitySubsystem*> SubsystemList;
-    typedef std::vector<Entity>           EntityList;
-    typedef std::vector<HandleEntry>      HandleList;
-    typedef std::vector<EntityCommand>    CommandList;
+    typedef std::vector<EntitySubscriber*> SubscriberList;
+    typedef std::vector<HandleEntry>       HandleList;
+    typedef std::vector<EntityCommand>     CommandList;
 
 public:
     EntitySystem();
@@ -78,59 +50,43 @@ public:
     // Restores class instance to it's original state.
     void Cleanup();
 
-    // Registers an entity subsystem.
-    bool RegisterSubsystem(EntitySubsystem* subsystem);
+    // Registers an entity subscriber.
+    bool RegisterSubscriber(EntitySubscriber* subscriber);
 
     // Creates an entity.
-    EntityResult CreateEntity();
-
-    // Lookups an entity.
-    Entity* LookupEntity(const EntityHandle& handle);
+    EntityHandle CreateEntity();
 
     // Destroys an entity.
-    void DestroyEntity(const EntityHandle& handle);
+    void DestroyEntity(const EntityHandle& entity);
 
     // Destroys all entities.
     void DestroyAllEntities();
 
     // Checks if an entity handle is valid.
-    bool IsHandleValid(const EntityHandle& handle) const;
+    bool IsHandleValid(const EntityHandle& entity) const;
 
-    // Updates all entities.
-    void Update(float timeDelta);
-
-    // Gets the current time delta.
-    float GetTimeDelta();
-
-private:
-    // Process commands.
+    // Process entity commands.
     void ProcessCommands();
 
+private:
     // Called on creating an entity.
-    void OnCreateEntity(Entity* entity);
+    void OnCreateEntity(const EntityHandle& entity);
 
     // Called on destroying an entity.
-    void OnDestroyEntity(Entity* entity);
+    void OnDestroyEntity(const EntityHandle& entity);
 
 private:
-    // List of entity subsystems.
-    SubsystemList m_subsystems;
+    // List of subscribers.
+    SubscriberList m_subscribers;
 
     // List of commands.
     CommandList m_commands;
 
     // List of entities.
-    EntityList m_entities;
     HandleList m_handles;
-
-    // Range of valid entities.
-    int m_validEntityIndex;
 
     // List of free handles.
     int  m_freeListDequeue;
     int  m_freeListEnqueue;
     bool m_freeListEmpty;
-
-    // Current frame time delta.
-    float m_timeDelta;
 };

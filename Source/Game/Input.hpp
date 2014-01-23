@@ -17,8 +17,15 @@ public:
     Input();
     ~Input();
 
-    void SetStateReference(InputState* state);
-    const InputState* GetState() const;
+    void SetStateReference(InputState* state)
+    {
+        m_state = state;
+    }
+
+    const InputState* GetState() const
+    {
+        return m_state;
+    }
 
 private:
     InputState* m_state;

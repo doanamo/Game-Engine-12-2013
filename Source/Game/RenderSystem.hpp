@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Precompiled.hpp"
-#include "EntitySubsystem.hpp"
 #include "Graphics/ShapeRenderer.hpp"
 
 // Forward declarations.
@@ -11,7 +10,7 @@ class Entity;
 // Render System
 //
 
-class RenderSystem : public EntitySubsystem
+class RenderSystem
 {
 public:
     RenderSystem();
@@ -20,17 +19,8 @@ public:
     bool Initialize();
     void Cleanup();
 
+    void Update();
     void Draw();
-
-private:
-    // Prepares processing.
-    void PrepareProcessing();
-
-    // Processes an entity.
-    void Process(Entity* entity);
-
-    // Finishes processing.
-    void FinishProcessing();
 
 private:
     // Render shapes.

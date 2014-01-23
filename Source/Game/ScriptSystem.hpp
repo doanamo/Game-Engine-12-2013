@@ -1,13 +1,12 @@
 #pragma once
 
 #include "Precompiled.hpp"
-#include "EntitySubsystem.hpp"
 
 //
 // Script System
 //
 
-class ScriptSystem : public EntitySubsystem
+class ScriptSystem
 {
 public:
     ScriptSystem();
@@ -16,9 +15,7 @@ public:
     bool Initialize();
     void Cleanup();
 
-private:
-    // Processes an entity.
-    void Process(Entity* entity);
+    void Update(float timeDelta);
 
 private:
     //

@@ -9,13 +9,3 @@ Input::Input() :
 Input::~Input()
 {
 }
-
-void Input::SetStateReference(InputState* state)
-{
-    m_state = state;
-}
-
-const InputState* Input::GetState() const
-{
-    return m_state;
-}

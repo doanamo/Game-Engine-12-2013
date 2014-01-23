@@ -28,33 +28,3 @@ glm::vec2 Transform::CalculateDirection()
     output.y = glm::cos(glm::radians(m_rotation));
     return output;
 }
-
-void Transform::SetPosition(const glm::vec2& position)
-{
-    m_position = position;
-}
-
-void Transform::SetScale(const glm::vec2& scale)
-{
-    m_scale = scale;
-}
-
-void Transform::SetRotation(float rotation)
-{
-    m_rotation = glm::mod(rotation, 360.0f);
-}
-
-const glm::vec2& Transform::GetPosition() const
-{
-    return m_position;
-}
-
-const glm::vec2& Transform::GetScale() const
-{
-    return m_scale;
-}
-
-float Transform::GetRotation() const
-{
-    return m_rotation;
-}

@@ -2,6 +2,19 @@
 #include "GameContext.hpp"
 #include "MainContext.hpp"
 
+#include "Common/StateMachine.hpp"
+
+#include "InputState.hpp"
+
+#include "EntitySystem.hpp"
+#include "ScriptSystem.hpp"
+#include "RenderSystem.hpp"
+
+#include "Transform.hpp"
+#include "Input.hpp"
+#include "Script.hpp"
+#include "Render.hpp"
+
 #include "MenuFrame.hpp"
 #include "GameFrame.hpp"
 
@@ -12,6 +25,17 @@
 namespace
 {
     bool isInitialized;
+
+    InputState inputState;
+
+    EntitySystem entitySystem;
+    ScriptSystem scriptSystem;
+    RenderSystem renderSystem;
+
+    ComponentContainer<Transform> transformComponents;
+    ComponentContainer<Input>     inputComponents;
+    ComponentContainer<Script>    scriptComponents;
+    ComponentContainer<Render>    renderComponents;
 
     StateMachine<BaseFrame> stateMachine;
     MenuFrame               frameMenu;
@@ -45,6 +69,36 @@ bool Game::Initialize()
     });
 
     //
+    // Input State
+    //
+
+    // Initialize the input state.
+    if(!inputState.Initialize())
+        return false;
+
+    //
+    // Entity Systems
+    //
+
+    // Initialize the script system.
+    if(!scriptSystem.Initialize())
+        return false;
+
+    // Initialize the render system.
+    if(!renderSystem.Initialize())
+        return false;
+
+    //
+    // Component Containers
+    //
+
+    // Subscribe component containers to the entity system.
+    entitySystem.RegisterSubscriber(&transformComponents);
+    entitySystem.RegisterSubscriber(&inputComponents);
+    entitySystem.RegisterSubscriber(&scriptComponents);
+    entitySystem.RegisterSubscriber(&renderComponents);
+
+    //
     // Menu Frame
     //
 
@@ -72,6 +126,29 @@ bool Game::Initialize()
 void Game::Cleanup()
 {
     Log() << "Cleaning up the game context...";
+
+    //
+    // Input State
+    //
+
+    inputState.Cleanup();
+
+    //
+    // Entity Systems
+    //
+    
+    scriptSystem.Cleanup();
+    renderSystem.Cleanup();
+    entitySystem.Cleanup();
+
+    //
+    // Component Containers
+    //
+
+    transformComponents.Cleanup();
+    inputComponents.Cleanup();
+    scriptComponents.Cleanup();
+    renderComponents.Cleanup();
 
     //
     // Game Frames
@@ -110,4 +187,44 @@ MenuFrame& Game::MenuFrame()
 GameFrame& Game::GameFrame()
 {
     return frameGame;
+}
+
+InputState& Game::InputState()
+{
+    return inputState;
+}
+
+EntitySystem& Game::EntitySystem()
+{
+    return entitySystem;
+}
+
+ScriptSystem& Game::ScriptSystem()
+{
+    return scriptSystem;
+}
+
+RenderSystem& Game::RenderSystem()
+{
+    return renderSystem;
+}
+
+ComponentContainer<Transform>& Game::TransformComponents()
+{
+    return transformComponents;
+}
+
+ComponentContainer<Input>& Game::InputComponents()
+{
+    return inputComponents;
+}
+
+ComponentContainer<Script>& Game::ScriptComponents()
+{
+    return scriptComponents;
+}
+
+ComponentContainer<Render>& Game::RenderComponents()
+{
+    return renderComponents;
 }

@@ -14,10 +14,16 @@ public:
     ~Render();
 
     // Sets the color.
-    void SetColor(const glm::vec4& color);
+    void SetColor(const glm::vec4& color)
+    {
+        m_color = color;
+    }
 
     // Gets the color.
-    const glm::vec4& GetColor() const;
+    const glm::vec4& GetColor() const
+    {
+        return m_color;
+    }
 
 private:
     // Entity color.

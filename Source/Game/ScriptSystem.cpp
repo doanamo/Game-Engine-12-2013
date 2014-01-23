@@ -1,8 +1,10 @@
 #include "Precompiled.hpp"
 #include "ScriptSystem.hpp"
 #include "Script.hpp"
+
+#include "GameContext.hpp"
 #include "EntitySystem.hpp"
-#include "Entity.hpp"
+#include "ComponentContainer.hpp"
 
 ScriptSystem::ScriptSystem()
 {
@@ -24,17 +26,22 @@ void ScriptSystem::Cleanup()
 {
 }
 
-void ScriptSystem::Process(Entity* entity)
+void ScriptSystem::Update(float timeDelta)
 {
-    // Check if the entity contains needed component.
-    Script* script = entity->GetComponent<Script>();
-
-    if(script == nullptr)
-        return;
-
-    // Execute script function.
-    if(script->m_object != nullptr)
+    // Process script components.
+    for(auto it = Game::ScriptComponents().Begin(); it != Game::ScriptComponents().End(); ++it)
     {
-        script->m_object->Execute(entity, GetEntitySystem()->GetTimeDelta());
+        // Check if entity is active.
+        if(!Game::EntitySystem().IsHandleValid(it->first))
+            continue;
+
+        // Get the script component.
+        Script& script = it->second;
+
+        // Execute the script.
+        if(script.m_script != nullptr)
+        {
+            script.m_script->Execute(it->first, timeDelta);
+        }
     }
 }
