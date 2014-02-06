@@ -104,11 +104,8 @@ void MenuFrame::Cleanup()
 
 void MenuFrame::OnEnter()
 {
-    if(Game::GameFrame().IsInitialized())
-    {
-        // Enable "Continue" element if the game is active.
-        m_elements[MenuElements::Continue].enabled = true;
-    }
+    // Enable "Continue" element if the game is active.
+    m_elements[MenuElements::Continue].enabled = Game::GameFrame().IsInitialized();
 }
 
 bool MenuFrame::Process(const SDL_Event& event)
