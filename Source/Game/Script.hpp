@@ -15,7 +15,7 @@ public:
     {
     }
 
-    virtual void OnCollision(CollisionObject& object, CollisionObject& other)
+    virtual void OnCollision(CollisionObject& self, CollisionObject& other)
     {
     }
 };

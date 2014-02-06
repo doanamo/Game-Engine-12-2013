@@ -51,17 +51,17 @@ namespace
             transform->SetPosition(position);
         }
 
-        void OnCollision(CollisionObject& object, CollisionObject& other)
+        void OnCollision(CollisionObject& self, CollisionObject& other)
         {
-            assert(object.collision != nullptr);
+            assert(self.collision != nullptr);
             assert(other.collision != nullptr);
 
             // Disable collisions.
-            object.collision->Disable();
+            self.collision->Disable();
             other.collision->Disable();
 
             // Destroy both entities.
-            Game::EntitySystem().DestroyEntity(object.entity);
+            Game::EntitySystem().DestroyEntity(self.entity);
             Game::EntitySystem().DestroyEntity(other.entity);
         }
 
