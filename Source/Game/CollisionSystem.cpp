@@ -3,6 +3,8 @@
 
 #include "TransformComponent.hpp"
 #include "CollisionComponent.hpp"
+#include "ScriptComponent.hpp"
+#include "Script.hpp"
 
 #include "GameContext.hpp"
 #include "EntitySystem.hpp"
@@ -43,13 +45,12 @@ bool CollisionSystem::Initialize()
 
 void CollisionSystem::Cleanup()
 {
+    ClearContainer(m_objects);
 }
 
 void CollisionSystem::Update()
 {
-    // Warning: The below implementation is very naive.
-
-    // Process collision components.
+    // Create a list of collision objects.
     for(auto it = Game::CollisionComponents().Begin(); it != Game::CollisionComponents().End(); ++it)
     {
         // Check if entity is active.
@@ -57,9 +58,11 @@ void CollisionSystem::Update()
             continue;
 
         // Get the collision component.
-        CollisionComponent& collision = it->second;
+        CollisionComponent* collision = &it->second;
 
-        if(!collision.IsEnabled())
+        assert(collision != nullptr);
+
+        if(!collision->IsEnabled())
             continue;
 
         // Get the transform component.
@@ -68,51 +71,59 @@ void CollisionSystem::Update()
         if(transform == nullptr)
             continue;
 
-        // Transform the bounding box.
-        glm::vec4 boundingBox = collision.GetBoundingBox();
+        // Get the script component (not required).
+        ScriptComponent* script = Game::ScriptComponents().Lookup(it->first);
+
+        // Transform the bounding box to world space.
+        glm::vec4 boundingBox = collision->GetBoundingBox();
         TransformBoundingBox(&boundingBox, transform);
 
-        // Check if the entity collides with other entities.
-        for(auto other = Game::CollisionComponents().Begin(); other != Game::CollisionComponents().End(); ++other)
+        // Add a collision object.
+        CollisionObject object;
+        object.entity = it->first;
+        object.transform = transform;
+        object.collision = collision;
+        object.script = script;
+        object.worldAABB = boundingBox;
+
+        m_objects.push_back(object);
+    }
+
+    // Process collision objects.
+    for(auto it = m_objects.begin(); it != m_objects.end(); ++it)
+    {
+        // Need a script component for collision reaction.
+        if(it->script == nullptr)
+            continue;
+
+        // Check if collision is still enabled.
+        if(!it->collision->IsEnabled())
+            continue;
+
+        // Check if it collides with other objects.
+        for(auto other = m_objects.begin(); other != m_objects.end(); ++other)
         {
             // Don't check against itself.
             if(other == it)
                 continue;
 
-            // Check if entity is active.
-            if(!Game::EntitySystem().IsHandleValid(other->first))
+            // Check if collision is still enabled.
+            if(!other->collision->IsEnabled())
                 continue;
-
-            // Get the collision component.
-            CollisionComponent& otherCollision = other->second;
-
-            if(!otherCollision.IsEnabled())
-                continue;
-
-            // Get the transform component.
-            TransformComponent* otherTransform = Game::TransformComponents().Lookup(other->first);
-
-            if(transform == nullptr)
-                continue;
-
-            // Transform the bounding box.
-            glm::vec4 otherBoundingBox = otherCollision.GetBoundingBox();
-            TransformBoundingBox(&otherBoundingBox, otherTransform);
 
             // Check for collision.
-            if(IntersectBoundingBox(boundingBox, otherBoundingBox))
+            if(IntersectBoundingBox(it->worldAABB, other->worldAABB))
             {
-                // Disable collisions.
-                collision.Disable();
-                otherCollision.Disable();
+                // Execute object script.
+                it->script->GetScript()->OnCollision(*it, *other);
 
-                // Destroy both entities.
-                Game::EntitySystem().DestroyEntity(it->first);
-                Game::EntitySystem().DestroyEntity(other->first);
-
-                // Don't check for more.
-                break;
+                // Check if this collision object is still enabled.
+                if(!it->collision->IsEnabled())
+                    break;
             }
         }
     }
+
+    // Clear intermediate collision object list.
+    m_objects.clear();
 }

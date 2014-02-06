@@ -51,6 +51,20 @@ namespace
             transform->SetPosition(position);
         }
 
+        void OnCollision(CollisionObject& object, CollisionObject& other)
+        {
+            assert(object.collision != nullptr);
+            assert(other.collision != nullptr);
+
+            // Disable collisions.
+            object.collision->Disable();
+            other.collision->Disable();
+
+            // Destroy both entities.
+            Game::EntitySystem().DestroyEntity(object.entity);
+            Game::EntitySystem().DestroyEntity(other.entity);
+        }
+
     private:
         float m_lifeTime;
     };
