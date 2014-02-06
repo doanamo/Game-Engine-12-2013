@@ -11,17 +11,6 @@
 class MenuFrame : public BaseFrame
 {
 public:
-    MenuFrame();
-    ~MenuFrame();
-
-    bool Initialize();
-    void Cleanup();
-
-    bool Process(const SDL_Event& event);
-    void Update(float dt);
-    void Draw();
-
-public:
     // Menu elements.
     struct MenuElements
     {
@@ -37,6 +26,20 @@ public:
             None,
         };
     };
+
+public:
+    MenuFrame();
+    ~MenuFrame();
+
+    bool Initialize();
+    void Cleanup();
+
+    bool Process(const SDL_Event& event);
+    void Update(float dt);
+    void Draw();
+
+private:
+    void OnEnter();
 
 private:
     // Menu graphics.

@@ -226,6 +226,8 @@ bool GameFrame::Initialize()
 
 void GameFrame::Cleanup()
 {
+    Game::EntitySystem().DestroyAllEntities();
+
     m_initialized = false;
 }
 

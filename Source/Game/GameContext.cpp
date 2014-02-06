@@ -108,7 +108,7 @@ bool Game::Initialize()
     entitySystem.RegisterSubscriber(&renderComponents);
 
     //
-    // Menu Frame
+    // Main Frame
     //
 
     // Initialize the main menu frame.
@@ -119,14 +119,9 @@ bool Game::Initialize()
     stateMachine.ChangeState(&frameMenu);
 
     //
-    // Game Frame
+    // Success
     //
 
-    // Initialize the game frame.
-    if(!frameGame.Initialize())
-        return false;
-
-    // Success!
     isInitialized = true;
 
     return true;

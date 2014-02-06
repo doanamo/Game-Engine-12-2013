@@ -102,6 +102,15 @@ void MenuFrame::Cleanup()
     m_initialized = false;
 }
 
+void MenuFrame::OnEnter()
+{
+    if(Game::GameFrame().IsInitialized())
+    {
+        // Enable "Continue" element if the game is active.
+        m_elements[MenuElements::Continue].enabled = true;
+    }
+}
+
 bool MenuFrame::Process(const SDL_Event& event)
 {
     switch(event.type)
@@ -111,8 +120,23 @@ bool MenuFrame::Process(const SDL_Event& event)
         {
             switch(m_elementSelected)
             {
+            case MenuElements::Continue:
+                {
+                    assert(Game::GameFrame().IsInitialized());
+
+                    // Switch to the game frame.
+                    Game::StateMachine().ChangeState(&Game::GameFrame());
+                }
+                break;
+
             case MenuElements::NewGame:
-                Game::StateMachine().ChangeState(&Game::GameFrame());
+                {
+                    // Initialize the game frame.
+                    Game::GameFrame().Initialize();
+                    
+                    // Switch to the game frame.
+                    Game::StateMachine().ChangeState(&Game::GameFrame());
+                }
                 break;
 
             case MenuElements::Quit:

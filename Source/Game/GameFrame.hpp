@@ -20,6 +20,11 @@ public:
     void Update(float timeDelta);
     void Draw();
 
+    bool IsInitialized() const
+    {
+        return m_initialized;
+    }
+
 private:
     bool m_initialized;
 };
