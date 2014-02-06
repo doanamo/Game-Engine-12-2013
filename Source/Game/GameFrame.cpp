@@ -6,6 +6,7 @@
 #include "GameContext.hpp"
 
 #include "InputState.hpp"
+#include "Script.hpp"
 
 #include "EntitySystem.hpp"
 #include "CollisionSystem.hpp"

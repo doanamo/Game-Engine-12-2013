@@ -2,17 +2,9 @@
 
 #include "Precompiled.hpp"
 #include "Component.hpp"
-#include "EntityHandle.hpp"
 
-//
-// Script
-//
-
-class Script
-{
-public:
-    virtual void OnUpdate(EntityHandle entity, float timeDelta) = 0;
-};
+// Forward declarations.
+class Script;
 
 //
 // Script Component

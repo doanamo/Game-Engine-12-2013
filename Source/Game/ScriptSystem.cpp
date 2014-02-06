@@ -1,6 +1,7 @@
 #include "Precompiled.hpp"
 #include "ScriptSystem.hpp"
 #include "ScriptComponent.hpp"
+#include "Script.hpp"
 
 #include "GameContext.hpp"
 #include "EntitySystem.hpp"

@@ -168,6 +168,7 @@ Set(SourceFiles
     "Game/CollisionComponent.cpp"
     "Game/CollisionSystem.hpp"
     "Game/CollisionSystem.cpp"
+    "Game/Script.hpp"
     "Game/ScriptComponent.hpp"
     "Game/ScriptComponent.cpp"
     "Game/ScriptSystem.hpp"
