@@ -1,6 +1,6 @@
 #include "Precompiled.hpp"
 #include "ScriptSystem.hpp"
-#include "Script.hpp"
+#include "ScriptComponent.hpp"
 
 #include "GameContext.hpp"
 #include "EntitySystem.hpp"
@@ -35,12 +35,12 @@ void ScriptSystem::Update(float timeDelta)
             continue;
 
         // Get the script component.
-        Script& script = it->second;
+        ScriptComponent& script = it->second;
 
         // Execute the script.
         if(script.m_script != nullptr)
         {
-            script.m_script->Execute(it->first, timeDelta);
+            script.m_script->OnUpdate(it->first, timeDelta);
         }
     }
 }

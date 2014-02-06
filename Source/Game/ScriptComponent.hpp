@@ -5,31 +5,31 @@
 #include "EntityHandle.hpp"
 
 //
-// Script Object
+// Script
 //
 
-class ScriptObject
+class Script
 {
 public:
-    virtual void Execute(EntityHandle entity, float timeDelta) = 0;
+    virtual void OnUpdate(EntityHandle entity, float timeDelta) = 0;
 };
 
 //
 // Script Component
 //
 
-class Script : public Component
+class ScriptComponent : public Component
 {
 public:
     // Friend declarations.
     friend class ScriptSystem;
 
     // Type declarations.
-    typedef std::shared_ptr<ScriptObject> ScriptPtr;
+    typedef std::shared_ptr<Script> ScriptPtr;
 
 public:
-    Script();
-    ~Script();
+    ScriptComponent();
+    ~ScriptComponent();
 
     void SetScript(ScriptPtr script)
     {

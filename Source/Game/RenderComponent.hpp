@@ -7,11 +7,11 @@
 // Render Component
 //
 
-class Render : public Component
+class RenderComponent : public Component
 {
 public:
-    Render();
-    ~Render();
+    RenderComponent();
+    ~RenderComponent();
 
     // Sets the color.
     void SetColor(const glm::vec4& color)

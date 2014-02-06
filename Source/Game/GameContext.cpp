@@ -11,11 +11,11 @@
 #include "ScriptSystem.hpp"
 #include "RenderSystem.hpp"
 
-#include "Transform.hpp"
-#include "Collision.hpp"
-#include "Input.hpp"
-#include "Script.hpp"
-#include "Render.hpp"
+#include "TransformComponent.hpp"
+#include "CollisionComponent.hpp"
+#include "InputComponent.hpp"
+#include "ScriptComponent.hpp"
+#include "RenderComponent.hpp"
 
 #include "MenuFrame.hpp"
 #include "GameFrame.hpp"
@@ -35,11 +35,11 @@ namespace
     ScriptSystem    scriptSystem;
     RenderSystem    renderSystem;
 
-    ComponentPool<Transform> transformComponents;
-    ComponentPool<Collision> collisionComponents;
-    ComponentPool<Input>     inputComponents;
-    ComponentPool<Script>    scriptComponents;
-    ComponentPool<Render>    renderComponents;
+    ComponentPool<TransformComponent> transformComponents;
+    ComponentPool<CollisionComponent> collisionComponents;
+    ComponentPool<InputComponent>     inputComponents;
+    ComponentPool<ScriptComponent>    scriptComponents;
+    ComponentPool<RenderComponent>    renderComponents;
 
     StateMachine<BaseFrame> stateMachine;
     MenuFrame               frameMenu;
@@ -226,27 +226,27 @@ RenderSystem& Game::RenderSystem()
     return renderSystem;
 }
 
-ComponentPool<Transform>& Game::TransformComponents()
+ComponentPool<TransformComponent>& Game::TransformComponents()
 {
     return transformComponents;
 }
 
-ComponentPool<Collision>& Game::CollisionComponents()
+ComponentPool<CollisionComponent>& Game::CollisionComponents()
 {
     return collisionComponents;
 }
 
-ComponentPool<Input>& Game::InputComponents()
+ComponentPool<InputComponent>& Game::InputComponents()
 {
     return inputComponents;
 }
 
-ComponentPool<Script>& Game::ScriptComponents()
+ComponentPool<ScriptComponent>& Game::ScriptComponents()
 {
     return scriptComponents;
 }
 
-ComponentPool<Render>& Game::RenderComponents()
+ComponentPool<RenderComponent>& Game::RenderComponents()
 {
     return renderComponents;
 }

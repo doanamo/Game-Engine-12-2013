@@ -11,11 +11,11 @@ class InputState;
 // Input Component
 //
 
-class Input : public Component
+class InputComponent : public Component
 {
 public:
-    Input();
-    ~Input();
+    InputComponent();
+    ~InputComponent();
 
     void SetStateReference(InputState* state)
     {

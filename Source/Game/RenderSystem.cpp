@@ -1,7 +1,8 @@
 #include "Precompiled.hpp"
 #include "RenderSystem.hpp"
-#include "Transform.hpp"
-#include "Render.hpp"
+
+#include "TransformComponent.hpp"
+#include "RenderComponent.hpp"
 
 #include "MainContext.hpp"
 #include "GameContext.hpp"
@@ -45,10 +46,10 @@ void RenderSystem::Update()
             continue;
 
         // Get the render component.
-        Render& render = it->second;
+        RenderComponent& render = it->second;
     
         // Get other components.
-        Transform* transform = Game::TransformComponents().Lookup(it->first);
+        TransformComponent* transform = Game::TransformComponents().Lookup(it->first);
 
         if(transform == nullptr)
             continue;

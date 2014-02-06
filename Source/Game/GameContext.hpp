@@ -12,11 +12,11 @@ class CollisionSystem;
 class ScriptSystem;
 class RenderSystem;
 
-class Transform;
-class Collision;
-class Input;
-class Script;
-class Render;
+class TransformComponent;
+class CollisionComponent;
+class InputComponent;
+class ScriptComponent;
+class RenderComponent;
 
 class BaseFrame;
 class MenuFrame;
@@ -42,11 +42,11 @@ namespace Game
     ScriptSystem&    ScriptSystem();
     RenderSystem&    RenderSystem();
 
-    ComponentPool<Transform>& TransformComponents();
-    ComponentPool<Collision>& CollisionComponents();
-    ComponentPool<Input>&     InputComponents();
-    ComponentPool<Script>&    ScriptComponents();
-    ComponentPool<Render>&    RenderComponents();
+    ComponentPool<TransformComponent>& TransformComponents();
+    ComponentPool<CollisionComponent>& CollisionComponents();
+    ComponentPool<InputComponent>&     InputComponents();
+    ComponentPool<ScriptComponent>&    ScriptComponents();
+    ComponentPool<RenderComponent>&    RenderComponents();
 
     StateMachine<BaseFrame>& StateMachine();
     MenuFrame&               MenuFrame();

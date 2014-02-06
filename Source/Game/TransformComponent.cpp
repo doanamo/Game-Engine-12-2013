@@ -1,18 +1,18 @@
 #include "Precompiled.hpp"
-#include "Transform.hpp"
+#include "TransformComponent.hpp"
 
-Transform::Transform() :
+TransformComponent::TransformComponent() :
     m_position(0.0f, 0.0f),
     m_scale(1.0f, 1.0f),
     m_rotation(0.0f)
 {
 }
 
-Transform::~Transform()
+TransformComponent::~TransformComponent()
 {
 }
 
-glm::mat4 Transform::CalculateMatrix(const glm::mat4& base)
+glm::mat4 TransformComponent::CalculateMatrix(const glm::mat4& base)
 {
     glm::mat4 output;
     output = glm::translate(base, glm::vec3(m_position, 0.0f));
@@ -21,7 +21,7 @@ glm::mat4 Transform::CalculateMatrix(const glm::mat4& base)
     return output;
 }
 
-glm::vec2 Transform::CalculateDirection()
+glm::vec2 TransformComponent::CalculateDirection()
 {
     glm::vec2 output(0.0f);
     output.x = glm::sin(glm::radians(m_rotation));

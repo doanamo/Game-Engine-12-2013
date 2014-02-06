@@ -7,11 +7,11 @@
 // Transform Component
 //
 
-class Transform : public Component
+class TransformComponent : public Component
 {
 public:
-    Transform();
-    ~Transform();
+    TransformComponent();
+    ~TransformComponent();
 
     // Calculates the transform matrix.
     glm::mat4 CalculateMatrix(const glm::mat4& base = glm::mat4(1.0f));

@@ -12,16 +12,16 @@
 #include "ScriptSystem.hpp"
 #include "RenderSystem.hpp"
 
-#include "Transform.hpp"
-#include "Collision.hpp"
-#include "Input.hpp"
-#include "Script.hpp"
-#include "Render.hpp"
+#include "TransformComponent.hpp"
+#include "CollisionComponent.hpp"
+#include "InputComponent.hpp"
+#include "ScriptComponent.hpp"
+#include "RenderComponent.hpp"
 
 namespace
 {
     // Projectile script.
-    class ScriptProjectile : public ScriptObject
+    class ScriptProjectile : public Script
     {
     public:
         ScriptProjectile() :
@@ -29,10 +29,10 @@ namespace
         {
         }
 
-        void Execute(EntityHandle entity, float timeDelta)
+        void OnUpdate(EntityHandle entity, float timeDelta)
         {
             // Check if entity has needed components.
-            Transform* transform = Game::TransformComponents().Lookup(entity);
+            TransformComponent* transform = Game::TransformComponents().Lookup(entity);
             if(transform == nullptr) return;
 
             // Check if the projectile reached it's lifetime.
@@ -55,7 +55,7 @@ namespace
     };
 
     // Player script.
-    class ScriptPlayer : public ScriptObject
+    class ScriptPlayer : public Script
     {
     public:
         ScriptPlayer() :
@@ -63,13 +63,13 @@ namespace
         {
         }
 
-        void Execute(EntityHandle entity, float timeDelta)
+        void OnUpdate(EntityHandle entity, float timeDelta)
         {
             // Check if entity has needed components.
-            Transform* transform = Game::TransformComponents().Lookup(entity);
+            TransformComponent* transform = Game::TransformComponents().Lookup(entity);
             if(transform == nullptr) return;
 
-            Input* input = Game::InputComponents().Lookup(entity);
+            InputComponent* input = Game::InputComponents().Lookup(entity);
             if(input == nullptr) return;
 
             // Shoot a projectile.
@@ -84,18 +84,18 @@ namespace
                     {
                         EntityHandle entity = Game::EntitySystem().CreateEntity();
 
-                        Transform* transform = Game::TransformComponents().Create(entity);
+                        TransformComponent* transform = Game::TransformComponents().Create(entity);
                         transform->SetPosition(position);
                         transform->SetScale(glm::vec2(1.0f, 1.0f));
                         transform->SetRotation(0.0f);
 
-                        Collision* collision = Game::CollisionComponents().Create(entity);
+                        CollisionComponent* collision = Game::CollisionComponents().Create(entity);
                         collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
 
-                        Script* script = Game::ScriptComponents().Create(entity);
+                        ScriptComponent* script = Game::ScriptComponents().Create(entity);
                         script->SetScript(std::make_shared<ScriptProjectile>());
 
-                        Render* render = Game::RenderComponents().Create(entity);
+                        RenderComponent* render = Game::RenderComponents().Create(entity);
                         render->SetColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
                     };
 
@@ -171,18 +171,18 @@ bool GameFrame::Initialize()
     {
         EntityHandle entity = Game::EntitySystem().CreateEntity();
 
-        Transform* transform = Game::TransformComponents().Create(entity);
+        TransformComponent* transform = Game::TransformComponents().Create(entity);
         transform->SetPosition(glm::vec2(50.0f, 275.0f));
         transform->SetScale(glm::vec2(1.0f, 1.0f));
         transform->SetRotation(0.0f);
 
-        Input* input = Game::InputComponents().Create(entity);
+        InputComponent* input = Game::InputComponents().Create(entity);
         input->SetStateReference(&Game::InputState());
 
-        Script* script = Game::ScriptComponents().Create(entity);
+        ScriptComponent* script = Game::ScriptComponents().Create(entity);
         script->SetScript(std::make_shared<ScriptPlayer>());
 
-        Render* render = Game::RenderComponents().Create(entity);
+        RenderComponent* render = Game::RenderComponents().Create(entity);
         render->SetColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
     }
 
@@ -191,15 +191,15 @@ bool GameFrame::Initialize()
     {
         EntityHandle entity = Game::EntitySystem().CreateEntity();
 
-        Transform* transform = Game::TransformComponents().Create(entity);
+        TransformComponent* transform = Game::TransformComponents().Create(entity);
         transform->SetPosition(glm::vec2(320.0f + x * 70.0f, 20.0f + y * 70.0f));
         transform->SetScale(glm::vec2(1.0f, 1.0f));
         transform->SetRotation(0.0f);
 
-        Collision* collision = Game::CollisionComponents().Create(entity);
+        CollisionComponent* collision = Game::CollisionComponents().Create(entity);
         collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
 
-        Render* render = Game::RenderComponents().Create(entity);
+        RenderComponent* render = Game::RenderComponents().Create(entity);
         render->SetColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
     }
 

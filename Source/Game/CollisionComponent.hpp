@@ -7,11 +7,11 @@
 // Collision Component
 //
 
-class Collision : public Component
+class CollisionComponent : public Component
 {
 public:
-    Collision();
-    ~Collision();
+    CollisionComponent();
+    ~CollisionComponent();
 
     void SetBoundingBox(const glm::vec4& boundingBox)
     {

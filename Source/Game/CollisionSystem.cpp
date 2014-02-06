@@ -1,15 +1,15 @@
 #include "Precompiled.hpp"
 #include "CollisionSystem.hpp"
 
-#include "Transform.hpp"
-#include "Collision.hpp"
+#include "TransformComponent.hpp"
+#include "CollisionComponent.hpp"
 
 #include "GameContext.hpp"
 #include "EntitySystem.hpp"
 
 namespace
 {
-    void TransformBoundingBox(glm::vec4* boundingBox, const Transform* transform)
+    void TransformBoundingBox(glm::vec4* boundingBox, const TransformComponent* transform)
     {
         // Transform only by position (temp).
         boundingBox->x += transform->GetPosition().x;
@@ -57,13 +57,13 @@ void CollisionSystem::Update()
             continue;
 
         // Get the collision component.
-        Collision& collision = it->second;
+        CollisionComponent& collision = it->second;
 
         if(!collision.IsEnabled())
             continue;
 
         // Get the transform component.
-        Transform* transform = Game::TransformComponents().Lookup(it->first);
+        TransformComponent* transform = Game::TransformComponents().Lookup(it->first);
 
         if(transform == nullptr)
             continue;
@@ -84,13 +84,13 @@ void CollisionSystem::Update()
                 continue;
 
             // Get the collision component.
-            Collision& otherCollision = other->second;
+            CollisionComponent& otherCollision = other->second;
 
             if(!otherCollision.IsEnabled())
                 continue;
 
             // Get the transform component.
-            Transform* otherTransform = Game::TransformComponents().Lookup(other->first);
+            TransformComponent* otherTransform = Game::TransformComponents().Lookup(other->first);
 
             if(transform == nullptr)
                 continue;
