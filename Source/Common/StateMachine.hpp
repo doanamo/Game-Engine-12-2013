@@ -12,9 +12,19 @@ class State
 public:
     virtual void OnEnter(Owner* owner)
     {
+        OnEnter();
     }
 
     virtual void OnExit(Owner* owner)
+    {
+        OnExit();
+    }
+
+    virtual void OnEnter()
+    {
+    }
+
+    virtual void OnExit()
     {
     }
 };
