@@ -25,7 +25,9 @@ namespace
     class ScriptProjectile : public Script
     {
     public:
-        ScriptProjectile() :
+        ScriptProjectile(const glm::vec2& direction, float speed) :
+            m_direction(direction),
+            m_speed(speed),
             m_lifeTime(0.0f)
         {
         }
@@ -47,7 +49,7 @@ namespace
 
             // Move entity to the right.
             glm::vec2 position = transform->GetPosition();
-            position.x += 700.0f * timeDelta;
+            position += m_direction * m_speed * timeDelta;
             transform->SetPosition(position);
         }
 
@@ -66,8 +68,87 @@ namespace
         }
 
     private:
-        float m_lifeTime;
+        glm::vec2 m_direction;
+        float     m_speed;
+        float     m_lifeTime;
     };
+
+    // Projectile factory method.
+    EntityHandle CreateProjectile(const glm::vec2& position, const glm::vec2& direction, float speed)
+    {
+        EntityHandle entity = Game::EntitySystem().CreateEntity();
+
+        TransformComponent* transform = Game::TransformComponents().Create(entity);
+        transform->SetPosition(position);
+        transform->SetScale(glm::vec2(1.0f, 1.0f));
+        transform->SetRotation(0.0f);
+
+        CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+        collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
+
+        ScriptComponent* script = Game::ScriptComponents().Create(entity);
+        script->SetScript(std::make_shared<ScriptProjectile>(direction, speed));
+
+        RenderComponent* render = Game::RenderComponents().Create(entity);
+        render->SetColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+
+        return entity;
+    };
+
+    // Enemy script.
+    class EnemyScript : public Script
+    {
+    public:
+        EnemyScript() :
+            m_shootTime(1.0f)
+        {
+        }
+
+        void OnUpdate(EntityHandle entity, float timeDelta)
+        {
+            // Check if entity has needed components.
+            TransformComponent* transform = Game::TransformComponents().Lookup(entity);
+            if(transform == nullptr) return;
+
+            // Shoot a projectile.
+            m_shootTime = std::max(0.0f, m_shootTime - timeDelta);
+
+            if(m_shootTime == 0.0f)
+            {
+                // Create a projectile entity.
+                // Temp: Handle self collision.
+                CreateProjectile(transform->GetPosition() + glm::vec2(-70.0f, 0.0f), glm::vec2(-1.0f, 0.0f), 300.0f);
+
+                // Set a shooting delay.
+                m_shootTime = 2.0f;
+            }
+        }
+
+    private:
+        float m_shootTime;
+    };
+
+    // Enemy factory method.
+    EntityHandle CreateEnemy(const glm::vec2& position)
+    {
+        EntityHandle entity = Game::EntitySystem().CreateEntity();
+
+        TransformComponent* transform = Game::TransformComponents().Create(entity);
+        transform->SetPosition(position);
+        transform->SetScale(glm::vec2(1.0f, 1.0f));
+        transform->SetRotation(0.0f);
+
+        CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+        collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
+
+        ScriptComponent* script = Game::ScriptComponents().Create(entity);
+        script->SetScript(std::make_shared<EnemyScript>());
+
+        RenderComponent* render = Game::RenderComponents().Create(entity);
+        render->SetColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+        return entity;
+    }
 
     // Player script.
     class ScriptPlayer : public Script
@@ -94,29 +175,10 @@ namespace
             {
                 if(m_shootTime == 0.0f)
                 {
-                    // Projectile factory method.
-                    auto CreateProjectile = [](glm::vec2 position)
-                    {
-                        EntityHandle entity = Game::EntitySystem().CreateEntity();
-
-                        TransformComponent* transform = Game::TransformComponents().Create(entity);
-                        transform->SetPosition(position);
-                        transform->SetScale(glm::vec2(1.0f, 1.0f));
-                        transform->SetRotation(0.0f);
-
-                        CollisionComponent* collision = Game::CollisionComponents().Create(entity);
-                        collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
-
-                        ScriptComponent* script = Game::ScriptComponents().Create(entity);
-                        script->SetScript(std::make_shared<ScriptProjectile>());
-
-                        RenderComponent* render = Game::RenderComponents().Create(entity);
-                        render->SetColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
-                    };
-
                     // Create a projectile entity.
-                    CreateProjectile(transform->GetPosition());
+                    CreateProjectile(transform->GetPosition(), glm::vec2(1.0f, 0.0f), 700);
 
+                    // Set a shooting delay.
                     m_shootTime = 0.34f;
                 }
             }
@@ -174,7 +236,7 @@ namespace
             if(transform == nullptr) return;
 
             // Create an enemy entity.
-            m_spawnedEntity = SpawnEnemy(transform->GetPosition());
+            m_spawnedEntity = CreateEnemy(transform->GetPosition());
         }
 
         void OnUpdate(EntityHandle entity, float timeDelta)
@@ -186,11 +248,11 @@ namespace
             // Check if spawned entity is alive.
             if(!Game::EntitySystem().IsHandleValid(m_spawnedEntity))
             {
-                // Create an enitty after a delay.
+                // Create an enitity after a delay.
                 if(m_respawnTime >= 3.0f)
                 {
                     // Create an enemy entity.
-                    m_spawnedEntity = SpawnEnemy(transform->GetPosition());
+                    m_spawnedEntity = CreateEnemy(transform->GetPosition());
 
                     // Reset respawn timer.
                     m_respawnTime = 0.0f;
@@ -201,27 +263,6 @@ namespace
                     m_respawnTime += timeDelta;
                 }
             }
-        }
-
-    private:
-        EntityHandle SpawnEnemy(const glm::vec2& position)
-        {
-            // Create an enemy entity.
-            EntityHandle entity = Game::EntitySystem().CreateEntity();
-
-            TransformComponent* transform = Game::TransformComponents().Create(entity);
-            transform->SetPosition(position);
-            transform->SetScale(glm::vec2(1.0f, 1.0f));
-            transform->SetRotation(0.0f);
-
-            CollisionComponent* collision = Game::CollisionComponents().Create(entity);
-            collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
-
-            RenderComponent* render = Game::RenderComponents().Create(entity);
-            render->SetColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-
-            // Return handle of created entity.
-            return entity;
         }
 
     private:
