@@ -21,6 +21,18 @@
 
 namespace
 {
+    // Collision types.
+    struct CollisionTypes
+    {
+        enum Type
+        {
+            None       = 0,
+            Player     = 1 << 0,
+            Enemy      = 1 << 1,
+            Projectile = 1 << 2,
+        };
+    };
+
     // Projectile script.
     class ScriptProjectile : public Script
     {
@@ -74,7 +86,7 @@ namespace
     };
 
     // Projectile factory method.
-    EntityHandle CreateProjectile(const glm::vec2& position, const glm::vec2& direction, float speed)
+    EntityHandle CreateProjectile(const glm::vec2& position, const glm::vec2& direction, float speed, CollisionComponent::BitField collisionMask)
     {
         EntityHandle entity = Game::EntitySystem().CreateEntity();
 
@@ -85,6 +97,8 @@ namespace
 
         CollisionComponent* collision = Game::CollisionComponents().Create(entity);
         collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
+        collision->SetType(CollisionTypes::Projectile);
+        collision->SetMask(collisionMask);
 
         ScriptComponent* script = Game::ScriptComponents().Create(entity);
         script->SetScript(std::make_shared<ScriptProjectile>(direction, speed));
@@ -116,8 +130,7 @@ namespace
             if(m_shootTime == 0.0f)
             {
                 // Create a projectile entity.
-                // Temp: Handle self collision.
-                CreateProjectile(transform->GetPosition() + glm::vec2(-70.0f, 0.0f), glm::vec2(-1.0f, 0.0f), 300.0f);
+                CreateProjectile(transform->GetPosition(), glm::vec2(-1.0f, 0.0f), 300.0f, CollisionTypes::Player);
 
                 // Set a shooting delay.
                 m_shootTime = 2.0f;
@@ -140,6 +153,8 @@ namespace
 
         CollisionComponent* collision = Game::CollisionComponents().Create(entity);
         collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
+        collision->SetType(CollisionTypes::Enemy);
+        collision->SetMask(CollisionTypes::None);
 
         ScriptComponent* script = Game::ScriptComponents().Create(entity);
         script->SetScript(std::make_shared<EnemyScript>());
@@ -176,7 +191,7 @@ namespace
                 if(m_shootTime == 0.0f)
                 {
                     // Create a projectile entity.
-                    CreateProjectile(transform->GetPosition(), glm::vec2(1.0f, 0.0f), 700);
+                    CreateProjectile(transform->GetPosition(), glm::vec2(1.0f, 0.0f), 700, CollisionTypes::Enemy);
 
                     // Set a shooting delay.
                     m_shootTime = 0.34f;
@@ -307,6 +322,11 @@ bool GameFrame::Initialize()
 
         InputComponent* input = Game::InputComponents().Create(entity);
         input->SetStateReference(&Game::InputState());
+
+        CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+        collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
+        collision->SetType(CollisionTypes::Player);
+        collision->SetMask(CollisionTypes::None);
 
         ScriptComponent* script = Game::ScriptComponents().Create(entity);
         script->SetScript(std::make_shared<ScriptPlayer>());

@@ -111,15 +111,19 @@ void CollisionSystem::Update()
             if(!other->collision->IsEnabled())
                 continue;
 
-            // Check for collision.
-            if(IntersectBoundingBox(it->worldAABB, other->worldAABB))
+            // Check if an object can collide with it.
+            if(it->collision->GetMask() & other->collision->GetType())
             {
-                // Execute object script.
-                it->script->GetScript()->OnCollision(*it, *other);
+                // Check if collision shapes intersect.
+                if(IntersectBoundingBox(it->worldAABB, other->worldAABB))
+                {
+                    // Execute object script.
+                    it->script->GetScript()->OnCollision(*it, *other);
 
-                // Check if this collision object is still enabled.
-                if(!it->collision->IsEnabled())
-                    break;
+                    // Check if this collision object is still enabled.
+                    if(!it->collision->IsEnabled())
+                        break;
+                }
             }
         }
     }

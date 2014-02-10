@@ -10,6 +10,10 @@
 class CollisionComponent : public Component
 {
 public:
+    // Type declarations.
+    typedef unsigned int BitField;
+
+public:
     CollisionComponent();
     ~CollisionComponent();
 
@@ -21,6 +25,26 @@ public:
     const glm::vec4& GetBoundingBox() const
     {
         return m_boundingBox;
+    }
+
+    void SetType(BitField type)
+    {
+        m_type = type;
+    }
+
+    BitField GetType() const
+    {
+        return m_type;
+    }
+
+    void SetMask(BitField mask)
+    {
+        m_mask = mask;
+    }
+
+    BitField GetMask() const
+    {
+        return m_mask;
     }
 
     void Enable()
@@ -41,6 +65,10 @@ public:
 private:
     // Collision bounding box.
     glm::vec4 m_boundingBox;
+
+    // Collision bits.
+    BitField m_type;
+    BitField m_mask;
     
     // Collision enabled.
     bool m_enabled;
