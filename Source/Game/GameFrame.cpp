@@ -167,6 +167,16 @@ namespace
         {
         }
 
+        void OnCreate(EntityHandle entity)
+        {
+            // Check if entity has needed components.
+            TransformComponent* transform = Game::TransformComponents().Lookup(entity);
+            if(transform == nullptr) return;
+
+            // Create an enemy entity.
+            m_spawnedEntity = SpawnEnemy(transform->GetPosition());
+        }
+
         void OnUpdate(EntityHandle entity, float timeDelta)
         {
             // Check if entity has needed components.
