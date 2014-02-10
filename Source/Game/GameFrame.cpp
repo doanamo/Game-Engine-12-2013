@@ -156,6 +156,68 @@ namespace
     public:
         float m_shootTime;
     };
+
+    // Spawner script.
+    class ScriptSpawner : public Script
+    {
+    public:
+        ScriptSpawner() :
+            m_spawnedEntity(),
+            m_respawnTime(0.0f)
+        {
+        }
+
+        void OnUpdate(EntityHandle entity, float timeDelta)
+        {
+            // Check if entity has needed components.
+            TransformComponent* transform = Game::TransformComponents().Lookup(entity);
+            if(transform == nullptr) return;
+
+            // Check if spawned entity is alive.
+            if(!Game::EntitySystem().IsHandleValid(m_spawnedEntity))
+            {
+                // Create an enitty after a delay.
+                if(m_respawnTime >= 3.0f)
+                {
+                    // Create an enemy entity.
+                    m_spawnedEntity = SpawnEnemy(transform->GetPosition());
+
+                    // Reset respawn timer.
+                    m_respawnTime = 0.0f;
+                }
+                else
+                {
+                    // Increment respawn timer.
+                    m_respawnTime += timeDelta;
+                }
+            }
+        }
+
+    private:
+        EntityHandle SpawnEnemy(const glm::vec2& position)
+        {
+            // Create an enemy entity.
+            EntityHandle entity = Game::EntitySystem().CreateEntity();
+
+            TransformComponent* transform = Game::TransformComponents().Create(entity);
+            transform->SetPosition(position);
+            transform->SetScale(glm::vec2(1.0f, 1.0f));
+            transform->SetRotation(0.0f);
+
+            CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+            collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
+
+            RenderComponent* render = Game::RenderComponents().Create(entity);
+            render->SetColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+            // Return handle of created entity.
+            return entity;
+        }
+
+    private:
+        EntityHandle m_spawnedEntity;
+        float        m_respawnTime;
+    };
 }
 
 GameFrame::GameFrame() :
@@ -184,6 +246,7 @@ bool GameFrame::Initialize()
 
     // Create entities.
     {
+        // Create the player.
         EntityHandle entity = Game::EntitySystem().CreateEntity();
 
         TransformComponent* transform = Game::TransformComponents().Create(entity);
@@ -201,21 +264,16 @@ bool GameFrame::Initialize()
         render->SetColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
     }
 
-    for(int x = 0; x < 10; ++x)
     for(int y = 0; y < 8; ++y)
     {
+        // Create a spawner.
         EntityHandle entity = Game::EntitySystem().CreateEntity();
 
         TransformComponent* transform = Game::TransformComponents().Create(entity);
-        transform->SetPosition(glm::vec2(320.0f + x * 70.0f, 20.0f + y * 70.0f));
-        transform->SetScale(glm::vec2(1.0f, 1.0f));
-        transform->SetRotation(0.0f);
+        transform->SetPosition(glm::vec2(880.0f, 20.0f + y * 70.0f));
 
-        CollisionComponent* collision = Game::CollisionComponents().Create(entity);
-        collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
-
-        RenderComponent* render = Game::RenderComponents().Create(entity);
-        render->SetColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+        ScriptComponent* script = Game::ScriptComponents().Create(entity);
+        script->SetScript(std::make_shared<ScriptSpawner>());
     }
 
     // Success!
