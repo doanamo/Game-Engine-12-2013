@@ -33,7 +33,7 @@ void SpawnerScript::OnUpdate(EntityHandle entity, float timeDelta)
     if(!Game::EntitySystem().IsHandleValid(m_spawnedEntity))
     {
         // Create an enitity after a delay.
-        if(m_respawnTime >= 3.0f)
+        if(m_respawnTime >= 1.0f)
         {
             // Create an enemy entity.
             m_spawnedEntity = Game::CreateEnemy(transform->GetPosition());

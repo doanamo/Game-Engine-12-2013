@@ -26,7 +26,7 @@ void ProjectileScript::OnUpdate(EntityHandle entity, float timeDelta)
     // Check if the projectile reached it's lifetime.
     m_lifeTime += timeDelta;
 
-    if(m_lifeTime >= 1.0f)
+    if(m_lifeTime >= 4.0f)
     {
         Game::EntitySystem().DestroyEntity(entity);
         return;

@@ -7,6 +7,8 @@
 #include <cassert>
 #include <memory>
 #include <algorithm>
+#include <random>
+#include <chrono>
 #include <fstream>
 #include <iostream>
 #include <iomanip>

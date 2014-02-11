@@ -7,8 +7,16 @@
 #include "CollisionTypes.hpp"
 #include "TransformComponent.hpp"
 
+namespace
+{
+    // Random number generator.
+    uint64_t seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::mt19937 generator((unsigned int)seed);
+    std::uniform_real<float> random(0.2f, 3.0);
+}
+
 EnemyScript::EnemyScript() :
-    m_shootTime(1.0f)
+    m_shootTime(random(generator))
 {
 }
 
@@ -27,6 +35,6 @@ void EnemyScript::OnUpdate(EntityHandle entity, float timeDelta)
         Game::CreateProjectile(transform->GetPosition(), glm::vec2(-1.0f, 0.0f), 300.0f, CollisionTypes::Player);
 
         // Set a shooting delay.
-        m_shootTime = 2.0f;
+        m_shootTime = random(generator);
     }
 }
