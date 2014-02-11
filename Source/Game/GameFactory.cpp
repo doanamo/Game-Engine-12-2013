@@ -1,0 +1,102 @@
+#include "Precompiled.hpp"
+#include "GameFactory.hpp"
+
+#include "GameContext.hpp"
+#include "EntitySystem.hpp"
+
+#include "CollisionTypes.hpp"
+#include "TransformComponent.hpp"
+#include "InputComponent.hpp"
+#include "CollisionComponent.hpp"
+#include "ScriptComponent.hpp"
+#include "RenderComponent.hpp"
+
+#include "PlayerScript.hpp"
+#include "EnemyScript.hpp"
+#include "ProjectileScript.hpp"
+#include "SpawnerScript.hpp"
+
+EntityHandle Game::CreatePlayer()
+{
+    EntityHandle entity = Game::EntitySystem().CreateEntity();
+
+    TransformComponent* transform = Game::TransformComponents().Create(entity);
+    transform->SetPosition(glm::vec2(50.0f, 275.0f));
+    transform->SetScale(glm::vec2(1.0f, 1.0f));
+    transform->SetRotation(0.0f);
+
+    InputComponent* input = Game::InputComponents().Create(entity);
+    input->SetStateReference(&Game::InputState());
+
+    CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+    collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
+    collision->SetType(CollisionTypes::Player);
+    collision->SetMask(CollisionTypes::None);
+
+    ScriptComponent* script = Game::ScriptComponents().Create(entity);
+    script->SetScript(std::make_shared<PlayerScript>());
+
+    RenderComponent* render = Game::RenderComponents().Create(entity);
+    render->SetColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+
+    return entity;
+}
+
+EntityHandle Game::CreateEnemy(const glm::vec2& position)
+{
+    EntityHandle entity = Game::EntitySystem().CreateEntity();
+
+    TransformComponent* transform = Game::TransformComponents().Create(entity);
+    transform->SetPosition(position);
+    transform->SetScale(glm::vec2(1.0f, 1.0f));
+    transform->SetRotation(0.0f);
+
+    CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+    collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
+    collision->SetType(CollisionTypes::Enemy);
+    collision->SetMask(CollisionTypes::None);
+
+    ScriptComponent* script = Game::ScriptComponents().Create(entity);
+    script->SetScript(std::make_shared<EnemyScript>());
+
+    RenderComponent* render = Game::RenderComponents().Create(entity);
+    render->SetColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+
+    return entity;
+}
+
+EntityHandle Game::CreateProjectile(const glm::vec2& position, const glm::vec2& direction, float speed, uint32_t collisionMask)
+{
+    EntityHandle entity = Game::EntitySystem().CreateEntity();
+
+    TransformComponent* transform = Game::TransformComponents().Create(entity);
+    transform->SetPosition(position);
+    transform->SetScale(glm::vec2(1.0f, 1.0f));
+    transform->SetRotation(0.0f);
+
+    CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+    collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
+    collision->SetType(CollisionTypes::Projectile);
+    collision->SetMask(collisionMask);
+
+    ScriptComponent* script = Game::ScriptComponents().Create(entity);
+    script->SetScript(std::make_shared<ProjectileScript>(direction, speed));
+
+    RenderComponent* render = Game::RenderComponents().Create(entity);
+    render->SetColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+
+    return entity;
+};
+
+EntityHandle Game::CreateSpawner(const glm::vec2& position)
+{
+    EntityHandle entity = Game::EntitySystem().CreateEntity();
+
+    TransformComponent* transform = Game::TransformComponents().Create(entity);
+    transform->SetPosition(position);
+
+    ScriptComponent* script = Game::ScriptComponents().Create(entity);
+    script->SetScript(std::make_shared<SpawnerScript>());
+
+    return entity;
+}

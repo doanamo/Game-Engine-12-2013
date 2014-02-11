@@ -177,6 +177,17 @@ Set(SourceFiles
     "Game/RenderComponent.cpp"
     "Game/RenderSystem.hpp"
     "Game/RenderSystem.cpp"
+    "Game/CollisionTypes.hpp"
+    "Game/GameFactory.hpp"
+    "Game/GameFactory.cpp"
+    "Game/PlayerScript.hpp"
+    "Game/PlayerScript.cpp"
+    "Game/EnemyScript.hpp"
+    "Game/EnemyScript.cpp"
+    "Game/SpawnerScript.hpp"
+    "Game/SpawnerScript.cpp"
+    "Game/ProjectileScript.hpp"
+    "Game/ProjectileScript.cpp"
 )
 
 # Add the source directory prefix to each file path.
