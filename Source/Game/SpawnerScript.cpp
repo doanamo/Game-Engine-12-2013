@@ -7,20 +7,17 @@
 #include "EntitySystem.hpp"
 #include "TransformComponent.hpp"
 
-SpawnerScript::SpawnerScript() :
-    m_spawnedEntity(),
-    m_respawnTime(0.0f)
+namespace
 {
+    // Random number generator.
+    uint64_t seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::mt19937 generator((unsigned int)seed);
+    std::uniform_real<float> random(1.0f, 6.0);
 }
 
-void SpawnerScript::OnCreate(EntityHandle entity)
+SpawnerScript::SpawnerScript() :
+    m_respawnTime(random(generator))
 {
-    // Check if entity has needed components.
-    TransformComponent* transform = Game::TransformComponents().Lookup(entity);
-    if(transform == nullptr) return;
-
-    // Create an enemy entity.
-    m_spawnedEntity = Game::CreateEnemy(transform->GetPosition());
 }
 
 void SpawnerScript::OnUpdate(EntityHandle entity, float timeDelta)
@@ -29,22 +26,15 @@ void SpawnerScript::OnUpdate(EntityHandle entity, float timeDelta)
     TransformComponent* transform = Game::TransformComponents().Lookup(entity);
     if(transform == nullptr) return;
 
-    // Check if spawned entity is alive.
-    if(!Game::EntitySystem().IsHandleValid(m_spawnedEntity))
-    {
-        // Create an enitity after a delay.
-        if(m_respawnTime >= 1.0f)
-        {
-            // Create an enemy entity.
-            m_spawnedEntity = Game::CreateEnemy(transform->GetPosition());
+    // Create an enitity after a delay.
+    m_respawnTime = std::max(0.0f, m_respawnTime - timeDelta);
 
-            // Reset respawn timer.
-            m_respawnTime = 0.0f;
-        }
-        else
-        {
-            // Increment respawn timer.
-            m_respawnTime += timeDelta;
-        }
+    if(m_respawnTime == 0.0f)
+    {
+        // Create an enemy entity.
+        Game::CreateEnemy(transform->GetPosition());
+
+        // Reset respawn timer.
+        m_respawnTime = random(generator);
     }
 }

@@ -46,7 +46,7 @@ bool GameFrame::Initialize()
     // Create spawners.
     for(int y = 0; y < 8; ++y)
     {
-        Game::CreateSpawner(glm::vec2(950.0f, 20.0f + y * 70.0f));
+        Game::CreateSpawner(glm::vec2(1024.0f + 100.0f, 20.0f + y * 70.0f));
     }
 
     // Success!

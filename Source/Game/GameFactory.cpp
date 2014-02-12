@@ -34,20 +34,39 @@ void Game::CreateBounds()
         }
     };
 
-    // Create bounds that will destroy projectiles outside of it.
-    EntityHandle entity = Game::EntitySystem().CreateEntity();
+    // Create projectile bounds.
+    {
+        EntityHandle entity = Game::EntitySystem().CreateEntity();
 
-    TransformComponent* transform = Game::TransformComponents().Create(entity);
-    transform->SetPosition(glm::vec2(0.0f, 0.0f));
+        TransformComponent* transform = Game::TransformComponents().Create(entity);
+        transform->SetPosition(glm::vec2(0.0f, 0.0f));
 
-    CollisionComponent* collision = Game::CollisionComponents().Create(entity);
-    collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 1024.0f, 576.0f));
-    collision->SetType(CollisionTypes::None);
-    collision->SetMask(CollisionTypes::Projectile);
-    collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reverted);
+        CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+        collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 1024.0f, 576.0f));
+        collision->SetType(CollisionTypes::None);
+        collision->SetMask(CollisionTypes::Projectile);
+        collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reverted);
 
-    ScriptComponent* script = Game::ScriptComponents().Create(entity);
-    script->SetScript(std::make_shared<BoundsScript>());
+        ScriptComponent* script = Game::ScriptComponents().Create(entity);
+        script->SetScript(std::make_shared<BoundsScript>());
+    }
+
+    // Create enemy bounds.
+    {
+        EntityHandle entity = Game::EntitySystem().CreateEntity();
+
+        TransformComponent* transform = Game::TransformComponents().Create(entity);
+        transform->SetPosition(glm::vec2(0.0f, 0.0f));
+
+        CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+        collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 1024.0f + 300.0f, 576.0f));
+        collision->SetType(CollisionTypes::None);
+        collision->SetMask(CollisionTypes::Enemy);
+        collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reverted);
+
+        ScriptComponent* script = Game::ScriptComponents().Create(entity);
+        script->SetScript(std::make_shared<BoundsScript>());
+    }
 }
 
 EntityHandle Game::CreatePlayer()
