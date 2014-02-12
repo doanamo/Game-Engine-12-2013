@@ -13,7 +13,7 @@ struct CollisionFlags
     {
         None     = 0,
         Enabled  = 1 << 0,
-        Reverted = 1 << 1,
+        Reversed = 1 << 1,
     };
 
     static const uint32_t Default = Enabled; 

@@ -45,7 +45,7 @@ void Game::CreateBounds()
         collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 1024.0f, 576.0f));
         collision->SetType(CollisionTypes::None);
         collision->SetMask(CollisionTypes::Projectile);
-        collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reverted);
+        collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reversed);
 
         ScriptComponent* script = Game::ScriptComponents().Create(entity);
         script->SetScript(std::make_shared<BoundsScript>());
@@ -62,7 +62,7 @@ void Game::CreateBounds()
         collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 1024.0f + 300.0f, 576.0f));
         collision->SetType(CollisionTypes::None);
         collision->SetMask(CollisionTypes::Enemy);
-        collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reverted);
+        collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reversed);
 
         ScriptComponent* script = Game::ScriptComponents().Create(entity);
         script->SetScript(std::make_shared<BoundsScript>());
