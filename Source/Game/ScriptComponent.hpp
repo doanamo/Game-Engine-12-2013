@@ -2,9 +2,7 @@
 
 #include "Precompiled.hpp"
 #include "Component.hpp"
-
-// Forward declarations.
-class Script;
+#include "Script.hpp"
 
 //
 // Script Component

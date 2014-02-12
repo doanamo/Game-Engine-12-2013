@@ -19,11 +19,11 @@ public:
     {
     }
 
-    virtual void OnCreate(EntityHandle entity)
+    virtual void OnCreate(EntityHandle self)
     {
     }
 
-    virtual void OnUpdate(EntityHandle entity, float timeDelta)
+    virtual void OnUpdate(EntityHandle self, float timeDelta)
     {
     }
 
