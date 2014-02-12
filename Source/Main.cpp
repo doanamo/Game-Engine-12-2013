@@ -87,6 +87,9 @@ int main(int argc, char* argv[])
         uint32_t timeElapsed = timeCurrent - timePrevious;
         float dt = (float)timeElapsed / 1000.0f;
 
+        // Limit maximum frame step.
+        dt = std::min(dt, 1.0f / 20.0f);
+
         // Handle window events.
         SDL_Event event;
         while(SDL_PollEvent(&event))
