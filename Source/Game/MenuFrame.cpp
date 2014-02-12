@@ -44,7 +44,7 @@ bool MenuFrame::Initialize()
     });
 
     // Load fonts.
-    if(!m_fontTitle.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 128, 512, 512))
+    if(!m_fontTitle.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 176, 512, 512))
         return false;
 
     if(!m_fontElement.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 48, 512, 512))
@@ -73,8 +73,8 @@ bool MenuFrame::Initialize()
         element.text = MenuElementText[i];
 
         // Set element draw data.
-        element.position.x = 200.0f;
-        element.position.y = windowHeight - 185.0f - i * m_fontElement.GetLineSpacing();
+        element.position.x = 175.0f;
+        element.position.y = windowHeight - 195.0f - i * m_fontElement.GetLineSpacing();
 
         // Calculate a bounding box.
         TextRenderer::DrawInfo info;
@@ -203,9 +203,9 @@ void MenuFrame::Draw()
         info.font = &m_fontTitle;
         info.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
         info.position.x = 50.0f;
-        info.position.y = windowHeight - 10.0f;
+        info.position.y = windowHeight + 10.0f;
 
-        Main::TextRenderer().Draw(info, projection, "Awesome Game");
+        Main::TextRenderer().Draw(info, projection, "Gunstar");
     }
 
     // Draw menu elements.
