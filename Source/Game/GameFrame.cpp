@@ -37,6 +37,9 @@ bool GameFrame::Initialize()
         }
     });
 
+    // Create bounds.
+    Game::CreateBounds();
+
     // Create the player.
     Game::CreatePlayer();
 

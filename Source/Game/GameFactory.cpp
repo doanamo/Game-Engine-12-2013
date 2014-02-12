@@ -16,6 +16,41 @@
 #include "ProjectileScript.hpp"
 #include "SpawnerScript.hpp"
 
+void Game::CreateBounds()
+{
+    // Projectile bounds script.
+    class ProjectileBoundsScript : public Script
+    {
+    public:
+        void OnCollision(CollisionObject& self, CollisionObject& other)
+        {
+            assert(self.collision != nullptr);
+            assert(other.collision != nullptr);
+
+            // Disable projectile collision.
+            other.collision->Disable();
+
+            // Destroy projectile entity.
+            Game::EntitySystem().DestroyEntity(other.entity);
+        }
+    };
+
+    // Create bounds that will destroy projectiles outside of it.
+    EntityHandle entity = Game::EntitySystem().CreateEntity();
+
+    TransformComponent* transform = Game::TransformComponents().Create(entity);
+    transform->SetPosition(glm::vec2(0.0f, 0.0f));
+
+    CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+    collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 1024.0f, 576.0f));
+    collision->SetType(CollisionTypes::None);
+    collision->SetMask(CollisionTypes::Projectile);
+    collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reverted);
+
+    ScriptComponent* script = Game::ScriptComponents().Create(entity);
+    script->SetScript(std::make_shared<ProjectileBoundsScript>());
+}
+
 EntityHandle Game::CreatePlayer()
 {
     EntityHandle entity = Game::EntitySystem().CreateEntity();

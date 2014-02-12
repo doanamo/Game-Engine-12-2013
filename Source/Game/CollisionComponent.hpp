@@ -4,6 +4,22 @@
 #include "Component.hpp"
 
 //
+// Collision Flags
+//
+
+struct CollisionFlags
+{
+    enum Type
+    {
+        None     = 0,
+        Enabled  = 1 << 0,
+        Reverted = 1 << 1,
+    };
+
+    static const uint32_t Default = Enabled; 
+};
+
+//
 // Collision Component
 //
 
@@ -11,7 +27,7 @@ class CollisionComponent : public Component
 {
 public:
     // Type declarations.
-    typedef unsigned int BitField;
+    typedef uint32_t BitField;
 
 public:
     CollisionComponent();
@@ -47,19 +63,29 @@ public:
         return m_mask;
     }
 
+    void SetFlags(BitField flags)
+    {
+        m_flags = flags;
+    }
+
+    BitField GetFlags() const
+    {
+        return m_flags;
+    }
+
     void Enable()
     {
-        m_enabled = true;
+        m_flags |= CollisionFlags::Enabled;
     }
 
     void Disable()
     {
-        m_enabled = false;
+        m_flags ^= CollisionFlags::Enabled;
     }
 
     bool IsEnabled() const
     {
-        return m_enabled;
+        return m_flags & CollisionFlags::Enabled;
     }
 
 private:
@@ -69,7 +95,7 @@ private:
     // Collision bits.
     BitField m_type;
     BitField m_mask;
-    
-    // Collision enabled.
-    bool m_enabled;
+
+    // Collision flags.
+    BitField m_flags;
 };

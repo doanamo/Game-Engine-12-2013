@@ -115,7 +115,8 @@ void CollisionSystem::Update()
             if(it->collision->GetMask() & other->collision->GetType())
             {
                 // Check if collision shapes intersect.
-                if(IntersectBoundingBox(it->worldAABB, other->worldAABB))
+                // If they don't interset and collision is marked as reverted, still call it.
+                if(IntersectBoundingBox(it->worldAABB, other->worldAABB) == !(it->collision->GetFlags() & CollisionFlags::Reverted))
                 {
                     // Execute object script.
                     it->script->GetScript()->OnCollision(*it, *other);
