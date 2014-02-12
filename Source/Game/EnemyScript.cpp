@@ -12,7 +12,7 @@ namespace
     // Random number generator.
     uint64_t seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::mt19937 generator((unsigned int)seed);
-    std::uniform_real<float> random(0.5f, 3.0);
+    std::uniform_real<float> random(1.0f, 3.0f);
 }
 
 EnemyScript::EnemyScript() :
