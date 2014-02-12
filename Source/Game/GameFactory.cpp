@@ -18,19 +18,18 @@
 
 void Game::CreateBounds()
 {
-    // Projectile bounds script.
-    class ProjectileBoundsScript : public Script
+    // Bounds script.
+    class BoundsScript : public Script
     {
     public:
         void OnCollision(CollisionObject& self, CollisionObject& other)
         {
-            assert(self.collision != nullptr);
             assert(other.collision != nullptr);
 
-            // Disable projectile collision.
+            // Disable entity collision.
             other.collision->Disable();
 
-            // Destroy projectile entity.
+            // Destroy entity.
             Game::EntitySystem().DestroyEntity(other.entity);
         }
     };
@@ -48,7 +47,7 @@ void Game::CreateBounds()
     collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reverted);
 
     ScriptComponent* script = Game::ScriptComponents().Create(entity);
-    script->SetScript(std::make_shared<ProjectileBoundsScript>());
+    script->SetScript(std::make_shared<BoundsScript>());
 }
 
 EntityHandle Game::CreatePlayer()
