@@ -80,7 +80,7 @@ public:
 
     void Disable()
     {
-        m_flags ^= CollisionFlags::Enabled;
+        m_flags &= ~CollisionFlags::Enabled;
     }
 
     bool IsEnabled() const
