@@ -11,12 +11,25 @@
 class EntitySystem
 {
 public:
+    // Handle flags.
+    struct HandleFlags
+    {
+        enum Type
+        {
+            None    = 0,
+            Active  = 1 << 0,
+            Destroy = 1 << 1,
+        };
+
+        static const uint32_t Free = None; 
+    };
+
     // Handle entry structure.
     struct HandleEntry
     {
         EntityHandle handle;
-        int nextFree;
-        bool active;
+        int          nextFree;
+        uint32_t     flags;
     };
 
     // Entity commands.

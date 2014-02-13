@@ -78,7 +78,7 @@ EntityHandle EntitySystem::CreateEntity()
         HandleEntry entry;
         entry.handle = handle;
         entry.nextFree = InvalidNextFree;
-        entry.active = false;
+        entry.flags = HandleFlags::Free;
 
         m_handles.push_back(entry);
 
@@ -133,6 +133,9 @@ void EntitySystem::DestroyEntity(const EntityHandle& entity)
     int handleIndex = entity.identifier - 1;
     HandleEntry& handleEntry = m_handles[handleIndex];
 
+    // Set the handle destroy flag.
+    handleEntry.flags |= HandleFlags::Destroy;
+
     // Add a destroy entity command.
     EntityCommand command;
     command.type = EntityCommands::Destroy;
@@ -155,13 +158,13 @@ void EntitySystem::DestroyAllEntities()
     {
         HandleEntry& handleEntry = *it;
 
-        if(handleEntry.active)
+        if(handleEntry.flags & HandleFlags::Active)
         {
             // Inform subscribers.
             OnDestroyEntity(handleEntry.handle);
 
-            // Mark the handle as inactive.
-            handleEntry.active = false;
+            // Set the handle free flags.
+            handleEntry.flags = HandleFlags::Free;
 
             // Increment the handle version to invalidate it.
             handleEntry.handle.version += 1;
@@ -199,7 +202,7 @@ bool EntitySystem::IsHandleValid(const EntityHandle& entity) const
     const HandleEntry& handleEntry = m_handles[handleIndex];
 
     // Check if handle is active.
-    if(handleEntry.active != true)
+    if(!(handleEntry.flags & HandleFlags::Active))
         return false;
 
     // Check if the handle versions match.
@@ -226,9 +229,9 @@ void EntitySystem::ProcessCommands()
                 assert(command->handle == handleEntry.handle);
 
                 // Mark handle as active.
-                assert(handleEntry.active == false);
+                assert(!(handleEntry.flags & HandleFlags::Active));
 
-                handleEntry.active = true;
+                handleEntry.flags |= HandleFlags::Active;
 
                 // Inform about the created entity.
                 OnCreateEntity(handleEntry.handle);
@@ -251,10 +254,11 @@ void EntitySystem::ProcessCommands()
                 // Inform about the soon to be destroyed entity.
                 OnDestroyEntity(handleEntry.handle);
 
-                // Mark handle as inactive.
-                assert(handleEntry.active == true);
+                // Set the handle flags as free.
+                assert(handleEntry.flags & HandleFlags::Active);
+                assert(handleEntry.flags & HandleFlags::Destroy);
 
-                handleEntry.active = false;
+                handleEntry.flags = HandleFlags::Free;
 
                 // Increment the handle version to invalidate it.
                 handleEntry.handle.version += 1;
