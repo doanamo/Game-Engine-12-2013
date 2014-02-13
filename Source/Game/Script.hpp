@@ -27,6 +27,14 @@ public:
     {
     }
 
+    virtual void OnDamage(EntityHandle self, int value, bool alive)
+    {
+    }
+
+    virtual void OnHeal(EntityHandle self, int value)
+    {
+    }
+
     virtual void OnCollision(CollisionObject& self, CollisionObject& other)
     {
     }

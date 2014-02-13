@@ -12,7 +12,7 @@ class SpawnerScript : public Script
 public:
     SpawnerScript();
 
-    void OnUpdate(EntityHandle entity, float timeDelta);
+    void OnUpdate(EntityHandle self, float timeDelta);
 
 private:
     float m_respawnTime;

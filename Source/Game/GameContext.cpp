@@ -7,13 +7,15 @@
 #include "InputState.hpp"
 
 #include "EntitySystem.hpp"
+#include "HealthSystem.hpp"
 #include "CollisionSystem.hpp"
 #include "ScriptSystem.hpp"
 #include "RenderSystem.hpp"
 
 #include "TransformComponent.hpp"
-#include "CollisionComponent.hpp"
 #include "InputComponent.hpp"
+#include "HealthComponent.hpp"
+#include "CollisionComponent.hpp"
 #include "ScriptComponent.hpp"
 #include "RenderComponent.hpp"
 
@@ -31,13 +33,15 @@ namespace
     InputState inputState;
 
     EntitySystem    entitySystem;
+    HealthSystem    healthSystem;
     CollisionSystem collisionSystem;
     ScriptSystem    scriptSystem;
     RenderSystem    renderSystem;
 
     ComponentPool<TransformComponent> transformComponents;
-    ComponentPool<CollisionComponent> collisionComponents;
     ComponentPool<InputComponent>     inputComponents;
+    ComponentPool<HealthComponent>    healthComponents;
+    ComponentPool<CollisionComponent> collisionComponents;
     ComponentPool<ScriptComponent>    scriptComponents;
     ComponentPool<RenderComponent>    renderComponents;
 
@@ -84,6 +88,10 @@ bool Game::Initialize()
     // Entity Systems
     //
 
+    // Initialize the health system.
+    if(!healthSystem.Initialize())
+        return false;
+
     // Initialize the collision system.
     if(!collisionSystem.Initialize())
         return false;
@@ -102,8 +110,9 @@ bool Game::Initialize()
 
     // Subscribe component pools to the entity system.
     entitySystem.RegisterSubscriber(&transformComponents);
-    entitySystem.RegisterSubscriber(&collisionComponents);
     entitySystem.RegisterSubscriber(&inputComponents);
+    entitySystem.RegisterSubscriber(&healthComponents);
+    entitySystem.RegisterSubscriber(&collisionComponents);
     entitySystem.RegisterSubscriber(&scriptComponents);
     entitySystem.RegisterSubscriber(&renderComponents);
 
@@ -141,6 +150,7 @@ void Game::Cleanup()
     // Entity Systems
     //
     
+    healthSystem.Cleanup();
     collisionSystem.Cleanup();
     scriptSystem.Cleanup();
     renderSystem.Cleanup();
@@ -152,8 +162,9 @@ void Game::Cleanup()
     //
 
     transformComponents.Cleanup();
-    collisionComponents.Cleanup();
     inputComponents.Cleanup();
+    healthComponents.Cleanup();
+    collisionComponents.Cleanup();
     scriptComponents.Cleanup();
     renderComponents.Cleanup();
 
@@ -206,6 +217,11 @@ EntitySystem& Game::EntitySystem()
     return entitySystem;
 }
 
+HealthSystem& Game::HealthSystem()
+{
+    return healthSystem;
+}
+
 CollisionSystem& Game::CollisionSystem()
 {
     return collisionSystem;
@@ -226,14 +242,19 @@ ComponentPool<TransformComponent>& Game::TransformComponents()
     return transformComponents;
 }
 
+ComponentPool<InputComponent>& Game::InputComponents()
+{
+    return inputComponents;
+}
+
 ComponentPool<CollisionComponent>& Game::CollisionComponents()
 {
     return collisionComponents;
 }
 
-ComponentPool<InputComponent>& Game::InputComponents()
+ComponentPool<HealthComponent>& Game::HealthComponents()
 {
-    return inputComponents;
+    return healthComponents;
 }
 
 ComponentPool<ScriptComponent>& Game::ScriptComponents()

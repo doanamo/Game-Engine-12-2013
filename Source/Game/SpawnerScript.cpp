@@ -20,10 +20,10 @@ SpawnerScript::SpawnerScript() :
 {
 }
 
-void SpawnerScript::OnUpdate(EntityHandle entity, float timeDelta)
+void SpawnerScript::OnUpdate(EntityHandle self, float timeDelta)
 {
     // Check if entity has needed components.
-    TransformComponent* transform = Game::TransformComponents().Lookup(entity);
+    TransformComponent* transform = Game::TransformComponents().Lookup(self);
     if(transform == nullptr) return;
 
     // Create an enitity after a delay.

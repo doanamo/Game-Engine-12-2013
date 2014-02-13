@@ -5,6 +5,7 @@
 #include "GameFactory.hpp"
 
 #include "EntitySystem.hpp"
+#include "HealthSystem.hpp"
 #include "CollisionSystem.hpp"
 
 #include "TransformComponent.hpp"
@@ -16,10 +17,10 @@ ProjectileScript::ProjectileScript(const glm::vec2& direction, float speed) :
 {
 }
 
-void ProjectileScript::OnUpdate(EntityHandle entity, float timeDelta)
+void ProjectileScript::OnUpdate(EntityHandle self, float timeDelta)
 {
     // Check if entity has needed components.
-    TransformComponent* transform = Game::TransformComponents().Lookup(entity);
+    TransformComponent* transform = Game::TransformComponents().Lookup(self);
     if(transform == nullptr) return;
 
     // Move entity to the right.
@@ -33,11 +34,9 @@ void ProjectileScript::OnCollision(CollisionObject& self, CollisionObject& other
     assert(self.collision != nullptr);
     assert(other.collision != nullptr);
 
-    // Disable collisions.
-    self.collision->Disable();
-    other.collision->Disable();
+    // Apply damage to target entity.
+    Game::HealthSystem().Damage(other.entity, 10);
 
-    // Destroy both entities.
+    // Destroy itself.
     Game::EntitySystem().DestroyEntity(self.entity);
-    Game::EntitySystem().DestroyEntity(other.entity);
 }

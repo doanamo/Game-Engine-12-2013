@@ -3,6 +3,7 @@
 
 #include "GameContext.hpp"
 #include "GameFactory.hpp"
+#include "EntitySystem.hpp"
 
 #include "CollisionTypes.hpp"
 #include "TransformComponent.hpp"
@@ -20,10 +21,10 @@ EnemyScript::EnemyScript() :
 {
 }
 
-void EnemyScript::OnUpdate(EntityHandle entity, float timeDelta)
+void EnemyScript::OnUpdate(EntityHandle self, float timeDelta)
 {
     // Check if entity has needed components.
-    TransformComponent* transform = Game::TransformComponents().Lookup(entity);
+    TransformComponent* transform = Game::TransformComponents().Lookup(self);
     if(transform == nullptr) return;
 
     // Move to the left side of the screen.
@@ -41,5 +42,14 @@ void EnemyScript::OnUpdate(EntityHandle entity, float timeDelta)
 
         // Set a shooting delay.
         m_shootTime = random(generator);
+    }
+}
+
+void EnemyScript::OnDamage(EntityHandle self, int value, bool alive)
+{
+    // Destroy the entity on fatal damage.
+    if(!alive)
+    {
+        Game::EntitySystem().DestroyEntity(self);
     }
 }

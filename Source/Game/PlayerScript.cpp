@@ -5,6 +5,7 @@
 
 #include "GameContext.hpp"
 #include "GameFactory.hpp"
+#include "EntitySystem.hpp"
 
 #include "CollisionTypes.hpp"
 #include "TransformComponent.hpp"
@@ -15,13 +16,13 @@ PlayerScript::PlayerScript() :
 {
 }
 
-void PlayerScript::OnUpdate(EntityHandle entity, float timeDelta)
+void PlayerScript::OnUpdate(EntityHandle self, float timeDelta)
 {
     // Check if entity has needed components.
-    TransformComponent* transform = Game::TransformComponents().Lookup(entity);
+    TransformComponent* transform = Game::TransformComponents().Lookup(self);
     if(transform == nullptr) return;
 
-    InputComponent* input = Game::InputComponents().Lookup(entity);
+    InputComponent* input = Game::InputComponents().Lookup(self);
     if(input == nullptr) return;
 
     // Shoot a projectile.
@@ -68,5 +69,14 @@ void PlayerScript::OnUpdate(EntityHandle entity, float timeDelta)
         glm::vec2 position = transform->GetPosition();
         position += glm::normalize(direction) * 400.0f * timeDelta;
         transform->SetPosition(position);
+    }
+}
+
+void PlayerScript::OnDamage(EntityHandle self, int value, bool alive)
+{
+    // Destroy the entity on fatal damage.
+    if(!alive)
+    {
+        Game::EntitySystem().DestroyEntity(self);
     }
 }

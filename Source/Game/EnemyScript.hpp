@@ -12,7 +12,8 @@ class EnemyScript : public Script
 public:
     EnemyScript();
 
-    void OnUpdate(EntityHandle entity, float timeDelta);
+    void OnUpdate(EntityHandle self, float timeDelta);
+    void OnDamage(EntityHandle self, int value, bool alive);
 
 private:
     float m_shootTime;

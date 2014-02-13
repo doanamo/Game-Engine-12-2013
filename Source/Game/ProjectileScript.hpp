@@ -12,7 +12,7 @@ class ProjectileScript : public Script
 public:
     ProjectileScript(const glm::vec2& direction, float speed);
 
-    void OnUpdate(EntityHandle entity, float timeDelta);
+    void OnUpdate(EntityHandle self, float timeDelta);
     void OnCollision(CollisionObject& self, CollisionObject& other);
 
 private:

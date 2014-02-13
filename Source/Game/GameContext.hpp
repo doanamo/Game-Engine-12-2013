@@ -8,13 +8,15 @@
 class InputState;
 
 class EntitySystem;
+class HealthSystem;
 class CollisionSystem;
 class ScriptSystem;
 class RenderSystem;
 
 class TransformComponent;
-class CollisionComponent;
 class InputComponent;
+class HealthComponent;
+class CollisionComponent;
 class ScriptComponent;
 class RenderComponent;
 
@@ -38,13 +40,15 @@ namespace Game
     InputState& InputState();
 
     EntitySystem&    EntitySystem();
+    HealthSystem&    HealthSystem();
     CollisionSystem& CollisionSystem();
     ScriptSystem&    ScriptSystem();
     RenderSystem&    RenderSystem();
 
     ComponentPool<TransformComponent>& TransformComponents();
-    ComponentPool<CollisionComponent>& CollisionComponents();
     ComponentPool<InputComponent>&     InputComponents();
+    ComponentPool<HealthComponent>&    HealthComponents();
+    ComponentPool<CollisionComponent>& CollisionComponents();
     ComponentPool<ScriptComponent>&    ScriptComponents();
     ComponentPool<RenderComponent>&    RenderComponents();
 

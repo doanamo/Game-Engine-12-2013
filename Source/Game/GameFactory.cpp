@@ -7,6 +7,7 @@
 #include "CollisionTypes.hpp"
 #include "TransformComponent.hpp"
 #include "InputComponent.hpp"
+#include "HealthComponent.hpp"
 #include "CollisionComponent.hpp"
 #include "ScriptComponent.hpp"
 #include "RenderComponent.hpp"
@@ -25,9 +26,6 @@ void Game::CreateBounds()
         void OnCollision(CollisionObject& self, CollisionObject& other)
         {
             assert(other.collision != nullptr);
-
-            // Disable entity collision.
-            other.collision->Disable();
 
             // Destroy entity.
             Game::EntitySystem().DestroyEntity(other.entity);
@@ -81,6 +79,10 @@ EntityHandle Game::CreatePlayer()
     InputComponent* input = Game::InputComponents().Create(entity);
     input->SetStateReference(&Game::InputState());
 
+    HealthComponent* health = Game::HealthComponents().Create(entity);
+    health->SetMaximumHealth(100);
+    health->SetCurrentHealth(100);
+
     CollisionComponent* collision = Game::CollisionComponents().Create(entity);
     collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
     collision->SetType(CollisionTypes::Player);
@@ -103,6 +105,10 @@ EntityHandle Game::CreateEnemy(const glm::vec2& position)
     transform->SetPosition(position);
     transform->SetScale(glm::vec2(1.0f, 1.0f));
     transform->SetRotation(0.0f);
+
+    HealthComponent* health = Game::HealthComponents().Create(entity);
+    health->SetMaximumHealth(30);
+    health->SetCurrentHealth(30);
 
     CollisionComponent* collision = Game::CollisionComponents().Create(entity);
     collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
