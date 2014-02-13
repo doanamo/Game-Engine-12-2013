@@ -85,6 +85,7 @@ void CollisionSystem::Update()
         object.collision = collision;
         object.script = script;
         object.worldAABB = boundingBox;
+        object.enabled = true;
 
         m_objects.push_back(object);
     }
@@ -96,8 +97,8 @@ void CollisionSystem::Update()
         if(it->script == nullptr)
             continue;
 
-        // Check if collision is still enabled.
-        if(!it->collision->IsEnabled())
+        // Check if collision object is still enabled.
+        if(!it->enabled)
             continue;
 
         // Check if it collides with other objects.
@@ -107,8 +108,8 @@ void CollisionSystem::Update()
             if(other == it)
                 continue;
 
-            // Check if collision is still enabled.
-            if(!other->collision->IsEnabled())
+            // Check if collision object is still enabled.
+            if(!other->enabled)
                 continue;
 
             // Check if an object can collide with it.
@@ -121,9 +122,18 @@ void CollisionSystem::Update()
                     // Execute object script.
                     it->script->GetScript()->OnCollision(*it, *other);
 
-                    // Check if this collision object is still enabled.
-                    if(!it->collision->IsEnabled())
+                    // Check if other collision object is still valid.
+                    if(!Game::EntitySystem().IsHandleValid(other->entity) || !other->collision->IsEnabled())
+                    {
+                        other->enabled = false;
+                    }
+
+                    // Check if this collision object is still valid.
+                    if(!Game::EntitySystem().IsHandleValid(it->entity) || !it->collision->IsEnabled())
+                    {
+                        it->enabled = false;
                         break;
+                    }
                 }
             }
         }

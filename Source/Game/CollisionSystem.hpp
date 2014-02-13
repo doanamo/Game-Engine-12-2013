@@ -19,6 +19,7 @@ struct CollisionObject
     CollisionComponent* collision;
     ScriptComponent* script;
     glm::vec4 worldAABB;
+    bool enabled;
 };
 
 //
