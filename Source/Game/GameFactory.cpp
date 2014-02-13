@@ -107,8 +107,8 @@ EntityHandle Game::CreateEnemy(const glm::vec2& position)
     transform->SetRotation(0.0f);
 
     HealthComponent* health = Game::HealthComponents().Create(entity);
-    health->SetMaximumHealth(30);
-    health->SetCurrentHealth(30);
+    health->SetMaximumHealth(20);
+    health->SetCurrentHealth(20);
 
     CollisionComponent* collision = Game::CollisionComponents().Create(entity);
     collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
