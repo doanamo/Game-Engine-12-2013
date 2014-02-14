@@ -415,8 +415,8 @@ bool TextRenderer::Initialize(int bufferSize)
     // Allocate vertex data buffer for glyph quads.
     m_vertexData = new Vertex[m_bufferSize * 4];
 
-    // Load text shader.
-    if(!m_shader.Load(Main::WorkingDir() + "Data/Shaders/Text.glsl"))
+    // Load glyph shader.
+    if(!m_shader.Load(Main::WorkingDir() + "Data/Shaders/Glyph.glsl"))
     {
         Log() << LogInitializeError() << "Couldn't load a shader.";
         Cleanup();
