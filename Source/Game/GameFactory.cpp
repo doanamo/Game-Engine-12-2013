@@ -93,7 +93,7 @@ EntityHandle Game::CreatePlayer()
     script->AddScript(std::make_shared<PlayerScript>());
 
     RenderComponent* render = Game::RenderComponents().Create(entity);
-    render->SetColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    render->SetDiffuseColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
     return entity;
 }
@@ -120,7 +120,7 @@ EntityHandle Game::CreateEnemy(const glm::vec2& position)
     script->AddScript(std::make_shared<EnemyScript>());
 
     RenderComponent* render = Game::RenderComponents().Create(entity);
-    render->SetColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    render->SetDiffuseColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
     return entity;
 }
@@ -143,7 +143,7 @@ EntityHandle Game::CreateProjectile(const glm::vec2& position, const glm::vec2& 
     script->AddScript(std::make_shared<ProjectileScript>(direction, speed));
 
     RenderComponent* render = Game::RenderComponents().Create(entity);
-    render->SetColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+    render->SetDiffuseColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 
     return entity;
 };

@@ -142,9 +142,9 @@ void RenderSystem::Update()
         // Add a sprite to the list.
         Sprite sprite;
         sprite.transform = transform->CalculateMatrix();
-        sprite.diffuseColor = render.GetColor();
-        sprite.emissionColor = glm::vec3(1.0f, 1.0f, 1.0f);
-        sprite.emissionPower = 0.0f;
+        sprite.diffuseColor = render.GetDiffuseColor();
+        sprite.emissionColor = render.GetEmissionColor();
+        sprite.emissionPower = render.GetEmissionPower();
         m_sprites.push_back(sprite);
     }
 }
