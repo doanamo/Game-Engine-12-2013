@@ -13,6 +13,7 @@
 #include "ScriptComponent.hpp"
 #include "RenderComponent.hpp"
 
+#include "CommonScripts.hpp"
 #include "PlayerScript.hpp"
 #include "EnemyScript.hpp"
 #include "ProjectileScript.hpp"
@@ -91,6 +92,7 @@ EntityHandle Game::CreatePlayer()
 
     ScriptComponent* script = Game::ScriptComponents().Create(entity);
     script->AddScript(std::make_shared<PlayerScript>());
+    script->AddScript(std::make_shared<BlinkOnDamageScript>());
 
     RenderComponent* render = Game::RenderComponents().Create(entity);
     render->SetDiffuseColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
@@ -108,8 +110,8 @@ EntityHandle Game::CreateEnemy(const glm::vec2& position)
     transform->SetRotation(0.0f);
 
     HealthComponent* health = Game::HealthComponents().Create(entity);
-    health->SetMaximumHealth(20);
-    health->SetCurrentHealth(20);
+    health->SetMaximumHealth(30);
+    health->SetCurrentHealth(30);
 
     CollisionComponent* collision = Game::CollisionComponents().Create(entity);
     collision->SetBoundingBox(glm::vec4(-25.0f, -25.0f, 25.0f, 25.0f));
@@ -118,6 +120,7 @@ EntityHandle Game::CreateEnemy(const glm::vec2& position)
 
     ScriptComponent* script = Game::ScriptComponents().Create(entity);
     script->AddScript(std::make_shared<EnemyScript>());
+    script->AddScript(std::make_shared<BlinkOnDamageScript>());
 
     RenderComponent* render = Game::RenderComponents().Create(entity);
     render->SetDiffuseColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));

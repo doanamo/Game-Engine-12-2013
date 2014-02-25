@@ -184,6 +184,8 @@ Set(SourceFiles
     "Game/CollisionTypes.hpp"
     "Game/GameFactory.hpp"
     "Game/GameFactory.cpp"
+    "Game/CommonScripts.hpp"
+    "Game/CommonScripts.cpp"
     "Game/PlayerScript.hpp"
     "Game/PlayerScript.cpp"
     "Game/EnemyScript.hpp"
