@@ -457,9 +457,9 @@ bool TextRenderer::Initialize(int bufferSize)
     // Vertex input.
     VertexAttribute vertexAttributes[] =
     {
-        { 0, &m_vertexBuffer, VertexAttributeTypes::Float2 },
-        { 1, &m_vertexBuffer, VertexAttributeTypes::Float2 },
-        { 2, &m_vertexBuffer, VertexAttributeTypes::Float4 },
+        { &m_vertexBuffer, VertexAttributeTypes::Float2 },
+        { &m_vertexBuffer, VertexAttributeTypes::Float2 },
+        { &m_vertexBuffer, VertexAttributeTypes::Float4 },
     };
 
     if(!m_vertexInput.Initialize(&vertexAttributes[0], StaticArraySize(vertexAttributes)))

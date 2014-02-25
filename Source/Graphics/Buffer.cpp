@@ -74,7 +74,7 @@ void Buffer::Cleanup()
     m_elementCount = 0;
 }
 
-void Buffer::Update(const void* data)
+void Buffer::Update(const void* data, int count)
 {
     if(m_handle == InvalidHandle)
         return;
@@ -82,9 +82,18 @@ void Buffer::Update(const void* data)
     if(data == nullptr)
         return;
 
+    if(count == 0)
+        return;
+
+    // Check if to upload the whole buffer.
+    if(count < 0)
+    {
+        count = m_elementCount;
+    }
+
     // Upload new buffer data.
     glBindBuffer(m_type, m_handle);
-    glBufferSubData(m_type, 0, m_elementSize * m_elementCount, data);
+    glBufferSubData(m_type, 0, m_elementSize * count, data);
     glBindBuffer(m_type, 0);
 }
 

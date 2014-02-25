@@ -7,7 +7,7 @@
 //
 
 // Forward declarations.
-class VertexBuffer;
+class Buffer;
 
 // Vertex attribute types.
 enum class VertexAttributeTypes
@@ -19,14 +19,15 @@ enum class VertexAttributeTypes
     Float3,
     Float4,
 
+    Float4x4,
+
     Count,
 };
 
 // Vertex attribute structure.
 struct VertexAttribute
 {
-    int location;
-    VertexBuffer* buffer;
+    Buffer* buffer;
     VertexAttributeTypes type;
 };
 
@@ -38,7 +39,7 @@ public:
     ~VertexInput();
 
     // Initializes the vertex input.
-    bool Initialize(VertexAttribute* attributes, unsigned int count);
+    bool Initialize(VertexAttribute* attributes, int count);
 
     // Restores class instance to it's original state.
     void Cleanup();

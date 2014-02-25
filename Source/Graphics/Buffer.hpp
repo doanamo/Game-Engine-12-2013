@@ -20,7 +20,7 @@ public:
     void Cleanup();
 
     // Update buffer data.
-    void Update(const void* data);
+    void Update(const void* data, int count = -1);
 
     // Checks if the buffer is valid.
     bool IsValid() const;
@@ -50,7 +50,16 @@ public:
     }
 
     // Gets the buffer element type.
-    GLenum GetElementType() const;
+    virtual GLenum GetElementType() const
+    {
+        return GL_INVALID_ENUM;
+    }
+
+    // Check if buffer is instanced.
+    virtual bool IsInstanced() const
+    {
+        return false;
+    }
 
 protected:
     GLenum m_type;
@@ -86,4 +95,22 @@ public:
     }
 
     GLenum GetElementType() const;
+};
+
+//
+// Instance Buffer
+//
+
+class InstanceBuffer : public Buffer
+{
+public:
+    InstanceBuffer() :
+        Buffer(GL_ARRAY_BUFFER)
+    {
+    }
+
+    bool IsInstanced() const
+    {
+        return true;
+    }
 };

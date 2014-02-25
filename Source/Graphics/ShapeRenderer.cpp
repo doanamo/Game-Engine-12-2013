@@ -58,9 +58,9 @@ bool ShapeRenderer::Initialize(int bufferSize)
     // Create a vertex input.
     VertexAttribute vertexAttributes[3] =
     {
-        { 0, &m_vertexBuffer, VertexAttributeTypes::Float2 },
-        { 1, &m_vertexBuffer, VertexAttributeTypes::Float2 },
-        { 2, &m_vertexBuffer, VertexAttributeTypes::Float4 },
+        { &m_vertexBuffer, VertexAttributeTypes::Float2 },
+        { &m_vertexBuffer, VertexAttributeTypes::Float2 },
+        { &m_vertexBuffer, VertexAttributeTypes::Float4 },
     };
 
     if(!m_vertexInput.Initialize(&vertexAttributes[0], StaticArraySize(vertexAttributes)))
