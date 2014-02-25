@@ -38,18 +38,14 @@ void ScriptSystem::Update(float timeDelta)
         // Get the script component.
         ScriptComponent& script = it->second;
 
-        // Execute the script.
-        if(script.m_script != nullptr)
+        // Call OnCreate() method (only for new components).
+        if(!script.m_touched)
         {
-            // Call OnCreate() method.
-            if(!script.m_script->m_touched)
-            {
-                script.m_script->OnCreate(it->first);
-                script.m_script->m_touched = true;
-            }
-
-            // Call OnUpdate() method.
-            script.m_script->OnUpdate(it->first, timeDelta);
+            script.OnCreate(it->first);
+            script.m_touched = true;
         }
+
+        // Call OnUpdate() method.
+        script.OnUpdate(it->first, timeDelta);
     }
 }

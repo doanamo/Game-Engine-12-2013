@@ -120,7 +120,7 @@ void CollisionSystem::Update()
                 if(IntersectBoundingBox(it->worldAABB, other->worldAABB) == !(it->collision->GetFlags() & CollisionFlags::Reversed))
                 {
                     // Execute object script.
-                    it->script->GetScript()->OnCollision(*it, *other);
+                    it->script->OnCollision(*it, *other);
 
                     // Check if other collision object is still valid.
                     if(!Game::EntitySystem().IsHandleValid(other->entity) || !other->collision->IsEnabled())

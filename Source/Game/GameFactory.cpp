@@ -3,6 +3,7 @@
 
 #include "GameContext.hpp"
 #include "EntitySystem.hpp"
+#include "CollisionSystem.hpp"
 
 #include "CollisionTypes.hpp"
 #include "TransformComponent.hpp"
@@ -46,7 +47,7 @@ void Game::CreateBounds()
         collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reversed);
 
         ScriptComponent* script = Game::ScriptComponents().Create(entity);
-        script->SetScript(std::make_shared<BoundsScript>());
+        script->AddScript(std::make_shared<BoundsScript>());
     }
 
     // Create enemy bounds.
@@ -63,7 +64,7 @@ void Game::CreateBounds()
         collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reversed);
 
         ScriptComponent* script = Game::ScriptComponents().Create(entity);
-        script->SetScript(std::make_shared<BoundsScript>());
+        script->AddScript(std::make_shared<BoundsScript>());
     }
 }
 
@@ -89,7 +90,7 @@ EntityHandle Game::CreatePlayer()
     collision->SetMask(CollisionTypes::None);
 
     ScriptComponent* script = Game::ScriptComponents().Create(entity);
-    script->SetScript(std::make_shared<PlayerScript>());
+    script->AddScript(std::make_shared<PlayerScript>());
 
     RenderComponent* render = Game::RenderComponents().Create(entity);
     render->SetColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
@@ -116,7 +117,7 @@ EntityHandle Game::CreateEnemy(const glm::vec2& position)
     collision->SetMask(CollisionTypes::None);
 
     ScriptComponent* script = Game::ScriptComponents().Create(entity);
-    script->SetScript(std::make_shared<EnemyScript>());
+    script->AddScript(std::make_shared<EnemyScript>());
 
     RenderComponent* render = Game::RenderComponents().Create(entity);
     render->SetColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
@@ -139,7 +140,7 @@ EntityHandle Game::CreateProjectile(const glm::vec2& position, const glm::vec2& 
     collision->SetMask(collisionMask);
 
     ScriptComponent* script = Game::ScriptComponents().Create(entity);
-    script->SetScript(std::make_shared<ProjectileScript>(direction, speed));
+    script->AddScript(std::make_shared<ProjectileScript>(direction, speed));
 
     RenderComponent* render = Game::RenderComponents().Create(entity);
     render->SetColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
@@ -155,7 +156,7 @@ EntityHandle Game::CreateSpawner(const glm::vec2& position)
     transform->SetPosition(position);
 
     ScriptComponent* script = Game::ScriptComponents().Create(entity);
-    script->SetScript(std::make_shared<SpawnerScript>());
+    script->AddScript(std::make_shared<SpawnerScript>());
 
     return entity;
 }

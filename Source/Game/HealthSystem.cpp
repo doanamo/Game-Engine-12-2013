@@ -52,7 +52,7 @@ void HealthSystem::Damage(EntityHandle entity, int value)
 
         if(script != nullptr)
         {
-            script->GetScript()->OnDamage(entity, value, health->IsAlive());
+            script->OnDamage(entity, value, health->IsAlive());
         }
     }
 }
@@ -84,7 +84,7 @@ void HealthSystem::Heal(EntityHandle entity, int value)
 
         if(script != nullptr)
         {
-            script->GetScript()->OnHeal(entity, value);
+            script->OnHeal(entity, value);
         }
     }
 }

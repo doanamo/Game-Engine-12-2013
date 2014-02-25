@@ -16,22 +16,22 @@ public:
 
     // Type declarations.
     typedef std::shared_ptr<Script> ScriptPtr;
+    typedef std::vector<ScriptPtr> ScriptList;
 
 public:
     ScriptComponent();
     ~ScriptComponent();
 
-    void SetScript(ScriptPtr script)
-    {
-        m_script = script;
-    }
+    void AddScript(ScriptPtr script);
 
-    ScriptPtr GetScript()
-    {
-        return m_script;
-    }
+    // Script calls.
+    void OnCreate(EntityHandle self);
+    void OnUpdate(EntityHandle self, float timeDelta);
+    void OnDamage(EntityHandle self, int value, bool alive);
+    void OnHeal(EntityHandle self, int value);
+    void OnCollision(CollisionObject& self, CollisionObject& other);
     
 private:
-    // Script object.
-    ScriptPtr m_script;
+    ScriptList m_scripts;
+    bool       m_touched;
 };
