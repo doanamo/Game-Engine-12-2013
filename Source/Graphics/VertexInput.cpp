@@ -8,7 +8,7 @@ namespace
     #define LogInitializeError() "Failed to initialize a vertex input! "
 
     // Gets the vertex attribute type size.
-    GLint GetVertexAttributeTypeSize(VertexAttributeTypes type)
+    int GetVertexAttributeTypeSize(VertexAttributeTypes type)
     {
         switch(type)
         {
@@ -22,6 +22,27 @@ namespace
                 return 3;
 
             case VertexAttributeTypes::Float4:
+                return 4;
+
+            case VertexAttributeTypes::Float4x4:
+                return 4;
+        }
+
+        return 0;
+    }
+
+    // Gets the vertex attribute type rows.
+    int GetVertexAttributeTypeRows(VertexAttributeTypes type)
+    {
+        switch(type)
+        {
+            case VertexAttributeTypes::Float1:
+            case VertexAttributeTypes::Float2:
+            case VertexAttributeTypes::Float3:
+            case VertexAttributeTypes::Float4:
+                return 1;
+
+            case VertexAttributeTypes::Float4x4:
                 return 4;
         }
 
@@ -37,6 +58,7 @@ namespace
             case VertexAttributeTypes::Float2:
             case VertexAttributeTypes::Float3:
             case VertexAttributeTypes::Float4:
+            case VertexAttributeTypes::Float4x4:
                 return GL_FLOAT;
         }
 
@@ -44,7 +66,7 @@ namespace
     }
 
     // Gets the vertex attribute type offset.
-    GLint GetVertexAttributeTypeOffset(VertexAttributeTypes type)
+    int GetVertexAttributeTypeOffset(VertexAttributeTypes type)
     {
         switch(type)
         {
@@ -58,6 +80,9 @@ namespace
                 return sizeof(float) * 3;
 
             case VertexAttributeTypes::Float4:
+                return sizeof(float) * 4;
+
+            case VertexAttributeTypes::Float4x4:
                 return sizeof(float) * 4;
         }
 
@@ -75,7 +100,7 @@ VertexInput::~VertexInput()
     Cleanup();
 }
 
-bool VertexInput::Initialize(VertexAttribute* attributes, unsigned int count)
+bool VertexInput::Initialize(VertexAttribute* attributes, int count)
 {
     Cleanup();
 
@@ -86,25 +111,25 @@ bool VertexInput::Initialize(VertexAttribute* attributes, unsigned int count)
         return false;
     }
 
-    if(count == 0)
+    if(count <= 0)
     {
         Log() << LogInitializeError() << "Invalid argument - \"count\" is 0.";
         return false;
     }
 
-    for(unsigned int i = 0; i < count; ++i)
+    for(int i = 0; i < count; ++i)
     {
         VertexAttribute& attribute = attributes[i];
-
-        if(attribute.location < 0)
-        {
-            Log() << LogInitializeError() << "Invalid argument - \"attribute[" << i << "].location\" is invalid.";
-            return false;
-        }
 
         if(attribute.buffer == nullptr)
         {
             Log() << LogInitializeError() << "Invalid argument - \"attribute[" << i << "].buffer\" is null.";
+            return false;
+        }
+
+        if(attribute.buffer->GetType() != GL_ARRAY_BUFFER)
+        {
+            Log() << LogInitializeError() << "Invalid argument - \"attribute[" << i << "].buffer\" is not a vertex or instance buffer.";
             return false;
         }
 
@@ -135,10 +160,12 @@ bool VertexInput::Initialize(VertexAttribute* attributes, unsigned int count)
     glBindVertexArray(m_handle);
 
     // Set the vertex array state.
-    VertexBuffer* currentBuffer = nullptr;
-    unsigned int currentOffset = 0;
+    Buffer* currentBuffer = nullptr;
 
-    for(unsigned int i = 0; i < count; ++i)
+    int currentLocation = 0;
+    int currentOffset = 0;
+
+    for(int i = 0; i < count; ++i)
     {
         VertexAttribute& attribute = attributes[i];
 
@@ -151,21 +178,34 @@ bool VertexInput::Initialize(VertexAttribute* attributes, unsigned int count)
             currentOffset = 0;
         }
 
-        // Enable vertex attribute.
-        glEnableVertexAttribArray(attribute.location);
+        // Setup vertex attributes for each used vertex location.
+        for(int l = 0; l < GetVertexAttributeTypeRows(attribute.type); ++l)
+        {
+            // Enable vertex attribute.
+            glEnableVertexAttribArray(currentLocation);
 
-        // Set vertex attribute pointer.
-        glVertexAttribPointer(
-            attribute.location,
-            GetVertexAttributeTypeSize(attribute.type), 
-            GetVertexAttributeTypeEnum(attribute.type),
-            GL_FALSE,
-            attribute.buffer->GetElementSize(),
-            (void*)currentOffset
-        );
+            // Set vertex attribute pointer.
+            glVertexAttribPointer(
+                currentLocation,
+                GetVertexAttributeTypeSize(attribute.type),
+                GetVertexAttributeTypeEnum(attribute.type),
+                GL_FALSE,
+                attribute.buffer->GetElementSize(),
+                (void*)currentOffset
+            );
 
-        // Increment current offset.
-        currentOffset += GetVertexAttributeTypeOffset(attribute.type);
+            // Make vertex location instanced.
+            if(attribute.buffer->IsInstanced())
+            {
+                glVertexAttribDivisor(currentLocation, 1);
+            }
+
+            // Increment current location.
+            currentLocation += 1;
+
+            // Increment current offset.
+            currentOffset += GetVertexAttributeTypeOffset(attribute.type);
+        }
     }
 
     // Restore default state.
