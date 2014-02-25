@@ -101,7 +101,7 @@ bool Game::Initialize()
         return false;
 
     // Initialize the render system.
-    if(!renderSystem.Initialize())
+    if(!renderSystem.Initialize(64))
         return false;
 
     //

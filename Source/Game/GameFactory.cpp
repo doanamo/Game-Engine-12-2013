@@ -73,7 +73,7 @@ EntityHandle Game::CreatePlayer()
 
     TransformComponent* transform = Game::TransformComponents().Create(entity);
     transform->SetPosition(glm::vec2(50.0f, 275.0f));
-    transform->SetScale(glm::vec2(1.0f, 1.0f));
+    transform->SetScale(glm::vec2(50.0f, 50.0f));
     transform->SetRotation(0.0f);
 
     InputComponent* input = Game::InputComponents().Create(entity);
@@ -84,7 +84,7 @@ EntityHandle Game::CreatePlayer()
     health->SetCurrentHealth(100);
 
     CollisionComponent* collision = Game::CollisionComponents().Create(entity);
-    collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
+    collision->SetBoundingBox(glm::vec4(-25.0f, -25.0f, 25.0f, 25.0f));
     collision->SetType(CollisionTypes::Player);
     collision->SetMask(CollisionTypes::None);
 
@@ -103,7 +103,7 @@ EntityHandle Game::CreateEnemy(const glm::vec2& position)
 
     TransformComponent* transform = Game::TransformComponents().Create(entity);
     transform->SetPosition(position);
-    transform->SetScale(glm::vec2(1.0f, 1.0f));
+    transform->SetScale(glm::vec2(50.0f, 50.0f));
     transform->SetRotation(0.0f);
 
     HealthComponent* health = Game::HealthComponents().Create(entity);
@@ -111,7 +111,7 @@ EntityHandle Game::CreateEnemy(const glm::vec2& position)
     health->SetCurrentHealth(20);
 
     CollisionComponent* collision = Game::CollisionComponents().Create(entity);
-    collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
+    collision->SetBoundingBox(glm::vec4(-25.0f, -25.0f, 25.0f, 25.0f));
     collision->SetType(CollisionTypes::Enemy);
     collision->SetMask(CollisionTypes::None);
 
@@ -130,11 +130,11 @@ EntityHandle Game::CreateProjectile(const glm::vec2& position, const glm::vec2& 
 
     TransformComponent* transform = Game::TransformComponents().Create(entity);
     transform->SetPosition(position);
-    transform->SetScale(glm::vec2(1.0f, 1.0f));
+    transform->SetScale(glm::vec2(40.0f, 40.0f));
     transform->SetRotation(0.0f);
 
     CollisionComponent* collision = Game::CollisionComponents().Create(entity);
-    collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 50.0f, 50.0f));
+    collision->SetBoundingBox(glm::vec4(-20.0f, -20.0f, 20.0f, 20.0f));
     collision->SetType(CollisionTypes::Projectile);
     collision->SetMask(collisionMask);
 
