@@ -205,6 +205,10 @@ bool EntitySystem::IsHandleValid(const EntityHandle& entity) const
     if(!(handleEntry.flags & HandleFlags::Active))
         return false;
 
+    // Check if handle is scheduled to be destroyed.
+    if(handleEntry.flags & HandleFlags::Destroy)
+        return false;
+
     // Check if the handle versions match.
     if(handleEntry.handle.version != entity.version)
         return false;
