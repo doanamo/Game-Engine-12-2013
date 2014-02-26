@@ -43,8 +43,5 @@ private:
 
     int m_bufferSize;
 
-    // Render state.
-    glm::mat4 m_projection;
-
     bool m_initialized;
 };

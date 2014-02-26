@@ -113,13 +113,6 @@ void RenderSystem::Update()
     if(!m_initialized)
         return;
 
-    // Get current window size.
-    int windowWidth = Console::windowWidth;
-    int windowHeight = Console::windowHeight;
-
-    // Setup projection.
-    m_projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
-
     // Make sure the sprite list is clear.
     m_sprites.clear();
 
@@ -157,6 +150,53 @@ void RenderSystem::Draw()
     if(m_sprites.empty())
         return;
 
+    //
+    // Setup View
+    //
+
+    // Window space metrics.
+    float windowWidth = Console::windowWidth;
+    float windowHeight = Console::windowHeight;
+
+    float windowVerticalAspectRatio = windowWidth / windowHeight;
+    float windowHorizontalAspectRatio = windowHeight / windowWidth;
+
+    // Game space metrics.
+    float gameWidth = 1024.0f;
+    float gameHeight = 576.0f;
+
+    float gameVerticalAspectRatio = gameWidth / gameHeight;
+    float gameHorizontalAspectRatio = gameHeight / gameWidth;
+
+    // Setup screen space coordinates.
+    glm::vec4 screenSpace(-gameWidth * 0.5f, gameWidth * 0.5f, -gameHeight * 0.5f, gameHeight * 0.5f);
+
+    if(windowVerticalAspectRatio > gameVerticalAspectRatio)
+    {
+        float aspectRatio = windowVerticalAspectRatio / gameVerticalAspectRatio;
+
+        screenSpace.x *= aspectRatio;
+        screenSpace.y *= aspectRatio;
+    }
+    else
+    if(windowHorizontalAspectRatio > gameHorizontalAspectRatio)
+    {
+        float aspectRatio = windowHorizontalAspectRatio / gameHorizontalAspectRatio;
+
+        screenSpace.z *= aspectRatio;
+        screenSpace.w *= aspectRatio;
+    }
+
+    // Setup view matrix.
+    glm::mat4 view = glm::ortho(screenSpace.x, screenSpace.y, screenSpace.z, screenSpace.w);
+
+    // Move origin to bottom left corner.
+    view = glm::translate(view, glm::vec3(-gameWidth * 0.5f, -gameHeight * 0.5f, 0.0f));
+
+    //
+    // Draw Sprites
+    //
+
     // Bind render states.
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -164,7 +204,7 @@ void RenderSystem::Draw()
     glUseProgram(m_shader.GetHandle());
     glBindVertexArray(m_vertexInput.GetHandle());
 
-    glUniformMatrix4fv(m_shader.GetUniform("viewTransform"), 1, GL_FALSE, glm::value_ptr(m_projection));
+    glUniformMatrix4fv(m_shader.GetUniform("viewTransform"), 1, GL_FALSE, glm::value_ptr(view));
     glUniform1i(m_shader.GetUniform("texture"), 0);
 
     // Batch sprites.
