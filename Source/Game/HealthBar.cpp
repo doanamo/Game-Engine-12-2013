@@ -73,7 +73,7 @@ void HealthBar::Draw(const glm::vec2& position, const glm::mat4& transform)
     quads[2].texture = nullptr;
 
     // Scale quads for the current values.
-    quads[1].size.x = quads[2].size.x / m_maximumValue * m_decayingValue;
+    quads[1].size.x = quads[1].size.x / m_maximumValue * m_decayingValue;
     quads[2].size.x = quads[2].size.x / m_maximumValue * m_currentValue;
 
     // Draw the health bar.
