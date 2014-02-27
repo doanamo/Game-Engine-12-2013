@@ -196,6 +196,8 @@ Set(SourceFiles
     "Game/SpawnerScript.cpp"
     "Game/ProjectileScript.hpp"
     "Game/ProjectileScript.cpp"
+    "Game/HealthBar.hpp"
+    "Game/HealthBar.cpp"
 )
 
 # Add the source directory prefix to each file path.
