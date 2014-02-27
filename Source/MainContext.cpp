@@ -13,6 +13,7 @@
 
 #include "Graphics/Texture.hpp"
 
+#include "Graphics/CoreRenderer.hpp"
 #include "Graphics/ShapeRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
 
@@ -48,6 +49,7 @@ namespace
     ConsoleSystem       consoleSystem;
     ConsoleHistory      consoleHistory;
     ConsoleFrame        consoleFrame;
+    CoreRenderer        coreRenderer;
     ShapeRenderer       shapeRenderer;
     TextRenderer        textRenderer;
     FrameCounter        frameCounter;
@@ -262,6 +264,14 @@ bool Main::Initialize()
     }
 
     //
+    // Core Renderer
+    //
+
+    // Initialize the core renderer.
+    if(!coreRenderer.Initialize())
+        return false;
+
+    //
     // Shape Renderer
     //
 
@@ -325,6 +335,7 @@ void Main::Cleanup()
 
     textRenderer.Cleanup();
     shapeRenderer.Cleanup();
+    coreRenderer.Cleanup();
     textureBlank.Cleanup();
 
     //
@@ -437,6 +448,11 @@ ConsoleHistory& Main::ConsoleHistory()
 ConsoleFrame& Main::ConsoleFrame()
 {
     return consoleFrame;
+}
+
+CoreRenderer& Main::CoreRenderer()
+{
+    return coreRenderer;
 }
 
 ShapeRenderer& Main::ShapeRenderer()

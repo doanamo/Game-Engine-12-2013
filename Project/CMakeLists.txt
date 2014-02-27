@@ -131,6 +131,8 @@ Set(SourceFiles
     "Console/ConsoleFrame.cpp"
     "System/FrameCounter.hpp"
     "System/FrameCounter.cpp"
+    "Graphics/CoreRenderer.hpp"
+    "Graphics/CoreRenderer.cpp"
     "Graphics/Shader.hpp"
     "Graphics/Shader.cpp"
     "Graphics/Buffer.hpp"

@@ -2,6 +2,7 @@
 #include "RenderSystem.hpp"
 
 #include "Graphics/Texture.hpp"
+#include "Graphics/CoreRenderer.hpp"
 
 #include "TransformComponent.hpp"
 #include "RenderComponent.hpp"
@@ -189,6 +190,15 @@ void RenderSystem::Draw()
 
     // Move origin to bottom left corner.
     view = glm::translate(view, glm::vec3(-gameWidth * 0.5f, -gameHeight * 0.5f, 0.0f));
+
+    //
+    // Clear Screen
+    //
+
+    // Clear the screen.
+    Main::CoreRenderer().SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    Main::CoreRenderer().SetClearDepth(1.0f);
+    Main::CoreRenderer().Clear(ClearFlags::Color | ClearFlags::Depth);
 
     //
     // Draw Sprites

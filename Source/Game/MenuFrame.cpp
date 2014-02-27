@@ -1,9 +1,12 @@
 #include "Precompiled.hpp"
 #include "MenuFrame.hpp"
 #include "GameFrame.hpp"
-#include "Graphics/TextRenderer.hpp"
+
 #include "MainContext.hpp"
 #include "GameContext.hpp"
+
+#include "Graphics/CoreRenderer.hpp"
+#include "Graphics/TextRenderer.hpp"
 
 namespace
 {
@@ -192,10 +195,9 @@ void MenuFrame::Draw()
     glm::mat4x4 projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
 
     // Clear the screen.
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    glClearDepth(1.0f);
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    Main::CoreRenderer().SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    Main::CoreRenderer().SetClearDepth(1.0f);
+    Main::CoreRenderer().Clear(ClearFlags::Color | ClearFlags::Depth);
 
     // Draw menu title.
     {
