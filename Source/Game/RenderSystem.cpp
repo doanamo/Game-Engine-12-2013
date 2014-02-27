@@ -11,8 +11,18 @@
 #include "GameContext.hpp"
 #include "EntitySystem.hpp"
 
+namespace
+{
+    // Game space size.
+    float gameWidth = 1024;
+    float gameHeight = 576;
+}
+
 RenderSystem::RenderSystem() :
     m_bufferSize(0),
+    m_projection(1.0f),
+    m_view(1.0f),
+    m_transform(1.0f),
     m_initialized(false)
 {
 }
@@ -24,14 +34,18 @@ RenderSystem::~RenderSystem()
 
 void RenderSystem::Cleanup()
 {
-    ClearContainer(m_sprites);
-
     m_shader.Cleanup();
     m_vertexBuffer.Cleanup();
     m_instanceBuffer.Cleanup();
     m_vertexInput.Cleanup();
 
     m_bufferSize = 0;
+
+    m_projection = glm::mat4(1.0f);
+    m_view = glm::mat4(1.0f);
+    m_transform = glm::mat4(1.0f);
+
+    ClearContainer(m_sprites);
 
     m_initialized = false;
 }
@@ -114,6 +128,51 @@ void RenderSystem::Update()
     if(!m_initialized)
         return;
 
+    //
+    // Setup View
+    //
+
+    // Get window size..
+    float windowWidth = Console::windowWidth;
+    float windowHeight = Console::windowHeight;
+
+    // Calculate apsect ratios.
+    float windowVerticalAspectRatio = windowWidth / windowHeight;
+    float windowHorizontalAspectRatio = windowHeight / windowWidth;
+
+    float gameVerticalAspectRatio = gameWidth / gameHeight;
+    float gameHorizontalAspectRatio = gameHeight / gameWidth;
+
+    // Setup screen space coordinates.
+    glm::vec4 screenSpace(-gameWidth * 0.5f, gameWidth * 0.5f, -gameHeight * 0.5f, gameHeight * 0.5f);
+
+    if(windowVerticalAspectRatio > gameVerticalAspectRatio)
+    {
+        float aspectRatio = windowVerticalAspectRatio / gameVerticalAspectRatio;
+
+        // Scale screen space coordinates.
+        screenSpace.x *= aspectRatio;
+        screenSpace.y *= aspectRatio;
+    }
+    else
+    if(windowHorizontalAspectRatio > gameHorizontalAspectRatio)
+    {
+        float aspectRatio = windowHorizontalAspectRatio / gameHorizontalAspectRatio;
+
+        // Scale screen space coordinates.
+        screenSpace.z *= aspectRatio;
+        screenSpace.w *= aspectRatio;
+    }
+
+    // Setup matrices.
+    m_projection = glm::ortho(screenSpace.x, screenSpace.y, screenSpace.z, screenSpace.w);
+    m_view = glm::translate(glm::mat4(1.0f), glm::vec3(-gameWidth * 0.5f, -gameHeight * 0.5f, 0.0f));
+    m_transform = m_projection * m_view;
+
+    //
+    // Process Components
+    //
+
     // Make sure the sprite list is clear.
     m_sprites.clear();
 
@@ -148,6 +207,10 @@ void RenderSystem::Draw()
     if(!m_initialized)
         return;
 
+    //
+    // Prepare Drawing
+    //
+
     // Clear the depth.
     Main::CoreRenderer().SetClearDepth(1.0f);
     Main::CoreRenderer().Clear(ClearFlags::Depth);
@@ -156,54 +219,15 @@ void RenderSystem::Draw()
     Main::CoreRenderer().SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     Main::CoreRenderer().Clear(ClearFlags::Color);
 
-    //
-    // Setup View
-    //
-
-    // Window space metrics.
+    // Get window size.
     float windowWidth = Console::windowWidth;
     float windowHeight = Console::windowHeight;
 
-    float windowVerticalAspectRatio = windowWidth / windowHeight;
-    float windowHorizontalAspectRatio = windowHeight / windowWidth;
-
-    // Game space metrics.
-    float gameWidth = 1024.0f;
-    float gameHeight = 576.0f;
-
-    float gameVerticalAspectRatio = gameWidth / gameHeight;
-    float gameHorizontalAspectRatio = gameHeight / gameWidth;
-
-    // Setup screen space coordinates.
-    glm::vec4 screenSpace(-gameWidth * 0.5f, gameWidth * 0.5f, -gameHeight * 0.5f, gameHeight * 0.5f);
-
-    if(windowVerticalAspectRatio > gameVerticalAspectRatio)
-    {
-        float aspectRatio = windowVerticalAspectRatio / gameVerticalAspectRatio;
-
-        // Scale screen space coordinates.
-        screenSpace.x *= aspectRatio;
-        screenSpace.y *= aspectRatio;
-    }
-    else
-    if(windowHorizontalAspectRatio > gameHorizontalAspectRatio)
-    {
-        float aspectRatio = windowHorizontalAspectRatio / gameHorizontalAspectRatio;
-
-        // Scale screen space coordinates.
-        screenSpace.z *= aspectRatio;
-        screenSpace.w *= aspectRatio;
-    }
-
-    // Setup view and projection matrix.
-    glm::mat4 projection = glm::ortho(screenSpace.x, screenSpace.y, screenSpace.z, screenSpace.w);
-    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-gameWidth * 0.5f, -gameHeight * 0.5f, 0.0f));
-
-    // Set scissor test area.
+    // Calculate scissor area.
     glm::vec4 viewport(0.0f, 0.0f, windowWidth, windowHeight);
 
-    glm::vec3 position = glm::project(glm::vec3(0.0f, 0.0f, 0.0f), view, projection, viewport);
-    glm::vec3 size = glm::project(glm::vec3(gameWidth, gameHeight, 0.0f), view, projection, viewport) - position;
+    glm::vec3 position = glm::project(glm::vec3(0.0f, 0.0f, 0.0f), m_view, m_projection, viewport);
+    glm::vec3 size = glm::project(glm::vec3(gameWidth, gameHeight, 0.0f), m_view, m_projection, viewport) - position;
 
     glScissor((int)position.x, (int)position.y, (int)size.x, (int)size.y);
 
@@ -212,11 +236,7 @@ void RenderSystem::Draw()
     
     SCOPE_GUARD(glDisable(GL_SCISSOR_TEST));
 
-    //
-    // Clear Screen
-    //
-
-    // Clear the screen.
+    // Clear the screen again.
     Main::CoreRenderer().SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
     Main::CoreRenderer().Clear(ClearFlags::Color);
 
@@ -235,8 +255,19 @@ void RenderSystem::Draw()
     glUseProgram(m_shader.GetHandle());
     glBindVertexArray(m_vertexInput.GetHandle());
 
-    glUniformMatrix4fv(m_shader.GetUniform("viewTransform"), 1, GL_FALSE, glm::value_ptr(projection * view));
+    glUniformMatrix4fv(m_shader.GetUniform("viewTransform"), 1, GL_FALSE, glm::value_ptr(m_transform));
     glUniform1i(m_shader.GetUniform("texture"), 0);
+
+    auto ResetState = MakeScopeGuard([&]()
+    {
+        // Unbind render states.
+        glDisable(GL_BLEND);
+
+        glUseProgram(0);
+        glBindVertexArray(0);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+    });
 
     // Batch sprites.
     uint32_t currentBatchIndex = 0;
@@ -281,13 +312,6 @@ void RenderSystem::Draw()
             instancesBatched = 0;
         }
     }
-
-    // Unbind render states.
-    glBindVertexArray(0);
-    glUseProgram(0);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDisable(GL_BLEND);
 
     // Clear the shape list.
     m_sprites.clear();
