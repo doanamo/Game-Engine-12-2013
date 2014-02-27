@@ -4,6 +4,7 @@
 #include "Console/ConsoleFrame.hpp"
 
 #include "Graphics/Font.hpp"
+#include "Graphics/CoreRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
 #include "Graphics/ShapeRenderer.hpp"
 
@@ -124,10 +125,9 @@ int main(int argc, char* argv[])
         glm::mat4x4 projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
 
         // Clear the screen.
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-        glClearDepth(1.0f);
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        Main::CoreRenderer().SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        Main::CoreRenderer().SetClearDepth(1.0f);
+        Main::CoreRenderer().Clear(ClearFlags::Color | ClearFlags::Depth);
 
         // Draw frame rate.
         if(Console::drawFrameRate)

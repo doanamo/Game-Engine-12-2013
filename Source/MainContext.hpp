@@ -8,6 +8,7 @@ class Logger;
 class ConsoleSystem;
 class ConsoleHistory;
 class ConsoleFrame;
+class CoreRenderer;
 class ShapeRenderer;
 class TextRenderer;
 class FrameCounter;
@@ -52,6 +53,7 @@ namespace Main
     ConsoleSystem&  ConsoleSystem();
     ConsoleHistory& ConsoleHistory();
     ConsoleFrame&   ConsoleFrame();
+    CoreRenderer&   CoreRenderer();
     ShapeRenderer&  ShapeRenderer();
     TextRenderer&   TextRenderer();
     FrameCounter&   FrameCounter();
