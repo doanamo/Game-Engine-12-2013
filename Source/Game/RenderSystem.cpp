@@ -147,9 +147,6 @@ void RenderSystem::Draw()
     if(!m_initialized)
         return;
 
-    if(m_sprites.empty())
-        return;
-
     //
     // Setup View
     //
@@ -196,6 +193,10 @@ void RenderSystem::Draw()
     //
     // Draw Sprites
     //
+
+    // Don't draw if there's no sprites.
+    if(m_sprites.empty())
+        return;
 
     // Bind render states.
     glEnable(GL_BLEND);
