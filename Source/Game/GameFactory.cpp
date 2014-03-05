@@ -60,7 +60,7 @@ void Game::CreateBounds()
         transform->SetPosition(glm::vec2(0.0f, 0.0f));
 
         CollisionComponent* collision = Game::CollisionComponents().Create(entity);
-        collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 1024.0f + 300.0f, 576.0f));
+        collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 1024.0f + 200.0f, 576.0f));
         collision->SetType(CollisionTypes::None);
         collision->SetMask(CollisionTypes::Enemy | CollisionTypes::Pickup);
         collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reversed);

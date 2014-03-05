@@ -28,7 +28,7 @@ void EnemyScript::OnUpdate(EntityHandle self, float timeDelta)
 
     // Move to the left side of the screen.
     glm::vec2 position = transform->GetPosition();
-    position.x -= 200.0f * timeDelta;
+    position.x -= 150.0f * timeDelta;
     transform->SetPosition(position);
 
     // Shoot a projectile.

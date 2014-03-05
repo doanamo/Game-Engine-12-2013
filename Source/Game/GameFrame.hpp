@@ -4,7 +4,9 @@
 #include "BaseFrame.hpp"
 
 #include "EntityHandle.hpp"
+#include "SpawnSystem.hpp"
 #include "ValueBar.hpp"
+
 
 //
 // Game Frame
@@ -29,6 +31,8 @@ public:
     }
 
 private:
+    SpawnSystem m_spawnSystem;
+
     EntityHandle m_playerEntity;
     ValueBar m_playerHealthBar;
 

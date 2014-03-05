@@ -39,6 +39,12 @@ bool GameFrame::Initialize()
         }
     });
 
+    // Initialize the spawn system.
+    if(!m_spawnSystem.Initialize())
+        return false;
+
+    m_spawnSystem.SetSpawnArea(glm::vec4(1024.0f + 100.0f, 50.0f, 1024.0f + 100.0f, 526.0f));
+
     // Create bounds.
     Game::CreateBounds();
 
@@ -60,12 +66,6 @@ bool GameFrame::Initialize()
 
     m_playerHealthBar.SetMaximumValue((float)playerHealth->GetMaximumHealth());
     m_playerHealthBar.SetCurrentValue((float)playerHealth->GetCurrentHealth());
-
-    // Create spawners.
-    for(int y = 1; y < 8; ++y)
-    {
-        Game::CreateSpawner(glm::vec2(1024.0f + 100.0f, 45.0f + y * 70.0f));
-    }
 
     // Success!
     m_initialized = true;
@@ -100,6 +100,9 @@ bool GameFrame::Process(const SDL_Event& event)
 
 void GameFrame::Update(float timeDelta)
 {
+    // Update spawn system.
+    m_spawnSystem.Update(timeDelta);
+
     // Process entity commands.
     Game::EntitySystem().ProcessCommands();
 

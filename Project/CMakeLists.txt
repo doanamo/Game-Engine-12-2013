@@ -183,6 +183,8 @@ Set(SourceFiles
     "Game/RenderComponent.cpp"
     "Game/RenderSystem.hpp"
     "Game/RenderSystem.cpp"
+    "Game/SpawnSystem.hpp"
+    "Game/SpawnSystem.cpp"
     "Game/CollisionTypes.hpp"
     "Game/GameFactory.hpp"
     "Game/GameFactory.cpp"
