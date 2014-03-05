@@ -10,20 +10,13 @@
 
 namespace
 {
-    // Random number generator.
-    uint64_t seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::mt19937 generator((unsigned int)seed);
-    
-
-    float random(float min, float max)
-    {
-        std::uniform_real<float> distribution(min, max);
-        return distribution(generator);
-    }
+    // Random number generators.
+    std::mt19937 shootRandom((unsigned int)std::chrono::system_clock::now().time_since_epoch().count());
+    std::mt19937 pickupRandom((unsigned int)std::chrono::system_clock::now().time_since_epoch().count());
 }
 
 EnemyScript::EnemyScript() :
-    m_shootTime(random(0.5f, 2.0f))
+    m_shootTime(std::uniform_real<float>(0.5f, 2.0f)(shootRandom))
 {
 }
 
@@ -47,7 +40,7 @@ void EnemyScript::OnUpdate(EntityHandle self, float timeDelta)
         Game::CreateProjectile(transform->GetPosition(), glm::vec2(-1.0f, 0.0f), 400.0f, CollisionTypes::Player);
 
         // Set a shooting delay.
-        m_shootTime = random(1.0f, 3.0f);
+        m_shootTime = std::uniform_real<float>(1.0f, 3.0f)(shootRandom);
     }
 }
 
@@ -57,7 +50,7 @@ void EnemyScript::OnDamage(EntityHandle self, int value, bool alive)
     if(!alive)
     {
         // Drop a health pickup.
-        float roll = random(0.0f, 1.0f);
+        float roll = std::uniform_real<float>(0.0f, 1.0f)(pickupRandom);
 
         if(roll <= 0.1f)
         {
