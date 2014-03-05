@@ -13,5 +13,6 @@ namespace Game
     EntityHandle CreatePlayer();
     EntityHandle CreateEnemy(const glm::vec2& position);
     EntityHandle CreateProjectile(const glm::vec2& position, const glm::vec2& direction, float speed, uint32_t collisionMask);
+    EntityHandle CreateHealthPickup(const glm::vec2& position, int heal);
     EntityHandle CreateSpawner(const glm::vec2& position);
 }

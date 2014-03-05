@@ -17,6 +17,7 @@
 #include "PlayerScript.hpp"
 #include "EnemyScript.hpp"
 #include "ProjectileScript.hpp"
+#include "HealthPickupScript.hpp"
 #include "SpawnerScript.hpp"
 
 void Game::CreateBounds()
@@ -51,7 +52,7 @@ void Game::CreateBounds()
         script->AddScript(std::make_shared<BoundsScript>());
     }
 
-    // Create enemy bounds.
+    // Create entity bounds.
     {
         EntityHandle entity = Game::EntitySystem().CreateEntity();
 
@@ -61,7 +62,7 @@ void Game::CreateBounds()
         CollisionComponent* collision = Game::CollisionComponents().Create(entity);
         collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 1024.0f + 300.0f, 576.0f));
         collision->SetType(CollisionTypes::None);
-        collision->SetMask(CollisionTypes::Enemy);
+        collision->SetMask(CollisionTypes::Enemy | CollisionTypes::Pickup);
         collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reversed);
 
         ScriptComponent* script = Game::ScriptComponents().Create(entity);
@@ -150,6 +151,29 @@ EntityHandle Game::CreateProjectile(const glm::vec2& position, const glm::vec2& 
 
     return entity;
 };
+
+EntityHandle Game::CreateHealthPickup(const glm::vec2& position, int heal)
+{
+    EntityHandle entity = Game::EntitySystem().CreateEntity();
+
+    TransformComponent* transform = Game::TransformComponents().Create(entity);
+    transform->SetPosition(position);
+    transform->SetScale(glm::vec2(40.0f, 40.0f));
+    transform->SetRotation(0.0f);
+
+    CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+    collision->SetBoundingBox(glm::vec4(-20.0f, -20.0f, 20.0f, 20.0f));
+    collision->SetType(CollisionTypes::Pickup);
+    collision->SetMask(CollisionTypes::Player);
+
+    ScriptComponent* script = Game::ScriptComponents().Create(entity);
+    script->AddScript(std::make_shared<HealthPickupScript>(20));
+
+    RenderComponent* render = Game::RenderComponents().Create(entity);
+    render->SetDiffuseColor(glm::vec4(0.6f, 1.0f, 0.6f, 1.0f));
+
+    return entity;
+}
 
 EntityHandle Game::CreateSpawner(const glm::vec2& position)
 {

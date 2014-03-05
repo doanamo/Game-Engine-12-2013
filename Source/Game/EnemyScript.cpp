@@ -13,11 +13,17 @@ namespace
     // Random number generator.
     uint64_t seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::mt19937 generator((unsigned int)seed);
-    std::uniform_real<float> random(2.0f, 4.0f);
+    
+
+    float random(float min, float max)
+    {
+        std::uniform_real<float> distribution(min, max);
+        return distribution(generator);
+    }
 }
 
 EnemyScript::EnemyScript() :
-    m_shootTime(random(generator))
+    m_shootTime(random(0.5f, 2.0f))
 {
 }
 
@@ -41,7 +47,7 @@ void EnemyScript::OnUpdate(EntityHandle self, float timeDelta)
         Game::CreateProjectile(transform->GetPosition(), glm::vec2(-1.0f, 0.0f), 400.0f, CollisionTypes::Player);
 
         // Set a shooting delay.
-        m_shootTime = random(generator);
+        m_shootTime = random(1.0f, 3.0f);
     }
 }
 
@@ -50,6 +56,22 @@ void EnemyScript::OnDamage(EntityHandle self, int value, bool alive)
     // Destroy the entity on fatal damage.
     if(!alive)
     {
+        // Drop a health pickup.
+        float roll = random(0.0f, 1.0f);
+
+        if(roll <= 0.1f)
+        {
+            // Get the transform component.
+            TransformComponent* transform = Game::TransformComponents().Lookup(self);
+
+            // Create a health pickup entity.
+            if(transform != nullptr)
+            {
+                Game::CreateHealthPickup(transform->GetPosition(), 20);
+            }
+        }
+
+        // Destroy the entity.
         Game::EntitySystem().DestroyEntity(self);
     }
 }

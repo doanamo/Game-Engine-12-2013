@@ -196,6 +196,8 @@ Set(SourceFiles
     "Game/SpawnerScript.cpp"
     "Game/ProjectileScript.hpp"
     "Game/ProjectileScript.cpp"
+    "Game/HealthPickupScript.hpp"
+    "Game/HealthPickupScript.cpp"
     "Game/ValueBar.hpp"
     "Game/ValueBar.cpp"
 )
