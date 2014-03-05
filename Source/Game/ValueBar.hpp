@@ -3,16 +3,19 @@
 #include "Precompiled.hpp"
 
 //
-// Health Bar
+// Value Bar
 //
 
-class HealthBar
+class ValueBar
 {
 public:
-    HealthBar();
-    ~HealthBar();
+    ValueBar();
+    ~ValueBar();
 
     void SetDrawingRectangle(const glm::vec4& rectangle);
+    void SetForegroundColor(const glm::vec4&color);
+    void SetBackgroundColor(const glm::vec4&color);
+    void SetDecayColor(const glm::vec4&color);
 
     void SetCurrentValue(float value);
     void SetMaximumValue(float value);
@@ -23,6 +26,9 @@ public:
 
 private:
     glm::vec4 m_drawingRectangle;
+    glm::vec4 m_foregroundColor;
+    glm::vec4 m_backgroundColor;
+    glm::vec4 m_decayColor;
 
     float m_currentValue;
     float m_maximumValue;

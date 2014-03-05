@@ -47,6 +47,9 @@ bool GameFrame::Initialize()
 
     // Initialize the health bar.
     m_playerHealthBar.SetDrawingRectangle(glm::vec4(0.0f, 0.0f, 624.0f, 15.0f));
+    m_playerHealthBar.SetForegroundColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    m_playerHealthBar.SetBackgroundColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    m_playerHealthBar.SetDecayColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 
     HealthComponent* playerHealth = Game::HealthComponents().Lookup(m_playerEntity);
     if(playerHealth == nullptr)

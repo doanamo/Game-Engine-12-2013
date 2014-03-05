@@ -1,11 +1,14 @@
 #include "Precompiled.hpp"
-#include "HealthBar.hpp"
+#include "ValueBar.hpp"
 
 #include "MainContext.hpp"
 #include "Graphics/ShapeRenderer.hpp"
 
-HealthBar::HealthBar() :
+ValueBar::ValueBar() :
     m_drawingRectangle(0.0f, 0.0f, 100.0f, 10.0f),
+    m_foregroundColor(1.0f, 0.0f, 0.0f, 1.0f),
+    m_backgroundColor(0.0f, 0.0f, 0.0f, 1.0f),
+    m_decayColor(1.0f, 1.0f, 0.0f, 1.0f),
     m_currentValue(100.0f),
     m_maximumValue(100.0f),
     m_decayingValue(m_currentValue),
@@ -13,16 +16,31 @@ HealthBar::HealthBar() :
 {
 }
 
-HealthBar::~HealthBar()
+ValueBar::~ValueBar()
 {
 }
 
-void HealthBar::SetDrawingRectangle(const glm::vec4& rectangle)
+void ValueBar::SetDrawingRectangle(const glm::vec4& rectangle)
 {
     m_drawingRectangle = rectangle;
 }
 
-void HealthBar::SetCurrentValue(float value)
+void ValueBar::SetForegroundColor(const glm::vec4&color)
+{
+    m_foregroundColor = color;
+}
+
+void ValueBar::SetBackgroundColor(const glm::vec4&color)
+{
+    m_backgroundColor = color;
+}
+
+void ValueBar::SetDecayColor(const glm::vec4&color)
+{
+    m_decayColor = color;
+}
+
+void ValueBar::SetCurrentValue(float value)
 {
     m_currentValue = std::min(value, m_maximumValue);
 
@@ -32,17 +50,17 @@ void HealthBar::SetCurrentValue(float value)
     }
 }
 
-void HealthBar::SetMaximumValue(float value)
+void ValueBar::SetMaximumValue(float value)
 {
     m_maximumValue = value;
 }
 
-void HealthBar::SetDecayingSpeed(float speed)
+void ValueBar::SetDecayingSpeed(float speed)
 {
     m_decayingSpeed = speed;
 }
 
-void HealthBar::Update(float timeDelta)
+void ValueBar::Update(float timeDelta)
 {
     if(m_decayingValue > m_currentValue)
     {
@@ -50,24 +68,24 @@ void HealthBar::Update(float timeDelta)
     }
 }
 
-void HealthBar::Draw(const glm::vec2& position, const glm::mat4& transform)
+void ValueBar::Draw(const glm::vec2& position, const glm::mat4& transform)
 {
     ShapeRenderer::Quad quads[3];
 
     // Define the background quad.
-    quads[0].color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+    quads[0].color = m_backgroundColor;
     quads[0].position = glm::vec2(m_drawingRectangle.x, m_drawingRectangle.y) + position;
     quads[0].size = glm::vec2(m_drawingRectangle.z, m_drawingRectangle.w);
     quads[0].texture = nullptr;
 
     // Define the decaying value quad.
-    quads[1].color = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
+    quads[1].color = m_decayColor;
     quads[1].position = glm::vec2(m_drawingRectangle.x, m_drawingRectangle.y) + position;
     quads[1].size = glm::vec2(m_drawingRectangle.z, m_drawingRectangle.w);
     quads[1].texture = nullptr;
 
     // Define the current value quad.
-    quads[2].color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+    quads[2].color = m_foregroundColor;
     quads[2].position = glm::vec2(m_drawingRectangle.x, m_drawingRectangle.y) + position;
     quads[2].size = glm::vec2(m_drawingRectangle.z, m_drawingRectangle.w);
     quads[2].texture = nullptr;

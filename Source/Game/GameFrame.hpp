@@ -4,7 +4,7 @@
 #include "BaseFrame.hpp"
 
 #include "EntityHandle.hpp"
-#include "HealthBar.hpp"
+#include "ValueBar.hpp"
 
 //
 // Game Frame
@@ -30,7 +30,7 @@ public:
 
 private:
     EntityHandle m_playerEntity;
-    HealthBar m_playerHealthBar;
+    ValueBar m_playerHealthBar;
 
     bool m_initialized;
 };
