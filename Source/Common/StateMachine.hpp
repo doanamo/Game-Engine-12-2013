@@ -33,7 +33,7 @@ public:
 // State Machine
 //
 
-template<typename State, typename Owner = void>
+template<typename State = State<void>, typename Owner = void>
 class StateMachine
 {
 public:
