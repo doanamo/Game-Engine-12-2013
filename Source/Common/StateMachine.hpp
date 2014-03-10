@@ -6,16 +6,16 @@
 // State
 //
 
-template<typename Owner = void>
+template<typename Owner = void*>
 class State
 {
 public:
-    virtual void OnEnter(Owner* owner)
+    virtual void OnEnter(Owner owner)
     {
         OnEnter();
     }
 
-    virtual void OnExit(Owner* owner)
+    virtual void OnExit(Owner owner)
     {
         OnExit();
     }
@@ -33,11 +33,11 @@ public:
 // State Machine
 //
 
-template<typename State = State<void>, typename Owner = void>
+template<typename State = State<void*>, typename Owner = void*>
 class StateMachine
 {
 public:
-    StateMachine(Owner* owner = nullptr) :
+    StateMachine(Owner owner = nullptr) :
         m_owner(owner),
         m_current(nullptr),
         m_previous(nullptr)
@@ -54,9 +54,10 @@ public:
         m_previous = nullptr;
     }
 
-    void ChangeState(State* state)
+    void ChangeState(State state)
     {
-        assert(state != m_current);
+        if(state == m_current)
+            return;
 
         // Exit the current state.
         m_previous = m_current;
@@ -80,29 +81,27 @@ public:
         this->ChangeState(m_previous);
     }
 
-    void SetCurrentState(State* state)
+    void SetCurrentState(State state)
     {
         m_current = state;
     }
 
-    void SetPreviousState(State* state)
+    void SetPreviousState(State state)
     {
         m_previous = state;
     }
 
-    State* GetState() const
-    {
-        assert(m_current != nullptr);
-
-        return m_current;
-    }
-
-    State* GetCurrentState() const
+    State GetState() const
     {
         return m_current;
     }
 
-    State* GetPreviousState() const
+    State GetCurrentState() const
+    {
+        return m_current;
+    }
+
+    State GetPreviousState() const
     {
         return m_previous;
     }
@@ -113,7 +112,7 @@ public:
     }
 
 private:
-    Owner* m_owner;
-    State* m_current;
-    State* m_previous;
+    Owner m_owner;
+    State m_current;
+    State m_previous;
 };
