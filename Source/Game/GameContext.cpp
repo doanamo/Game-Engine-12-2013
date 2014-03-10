@@ -8,6 +8,7 @@
 
 #include "EntitySystem.hpp"
 #include "SpawnSystem.hpp"
+#include "ProgressSystem.hpp"
 #include "HealthSystem.hpp"
 #include "CollisionSystem.hpp"
 #include "ScriptSystem.hpp"
@@ -34,7 +35,6 @@ namespace
     InputState inputState;
 
     EntitySystem    entitySystem;
-    SpawnSystem     spawnSystem;
     HealthSystem    healthSystem;
     CollisionSystem collisionSystem;
     ScriptSystem    scriptSystem;
@@ -47,9 +47,12 @@ namespace
     ComponentPool<ScriptComponent>    scriptComponents;
     ComponentPool<RenderComponent>    renderComponents;
 
-    StateMachine<BaseFrame> stateMachine;
-    MenuFrame               frameMenu;
-    GameFrame               frameGame;
+    SpawnSystem    spawnSystem;
+    ProgressSystem progressSystem;
+
+    StateMachine<BaseFrame*> stateMachine;
+    MenuFrame                frameMenu;
+    GameFrame                frameGame;
 }
 
 //
@@ -90,10 +93,6 @@ bool Game::Initialize()
     // Entity Systems
     //
 
-    // Initialize the spawn system.
-    if(!spawnSystem.Initialize())
-        return false;
-
     // Initialize the health system.
     if(!healthSystem.Initialize())
         return false;
@@ -121,6 +120,18 @@ bool Game::Initialize()
     entitySystem.RegisterSubscriber(&collisionComponents);
     entitySystem.RegisterSubscriber(&scriptComponents);
     entitySystem.RegisterSubscriber(&renderComponents);
+
+    //
+    // Game Systems
+    //
+
+    // Initialize the spawn system.
+    if(!spawnSystem.Initialize())
+        return false;
+
+    // Initialize the progress system.
+    if(!progressSystem.Initialize())
+        return false;
 
     //
     // Main Frame
@@ -153,10 +164,16 @@ void Game::Cleanup()
     inputState.Cleanup();
 
     //
+    // Game Systems
+    //
+
+    spawnSystem.Cleanup();
+    progressSystem.Cleanup();
+
+    //
     // Entity Systems
     //
     
-    spawnSystem.Cleanup();
     healthSystem.Cleanup();
     collisionSystem.Cleanup();
     scriptSystem.Cleanup();
@@ -199,21 +216,6 @@ void Game::Cleanup()
 // Context Accessors
 //
 
-StateMachine<BaseFrame>& Game::StateMachine()
-{
-    return stateMachine;
-}
-
-MenuFrame& Game::MenuFrame()
-{
-    return frameMenu;
-}
-
-GameFrame& Game::GameFrame()
-{
-    return frameGame;
-}
-
 InputState& Game::InputState()
 {
     return inputState;
@@ -222,11 +224,6 @@ InputState& Game::InputState()
 EntitySystem& Game::EntitySystem()
 {
     return entitySystem;
-}
-
-SpawnSystem& Game::SpawnSystem()
-{
-    return spawnSystem;
 }
 
 HealthSystem& Game::HealthSystem()
@@ -277,4 +274,29 @@ ComponentPool<ScriptComponent>& Game::ScriptComponents()
 ComponentPool<RenderComponent>& Game::RenderComponents()
 {
     return renderComponents;
+}
+
+SpawnSystem& Game::SpawnSystem()
+{
+    return spawnSystem;
+}
+
+ProgressSystem& Game::ProgressSystem()
+{
+    return progressSystem;
+}
+
+StateMachine<BaseFrame*>& Game::StateMachine()
+{
+    return stateMachine;
+}
+
+MenuFrame& Game::MenuFrame()
+{
+    return frameMenu;
+}
+
+GameFrame& Game::GameFrame()
+{
+    return frameGame;
 }

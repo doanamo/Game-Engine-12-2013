@@ -101,6 +101,37 @@ EntityHandle Game::CreatePlayer()
     return entity;
 }
 
+EntityHandle Game::CreateAsteroid(const glm::vec2& position, float size)
+{
+    float halfSize = size * 0.5f;
+
+    EntityHandle entity = Game::EntitySystem().CreateEntity();
+
+    TransformComponent* transform = Game::TransformComponents().Create(entity);
+    transform->SetPosition(position);
+    transform->SetScale(glm::vec2(size, size));
+    transform->SetRotation(0.0f);
+
+    HealthComponent* health = Game::HealthComponents().Create(entity);
+    health->SetMaximumHealth(100);
+    health->SetCurrentHealth(100);
+
+    CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+    collision->SetBoundingBox(glm::vec4(-halfSize, -halfSize, halfSize, halfSize));
+    collision->SetType(CollisionTypes::Environment);
+    collision->SetMask(CollisionTypes::None);
+
+    ScriptComponent* script = Game::ScriptComponents().Create(entity);
+    script->AddScript(std::make_shared<ConstantVelocityScript>(glm::vec2(-200.0f, 0.0f)));
+    script->AddScript(std::make_shared<BlinkOnDamageScript>());
+    script->AddScript(std::make_shared<DestroyOnDeathScript>());
+
+    RenderComponent* render = Game::RenderComponents().Create(entity);
+    render->SetDiffuseColor(glm::vec4(0.6f, 0.3f, 0.0f, 1.0f));
+
+    return entity;
+}
+
 EntityHandle Game::CreateEnemy(const glm::vec2& position)
 {
     EntityHandle entity = Game::EntitySystem().CreateEntity();

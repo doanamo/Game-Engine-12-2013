@@ -8,7 +8,6 @@
 class InputState;
 
 class EntitySystem;
-class SpawnSystem;
 class HealthSystem;
 class CollisionSystem;
 class ScriptSystem;
@@ -20,6 +19,9 @@ class HealthComponent;
 class CollisionComponent;
 class ScriptComponent;
 class RenderComponent;
+
+class SpawnSystem;
+class ProgressSystem;
 
 class BaseFrame;
 class MenuFrame;
@@ -41,7 +43,6 @@ namespace Game
     InputState& InputState();
 
     EntitySystem&    EntitySystem();
-    SpawnSystem&     SpawnSystem();
     HealthSystem&    HealthSystem();
     CollisionSystem& CollisionSystem();
     ScriptSystem&    ScriptSystem();
@@ -54,7 +55,10 @@ namespace Game
     ComponentPool<ScriptComponent>&    ScriptComponents();
     ComponentPool<RenderComponent>&    RenderComponents();
 
-    StateMachine<BaseFrame>& StateMachine();
-    MenuFrame&               MenuFrame();
-    GameFrame&               GameFrame();
+    SpawnSystem&    SpawnSystem();
+    ProgressSystem& ProgressSystem();
+
+    StateMachine<BaseFrame*>& StateMachine();
+    MenuFrame&                MenuFrame();
+    GameFrame&                GameFrame();
 }

@@ -37,7 +37,7 @@ void EnemyScript::OnUpdate(EntityHandle self, float timeDelta)
     if(m_shootTime == 0.0f)
     {
         // Create a projectile entity.
-        Game::CreateProjectile(transform->GetPosition(), glm::vec2(-1.0f, 0.0f), 400.0f, CollisionTypes::Player);
+        Game::CreateProjectile(transform->GetPosition(), glm::vec2(-1.0f, 0.0f), 400.0f, CollisionTypes::Player | CollisionTypes::Environment);
 
         // Set a shooting delay.
         m_shootTime = std::uniform_real<float>(1.0f, 3.0f)(shootRandom);

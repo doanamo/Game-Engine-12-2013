@@ -18,6 +18,7 @@ public:
 
     void OnUpdate(EntityHandle self, float timeDelta);
 
+private:
     TransformComponent* GetTransformComponent(EntityHandle self);
 
 private:
@@ -50,6 +51,7 @@ public:
     void OnUpdate(EntityHandle self, float timeDelta);
     void OnDamage(EntityHandle self, int value, bool alive);
 
+private:
     RenderComponent* GetRenderComponent(EntityHandle self);
 
 private:

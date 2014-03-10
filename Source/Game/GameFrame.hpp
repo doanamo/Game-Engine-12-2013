@@ -7,7 +7,6 @@
 #include "SpawnSystem.hpp"
 #include "ValueBar.hpp"
 
-
 //
 // Game Frame
 //

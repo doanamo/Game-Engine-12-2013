@@ -9,16 +9,83 @@
 #include "InputState.hpp"
 
 #include "EntitySystem.hpp"
-#include "SpawnSystem.hpp"
 #include "CollisionSystem.hpp"
 #include "ScriptSystem.hpp"
 #include "RenderSystem.hpp"
 
 #include "HealthComponent.hpp"
 
-void SpawnFunction(const glm::vec2& position)
+#include "SpawnSystem.hpp"
+#include "ProgressSystem.hpp"
+
+namespace
 {
-    Game::CreateEnemy(position);
+    class AsteroidStage;
+
+    // Enemy stage.
+    class EnemyStage : public ProgressStage
+    {
+    public:
+        void OnEnter();
+
+        void OnExit()
+        {
+            Game::SpawnSystem().ResetSpawns();
+        }
+
+        float GetStageLength() const
+        {
+            return 25.0f;
+        }
+
+    private:
+        static void SpawnFunction(const glm::vec2& position)
+        {
+            Game::CreateEnemy(position);
+        }
+    };
+
+    // Asteroid stage.
+    class AsteroidStage : public ProgressStage
+    {
+    public:
+        void OnEnter();
+
+        void OnExit()
+        {
+            Game::SpawnSystem().ResetSpawns();
+        }
+
+        float GetStageLength() const
+        {
+            return 15.0f;
+        }
+
+    private:
+        static void SpawnFunction(const glm::vec2& position)
+        {
+            Game::CreateAsteroid(position, 100.0f);
+        }
+    };
+
+    // External definitions.
+    void EnemyStage::OnEnter()
+    {
+        // Setup stage spawns.
+        Game::SpawnSystem().AddSpawn(&SpawnFunction, 0.5f, 1.0f);
+
+        // Setup next stage.
+        Game::ProgressSystem().SetNextStage(std::make_shared<AsteroidStage>());
+    }
+
+    void AsteroidStage::OnEnter()
+    {
+        // Setup stage spawns.
+        Game::SpawnSystem().AddSpawn(&SpawnFunction, 0.5f, 1.0f);
+
+        // Setup next stage.
+        Game::ProgressSystem().SetNextStage(std::make_shared<EnemyStage>());
+    }
 }
 
 GameFrame::GameFrame() :
@@ -47,7 +114,9 @@ bool GameFrame::Initialize()
 
     // Setup the spawn system.
     Game::SpawnSystem().SetSpawnArea(glm::vec4(1024.0f + 100.0f, 50.0f, 1024.0f + 100.0f, 526.0f));
-    Game::SpawnSystem().AddSpawn(&SpawnFunction, 0.5f, 1.0f);
+
+    // Setuo the progress system.
+    Game::ProgressSystem().SetNextStage(std::make_shared<AsteroidStage>());
 
     // Create bounds.
     Game::CreateBounds();
@@ -82,6 +151,8 @@ void GameFrame::Cleanup()
     Game::EntitySystem().DestroyAllEntities();
     Game::SpawnSystem().ResetSpawns();
 
+    Game::ProgressSystem().Cleanup(); // TEMP
+
     m_initialized = false;
 }
 
@@ -105,19 +176,22 @@ bool GameFrame::Process(const SDL_Event& event)
 
 void GameFrame::Update(float timeDelta)
 {
-    // Update spawn system.
+    // Update the progress system.
+    Game::ProgressSystem().Update(timeDelta);
+
+    // Update the spawn system.
     Game::SpawnSystem().Update(timeDelta);
 
     // Process entity commands.
     Game::EntitySystem().ProcessCommands();
 
-    // Update collision system.
+    // Update the collision system.
     Game::CollisionSystem().Update();
 
-    // Update script system.
+    // Update the script system.
     Game::ScriptSystem().Update(timeDelta);
 
-    // Update render system.
+    // Update the render system.
     Game::RenderSystem().Update();
 
     // Update the health bar.
