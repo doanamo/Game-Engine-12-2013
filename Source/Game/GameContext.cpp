@@ -2,13 +2,9 @@
 #include "GameContext.hpp"
 #include "MainContext.hpp"
 
-#include "Common/StateMachine.hpp"
-
 #include "InputState.hpp"
 
 #include "EntitySystem.hpp"
-#include "SpawnSystem.hpp"
-#include "ProgressSystem.hpp"
 #include "HealthSystem.hpp"
 #include "CollisionSystem.hpp"
 #include "ScriptSystem.hpp"
@@ -21,8 +17,8 @@
 #include "ScriptComponent.hpp"
 #include "RenderComponent.hpp"
 
-#include "MenuFrame.hpp"
-#include "GameFrame.hpp"
+#include "SpawnSystem.hpp"
+#include "ProgressSystem.hpp"
 
 //
 // Context Data
@@ -49,10 +45,6 @@ namespace
 
     SpawnSystem    spawnSystem;
     ProgressSystem progressSystem;
-
-    StateMachine<BaseFrame*> stateMachine;
-    MenuFrame                frameMenu;
-    GameFrame                frameGame;
 }
 
 //
@@ -134,17 +126,6 @@ bool Game::Initialize()
         return false;
 
     //
-    // Main Frame
-    //
-
-    // Initialize the main menu frame.
-    if(!frameMenu.Initialize())
-        return false;
-
-    // Set this frame as current state.
-    stateMachine.ChangeState(&frameMenu);
-
-    //
     // Success
     //
 
@@ -155,6 +136,9 @@ bool Game::Initialize()
 
 void Game::Cleanup()
 {
+    if(!isInitialized)
+        return;
+
     Log() << "Cleaning up the game context...";
 
     //
@@ -191,19 +175,6 @@ void Game::Cleanup()
     collisionComponents.Cleanup();
     scriptComponents.Cleanup();
     renderComponents.Cleanup();
-
-    //
-    // Game Frames
-    //
-
-    frameGame.Cleanup();
-    frameMenu.Cleanup();
-
-    //
-    // State Machine
-    //
-
-    stateMachine.Cleanup();
 
     //
     // Game
@@ -284,19 +255,4 @@ SpawnSystem& Game::SpawnSystem()
 ProgressSystem& Game::ProgressSystem()
 {
     return progressSystem;
-}
-
-StateMachine<BaseFrame*>& Game::StateMachine()
-{
-    return stateMachine;
-}
-
-MenuFrame& Game::MenuFrame()
-{
-    return frameMenu;
-}
-
-GameFrame& Game::GameFrame()
-{
-    return frameGame;
 }

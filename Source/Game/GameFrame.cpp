@@ -20,8 +20,6 @@
 
 namespace
 {
-    class AsteroidStage;
-
     // Enemy stage.
     class EnemyStage : public ProgressStage
     {
@@ -112,10 +110,14 @@ bool GameFrame::Initialize()
         }
     });
 
+    // Initialize the game context.
+    if(!Game::Initialize())
+        return false;
+
     // Setup the spawn system.
     Game::SpawnSystem().SetSpawnArea(glm::vec4(1024.0f + 100.0f, 50.0f, 1024.0f + 100.0f, 526.0f));
 
-    // Setuo the progress system.
+    // Setup the progress system.
     Game::ProgressSystem().SetNextStage(std::make_shared<AsteroidStage>());
 
     // Create bounds.
@@ -148,10 +150,7 @@ bool GameFrame::Initialize()
 
 void GameFrame::Cleanup()
 {
-    Game::EntitySystem().DestroyAllEntities();
-    Game::SpawnSystem().ResetSpawns();
-
-    Game::ProgressSystem().Cleanup(); // TEMP
+    Game::Cleanup();
 
     m_initialized = false;
 }
@@ -163,7 +162,7 @@ bool GameFrame::Process(const SDL_Event& event)
     case SDL_KEYDOWN:
         if(event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
         {
-            Game::StateMachine().ChangeState(&Game::MenuFrame());
+            Main::FrameState().ChangeState(&Main::MenuFrame());
         }
         break;
     }

@@ -5,6 +5,7 @@
 #include "Logger/LoggerOutputFile.hpp"
 #include "Logger/LoggerOutputConsole.hpp"
 
+#include "System/BaseFrame.hpp"
 #include "System/FrameCounter.hpp"
 
 #include "Console/ConsoleSystem.hpp"
@@ -16,6 +17,9 @@
 #include "Graphics/CoreRenderer.hpp"
 #include "Graphics/ShapeRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
+
+#include "Game/MenuFrame.hpp"
+#include "Game/GameFrame.hpp"
 
 //
 // Console Variables
@@ -59,6 +63,10 @@ namespace
     SDL_Window*         systemWindow = nullptr;
     SDL_GLContext       graphicsContext = nullptr;
     FT_Library          fontLibrary = nullptr;
+
+    StateMachine<BaseFrame*> frameState;
+    MenuFrame                menuFrame;
+    GameFrame                gameFrame;
 }
 
 //
@@ -304,6 +312,17 @@ bool Main::Initialize()
         return false;
 
     //
+    // Frame State
+    //
+
+    // Initialize the main menu frame.
+    if(!menuFrame.Initialize())
+        return false;
+
+    // Set this frame as current state.
+    frameState.ChangeState(&menuFrame);
+
+    //
     // Success!
     //
 
@@ -315,7 +334,18 @@ bool Main::Initialize()
 
 void Main::Cleanup()
 {
+    if(!isInitialized)
+        return;
+
     Log() << "Cleaning up the main context...";
+
+    //
+    // Frame State
+    //
+
+    frameState.Cleanup();
+    gameFrame.Cleanup();
+    menuFrame.Cleanup();
 
     //
     // Frame Counter
@@ -488,4 +518,19 @@ SDL_GLContext Main::GraphicsContext()
 FT_Library Main::FontLibrary()
 {
     return fontLibrary;
+}
+
+StateMachine<BaseFrame*>& Main::FrameState()
+{
+    return frameState;
+}
+
+MenuFrame& Main::MenuFrame()
+{
+    return menuFrame;
+}
+
+GameFrame& Main::GameFrame()
+{
+    return gameFrame;
 }

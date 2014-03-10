@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Precompiled.hpp"
-#include "BaseFrame.hpp"
+#include "System/BaseFrame.hpp"
 
 #include "EntityHandle.hpp"
 #include "SpawnSystem.hpp"

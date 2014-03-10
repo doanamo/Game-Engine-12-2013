@@ -8,10 +8,8 @@
 #include "Graphics/TextRenderer.hpp"
 #include "Graphics/ShapeRenderer.hpp"
 
+#include "System/BaseFrame.hpp"
 #include "System/FrameCounter.hpp"
-
-#include "Game/GameContext.hpp"
-#include "Game/BaseFrame.hpp"
 
 #include "MainContext.hpp"
 
@@ -52,12 +50,6 @@ int main(int argc, char* argv[])
         return -1;
 
     SCOPE_GUARD(Main::Cleanup());
-
-    // Initialize the game context.
-    if(!Game::Initialize())
-        return -1;
-
-    SCOPE_GUARD(Game::Cleanup());
 
     //
     // Font
@@ -117,7 +109,7 @@ int main(int argc, char* argv[])
                 continue;
 
             // Process an event by the current state frame.
-            if(Game::StateMachine().GetState()->Process(event))
+            if(Main::FrameState().GetState()->Process(event))
                 continue;
         }
 
@@ -132,7 +124,7 @@ int main(int argc, char* argv[])
         Main::TextRenderer().UpdateCursorBlink(dt);
 
         // Update the current state frame.
-        Game::StateMachine().GetState()->Update(dt);
+        Main::FrameState().GetState()->Update(dt);
 
         // Setup the viewport.
         glViewport(0, 0, windowWidth, windowHeight);
@@ -146,7 +138,7 @@ int main(int argc, char* argv[])
         Main::CoreRenderer().Clear(ClearFlags::Color | ClearFlags::Depth);
 
         // Draw the current state frame.
-        Game::StateMachine().GetState()->Draw();
+        Main::FrameState().GetState()->Draw();
 
         // Draw frame rate.
         if(Console::drawFrameRate)

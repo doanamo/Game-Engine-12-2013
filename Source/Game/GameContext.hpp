@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Precompiled.hpp"
-#include "Common/StateMachine.hpp"
 #include "ComponentPool.hpp"
 
 // Forward declarations.
@@ -22,10 +21,6 @@ class RenderComponent;
 
 class SpawnSystem;
 class ProgressSystem;
-
-class BaseFrame;
-class MenuFrame;
-class GameFrame;
 
 //
 // Game Context
@@ -57,8 +52,4 @@ namespace Game
 
     SpawnSystem&    SpawnSystem();
     ProgressSystem& ProgressSystem();
-
-    StateMachine<BaseFrame*>& StateMachine();
-    MenuFrame&                MenuFrame();
-    GameFrame&                GameFrame();
 }

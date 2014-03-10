@@ -3,6 +3,8 @@
 #include "Precompiled.hpp"
 #include "UserEvents.hpp"
 
+#include "Common/StateMachine.hpp"
+
 // Forward declarations.
 class Logger;
 class ConsoleSystem;
@@ -13,6 +15,10 @@ class ShapeRenderer;
 class TextRenderer;
 class FrameCounter;
 class Texture;
+
+class BaseFrame;
+class MenuFrame;
+class GameFrame;
 
 //
 // Console Definitions
@@ -63,4 +69,8 @@ namespace Main
     SDL_Window*     SystemWindow();
     SDL_GLContext   GraphicsContext();
     FT_Library      FontLibrary();
+
+    StateMachine<BaseFrame*>& FrameState();
+    MenuFrame&                MenuFrame();
+    GameFrame&                GameFrame();
 }
