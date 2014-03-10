@@ -8,6 +8,7 @@
 class InputState;
 
 class EntitySystem;
+class SpawnSystem;
 class HealthSystem;
 class CollisionSystem;
 class ScriptSystem;
@@ -40,6 +41,7 @@ namespace Game
     InputState& InputState();
 
     EntitySystem&    EntitySystem();
+    SpawnSystem&     SpawnSystem();
     HealthSystem&    HealthSystem();
     CollisionSystem& CollisionSystem();
     ScriptSystem&    ScriptSystem();

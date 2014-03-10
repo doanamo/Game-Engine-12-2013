@@ -9,6 +9,7 @@
 #include "InputState.hpp"
 
 #include "EntitySystem.hpp"
+#include "SpawnSystem.hpp"
 #include "CollisionSystem.hpp"
 #include "ScriptSystem.hpp"
 #include "RenderSystem.hpp"
@@ -44,12 +45,9 @@ bool GameFrame::Initialize()
         }
     });
 
-    // Initialize the spawn system.
-    if(!m_spawnSystem.Initialize())
-        return false;
-
-    m_spawnSystem.SetSpawnArea(glm::vec4(1024.0f + 100.0f, 50.0f, 1024.0f + 100.0f, 526.0f));
-    m_spawnSystem.AddSpawn(&SpawnFunction, 0.5f, 1.0f);
+    // Setup the spawn system.
+    Game::SpawnSystem().SetSpawnArea(glm::vec4(1024.0f + 100.0f, 50.0f, 1024.0f + 100.0f, 526.0f));
+    Game::SpawnSystem().AddSpawn(&SpawnFunction, 0.5f, 1.0f);
 
     // Create bounds.
     Game::CreateBounds();
@@ -82,6 +80,7 @@ bool GameFrame::Initialize()
 void GameFrame::Cleanup()
 {
     Game::EntitySystem().DestroyAllEntities();
+    Game::SpawnSystem().ResetSpawns();
 
     m_initialized = false;
 }
@@ -107,7 +106,7 @@ bool GameFrame::Process(const SDL_Event& event)
 void GameFrame::Update(float timeDelta)
 {
     // Update spawn system.
-    m_spawnSystem.Update(timeDelta);
+    Game::SpawnSystem().Update(timeDelta);
 
     // Process entity commands.
     Game::EntitySystem().ProcessCommands();

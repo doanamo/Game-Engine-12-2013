@@ -7,6 +7,7 @@
 #include "InputState.hpp"
 
 #include "EntitySystem.hpp"
+#include "SpawnSystem.hpp"
 #include "HealthSystem.hpp"
 #include "CollisionSystem.hpp"
 #include "ScriptSystem.hpp"
@@ -33,6 +34,7 @@ namespace
     InputState inputState;
 
     EntitySystem    entitySystem;
+    SpawnSystem     spawnSystem;
     HealthSystem    healthSystem;
     CollisionSystem collisionSystem;
     ScriptSystem    scriptSystem;
@@ -87,6 +89,10 @@ bool Game::Initialize()
     //
     // Entity Systems
     //
+
+    // Initialize the spawn system.
+    if(!spawnSystem.Initialize())
+        return false;
 
     // Initialize the health system.
     if(!healthSystem.Initialize())
@@ -150,6 +156,7 @@ void Game::Cleanup()
     // Entity Systems
     //
     
+    spawnSystem.Cleanup();
     healthSystem.Cleanup();
     collisionSystem.Cleanup();
     scriptSystem.Cleanup();
@@ -215,6 +222,11 @@ InputState& Game::InputState()
 EntitySystem& Game::EntitySystem()
 {
     return entitySystem;
+}
+
+SpawnSystem& Game::SpawnSystem()
+{
+    return spawnSystem;
 }
 
 HealthSystem& Game::HealthSystem()

@@ -31,8 +31,6 @@ public:
     }
 
 private:
-    SpawnSystem m_spawnSystem;
-
     EntityHandle m_playerEntity;
     ValueBar m_playerHealthBar;
 
