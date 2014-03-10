@@ -9,6 +9,9 @@
 class SpawnSystem
 {
 public:
+    typedef void SpawnFunction(const glm::vec2& position);
+
+public:
     SpawnSystem();
     ~SpawnSystem();
 
@@ -19,7 +22,20 @@ public:
 
     void SetSpawnArea(const glm::vec4& area);
 
+    void AddSpawn(SpawnFunction* function, float minDelay, float maxDelay);
+    void ResetSpawns();
+
+private:
+    struct SpawnDefinition
+    {
+        SpawnFunction* function;
+        float minDelay, maxDelay;
+        float currentDelay;
+    };
+
+    typedef std::vector<SpawnDefinition> SpawnList;
+
 private:
     glm::vec4 m_spawnArea;
-    float     m_spawnDelay;
+    SpawnList m_spawnList;
 };

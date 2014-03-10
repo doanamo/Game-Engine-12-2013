@@ -15,6 +15,11 @@
 
 #include "HealthComponent.hpp"
 
+void SpawnFunction(const glm::vec2& position)
+{
+    Game::CreateEnemy(position);
+}
+
 GameFrame::GameFrame() :
     m_initialized(false)
 {
@@ -44,6 +49,7 @@ bool GameFrame::Initialize()
         return false;
 
     m_spawnSystem.SetSpawnArea(glm::vec4(1024.0f + 100.0f, 50.0f, 1024.0f + 100.0f, 526.0f));
+    m_spawnSystem.AddSpawn(&SpawnFunction, 0.5f, 1.0f);
 
     // Create bounds.
     Game::CreateBounds();
