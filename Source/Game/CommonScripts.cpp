@@ -2,7 +2,61 @@
 #include "CommonScripts.hpp"
 
 #include "GameContext.hpp"
+
+#include "EntitySystem.hpp"
+
+#include "TransformComponent.hpp"
 #include "RenderComponent.hpp"
+
+//
+// Constant Velocity
+//
+
+ConstantVelocityScript::ConstantVelocityScript(const glm::vec2& velocity) :
+    m_transform(nullptr),
+    m_velocity(velocity)
+{
+}
+
+void ConstantVelocityScript::OnUpdate(EntityHandle self, float timeDelta)
+{
+    // Get the needed transform component.
+    TransformComponent* transform = GetTransformComponent(self);
+    if(transform == nullptr) return;
+
+    // Apply the constant velocity.
+    glm::vec2 position = transform->GetPosition();
+    position += m_velocity * timeDelta;
+    transform->SetPosition(position);
+}
+
+TransformComponent* ConstantVelocityScript::GetTransformComponent(EntityHandle self)
+{
+    // Cache the transform component.
+    if(m_transform == nullptr)
+    {
+        m_transform = Game::TransformComponents().Lookup(self);
+    }
+
+    return m_transform;
+}
+
+//
+// Destroy On Death
+//
+
+void DestroyOnDeathScript::OnDamage(EntityHandle self, int value, bool alive)
+{
+    // Destroy the entity on fatal damage.
+    if(!alive)
+    {
+        Game::EntitySystem().DestroyEntity(self);
+    }
+}
+
+//
+// Blink On Damage
+//
 
 BlinkOnDamageScript::BlinkOnDamageScript() :
     m_render(nullptr),
