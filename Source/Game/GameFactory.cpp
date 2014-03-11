@@ -120,7 +120,7 @@ EntityHandle Game::CreateAsteroid(const glm::vec2& position)
     float size = 200.0f * scale;
     float halfSize = size * 0.5f;
 
-    int hitpoints = std::max(10, (int)(200 * scale));
+    int hitpoints = std::max(10, (int)(160 * scale));
 
     float speed = 400.0f - 300.0f * scale;
 
