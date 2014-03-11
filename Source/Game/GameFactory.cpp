@@ -101,10 +101,28 @@ EntityHandle Game::CreatePlayer()
     return entity;
 }
 
-EntityHandle Game::CreateAsteroid(const glm::vec2& position, float size)
+namespace
 {
+    std::random_device deviceRandom;
+    std::mt19937 asteroidRandom(deviceRandom());
+}
+
+EntityHandle Game::CreateAsteroid(const glm::vec2& position)
+{
+    // Calculate entity parameters.
+    std::array<double, 2> intervals = { 0.2f, 1.0f };
+    std::array<double, 2> weights = { 1.0f, 0.0f };
+
+    float scale = std::piecewise_linear_distribution<float>(intervals.begin(), intervals.end(), weights.begin())(asteroidRandom);
+
+    float size = 200.0f * scale;
     float halfSize = size * 0.5f;
 
+    int hitpoints = std::max(10, (int)(200 * scale));
+
+    float speed = 400.0f - 300.0f * scale;
+
+    // Create an entity.
     EntityHandle entity = Game::EntitySystem().CreateEntity();
 
     TransformComponent* transform = Game::TransformComponents().Create(entity);
@@ -113,8 +131,8 @@ EntityHandle Game::CreateAsteroid(const glm::vec2& position, float size)
     transform->SetRotation(0.0f);
 
     HealthComponent* health = Game::HealthComponents().Create(entity);
-    health->SetMaximumHealth(100);
-    health->SetCurrentHealth(100);
+    health->SetMaximumHealth(hitpoints);
+    health->SetCurrentHealth(hitpoints);
 
     CollisionComponent* collision = Game::CollisionComponents().Create(entity);
     collision->SetBoundingBox(glm::vec4(-halfSize, -halfSize, halfSize, halfSize));
@@ -122,7 +140,7 @@ EntityHandle Game::CreateAsteroid(const glm::vec2& position, float size)
     collision->SetMask(CollisionTypes::None);
 
     ScriptComponent* script = Game::ScriptComponents().Create(entity);
-    script->AddScript(std::make_shared<ConstantVelocityScript>(glm::vec2(-200.0f, 0.0f)));
+    script->AddScript(std::make_shared<ConstantVelocityScript>(glm::vec2(-speed, 0.0f)));
     script->AddScript(std::make_shared<BlinkOnDamageScript>());
     script->AddScript(std::make_shared<DestroyOnDeathScript>());
 

@@ -50,5 +50,5 @@ void AsteroidStage::OnExit()
 
 void AsteroidStage::SpawnFunction(const glm::vec2& position)
 {
-    Game::CreateAsteroid(position, 100.0f);
+    Game::CreateAsteroid(position);
 }

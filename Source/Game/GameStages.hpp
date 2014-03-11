@@ -15,7 +15,7 @@ public:
 
     float GetStageLength() const
     {
-        return 25.0f;
+        return 30.0f;
     }
 
 private:
@@ -34,7 +34,7 @@ public:
 
     float GetStageLength() const
     {
-        return 15.0f;
+        return 20.0f;
     }
 
 private:
