@@ -5,6 +5,7 @@
 #include "MainContext.hpp"
 #include "GameContext.hpp"
 #include "GameFactory.hpp"
+#include "GameStages.hpp"
 
 #include "InputState.hpp"
 
@@ -17,74 +18,6 @@
 
 #include "SpawnSystem.hpp"
 #include "ProgressSystem.hpp"
-
-namespace
-{
-    // Enemy stage.
-    class EnemyStage : public ProgressStage
-    {
-    public:
-        void OnEnter();
-
-        void OnExit()
-        {
-            Game::SpawnSystem().ResetSpawns();
-        }
-
-        float GetStageLength() const
-        {
-            return 25.0f;
-        }
-
-    private:
-        static void SpawnFunction(const glm::vec2& position)
-        {
-            Game::CreateEnemy(position);
-        }
-    };
-
-    // Asteroid stage.
-    class AsteroidStage : public ProgressStage
-    {
-    public:
-        void OnEnter();
-
-        void OnExit()
-        {
-            Game::SpawnSystem().ResetSpawns();
-        }
-
-        float GetStageLength() const
-        {
-            return 15.0f;
-        }
-
-    private:
-        static void SpawnFunction(const glm::vec2& position)
-        {
-            Game::CreateAsteroid(position, 100.0f);
-        }
-    };
-
-    // External definitions.
-    void EnemyStage::OnEnter()
-    {
-        // Setup stage spawns.
-        Game::SpawnSystem().AddSpawn(&SpawnFunction, 0.5f, 1.0f);
-
-        // Setup next stage.
-        Game::ProgressSystem().SetNextStage(std::make_shared<AsteroidStage>());
-    }
-
-    void AsteroidStage::OnEnter()
-    {
-        // Setup stage spawns.
-        Game::SpawnSystem().AddSpawn(&SpawnFunction, 0.5f, 1.0f);
-
-        // Setup next stage.
-        Game::ProgressSystem().SetNextStage(std::make_shared<EnemyStage>());
-    }
-}
 
 GameFrame::GameFrame() :
     m_initialized(false)
