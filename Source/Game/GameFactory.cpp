@@ -93,7 +93,7 @@ EntityHandle Game::CreatePlayer()
 
     ScriptComponent* script = Game::ScriptComponents().Create(entity);
     script->AddScript(std::make_shared<PlayerScript>());
-    script->AddScript(std::make_shared<BlinkOnDamageScript>());
+    script->AddScript(std::make_shared<FlashOnDamageScript>());
 
     RenderComponent* render = Game::RenderComponents().Create(entity);
     render->SetDiffuseColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
@@ -141,7 +141,7 @@ EntityHandle Game::CreateAsteroid(const glm::vec2& position)
 
     ScriptComponent* script = Game::ScriptComponents().Create(entity);
     script->AddScript(std::make_shared<ConstantVelocityScript>(glm::vec2(-speed, 0.0f)));
-    script->AddScript(std::make_shared<BlinkOnDamageScript>());
+    script->AddScript(std::make_shared<FlashOnDamageScript>());
     script->AddScript(std::make_shared<DestroyOnDeathScript>());
 
     RenderComponent* render = Game::RenderComponents().Create(entity);
@@ -170,7 +170,7 @@ EntityHandle Game::CreateEnemy(const glm::vec2& position)
 
     ScriptComponent* script = Game::ScriptComponents().Create(entity);
     script->AddScript(std::make_shared<EnemyScript>());
-    script->AddScript(std::make_shared<BlinkOnDamageScript>());
+    script->AddScript(std::make_shared<FlashOnDamageScript>());
 
     RenderComponent* render = Game::RenderComponents().Create(entity);
     render->SetDiffuseColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));

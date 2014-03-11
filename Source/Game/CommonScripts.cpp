@@ -55,16 +55,16 @@ void DestroyOnDeathScript::OnDamage(EntityHandle self, int value, bool alive)
 }
 
 //
-// Blink On Damage
+// Flash On Damage
 //
 
-BlinkOnDamageScript::BlinkOnDamageScript() :
+FlashOnDamageScript::FlashOnDamageScript() :
     m_render(nullptr),
     m_timer(0.0f)
 {
 }
 
-void BlinkOnDamageScript::OnUpdate(EntityHandle self, float timeDelta)
+void FlashOnDamageScript::OnUpdate(EntityHandle self, float timeDelta)
 {
     if(m_timer == 0.0f)
         return;
@@ -80,7 +80,7 @@ void BlinkOnDamageScript::OnUpdate(EntityHandle self, float timeDelta)
     render->SetEmissionPower(m_timer);
 }
     
-void BlinkOnDamageScript::OnDamage(EntityHandle self, int value, bool alive)
+void FlashOnDamageScript::OnDamage(EntityHandle self, int value, bool alive)
 {
     // Get the needed render component.
     RenderComponent* render = GetRenderComponent(self);
@@ -93,7 +93,7 @@ void BlinkOnDamageScript::OnDamage(EntityHandle self, int value, bool alive)
     render->SetEmissionPower(m_timer);
 }
 
-RenderComponent* BlinkOnDamageScript::GetRenderComponent(EntityHandle self)
+RenderComponent* FlashOnDamageScript::GetRenderComponent(EntityHandle self)
 {
     // Cache the render component.
     if(m_render == nullptr)

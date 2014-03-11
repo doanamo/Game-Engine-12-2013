@@ -40,13 +40,13 @@ public:
 };
 
 //
-// Blink On Damage
+// Flash On Damage
 //
 
-class BlinkOnDamageScript : public Script
+class FlashOnDamageScript : public Script
 {
 public:
-    BlinkOnDamageScript();
+    FlashOnDamageScript();
 
     void OnUpdate(EntityHandle self, float timeDelta);
     void OnDamage(EntityHandle self, int value, bool alive);
