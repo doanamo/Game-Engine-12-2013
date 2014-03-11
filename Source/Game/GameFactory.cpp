@@ -112,8 +112,8 @@ namespace
 EntityHandle Game::CreateAsteroid(const glm::vec2& position)
 {
     // Calculate entity parameters.
-    std::array<double, 2> intervals = { 0.2f, 1.0f };
-    std::array<double, 2> weights = { 1.0f, 0.0f };
+    std::array<double, 3> intervals = { 0.2f, 0.3f, 1.0f };
+    std::array<double, 3> weights = { 0.0f, 0.6f, 1.0f };
 
     float scale = std::piecewise_linear_distribution<float>(intervals.begin(), intervals.end(), weights.begin())(asteroidRandom);
 

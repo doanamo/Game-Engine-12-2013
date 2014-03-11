@@ -37,7 +37,7 @@ void EnemyStage::SpawnFunction(const glm::vec2& position)
 void AsteroidStage::OnEnter()
 {
     // Setup stage spawns.
-    Game::SpawnSystem().AddSpawn(&SpawnFunction, 0.5f, 1.0f);
+    Game::SpawnSystem().AddSpawn(&SpawnFunction, 0.2f, 0.6f);
 
     // Setup next stage.
     Game::ProgressSystem().SetNextStage(std::make_shared<EnemyStage>());
