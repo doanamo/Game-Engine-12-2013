@@ -4,6 +4,8 @@
 #include "GameContext.hpp"
 
 #include "EntitySystem.hpp"
+#include "HealthSystem.hpp"
+#include "CollisionSystem.hpp"
 
 #include "TransformComponent.hpp"
 #include "RenderComponent.hpp"
@@ -39,6 +41,28 @@ TransformComponent* ConstantVelocityScript::GetTransformComponent(EntityHandle s
     }
 
     return m_transform;
+}
+
+//
+// Damage On Collision
+//
+
+DamageOnCollision::DamageOnCollision(int damage, float interval) :
+    m_damage(damage),
+    m_interval(interval)
+{
+}
+
+void DamageOnCollision::OnCollision(CollisionObject& self, CollisionObject& other)
+{
+    assert(self.collision != nullptr);
+    assert(other.collision != nullptr);
+
+    // Apply damage to target entity.
+    Game::HealthSystem().Damage(other.entity, m_damage);
+
+    // Temporarily disable collision response with this entity.
+    Game::CollisionSystem().DisableCollisionResponse(self.entity, other.entity, m_interval);
 }
 
 //

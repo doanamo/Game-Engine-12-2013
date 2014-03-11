@@ -90,10 +90,11 @@ EntityHandle Game::CreatePlayer()
     CollisionComponent* collision = Game::CollisionComponents().Create(entity);
     collision->SetBoundingBox(glm::vec4(-25.0f, -25.0f, 25.0f, 25.0f));
     collision->SetType(CollisionTypes::Player);
-    collision->SetMask(CollisionTypes::None);
+    collision->SetMask(CollisionTypes::Enemy);
 
     ScriptComponent* script = Game::ScriptComponents().Create(entity);
     script->AddScript(std::make_shared<PlayerScript>());
+    script->AddScript(std::make_shared<DamageOnCollision>(10, 0.5f));
     script->AddScript(std::make_shared<FlashOnDamageScript>());
 
     RenderComponent* render = Game::RenderComponents().Create(entity);
@@ -138,10 +139,11 @@ EntityHandle Game::CreateAsteroid(const glm::vec2& position)
     CollisionComponent* collision = Game::CollisionComponents().Create(entity);
     collision->SetBoundingBox(glm::vec4(-halfSize, -halfSize, halfSize, halfSize));
     collision->SetType(CollisionTypes::Environment);
-    collision->SetMask(CollisionTypes::None);
+    collision->SetMask(CollisionTypes::Player | CollisionTypes::Enemy);
 
     ScriptComponent* script = Game::ScriptComponents().Create(entity);
     script->AddScript(std::make_shared<ConstantVelocityScript>(glm::vec2(-speed, 0.0f)));
+    script->AddScript(std::make_shared<DamageOnCollision>(5, 0.5f));
     script->AddScript(std::make_shared<FlashOnDamageScript>());
     script->AddScript(std::make_shared<DestroyOnDeathScript>());
 
@@ -167,10 +169,11 @@ EntityHandle Game::CreateEnemy(const glm::vec2& position)
     CollisionComponent* collision = Game::CollisionComponents().Create(entity);
     collision->SetBoundingBox(glm::vec4(-25.0f, -25.0f, 25.0f, 25.0f));
     collision->SetType(CollisionTypes::Enemy);
-    collision->SetMask(CollisionTypes::None);
+    collision->SetMask(CollisionTypes::Player);
 
     ScriptComponent* script = Game::ScriptComponents().Create(entity);
     script->AddScript(std::make_shared<EnemyScript>());
+    script->AddScript(std::make_shared<DamageOnCollision>(5, 0.5f));
     script->AddScript(std::make_shared<FlashOnDamageScript>());
 
     RenderComponent* render = Game::RenderComponents().Create(entity);

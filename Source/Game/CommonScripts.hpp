@@ -30,6 +30,22 @@ private:
 };
 
 //
+// Damage On Collision
+//
+
+class DamageOnCollision : public Script
+{
+public:
+    DamageOnCollision(int damage, float interval);
+
+    void OnCollision(CollisionObject& self, CollisionObject& other);
+
+public:
+    int   m_damage;
+    float m_interval;
+};
+
+//
 // Destroy On Death
 //
 
