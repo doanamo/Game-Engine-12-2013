@@ -46,4 +46,14 @@ namespace std
             return handle.identifier;
         }
     };
+
+    template<>
+    struct hash<std::pair<EntityHandle, EntityHandle>>
+    {
+        std::size_t operator()(const std::pair<EntityHandle, EntityHandle>& pair) const
+        {
+            // Use the identifier as a hash.
+            return pair.first.identifier * std::numeric_limits<int>::max() + pair.second.identifier;
+        }
+    };
 }

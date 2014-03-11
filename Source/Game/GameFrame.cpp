@@ -118,7 +118,7 @@ void GameFrame::Update(float timeDelta)
     Game::EntitySystem().ProcessCommands();
 
     // Update the collision system.
-    Game::CollisionSystem().Update();
+    Game::CollisionSystem().Update(timeDelta);
 
     // Update the script system.
     Game::ScriptSystem().Update(timeDelta);

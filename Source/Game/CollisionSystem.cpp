@@ -27,6 +27,8 @@ namespace
     }
 }
 
+const float CollisionSystem::Permanent = -1.0f;
+
 CollisionSystem::CollisionSystem()
 {
 }
@@ -46,10 +48,44 @@ bool CollisionSystem::Initialize()
 void CollisionSystem::Cleanup()
 {
     ClearContainer(m_objects);
+    ClearContainer(m_disabled);
 }
 
-void CollisionSystem::Update()
+void CollisionSystem::Update(float timeDelta)
 {
+    // Update timers of disabled collision response pairs.
+    for(auto it = m_disabled.begin(); it != m_disabled.end();)
+    {
+        const EntityHandle& sourceEntity = it->first.first;
+        const EntityHandle& targetEntity = it->first.second;
+
+        float& time = it->second;
+
+        // Save a copy of the iterator and step forward the original.
+        auto eraseIt = it++;
+
+        // Check if entities are still valid.
+        if(!Game::EntitySystem().IsHandleValid(sourceEntity) || !Game::EntitySystem().IsHandleValid(targetEntity))
+        {
+            m_disabled.erase(eraseIt);
+            continue;
+        }
+
+        // Skip if it has been disabled permanently.
+        if(time < 0.0f)
+            continue;
+
+        // Update the timer.
+        time = std::max(0.0f, time - timeDelta);
+
+        // Erase the element if outdated.
+        if(time == 0.0f)
+        {
+            m_disabled.erase(eraseIt);
+            continue;
+        }
+    }
+
     // Create a list of collision objects.
     for(auto it = Game::CollisionComponents().Begin(); it != Game::CollisionComponents().End(); ++it)
     {
@@ -108,6 +144,15 @@ void CollisionSystem::Update()
             if(other == it)
                 continue;
 
+            // Check if collision response with other entity has been disabled.
+            // This shouldn't be here before actuall collision calculation, but
+            // we only do a collision response (no physical interaction) so it's
+            // totally fine for now (we skip the expensive calculation).
+            EntityPair pair = { it->entity, other->entity };
+
+            if(m_disabled.count(pair) == 1)
+                continue;
+
             // Check if collision object is still enabled.
             if(!other->enabled)
                 continue;
@@ -141,4 +186,26 @@ void CollisionSystem::Update()
 
     // Clear intermediate collision object list.
     m_objects.clear();
+}
+
+void CollisionSystem::DisableCollisionResponse(EntityHandle sourceEntity, EntityHandle targetEntity, float duration)
+{
+    EntityPair pair = { sourceEntity, targetEntity };
+    auto it = m_disabled.find(pair);
+
+    if(it != m_disabled.end())
+    {
+        // Update the duration.
+        float& time = it->second;
+
+        if(time < duration)
+        {
+            time = duration;
+        }
+    }
+    else
+    {
+        // Insert a new pair.
+        m_disabled.emplace(std::make_pair(pair, duration));
+    }
 }
