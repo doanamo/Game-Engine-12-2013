@@ -10,13 +10,13 @@
 namespace
 {
     // Random number generator.
-    uint64_t seed = std::chrono::system_clock::now().time_since_epoch().count();
-    std::mt19937 generator((unsigned int)seed);
-    std::uniform_real<float> random(3.0f, 6.0);
+    std::random_device deviceRandom;
+    std::mt19937 spawnRandom(deviceRandom());
+    
 }
 
 SpawnerScript::SpawnerScript() :
-    m_respawnTime(random(generator))
+    m_respawnTime(std::uniform_real<float>(3.0f, 6.0)(spawnRandom))
 {
 }
 
@@ -35,6 +35,6 @@ void SpawnerScript::OnUpdate(EntityHandle self, float timeDelta)
         Game::CreateEnemy(transform->GetPosition());
 
         // Reset respawn timer.
-        m_respawnTime = random(generator);
+        m_respawnTime = std::uniform_real<float>(3.0f, 6.0)(spawnRandom);
     }
 }

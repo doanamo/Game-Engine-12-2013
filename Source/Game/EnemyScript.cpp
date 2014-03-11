@@ -11,8 +11,9 @@
 namespace
 {
     // Random number generators.
-    std::mt19937 shootRandom((unsigned int)std::chrono::system_clock::now().time_since_epoch().count());
-    std::mt19937 pickupRandom((unsigned int)std::chrono::system_clock::now().time_since_epoch().count());
+    std::random_device deviceRandom;
+    std::mt19937 shootRandom(deviceRandom());
+    std::mt19937 pickupRandom(deviceRandom());
 }
 
 EnemyScript::EnemyScript() :

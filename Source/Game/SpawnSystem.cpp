@@ -5,8 +5,9 @@
 
 namespace
 {
-    std::mt19937 spawnRandom((unsigned int)std::chrono::system_clock::now().time_since_epoch().count());
-    std::mt19937 coordRandom((unsigned int)std::chrono::system_clock::now().time_since_epoch().count());
+    std::random_device randomDevice;
+    std::mt19937 spawnRandom(randomDevice());
+    std::mt19937 coordRandom(randomDevice());
 }
 
 SpawnSystem::SpawnSystem() :
