@@ -5,7 +5,8 @@
 #include "EntitySystem.hpp"
 #include "CollisionSystem.hpp"
 
-#include "CollisionTypes.hpp"
+#include "CollisionDefinitions.hpp"
+
 #include "TransformComponent.hpp"
 #include "InputComponent.hpp"
 #include "HealthComponent.hpp"
@@ -62,7 +63,7 @@ void Game::CreateBounds()
         CollisionComponent* collision = Game::CollisionComponents().Create(entity);
         collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 1024.0f + 200.0f, 576.0f));
         collision->SetType(CollisionTypes::None);
-        collision->SetMask(CollisionTypes::Enemy | CollisionTypes::Pickup);
+        collision->SetMask(CollisionMasks::All ^ CollisionTypes::Player);
         collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reversed);
 
         ScriptComponent* script = Game::ScriptComponents().Create(entity);

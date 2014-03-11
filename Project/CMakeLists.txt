@@ -188,7 +188,7 @@ Set(SourceFiles
     "Game/ProgressSystem.cpp"
     "Game/SpawnSystem.hpp"
     "Game/SpawnSystem.cpp"
-    "Game/CollisionTypes.hpp"
+    "Game/CollisionDefinitions.hpp"
     "Game/GameFactory.hpp"
     "Game/GameFactory.cpp"
     "Game/GameStages.hpp"

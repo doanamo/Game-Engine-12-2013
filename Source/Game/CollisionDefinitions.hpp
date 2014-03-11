@@ -16,3 +16,12 @@ struct CollisionTypes
         Environment = 1 << 4,
     };
 };
+
+//
+// Collision Masks
+//
+
+struct CollisionMasks
+{
+    static const uint32_t All = ~0;
+};

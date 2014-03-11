@@ -5,7 +5,7 @@
 #include "GameFactory.hpp"
 #include "EntitySystem.hpp"
 
-#include "CollisionTypes.hpp"
+#include "CollisionDefinitions.hpp"
 #include "TransformComponent.hpp"
 
 namespace
