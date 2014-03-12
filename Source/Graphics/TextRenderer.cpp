@@ -4,13 +4,15 @@
 #include "Font.hpp"
 #include "MainContext.hpp"
 
+namespace Console
+{
+    ConsoleVariable debugTextRender("debug_textrender", false, "Enables text render debugging.");
+}
+
 namespace
 {
     // Log error messages.
     #define LogInitializeError() "Failed to initialize a text renderer! "
-
-    // Index type.
-    typedef unsigned int Index;
 
     // Cursor blink time.
     const float CursorBlinkTime = 2.0f * 0.530f;
@@ -383,11 +385,11 @@ private:
 //
 
 TextRenderer::TextRenderer() :
-    m_vertexData(nullptr),
+    m_bufferData(nullptr),
     m_bufferSize(0),
     m_shader(),
     m_vertexBuffer(),
-    m_indexBuffer(),
+    m_instanceBuffer(),
     m_vertexInput(),
     m_cursorBlinkTime(0.0f),
     m_initialized(false)
@@ -412,8 +414,8 @@ bool TextRenderer::Initialize(int bufferSize)
 
     m_bufferSize = bufferSize;
 
-    // Allocate vertex data buffer for glyph quads.
-    m_vertexData = new Vertex[m_bufferSize * 4];
+    // Allocate buffer data for glyph instances.
+    m_bufferData = new GlyphData[m_bufferSize];
 
     // Load glyph shader.
     if(!m_shader.Load(Main::WorkingDir() + "Data/Shaders/Glyph.glsl"))
@@ -424,32 +426,30 @@ bool TextRenderer::Initialize(int bufferSize)
     }
 
     // Create the vertex buffer.
-    if(!m_vertexBuffer.Initialize(sizeof(Vertex), m_bufferSize * 4, nullptr, GL_DYNAMIC_DRAW))
+    struct Vertex
+    {
+        glm::vec2 position;
+    };
+
+    Vertex vertices[4] =
+    {
+        { glm::vec2(0.0f, 0.0f) },
+        { glm::vec2(1.0f, 0.0f) },
+        { glm::vec2(1.0f, 1.0f) },
+        { glm::vec2(0.0f, 1.0f) },
+    };
+
+    if(!m_vertexBuffer.Initialize(sizeof(Vertex), StaticArraySize(vertices), &vertices, GL_STATIC_DRAW))
     {
         Log() << LogInitializeError() << "Couldn't create a vertex buffer.";
         Cleanup();
         return false;
     }
 
-    // Create index data for quads.
-    std::vector<Index> indexData;
-    indexData.resize(m_bufferSize * 6);
-
-    for(int i = 0; i < m_bufferSize; ++i)
+    // Create an instance buffer.
+    if(!m_instanceBuffer.Initialize(sizeof(GlyphData), m_bufferSize, nullptr, GL_DYNAMIC_DRAW))
     {
-        indexData[i * 6 + 0] = i * 4 + 0;
-        indexData[i * 6 + 1] = i * 4 + 1;
-        indexData[i * 6 + 2] = i * 4 + 2;
-
-        indexData[i * 6 + 3] = i * 4 + 2;
-        indexData[i * 6 + 4] = i * 4 + 3;
-        indexData[i * 6 + 5] = i * 4 + 0;
-    }
-
-    // Create the index buffer.
-    if(!m_indexBuffer.Initialize(sizeof(Index), indexData.size(), &indexData[0]))
-    {
-        Log() << LogInitializeError() << "Couldn't create an index buffer.";
+        Log() << LogInitializeError() << "Couldn't create an instance buffer.";
         Cleanup();
         return false;
     }
@@ -457,9 +457,15 @@ bool TextRenderer::Initialize(int bufferSize)
     // Vertex input.
     VertexAttribute vertexAttributes[] =
     {
-        { &m_vertexBuffer, VertexAttributeTypes::Float2 },
-        { &m_vertexBuffer, VertexAttributeTypes::Float2 },
-        { &m_vertexBuffer, VertexAttributeTypes::Float4 },
+        // Vertex
+        { &m_vertexBuffer, VertexAttributeTypes::Float2 },   // Position
+
+        // Instance
+        { &m_instanceBuffer, VertexAttributeTypes::Float2 }, // Position
+        { &m_instanceBuffer, VertexAttributeTypes::Float2 }, // Size
+        { &m_instanceBuffer, VertexAttributeTypes::Float2 }, // Scale
+        { &m_instanceBuffer, VertexAttributeTypes::Float2 }, // Texture
+        { &m_instanceBuffer, VertexAttributeTypes::Float4 }, // Color
     };
 
     if(!m_vertexInput.Initialize(&vertexAttributes[0], StaticArraySize(vertexAttributes)))
@@ -474,14 +480,14 @@ bool TextRenderer::Initialize(int bufferSize)
 
 void TextRenderer::Cleanup()
 {
-    delete[] m_vertexData;
-    m_vertexData = nullptr;
+    delete[] m_bufferData;
+    m_bufferData = nullptr;
 
     m_bufferSize = 0;
 
     m_shader.Cleanup();
     m_vertexBuffer.Cleanup();
-    m_indexBuffer.Cleanup();
+    m_instanceBuffer.Cleanup();
     m_vertexInput.Cleanup();
 
     m_cursorBlinkTime = 0.0f;
@@ -491,8 +497,11 @@ void TextRenderer::Cleanup()
 
 void TextRenderer::UpdateCursorBlink(float dt)
 {
+    if(!m_initialized)
+        return;
+
     m_cursorBlinkTime += dt;
-    m_cursorBlinkTime = fmod(m_cursorBlinkTime, CursorBlinkTime);
+    m_cursorBlinkTime = std::fmod(m_cursorBlinkTime, CursorBlinkTime);
 }
 
 void TextRenderer::ResetCursorBlink()
@@ -550,7 +559,7 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
 
     auto AddDebugBaseline = [&]() -> void
     {
-        assert(info.debug);
+        assert(info.debug || Console::debugTextRender);
 
         // Set max reached baseline width.
         baselineMaxWidth = std::max(baselineMaxWidth, baselineEnd.x);
@@ -566,7 +575,7 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
 
     auto AddDebugGlyph = [&](const glm::vec2& position, const glm::vec2& size)
     {
-        assert(info.debug);
+        assert(info.debug || Console::debugTextRender);
 
         ShapeRenderer::Rectangle rectangle;
         rectangle.position = position;
@@ -580,6 +589,9 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
     info.font->CacheGlyphs(text);
     info.font->UpdateAtlasTexture();
 
+    // Calculate pixel size of the atlas texture.
+    glm::vec2 pixelSize(1.0f / info.font->GetAtlasWidth(), 1.0f / info.font->GetAtlasHeight());
+
     // Bind render states.
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -588,28 +600,33 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
     glBindTexture(GL_TEXTURE_2D, info.font->GetTexture()->GetHandle());
 
     glUseProgram(m_shader.GetHandle());
+    glBindVertexArray(m_vertexInput.GetHandle());
+
     glUniformMatrix4fv(m_shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(transform));
     glUniform1i(m_shader.GetUniform("texture"), 0);
-    
-    glBindVertexArray(m_vertexInput.GetHandle());
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer.GetHandle());
+    glUniform2fv(m_shader.GetUniform("texturePixelSize"), 1, glm::value_ptr(pixelSize));
 
-    // Calculate pixel size of the atlas texture.
-    glm::vec2 pixelSize(1.0f / info.font->GetAtlasWidth(), 1.0f / info.font->GetAtlasHeight());
+    auto ResetRenderState = []()
+    {
+        glBindVertexArray(0);
+        glUseProgram(0);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glDisable(GL_BLEND);
+    };
 
     // Method that draws buffered characters.
-    int charactersBuffered = 0;
+    int glyphsBatched = 0;
 
-    auto DrawBufferedCharacters = [&]()
+    auto DrawBatchedGlyphs = [&]()
     {
-        // Update the vertex buffer.
-        m_vertexBuffer.Update(&m_vertexData[0]);
+        // Update the instance buffer.
+        m_instanceBuffer.Update(&m_bufferData[0], glyphsBatched);
 
-        // Draw character quads.
-        glDrawElements(GL_TRIANGLES, charactersBuffered * 6, m_indexBuffer.GetElementType(), (void*)0);
+        // Draw glyph quads.
+        glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, m_vertexBuffer.GetElementCount(), glyphsBatched);
 
         // Reset the counter.
-        charactersBuffered = 0;
+        glyphsBatched = 0;
     };
 
     // Process and draw text characters.
@@ -641,47 +658,33 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
         // Get current glyph.
         const Glyph* glyph = state.GetCurrentGlyph();
 
-        // Draw character glyph.
+        // Draw character glyphs.
         if(state.GetCurrentCharacter() != ' ')
         {
-            // Calculate glyph rectangle.
-            glm::vec4 rectangle;
-            rectangle.x = (float)(state.GetDrawPosition().x + glyph->offset.x);
-            rectangle.y = (float)(state.GetDrawPosition().y + glyph->offset.y);
-            rectangle.w = rectangle.x + (float)glyph->size.x;
-            rectangle.z = rectangle.y + (float)glyph->size.y;
+            // Fill a glyph instance data.
+            GlyphData& glyphData = m_bufferData[glyphsBatched];
+            glyphData.position.x = (float)(state.GetDrawPosition().x + glyph->offset.x);
+            glyphData.position.y = (float)(state.GetDrawPosition().y + glyph->offset.y);
+            glyphData.size.x = (float)glyph->size.x;
+            glyphData.size.y = (float)glyph->size.y;
+            glyphData.scale.x = 1.0f;
+            glyphData.scale.y = 1.0f;
+            glyphData.texture.x = (float)glyph->position.x;
+            glyphData.texture.y = (float)glyph->position.y;
+            glyphData.color = info.color;
 
-            // Calculate glyph texture coordinates.
-            glm::vec4 texture;
-            texture.x = glyph->position.x * pixelSize.x;
-            texture.y = glyph->position.y * pixelSize.y;
-            texture.w = (glyph->position.x + glyph->size.x) * pixelSize.x;
-            texture.z = (glyph->position.y + glyph->size.y) * pixelSize.y;
-
-            // Create a character quad.
-            Vertex quad[4] =
-            {
-                { glm::vec2(rectangle.x, rectangle.y), glm::vec2(texture.x, texture.y), info.color },
-                { glm::vec2(rectangle.w, rectangle.y), glm::vec2(texture.w, texture.y), info.color },
-                { glm::vec2(rectangle.w, rectangle.z), glm::vec2(texture.w, texture.z), info.color },
-                { glm::vec2(rectangle.x, rectangle.z), glm::vec2(texture.x, texture.z), info.color },
-            };
-
-            // Copy character quad to the vertex data.
-            memcpy(&m_vertexData[charactersBuffered * 4], &quad[0], sizeof(Vertex) * 4);
-
-            ++charactersBuffered;
+            ++glyphsBatched;
 
             // Draw if we reached the buffer size.
-            if(charactersBuffered == m_bufferSize)
+            if(glyphsBatched == m_bufferSize)
             {
-                DrawBufferedCharacters();
+                DrawBatchedGlyphs();
             }
 
             // Add debug glyph rectangle.
             if(info.debug)
             {
-                AddDebugGlyph(glm::vec2(rectangle.x, rectangle.y), glm::vec2(glyph->size.x, glyph->size.y));
+                AddDebugGlyph(glyphData.position, glyphData.size);
             }
 
             // Update baseline end.
@@ -689,17 +692,14 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
         }
     }
 
-    // Draw any remaining characters that were buffered.
-    if(charactersBuffered != 0)
+    // Draw any remaining glyphs that were batched.
+    if(glyphsBatched != 0)
     {
-        DrawBufferedCharacters();
+        DrawBatchedGlyphs();
     }
 
     // Unbind render states.
-    glBindVertexArray(0);
-    glUseProgram(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glDisable(GL_BLEND);
+    ResetRenderState();
 
     // Draw text cursor.
     if(state.IsCursorPresent() && m_cursorBlinkTime < CursorBlinkTime * 0.5f)
@@ -715,16 +715,22 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
     }
 
     // Flush debug draw.
-    if(info.debug)
+    if(info.debug || Console::debugTextRender)
     {
         // Draw glyph rectangles.
-        Main::ShapeRenderer().DrawRectangles(&debugRectangles[0], debugRectangles.size(), transform);
+        if(!debugRectangles.empty())
+        {
+            Main::ShapeRenderer().DrawRectangles(&debugRectangles[0], debugRectangles.size(), transform);
+        }
 
         // Add last base line.
         AddDebugBaseline();
 
         // Draw all base lines.
-        Main::ShapeRenderer().DrawLines(&debugLines[0], debugLines.size(), transform);
+        if(!debugLines.empty())
+        {
+            Main::ShapeRenderer().DrawLines(&debugLines[0], debugLines.size(), transform);
+        }
 
         // Draw bounding box.
         {

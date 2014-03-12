@@ -14,15 +14,6 @@ class Font;
 
 class TextRenderer
 {
-private:
-    // Vertex structure.
-    struct Vertex
-    {
-        glm::vec2 position;
-        glm::vec2 texture;
-        glm::vec4 color;
-    };
-
 public:
     // Draw description.
     struct DrawInfo
@@ -96,14 +87,26 @@ public:
     void Draw(const DrawInfo& info, const glm::mat4& transform, const char* text);
 
 private:
-    Vertex* m_vertexData;
-    int     m_bufferSize;
+    // Batched glyphs.
+    struct GlyphData
+    {
+        glm::vec2 position;
+        glm::vec2 size;
+        glm::vec2 scale;
+        glm::vec2 texture; // Texture origin in pixels.
+        glm::vec4 color;
+    };
 
-    Shader       m_shader;
-    VertexBuffer m_vertexBuffer;
-    IndexBuffer  m_indexBuffer;
-    VertexInput  m_vertexInput;
+    GlyphData* m_bufferData;
+    int        m_bufferSize;
 
+    // Render objects.
+    Shader         m_shader;
+    VertexBuffer   m_vertexBuffer;
+    InstanceBuffer m_instanceBuffer;
+    VertexInput    m_vertexInput;
+
+    // Current text cursor blink.
     float m_cursorBlinkTime;
 
     bool m_initialized;
