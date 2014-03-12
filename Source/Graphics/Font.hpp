@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Precompiled.hpp"
+#include "Common/ShelfPacker.hpp"
 #include "Graphics/Texture.hpp"
 
 //
@@ -79,9 +80,8 @@ private:
     Texture         m_atlasTexture;
     bool            m_atlasUpload;
 
-    // Current shelf used for packing glyphs.
-    glm::ivec2  m_shelfPosition;
-    int         m_shelfSize;
+    // Glyph texture packer.
+    ShelfPacker m_packer;
 
     bool m_initialized;
 };

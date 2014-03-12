@@ -106,6 +106,8 @@ Set(SourceFiles
     "Common/Utility.hpp"
     "Common/Utility.cpp"
     "Common/StateMachine.hpp"
+    "Common/ShelfPacker.hpp"
+    "Common/ShelfPacker.cpp"
     "Logger/Logger.hpp"
     "Logger/Logger.cpp"
     "Logger/LoggerOutput.hpp"
