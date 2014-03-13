@@ -17,6 +17,7 @@ class FrameCounter;
 class Texture;
 
 class BaseFrame;
+class MainFrame;
 
 //
 // Console Definitions
@@ -69,4 +70,5 @@ namespace Main
     FT_Library      FontLibrary();
 
     StateMachine<BaseFrame*>& FrameState();
+    MainFrame&                MainFrame();
 }

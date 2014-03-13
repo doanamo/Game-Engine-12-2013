@@ -150,6 +150,8 @@ Set(SourceFiles
     "Graphics/Font.cpp"
     "Graphics/TextRenderer.hpp"
     "Graphics/TextRenderer.cpp"
+    "Game/MainFrame.hpp"
+    "Game/MainFrame.cpp"
 )
 
 # Add the source directory prefix to each file path.

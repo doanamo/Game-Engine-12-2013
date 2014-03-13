@@ -135,19 +135,14 @@ int main(int argc, char* argv[])
         // Setup the viewport.
         glViewport(0, 0, windowWidth, windowHeight);
 
-        // Calculate projection.
-        glm::mat4x4 projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
-
-        // Clear the screen.
-        Main::CoreRenderer().SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-        Main::CoreRenderer().SetClearDepth(1.0f);
-        Main::CoreRenderer().Clear(ClearFlags::Color | ClearFlags::Depth);
-
         // Draw the current state frame.
         if(Main::FrameState().IsValid())
         {
             Main::FrameState().GetState()->Draw();
         }
+
+        // Calculate projection.
+        glm::mat4x4 projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
 
         // Draw frame rate.
         if(Console::drawFrameRate)

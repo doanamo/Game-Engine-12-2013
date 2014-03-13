@@ -18,6 +18,8 @@
 #include "Graphics/ShapeRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
 
+#include "Game/MainFrame.hpp"
+
 //
 // Console Variables
 //
@@ -62,6 +64,7 @@ namespace
     FT_Library          fontLibrary = nullptr;
 
     StateMachine<BaseFrame*> frameState;
+    MainFrame                mainFrame;
 }
 
 //
@@ -310,10 +313,12 @@ bool Main::Initialize()
     // Frame State
     //
 
-    /*
-    // Set the default frame.
-    frameState.ChangeState(&defaultFrame);
-    */
+    // Initialize the main frame.
+    if(!mainFrame.Initialize())
+        return false;
+
+    // Set as the default frame.
+    frameState.ChangeState(&mainFrame);
 
     //
     // Success!
@@ -331,6 +336,13 @@ void Main::Cleanup()
         return;
 
     Log() << "Cleaning up the main context...";
+
+    //
+    // Frame State
+    //
+
+    frameState.Cleanup();
+    mainFrame.Cleanup();
 
     //
     // Frame Counter
@@ -508,4 +520,9 @@ FT_Library Main::FontLibrary()
 StateMachine<BaseFrame*>& Main::FrameState()
 {
     return frameState;
+}
+
+MainFrame& Main::MainFrame()
+{
+    return mainFrame;
 }
