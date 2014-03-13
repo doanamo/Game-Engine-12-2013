@@ -2,6 +2,7 @@
 
 #include "Precompiled.hpp"
 #include "System/BaseFrame.hpp"
+#include "Graphics/Font.hpp"
 
 //
 // Main Frame
@@ -21,5 +22,5 @@ public:
     void Draw();
 
 private:
-
+    Font m_font;
 };
