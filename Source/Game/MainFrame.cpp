@@ -57,6 +57,7 @@ void MainFrame::Draw()
     TextRenderer::DrawInfo drawInfo;
     drawInfo.font = &m_font;
     drawInfo.position = glm::vec2(20.0f, 155.0f);
+    drawInfo.debug = true;
 
     Main::TextRenderer().Draw(drawInfo, transform, "Hello\n   world!");
 }
