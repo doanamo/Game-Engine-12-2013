@@ -55,6 +55,7 @@ int main(int argc, char* argv[])
     // Font
     //
 
+    /*
     // Load font file.
     Font font;
     if(!font.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 22, 512, 512))
@@ -62,6 +63,7 @@ int main(int argc, char* argv[])
     
     // Cache ASCII character set.
     font.CacheASCII();
+    */
     
     //
     // Main Loop
@@ -105,8 +107,10 @@ int main(int argc, char* argv[])
             }
 
             // Process an event by console frame.
+            /*
             if(Main::ConsoleFrame().Process(event))
                 continue;
+            */
 
             // Process an event by the current state frame.
             if(Main::FrameState().IsValid())
@@ -145,6 +149,7 @@ int main(int argc, char* argv[])
         glm::mat4x4 projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
 
         // Draw frame rate.
+        /*
         if(Console::drawFrameRate)
         {
             std::stringstream frameCounterText;
@@ -159,10 +164,13 @@ int main(int argc, char* argv[])
 
             Main::TextRenderer().Draw(info, projection, frameCounterText.str().c_str());
         }
+        */
 
         // Draw console frame.
+        /*
         Main::ConsoleFrame().Draw(projection);
-        
+        */
+
         // Present the window content.
         bool verticalSync = false;
 
