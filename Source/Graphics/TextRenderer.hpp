@@ -21,7 +21,7 @@ public:
         // Default constructor.
         DrawInfo() :
             font(nullptr),
-            color(0.0f, 0.0f, 0.0f, 0.0f),
+            color(0.0f, 0.0f, 0.0f, 1.0f),
             position(0.0f, 0.0f),
             size(0.0f, 0.0f),
             cursorIndex(-1),
