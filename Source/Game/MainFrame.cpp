@@ -49,12 +49,13 @@ void MainFrame::Draw()
     glm::mat4 transform = glm::ortho(0.0f, windowWidth * 0.25f, 0.0f, windowHeight * 0.25f);
 
     // Clear the back buffer.
-    Main::CoreRenderer().SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    Main::CoreRenderer().SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     Main::CoreRenderer().SetClearDepth(1.0f);
     Main::CoreRenderer().Clear(ClearFlags::Color | ClearFlags::Depth);
 
     // Draw some text.
     TextRenderer::DrawInfo drawInfo;
+    drawInfo.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     drawInfo.font = &m_font;
     drawInfo.position = glm::vec2(20.0f, 155.0f);
     drawInfo.debug = true;

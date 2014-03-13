@@ -274,34 +274,102 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
         return *pixel == 1;
     };
 
+    // Calculate a lookup matrix.
+    const int MatrixWidth = DistanceFieldSpread + 1;
+    float distanceFieldMatrix[MatrixWidth * MatrixWidth];
+
+    distanceFieldMatrix[0] = 0.0f;
+
+    float spreadInverted = 1.0f / (DistanceFieldSpread + 0.5f);
+
+    for(int y = 0; y < MatrixWidth; ++y)
+    for(int x = 0; x < MatrixWidth; ++x)
+    {
+        // We already have this calculated.
+        if(x == 0 && y == 0)
+            continue;
+
+        // Get the matrix value.
+        float& matrixValue = distanceFieldMatrix[y * MatrixWidth + x];
+
+        // Calculate distance from origin.
+        glm::vec2 vector((float)x, (float)y);
+        float length = glm::length(vector);
+
+        // Calculate a normal value in spread range.
+        float spreadValue = length * spreadInverted;
+
+        if(spreadValue <= 1.0f)
+        {
+            matrixValue = spreadValue;
+        }
+        else
+        {
+            matrixValue = 0.0f;
+        }
+    }
+
     // Calculate distance field values.
     SDL_LockSurface(fieldSurface);
 
     for(int y = 0; y < fieldBitmapHeight; ++y)
     for(int x = 0; x < fieldBitmapWidth; ++x)
     {
-        //
+        // Get the pixel pointer.
         uint8_t* fieldBitmapPixel = &fieldBitmapPixels[y * fieldBitmapPitch + x];
 
-        // in or out?
-        bool inside = IsPixelInsideGlyph(x, y);
+        // Is the pixel inside a glyph?
+        bool insideGlyph = IsPixelInsideGlyph(x, y);
 
-        //
+        // Search through neighbors for a nearest opposite pixel.
+        float spreadValue = 1.0f;
+
         for(int ny = -DistanceFieldSpread; ny <= DistanceFieldSpread; ++ny)
         for(int nx = -DistanceFieldSpread; nx <= DistanceFieldSpread; ++nx)
         {
-            //
+            // You are not your own neighbor.
             if(nx == 0 && ny == 0)
                 continue;
 
-            //
-            uint8_t* glyphBitmapPixel = GetGlyphBitmapPixel(x + nx, y + ny);
+            // Get the glyph bitmap pixel.
+            const uint8_t* glyphBitmapPixel = GetGlyphBitmapPixel(x + nx, y + ny);
             
             if(glyphBitmapPixel == nullptr)
+            {
+                // The bitmap containing the glyph is as small as possible, 
+                // so detecting outside pixels won't simply work if there
+                // isn't any pixel at all.
+                if(!insideGlyph)
+                    continue;
+
+                // Assign the pointer to a 'fake' zero value.
+                static const uint8_t outsideBitmapValue = 0;
+                glyphBitmapPixel = &outsideBitmapValue;
+            }
+
+            // Get the matrix value.
+            float matrixValue = distanceFieldMatrix[std::abs(ny) * MatrixWidth + std::abs(nx)];
+
+            if(matrixValue == 0.0f)
                 continue;
 
-            //
-            *fieldBitmapPixel = inside ? 255 : 0;
+            // Check for an opposite pixel value.
+            if(*glyphBitmapPixel != (uint8_t)insideGlyph)
+            {
+                spreadValue = std::min(spreadValue, matrixValue);
+            }
+        }
+
+        // Map the value spread values.
+        // For outside pixels 0.49 (125) from the edge to 0.0 (0) outwards.
+        // For inside pixels 0.5 (126) from the edge to 1.0f (255) inwards.
+        if(insideGlyph)
+        {
+            *fieldBitmapPixel = (uint8_t)(126.0f + (125.0f * spreadValue));
+        }
+        else
+        {
+            *fieldBitmapPixel = (uint8_t)(125.0f * (1.0f - spreadValue));
         }
     }
 
