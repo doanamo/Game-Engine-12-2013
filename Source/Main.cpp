@@ -8,6 +8,7 @@
 #include "Graphics/TextRenderer.hpp"
 #include "Graphics/ShapeRenderer.hpp"
 
+#include "System/BaseFrame.hpp"
 #include "System/FrameCounter.hpp"
 
 #include "MainContext.hpp"
@@ -106,6 +107,13 @@ int main(int argc, char* argv[])
             // Process an event by console frame.
             if(Main::ConsoleFrame().Process(event))
                 continue;
+
+            // Process an event by the current state frame.
+            if(Main::FrameState().IsValid())
+            {
+                if(Main::FrameState().GetState()->Process(event))
+                    continue;
+            }
         }
 
         // Get current window size.
@@ -118,6 +126,12 @@ int main(int argc, char* argv[])
         // Update cursor blink time.
         Main::TextRenderer().UpdateCursorBlink(dt);
 
+        // Update the current state frame.
+        if(Main::FrameState().IsValid())
+        {
+            Main::FrameState().GetState()->Update(dt);
+        }
+
         // Setup the viewport.
         glViewport(0, 0, windowWidth, windowHeight);
 
@@ -128,6 +142,12 @@ int main(int argc, char* argv[])
         Main::CoreRenderer().SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
         Main::CoreRenderer().SetClearDepth(1.0f);
         Main::CoreRenderer().Clear(ClearFlags::Color | ClearFlags::Depth);
+
+        // Draw the current state frame.
+        if(Main::FrameState().IsValid())
+        {
+            Main::FrameState().GetState()->Draw();
+        }
 
         // Draw frame rate.
         if(Console::drawFrameRate)

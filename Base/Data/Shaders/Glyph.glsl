@@ -2,19 +2,31 @@
 
 #if defined(VERTEX_SHADER)
     uniform mat4 vertexTransform;
+    uniform vec2 texturePixelSize;
 
     layout(location = 0) in vec2 vertexPosition;
-    layout(location = 1) in vec2 vertexTexture;
-    layout(location = 2) in vec4 vertexColor;
+    layout(location = 1) in vec2 instancePosition;
+    layout(location = 2) in vec2 instanceSize;
+    layout(location = 3) in vec2 instanceScale;
+    layout(location = 4) in vec2 instanceTexture;
+    layout(location = 5) in vec4 instanceColor;
 
     out vec2 fragmentTexture;
     out vec4 fragmentColor;
 
     void main()
     {
-        gl_Position = vertexTransform * vec4(vertexPosition, 0.0f, 1.0f);
-        fragmentTexture = vertexTexture;
-        fragmentColor = vertexColor;
+        // Calculate vertex position.
+        vec2 position = vertexPosition * instanceSize * instanceScale + instancePosition;
+
+        // Transform vertex position.
+        gl_Position = vertexTransform * vec4(position, 0.0f, 1.0f);
+
+        // Calculate texture coordinates (vertex position is the same as vertex texture for a quad).
+        fragmentTexture = (vertexPosition * instanceSize + instanceTexture) * texturePixelSize;
+        
+        // Set glyph color.
+        fragmentColor = instanceColor;
     }
 #endif
 

@@ -23,8 +23,7 @@ Font::Font() :
     m_atlasSurface(nullptr),
     m_atlasTexture(),
     m_atlasUpload(false),
-    m_shelfPosition(AtlasGlyphSpacing, AtlasGlyphSpacing),
-    m_shelfSize(0),
+    m_packer(),
     m_initialized(false)
 {
 }
@@ -110,6 +109,12 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
         return false;
     }
 
+    // Create a shelf packer.
+    m_packer.Create(
+        glm::ivec2(m_atlasWidth, m_atlasHeight),
+        glm::ivec2(AtlasGlyphSpacing, AtlasGlyphSpacing)
+    );
+
     // Set initialized state.
     m_initialized = true;
 
@@ -131,9 +136,8 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
 
 void Font::Cleanup()
 {
-    // Cleanup atlas shelf.
-    m_shelfPosition = glm::ivec2(AtlasGlyphSpacing, AtlasGlyphSpacing);
-    m_shelfSize = 0;
+    // Cleanup glyph packer.
+    m_packer.Cleanup();
 
     // Cleanup font atlas.
     m_atlasWidth = 0;
@@ -237,16 +241,8 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     // Flip glyph surface (we will draw upside down on SDL surface).
     FlipSurface(glyphSurface);
 
-    // Check space on the current shelf.
-    if(m_shelfPosition.x + glyphBitmap->width + AtlasGlyphSpacing > m_atlasWidth)
-    {
-        // Move to next shelf.
-        m_shelfPosition.x = AtlasGlyphSpacing;
-        m_shelfPosition.y = m_shelfPosition.y + m_shelfSize + AtlasGlyphSpacing;
-        m_shelfSize = 0;
-    }
-
-    if(m_shelfPosition.y + glyphBitmap->rows + AtlasGlyphSpacing > m_atlasHeight)
+    // Add element to the packer.
+    if(!m_packer.AddElement(glm::ivec2(glyphBitmap->width, glyphBitmap->rows)))
     {
         // Not enough space on the atlas for this glyph.
         return nullptr;
@@ -254,17 +250,12 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
 
     // Draw glyph surface on the atlas.
     SDL_Rect drawRect;
-    drawRect.x = m_shelfPosition.x;
-    drawRect.y = m_shelfPosition.y;
+    drawRect.x = m_packer.GetPosition().x;
+    drawRect.y = m_packer.GetPosition().y;
     drawRect.w = glyphBitmap->width;
     drawRect.h = glyphBitmap->rows;
 
     SDL_BlitSurface(glyphSurface, nullptr, m_atlasSurface, &drawRect);
-
-    // Update current shelf position and size.
-    m_shelfPosition.x += glyphBitmap->width + AtlasGlyphSpacing;
-
-    m_shelfSize = std::max(m_shelfSize, glyphBitmap->rows);
 
     // Fill glyph structure.
     glm::vec2 pixelSize(1.0f / m_atlasWidth, 1.0f / m_atlasHeight);

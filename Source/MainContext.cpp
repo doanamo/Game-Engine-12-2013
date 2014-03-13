@@ -5,6 +5,7 @@
 #include "Logger/LoggerOutputFile.hpp"
 #include "Logger/LoggerOutputConsole.hpp"
 
+#include "System/BaseFrame.hpp"
 #include "System/FrameCounter.hpp"
 
 #include "Console/ConsoleSystem.hpp"
@@ -59,6 +60,8 @@ namespace
     SDL_Window*         systemWindow = nullptr;
     SDL_GLContext       graphicsContext = nullptr;
     FT_Library          fontLibrary = nullptr;
+
+    StateMachine<BaseFrame*> frameState;
 }
 
 //
@@ -304,6 +307,15 @@ bool Main::Initialize()
         return false;
 
     //
+    // Frame State
+    //
+
+    /*
+    // Set the default frame.
+    frameState.ChangeState(&defaultFrame);
+    */
+
+    //
     // Success!
     //
 
@@ -315,6 +327,9 @@ bool Main::Initialize()
 
 void Main::Cleanup()
 {
+    if(!isInitialized)
+        return;
+
     Log() << "Cleaning up the main context...";
 
     //
@@ -488,4 +503,9 @@ SDL_GLContext Main::GraphicsContext()
 FT_Library Main::FontLibrary()
 {
     return fontLibrary;
+}
+
+StateMachine<BaseFrame*>& Main::FrameState()
+{
+    return frameState;
 }
