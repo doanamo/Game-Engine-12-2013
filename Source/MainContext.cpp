@@ -319,7 +319,7 @@ bool Main::Initialize()
     if(!menuFrame.Initialize())
         return false;
 
-    // Set this frame as current state.
+    // Set the default frame.
     frameState.ChangeState(&menuFrame);
 
     //

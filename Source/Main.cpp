@@ -109,8 +109,11 @@ int main(int argc, char* argv[])
                 continue;
 
             // Process an event by the current state frame.
-            if(Main::FrameState().GetState()->Process(event))
-                continue;
+            if(Main::FrameState().IsValid())
+            {
+                if(Main::FrameState().GetState()->Process(event))
+                    continue;
+            }
         }
 
         // Get current window size.
@@ -124,7 +127,10 @@ int main(int argc, char* argv[])
         Main::TextRenderer().UpdateCursorBlink(dt);
 
         // Update the current state frame.
-        Main::FrameState().GetState()->Update(dt);
+        if(Main::FrameState().IsValid())
+        {
+            Main::FrameState().GetState()->Update(dt);
+        }
 
         // Setup the viewport.
         glViewport(0, 0, windowWidth, windowHeight);
@@ -138,7 +144,10 @@ int main(int argc, char* argv[])
         Main::CoreRenderer().Clear(ClearFlags::Color | ClearFlags::Depth);
 
         // Draw the current state frame.
-        Main::FrameState().GetState()->Draw();
+        if(Main::FrameState().IsValid())
+        {
+            Main::FrameState().GetState()->Draw();
+        }
 
         // Draw frame rate.
         if(Console::drawFrameRate)
