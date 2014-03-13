@@ -10,6 +10,9 @@ namespace
     // Spacing between characters on the atlas (to avoid filtering artifacts).
     const int AtlasGlyphSpacing = 1;
 
+    //
+    const int DistanceFieldSpread = 4;
+
     // Default glyph code if caching fails.
     FT_ULong DefaultGlyph = '?';
 }
@@ -212,37 +215,103 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     FT_GlyphSlot glyphSlot = m_fontFace->glyph;
 
     // Render font glyph.
-    if(FT_Render_Glyph(m_fontFace->glyph, FT_RENDER_MODE_NORMAL) != 0)
+    //if(FT_Render_Glyph(m_fontFace->glyph, FT_RENDER_MODE_NORMAL) != 0)
+    if(FT_Render_Glyph(m_fontFace->glyph, FT_RENDER_MODE_MONO) != 0)
         return nullptr;
 
-    FT_Bitmap* glyphBitmap = &glyphSlot->bitmap;
+    //
+    FT_Bitmap glyphBitmap;
+    FT_Bitmap_New(&glyphBitmap);
 
-    // Create a glyph surface.
-    // Todo: Allocated a surface that can hold all glyph bitmaps once.
-    SDL_Surface* glyphSurface = SDL_CreateRGBSurface(0, glyphBitmap->width, glyphBitmap->rows, 8, 0, 0, 0, 0);
+    FT_Bitmap_Convert(Main::FontLibrary(), &glyphSlot->bitmap, &glyphBitmap, 1);
 
-    if(glyphSurface == nullptr)
+    SCOPE_GUARD(FT_Bitmap_Done(Main::FontLibrary(), &glyphBitmap));
+
+    //
+    int glyphBitmapWidth = glyphBitmap.width;
+    int glyphBitmapHeight = glyphBitmap.rows;
+    int glyphBitmapPitch = glyphBitmap.pitch;
+
+    uint8_t* glyphBitmapPixels = glyphBitmap.buffer;
+
+    // Create a field surface.
+    SDL_Surface* fieldSurface = SDL_CreateRGBSurface(0, glyphBitmapWidth + DistanceFieldSpread * 2, glyphBitmapHeight + DistanceFieldSpread * 2, 8, 0, 0, 0, 0);
+
+    if(fieldSurface == nullptr)
         return nullptr;
 
-    SCOPE_GUARD(SDL_FreeSurface(glyphSurface));
+    SCOPE_GUARD(SDL_FreeSurface(fieldSurface));
 
-    // Copy glyph pixels.
-    SDL_LockSurface(glyphSurface);
+    //
+    int fieldBitmapWidth = fieldSurface->w;
+    int fieldBitmapHeight = fieldSurface->h;
+    int fieldBitmapPitch = fieldSurface->pitch;
 
-    unsigned char* glyphSurfaceData = reinterpret_cast<unsigned char*>(glyphSurface->pixels);
+    uint8_t* fieldBitmapPixels = reinterpret_cast<uint8_t*>(fieldSurface->pixels);
 
-    for(long i = 0; i < glyphBitmap->rows; ++i)
+    //
+    auto GetGlyphBitmapPixel = [&](int x, int y) -> uint8_t*
     {
-        memcpy(&glyphSurfaceData[i * glyphSurface->pitch], &glyphBitmap->buffer[i * glyphBitmap->pitch], glyphBitmap->width);
+        int gx = x - DistanceFieldSpread;
+        int gy = y - DistanceFieldSpread;
+
+        if(gx < 0 || gx > glyphBitmapWidth - 1)
+            return nullptr;
+
+        if(gy < 0 || gy > glyphBitmapHeight - 1)
+            return nullptr;
+
+        return &glyphBitmapPixels[gy * glyphBitmapPitch + gx];
+    };
+
+    auto IsPixelInsideGlyph = [&](int x, int y) -> bool
+    {
+        uint8_t* pixel = GetGlyphBitmapPixel(x, y);
+
+        if(pixel == nullptr)
+            return false;
+
+        return *pixel == 1;
+    };
+
+    // Calculate distance field values.
+    SDL_LockSurface(fieldSurface);
+
+    for(int y = 0; y < fieldBitmapHeight; ++y)
+    for(int x = 0; x < fieldBitmapWidth; ++x)
+    {
+        //
+        uint8_t* fieldBitmapPixel = &fieldBitmapPixels[y * fieldBitmapPitch + x];
+
+        // in or out?
+        bool inside = IsPixelInsideGlyph(x, y);
+
+        //
+        for(int ny = -DistanceFieldSpread; ny <= DistanceFieldSpread; ++ny)
+        for(int nx = -DistanceFieldSpread; nx <= DistanceFieldSpread; ++nx)
+        {
+            //
+            if(nx == 0 && ny == 0)
+                continue;
+
+            //
+            uint8_t* glyphBitmapPixel = GetGlyphBitmapPixel(x + nx, y + ny);
+            
+            if(glyphBitmapPixel == nullptr)
+                continue;
+
+            //
+            *fieldBitmapPixel = inside ? 255 : 0;
+        }
     }
 
-    SDL_UnlockSurface(glyphSurface);
+    SDL_UnlockSurface(fieldSurface);
 
-    // Flip glyph surface (we will draw upside down on SDL surface).
-    FlipSurface(glyphSurface);
+    // Flip surface (we will draw upside down on SDL surface).
+    FlipSurface(fieldSurface);
 
     // Add element to the packer.
-    if(!m_packer.AddElement(glm::ivec2(glyphBitmap->width, glyphBitmap->rows)))
+    if(!m_packer.AddElement(glm::ivec2(fieldBitmapWidth, fieldBitmapHeight)))
     {
         // Not enough space on the atlas for this glyph.
         return nullptr;
@@ -252,10 +321,10 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     SDL_Rect drawRect;
     drawRect.x = m_packer.GetPosition().x;
     drawRect.y = m_packer.GetPosition().y;
-    drawRect.w = glyphBitmap->width;
-    drawRect.h = glyphBitmap->rows;
+    drawRect.w = fieldBitmapWidth;
+    drawRect.h = fieldBitmapHeight;
 
-    SDL_BlitSurface(glyphSurface, nullptr, m_atlasSurface, &drawRect);
+    SDL_BlitSurface(fieldSurface, nullptr, m_atlasSurface, &drawRect);
 
     // Fill glyph structure.
     glm::vec2 pixelSize(1.0f / m_atlasWidth, 1.0f / m_atlasHeight);
@@ -266,9 +335,12 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     glyph.size.x = drawRect.w;
     glyph.size.y = drawRect.h;
     glyph.offset.x = glyphSlot->bitmap_left;
-    glyph.offset.y = glyphSlot->bitmap_top - glyphBitmap->rows;
+    glyph.offset.y = glyphSlot->bitmap_top - glyphSlot->bitmap.rows;
     glyph.advance.x = glyphSlot->advance.x >> 6;
     glyph.advance.y = glyphSlot->advance.y >> 6;
+
+    glyph.offset.x -= DistanceFieldSpread;
+    glyph.offset.y -= DistanceFieldSpread;
 
     // Add glyph to the cache.
     auto result = m_glyphCache.insert(std::make_pair(character, glyph));
