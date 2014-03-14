@@ -175,10 +175,10 @@ public:
                     assert(glyph != nullptr);
 
                     // Get glyph kerning.
-                    int kerning = m_drawInfo->font->GetKerning(wordCharacterPrevious, wordCharacterCurrent);
+                    float kerning = m_drawInfo->font->GetKerning(wordCharacterPrevious, wordCharacterCurrent);
 
                     // Check if the word will fit.
-                    wordSize += glyph->advance.x + kerning;
+                    wordSize += (float)glyph->advance.x + kerning;
 
                     if(m_drawPosition.x - m_drawInfo->position.x + wordSize > m_drawInfo->size.x)
                     {
@@ -214,7 +214,7 @@ public:
         // Apply glyph kerning.
         if(m_characterIndex != 0)
         {
-            int kerning = m_drawInfo->font->GetKerning(m_characterPrevious, m_characterCurrent);
+            float kerning = m_drawInfo->font->GetKerning(m_characterPrevious, m_characterCurrent);
             m_drawPosition.x += kerning;
         }
 

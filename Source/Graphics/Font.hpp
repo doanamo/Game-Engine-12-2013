@@ -10,10 +10,17 @@
 
 struct Glyph
 {
+    // Position in pixels.
     glm::ivec2 position;
+
+    // Size in pixels.
     glm::ivec2 size;
-    glm::ivec2 offset;
-    glm::ivec2 advance;
+
+    // Offset from glyph origin.
+    glm::vec2 offset;
+
+    // Glyph advance.
+    glm::vec2 advance;
 };
 
 //
@@ -38,10 +45,10 @@ public:
 
     const Glyph* GetGlyph(FT_ULong character);
 
-    int GetKerning(FT_ULong left, FT_ULong right) const;
-    int GetLineSpacing() const;
-    int GetAscender() const;
-    int GetDescender() const;
+    float GetKerning(FT_ULong left, FT_ULong right) const;
+    float GetLineSpacing() const;
+    float GetAscender() const;
+    float GetDescender() const;
 
     int GetAtlasWidth() const;
     int GetAtlasHeight() const;

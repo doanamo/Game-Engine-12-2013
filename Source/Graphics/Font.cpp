@@ -22,6 +22,10 @@ namespace
 
     const int DistanceFieldSpreadScaled = DistanceFieldSpread * DistanceFieldDownscale;
 
+    // Inverted constant values.
+    const float DistanceFieldDownscaleInverted = 1.0f / DistanceFieldDownscale;
+    const float DistanceFieldSpreadScaledInverted = 1.0f / DistanceFieldSpreadScaled;
+
     // Default glyph code if caching fails.
     FT_ULong DefaultGlyph = '?';
 }
@@ -330,7 +334,7 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
         float pixelDistance = FindSignedDistance(x, y);
 
         // Map the value spread values to 0.0 - 1.0 range.
-        float alpha = 0.5f + 0.5f * (pixelDistance / DistanceFieldSpreadScaled);
+        float alpha = 0.5f + 0.5f * (pixelDistance * DistanceFieldSpreadScaledInverted);
         alpha = std::min(1.0f, std::max(0.0f, alpha));
         uint8_t byte = (uint8_t)(alpha * 0xFF);
 
@@ -367,15 +371,16 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     glyph.position.y = drawRect.y;
     glyph.size.x = drawRect.w;
     glyph.size.y = drawRect.h;
-    glyph.offset.x = glyphSlot->bitmap_left;
-    glyph.offset.y = glyphSlot->bitmap_top - glyphSlot->bitmap.rows;
-    glyph.advance.x = glyphSlot->advance.x >> 6;
-    glyph.advance.y = glyphSlot->advance.y >> 6;
 
-    glyph.offset.x = glyph.offset.x / DistanceFieldDownscale - DistanceFieldSpread;
-    glyph.offset.y = glyph.offset.y / DistanceFieldDownscale - DistanceFieldSpread;
-    glyph.advance.x = glyph.advance.x / DistanceFieldDownscale;
-    glyph.advance.y = glyph.advance.y / DistanceFieldDownscale;
+    glyph.offset.x = (float)(glyphSlot->bitmap_left);
+    glyph.offset.y = (float)(glyphSlot->bitmap_top - glyphSlot->bitmap.rows);
+    glyph.advance.x = (float)(glyphSlot->advance.x >> 6);
+    glyph.advance.y = (float)(glyphSlot->advance.y >> 6);
+
+    glyph.offset.x = glyph.offset.x * DistanceFieldDownscaleInverted - DistanceFieldSpread;
+    glyph.offset.y = glyph.offset.y * DistanceFieldDownscaleInverted - DistanceFieldSpread;
+    glyph.advance.x = glyph.advance.x * DistanceFieldDownscaleInverted;
+    glyph.advance.y = glyph.advance.y * DistanceFieldDownscaleInverted;
 
     // Add glyph to the cache.
     auto result = m_glyphCache.insert(std::make_pair(character, glyph));
@@ -392,6 +397,7 @@ void Font::UpdateAtlasTexture()
     if(!m_initialized)
         return;
 
+    // Upload atlas surface to GPU.
     if(m_atlasUpload)
     {
         m_atlasTexture.Update(m_atlasSurface->pixels);
@@ -417,41 +423,42 @@ const Glyph* Font::GetGlyph(FT_ULong character)
     }
 }
 
-int Font::GetKerning(FT_ULong left, FT_ULong right) const
+float Font::GetKerning(FT_ULong left, FT_ULong right) const
 {
     FT_Vector kerning;
 
+    // Get kerning value between two characters.
     FT_UInt glyphLeft = FT_Get_Char_Index(m_fontFace, left);
     FT_UInt glyphRight = FT_Get_Char_Index(m_fontFace, right);
 
     if(FT_Get_Kerning(m_fontFace, glyphLeft, glyphRight, FT_KERNING_DEFAULT, &kerning) != 0)
-        return 0;
+        return 0.0f;
 
-    return (kerning.x >> 6) / DistanceFieldDownscale;
+    return (kerning.x >> 6) * DistanceFieldDownscaleInverted;
 }
 
-int Font::GetLineSpacing() const
+float Font::GetLineSpacing() const
 {
     if(!m_initialized)
-        return 0;
+        return 0.0f;
 
-    return (m_fontFace->size->metrics.height >> 6) / DistanceFieldDownscale;
+    return (m_fontFace->size->metrics.height >> 6) * DistanceFieldDownscaleInverted;
 }
 
-int Font::GetAscender() const
+float Font::GetAscender() const
 {
     if(!m_initialized)
-        return 0;
+        return 0.0f;
 
-    return (m_fontFace->size->metrics.ascender >> 6) / DistanceFieldDownscale;
+    return (m_fontFace->size->metrics.ascender >> 6) * DistanceFieldDownscaleInverted;
 }
 
-int Font::GetDescender() const
+float Font::GetDescender() const
 {
     if(!m_initialized)
-        return 0;
+        return 0.0f;
 
-    return (m_fontFace->size->metrics.descender >> 6) / DistanceFieldDownscale;
+    return (m_fontFace->size->metrics.descender >> 6) * DistanceFieldDownscaleInverted;
 }
 
 int Font::GetAtlasWidth() const
