@@ -17,8 +17,8 @@ namespace
     // Signed distance field calculation parameters.
     const int BaseFontSize = 64;
 
-    const int DistanceFieldDownscale = 8;
-    const int DistanceFieldSpread = 2;
+    const int DistanceFieldDownscale = 16;
+    const int DistanceFieldSpread = 4;
 
     const int DistanceFieldSpreadScaled = DistanceFieldSpread * DistanceFieldDownscale;
 
@@ -286,6 +286,8 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
         float distanceSquared = DistanceFieldSpreadScaled * DistanceFieldSpreadScaled;
 
         // Check neighbors from nearest to furthest.
+        bool found = false;
+
         for(int offset = 1; offset <= DistanceFieldSpreadScaled; ++offset)
         {
             for(int ny = -offset; ny <= offset; ++ny)
@@ -305,19 +307,14 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
                 // Check if it's an opposite pixel value.
                 if(glyphBitmapPixel != (uint8_t)insideGlyph)
                 {
-                    float lengthSquared = SquaredLength((float)nx, (float)ny);
-
-                    // Check if in range.
-                    if(true/*lengthSquared < distanceSquared*/)
-                    {
-                        distanceSquared = lengthSquared;
-                        goto LoopExit;
-                    }
+                    distanceSquared = std::min(distanceSquared, SquaredLength((float)nx, (float)ny));
+                    found = true;
                 }
             }
-        }
 
-        LoopExit:
+            // Break if we found the nearest pixel.
+            if(found) break;
+        }
 
         // Return a signed distance.
         float distance = std::sqrtf(distanceSquared);
@@ -472,4 +469,9 @@ int Font::GetAtlasWidth() const
 int Font::GetAtlasHeight() const
 {
     return AtlasHeight;
+}
+
+int Font::GetBaseSize() const
+{
+    return BaseFontSize;
 }

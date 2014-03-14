@@ -309,14 +309,14 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
             if(text == nullptr)
                 break;
 
-            TextRenderer::DrawInfo info;
+            TextDrawInfo info;
             info.font = &m_font;
             info.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
             info.position.x = 5.0f;
             info.position.y = consolePosition + (i + 2) * m_font.GetLineSpacing();
             //info.size.x = windowWidth - 1.0f;
-            info.size.x = 0.0f; // Text wrap doesn't work in console.
-            info.size.y = 0.0f;
+            info.area.x = 0.0f; // Text wrap doesn't work in console.
+            info.area.y = 0.0f;
 
             Main::TextRenderer().Draw(info, transform, text);
         }
@@ -326,14 +326,14 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
             std::string inputText = "> ";
             inputText += m_input;
 
-            TextRenderer::DrawInfo info;
+            TextDrawInfo info;
             info.font = &m_font;
             info.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
             info.position.x = 5.0f;
             info.position.y = consolePosition + m_font.GetLineSpacing();
             //info.size.x = windowWidth - 1.0f;
-            info.size.x = 0.0f; // Text wrap doesn't work in console.
-            info.size.y = 0.0f;
+            info.area.x = 0.0f; // Text wrap doesn't work in console.
+            info.area.y = 0.0f;
             info.cursorIndex = 2 + m_cursorPosition;
 
             Main::TextRenderer().Draw(info, transform, inputText.c_str());

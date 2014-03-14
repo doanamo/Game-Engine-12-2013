@@ -53,6 +53,8 @@ public:
     int GetAtlasWidth() const;
     int GetAtlasHeight() const;
 
+    int GetBaseSize() const;
+
     const SDL_Surface* GetAtlasSurface() const
     {
         return m_atlasSurface;
@@ -67,6 +69,7 @@ private:
     const Glyph* CacheGlyph(FT_ULong character);
 
 private:
+    // Font face.
     FT_Face m_fontFace;
 
     // Glyph registry.

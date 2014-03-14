@@ -1,8 +1,9 @@
 #include "Precompiled.hpp"
 #include "TextRenderer.hpp"
+#include "TextDrawState.hpp"
 #include "ShapeRenderer.hpp"
-#include "Font.hpp"
 #include "MainContext.hpp"
+#include "Font.hpp"
 
 namespace Console
 {
@@ -17,372 +18,6 @@ namespace
     // Cursor blink time.
     const float CursorBlinkTime = 2.0f * 0.530f;
 }
-
-//
-// Draw State
-//
-
-class DrawState
-{
-public:
-    DrawState() :
-        m_drawInfo(nullptr),
-        m_textLength(0),
-        m_textLine(0),
-        m_textIterator(nullptr),
-        m_textEnd(nullptr),
-        m_characterIndex(-1),
-        m_characterCurrent('\0'),
-        m_characterPrevious('\0'),
-        m_wordProcessed(true),
-        m_wordWrap(false),
-        m_drawPosition(0.0f, 0.0f),
-        m_drawArea(0.0f, 0.0f, 0.0f, 0.0f),
-        m_glyph(nullptr),
-        m_cursorPosition(0.0f, 0.0f),
-        m_cursorPresent(false),
-        m_boundingBox(0.0f, 0.0f, 0.0f, 0.0f),
-        m_initialized(false)
-    {
-    }
-
-    bool Initialize(const TextRenderer::DrawInfo& info, const char* text)
-    {
-        // Validate arguments.
-        if(info.font == nullptr)
-            return false;
-
-        if(info.size.x < 0.0f)
-            return false;
-
-        if(info.size.y < 0.0f)
-            return false;
-
-        if(text == nullptr)
-            return false;
-
-        m_drawInfo = &info;
-
-        // Calculate text size.
-        size_t textSize = strlen(text);
-
-        // Check if the text is valid.
-        if(!utf8::is_valid(text, text + textSize))
-            return false;
-
-        // Calculate text length.
-        m_textLength = utf8::distance(text, text + textSize);
-
-        // Set text iterators.
-        m_textIterator = text;
-        m_textEnd = text + textSize;
-
-        // Check if we want to wrap the text.
-        if(info.size.x > 0.0f)
-            m_wordWrap = true;
-
-        // Set initial drawing position.
-        m_drawPosition.x = info.position.x;
-        m_drawPosition.y = info.position.y - info.font->GetAscender();
-
-        // Set initial cursor position.
-        if(m_drawInfo->cursorIndex >= 0 && m_drawInfo->cursorIndex <= m_textLength)
-        {
-            m_cursorPosition = m_drawPosition;
-            m_cursorPresent = true;
-        }
-
-        // Sucsess!
-        m_initialized = true;
-
-        return true;
-    }
-
-    bool ProcessNext()
-    {
-        assert(m_initialized);
-
-        if(!m_initialized)
-            return false;
-
-        // Check if we are done processing the text.
-        if(this->IsDone())
-            return false;
-
-        // Advance position of previously drawn glyph.
-        if(m_characterIndex >= 0 && m_glyph != nullptr)
-        {
-            AdvancePosition(m_glyph);
-        }
-
-        // Reset current glyph pointer.
-        m_glyph = nullptr;
-
-        // Save the previously processed character.
-        m_characterPrevious = m_characterCurrent;
-
-        // Get the next UTF-8 encoded character.
-        const char* currentIterator = m_textIterator;
-        m_characterCurrent = utf8::next(m_textIterator, m_textEnd);
-
-        // Increment the character index.
-        ++m_characterIndex;
-
-        // Handle special characters.
-        if(m_characterCurrent == '\n')
-        {
-            // Move to the next line.
-            if(m_characterIndex != m_textLength - 1)
-            {
-                MoveNextLine();
-            }
-
-            // Skip this character entirely.
-            return true;
-        }
-        else
-        if(m_characterCurrent == ' ')
-        {
-            // Process a new word.
-            m_wordProcessed = false;
-        }
-        
-        // Process next word.
-        if(m_characterCurrent != ' ' && m_wordProcessed == false)
-        {
-            // Check if a word will fit in the current line.
-            if(m_wordWrap)
-            {
-                float wordSize = 0.0f;
-
-                FT_ULong wordCharacterPrevious = ' ';
-                const char* wordCharacterIterator = currentIterator;
-
-                while(wordCharacterIterator != m_textEnd)
-                {
-                    // Get the next word character.
-                    FT_ULong wordCharacterCurrent = utf8::next(wordCharacterIterator, m_textEnd);
-
-                    // Check if we reached an end of a word.
-                    if(wordCharacterCurrent == ' ')
-                        break;
-
-                    // We can't check if the first word will fit, it will cause problems.
-                    assert(m_characterIndex != 0);
-
-                    // Get glyph description.
-                    const Glyph* glyph = m_drawInfo->font->GetGlyph(wordCharacterCurrent);
-                    assert(glyph != nullptr);
-
-                    // Get glyph kerning.
-                    float kerning = m_drawInfo->font->GetKerning(wordCharacterPrevious, wordCharacterCurrent);
-
-                    // Check if the word will fit.
-                    wordSize += (float)glyph->advance.x + kerning;
-
-                    if(m_drawPosition.x - m_drawInfo->position.x + wordSize > m_drawInfo->size.x)
-                    {
-                        // Don't draw last space for debug base line.
-                        if(m_drawInfo->debug)
-                        {
-                            const Glyph* glyphSpace = m_drawInfo->font->GetGlyph(' ');
-                            assert(glyphSpace != nullptr);
-
-                            m_drawPosition.x -= glyphSpace->advance.x;
-                        }
-
-                        // Move to the next line.
-                        MoveNextLine();
-
-                        break;
-                    }
-
-                    // Save current character as previous for the next loop iteration.
-                    wordCharacterPrevious = wordCharacterCurrent;
-                }
-            }
-
-            m_wordProcessed = true;
-        }
-
-        // Get glyph description.
-        const Glyph* glyph = m_drawInfo->font->GetGlyph(m_characterCurrent);
-        assert(glyph != nullptr);
-
-        m_glyph = glyph;
-
-        // Apply glyph kerning.
-        if(m_characterIndex != 0)
-        {
-            float kerning = m_drawInfo->font->GetKerning(m_characterPrevious, m_characterCurrent);
-            m_drawPosition.x += kerning;
-        }
-
-        // Check if it's the cursor position.
-        if(m_drawInfo->cursorIndex == m_characterIndex + 1)
-        {
-            m_cursorPosition.x = m_drawPosition.x + glyph->advance.x;
-            m_cursorPosition.y = m_drawPosition.y + glyph->advance.y;
-        }
-
-        // Set initial bounding box.
-        if(m_characterIndex == 0)
-        {
-            m_boundingBox.x = m_boundingBox.y = std::numeric_limits<float>::max();
-            m_boundingBox.z = m_boundingBox.w = std::numeric_limits<float>::min();
-        }
-
-        // Calculate current bounding box.
-        m_boundingBox.x = std::min(m_boundingBox.x, m_drawPosition.x + glyph->offset.x);
-        m_boundingBox.y = std::min(m_boundingBox.y, m_drawPosition.y + glyph->offset.y);
-        m_boundingBox.z = std::max(m_boundingBox.z, m_drawPosition.x + glyph->offset.x + glyph->size.x);
-        m_boundingBox.w = std::max(m_boundingBox.w, m_drawPosition.y + glyph->offset.y + glyph->size.y);
-
-        // Calculate current draw area.
-        m_drawArea.x = m_drawInfo->position.x;
-        m_drawArea.y = m_drawPosition.y + m_drawInfo->font->GetDescender();
-
-        if(m_wordWrap)
-        {
-            m_drawArea.z = m_drawInfo->position.x + m_drawInfo->size.x;
-        }
-        else
-        {
-            m_drawArea.z = std::max(m_drawArea.z, m_drawPosition.x + glyph->advance.x);
-            //m_drawArea.z = m_boundingBox.z;
-        }
-
-        m_drawArea.w = m_drawInfo->position.y;
-
-        return false;
-    }
-
-    bool IsDone() const
-    {
-        return m_textIterator == m_textEnd;
-    }
-
-private:
-    void MoveNextLine()
-    {
-        if(!m_initialized)
-            return;
-
-        // Move to the next line.
-        m_drawPosition.x = m_drawInfo->position.x;
-        m_drawPosition.y -= m_drawInfo->font->GetLineSpacing();
-
-        // Increase line counter.
-        ++m_textLine;
-    }
-
-    void AdvancePosition(const Glyph* glyph)
-    {
-        assert(glyph != nullptr);
-
-        if(!m_initialized)
-            return;
-
-        if(glyph == nullptr)
-            return;
-
-        // Advance position for next glyph.
-        m_drawPosition.x += glyph->advance.x;
-        m_drawPosition.y += glyph->advance.y;
-    }
-
-public:
-    int GetCurrentLine() const
-    {
-        return m_textLine;
-    }
-
-    FT_ULong GetCurrentCharacter() const
-    {
-        return m_characterCurrent;
-    }
-
-    FT_ULong GetPreviousCharacter() const
-    {
-        return m_characterPrevious;
-    }
-
-    const glm::vec2& GetDrawPosition() const
-    {
-        return m_drawPosition;
-    }
-
-    const glm::vec4& GetDrawArea() const
-    {
-        return m_drawArea;
-    }
-
-    const Glyph* GetCurrentGlyph() const
-    {
-        return m_glyph;
-    }
-
-    const glm::vec2& GetCursorPosition() const
-    {
-        return m_cursorPosition;
-    }
-
-    const glm::vec4& GetBoundingBox() const
-    {
-        return m_boundingBox;
-    }
-
-    bool IsWordWrapEnabled() const
-    {
-        return m_wordWrap;
-    }
-
-    bool IsCursorPresent() const
-    {
-        return m_cursorPresent;
-    }
-
-private:
-    // Text draw info.
-    const TextRenderer::DrawInfo* m_drawInfo;
-
-    // Text iterators.
-    int         m_textLength;
-    int         m_textLine;
-    const char* m_textIterator;
-    const char* m_textEnd;
-
-    // Text character.
-    int      m_characterIndex;
-    FT_ULong m_characterCurrent;
-    FT_ULong m_characterPrevious;
-
-    // Text wrapping.
-    bool m_wordProcessed;
-    bool m_wordWrap;
-
-    // Draw position.
-    glm::vec2 m_drawPosition;
-
-    // Text draw area.
-    glm::vec4 m_drawArea;
-
-    // Current character glyph.
-    const Glyph* m_glyph;
-
-    // Text cursor.
-    glm::vec2 m_cursorPosition;
-    bool      m_cursorPresent;
-
-    // Text bounding box.
-    glm::vec4 m_boundingBox;
-
-    bool m_initialized;
-};
-
-//
-// Text Renderer
-//
 
 TextRenderer::TextRenderer() :
     m_bufferData(nullptr),
@@ -512,15 +147,15 @@ void TextRenderer::ResetCursorBlink()
     m_cursorBlinkTime = 0.0f;
 }
 
-TextRenderer::DrawMetrics TextRenderer::Measure(const DrawInfo& info, const char* text)
+TextDrawMetrics TextRenderer::Measure(const TextDrawInfo& info, const char* text)
 {
-    DrawMetrics output;
+    TextDrawMetrics output;
 
     if(!m_initialized)
         return output;
 
     // Initialize the text draw state.
-    DrawState state;
+    TextDrawState state;
     if(!state.Initialize(info, text))
         return output;
 
@@ -538,13 +173,13 @@ TextRenderer::DrawMetrics TextRenderer::Measure(const DrawInfo& info, const char
     return output;
 }
 
-void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const char* text)
+void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, const char* text)
 {
     if(!m_initialized)
         return;
     
     // Initialize the text draw state.
-    DrawState state;
+    TextDrawState state;
     if(!state.Initialize(info, text))
         return;
 
@@ -606,7 +241,7 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
     glBindVertexArray(m_vertexInput.GetHandle());
 
     glUniformMatrix4fv(m_shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(transform));
-    glUniform1i(m_shader.GetUniform("texture"), 0);
+    glUniform1i(m_shader.GetUniform("fontTexture"), 0);
     glUniform2fv(m_shader.GetUniform("texturePixelSize"), 1, glm::value_ptr(pixelSize));
 
     auto ResetRenderState = []()
@@ -666,12 +301,12 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
         {
             // Fill a glyph instance data.
             GlyphData& glyphData = m_bufferData[glyphsBatched];
-            glyphData.position.x = (float)(state.GetDrawPosition().x + glyph->offset.x);
-            glyphData.position.y = (float)(state.GetDrawPosition().y + glyph->offset.y);
+            glyphData.position.x = state.GetDrawPosition().x + glyph->offset.x * state.GetFontScale();
+            glyphData.position.y = state.GetDrawPosition().y + glyph->offset.y * state.GetFontScale();
             glyphData.size.x = (float)glyph->size.x;
             glyphData.size.y = (float)glyph->size.y;
-            glyphData.scale.x = 1.0f;
-            glyphData.scale.y = 1.0f;
+            glyphData.scale.x = state.GetFontScale();
+            glyphData.scale.y = state.GetFontScale();
             glyphData.texture.x = (float)glyph->position.x;
             glyphData.texture.y = (float)glyph->position.y;
             glyphData.color = info.color;
@@ -687,11 +322,11 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
             // Add debug glyph rectangle.
             if(info.debug)
             {
-                AddDebugGlyph(glyphData.position, glyphData.size);
+                AddDebugGlyph(glyphData.position, glyphData.size * glyphData.scale);
             }
 
             // Update baseline end.
-            baselineEnd.x = state.GetDrawPosition().x + glyph->advance.x;
+            baselineEnd.x = state.GetDrawPosition().x + glyph->advance.x * state.GetFontScale();
         }
     }
 
@@ -710,9 +345,9 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
         ShapeRenderer::Line cursorLine;
         cursorLine.color = info.color;
         cursorLine.begin.x = state.GetCursorPosition().x;
-        cursorLine.begin.y = state.GetCursorPosition().y + info.font->GetAscender();
+        cursorLine.begin.y = state.GetCursorPosition().y + info.font->GetAscender() * state.GetFontScale();
         cursorLine.end.x = state.GetCursorPosition().x;
-        cursorLine.end.y = state.GetCursorPosition().y + info.font->GetDescender();
+        cursorLine.end.y = state.GetCursorPosition().y + info.font->GetDescender() * state.GetFontScale();
 
         Main::ShapeRenderer().DrawLines(&cursorLine, 1, transform);
     }

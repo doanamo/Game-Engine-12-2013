@@ -56,10 +56,11 @@ void MainFrame::Draw()
     Main::CoreRenderer().Clear(ClearFlags::Color | ClearFlags::Depth);
 
     // Draw some text.
-    TextRenderer::DrawInfo drawInfo;
+    TextDrawInfo drawInfo;
     drawInfo.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     drawInfo.font = &m_font;
-    drawInfo.position = glm::vec2(10.0f, 800.0f * scale);
+    drawInfo.size = 512;
+    drawInfo.position = glm::vec2(50.0f, 800.0f * scale);
     drawInfo.debug = true;
 
     std::string ascii;
@@ -76,7 +77,8 @@ void MainFrame::Draw()
         }
     }
 
-    Main::TextRenderer().Draw(drawInfo, transform, ascii.c_str());
+    //Main::TextRenderer().Draw(drawInfo, transform, ascii.c_str());
+    Main::TextRenderer().Draw(drawInfo, transform, "X/y67");
 
     // Those character will break the output: óœ³ (not utf8 valid encoding, repalce with ?).
 }

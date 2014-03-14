@@ -150,6 +150,8 @@ Set(SourceFiles
     "Graphics/Font.cpp"
     "Graphics/TextRenderer.hpp"
     "Graphics/TextRenderer.cpp"
+    "Graphics/TextDrawState.hpp"
+    "Graphics/TextDrawState.cpp"
     "Game/MainFrame.hpp"
     "Game/MainFrame.cpp"
 )
