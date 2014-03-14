@@ -42,7 +42,7 @@
     {
         ///*
         // Use distance field to calculate glyph alpha value.
-        const float smoothing = 1.0f / 16.0f;
+        const float smoothing = 1.0f / 4.0f;
         const float edge = 0.5f;
 
         float distance = texture2D(texture, fragmentTexture).r;

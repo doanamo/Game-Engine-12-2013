@@ -46,7 +46,7 @@ void MainFrame::Draw()
     float windowWidth = Console::windowWidth;
     float windowHeight = Console::windowHeight;
 
-    float scale = 0.25f;
+    float scale = 1.0f;
 
     glm::mat4 transform = glm::ortho(0.0f, windowWidth * scale, 0.0f, windowHeight * scale);
 
@@ -59,7 +59,7 @@ void MainFrame::Draw()
     TextRenderer::DrawInfo drawInfo;
     drawInfo.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     drawInfo.font = &m_font;
-    drawInfo.position = glm::vec2(10.0f, 450.0f);
+    drawInfo.position = glm::vec2(10.0f, 800.0f * scale);
     drawInfo.debug = true;
 
     std::string ascii;

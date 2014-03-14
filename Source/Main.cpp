@@ -34,8 +34,8 @@ int main(int argc, char* argv[])
 
     // Window settings.
     Console::windowName = "Window";
-    Console::windowWidth = 1024;
-    Console::windowHeight = 576;
+    Console::windowWidth = 1410;
+    Console::windowHeight = 900;
     Console::windowResize = true;
 
     // Render settings.
