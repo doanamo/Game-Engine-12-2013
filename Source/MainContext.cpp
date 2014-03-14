@@ -328,7 +328,7 @@ bool Main::Initialize()
 
     // Initialize the main frame.
     if(!mainFrame.Initialize())
-    	return false;
+        return false;
 
     // Set a default frame if there hasn't been set any by now.
     if(!frameState.IsValid())
@@ -360,7 +360,6 @@ void Main::Cleanup()
     frameState.Cleanup();
     mainFrame.Cleanup();
 
-    //
     //
     // Frame Counter
     //
