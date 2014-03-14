@@ -40,12 +40,18 @@
 
     void main()
     {
+        ///*
         // Use distance field to calculate glyph alpha value.
         const float smoothing = 1.0f / 16.0f;
+        const float edge = 0.5f;
+
         float distance = texture2D(texture, fragmentTexture).r;
-        float alpha = smoothstep(0.5f - smoothing, 0.5f + smoothing, distance);
+        float alpha = smoothstep(edge - smoothing, edge + smoothing, distance);
 
         // Output a final color.
         outputColor = vec4(1.0f, 1.0f, 1.0f, alpha) * fragmentColor;
+        //*/
+
+        //outputColor = vec4(1.0f, 1.0f, 1.0f, texture2D(texture, fragmentTexture).r) * fragmentColor;
     }
 #endif

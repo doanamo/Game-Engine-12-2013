@@ -11,7 +11,10 @@ namespace
     const int AtlasGlyphSpacing = 1;
 
     //
+    const int DistanceFieldDownscale = 8;
     const int DistanceFieldSpread = 4;
+
+    const int DistanceFieldSpreadScaled = DistanceFieldSpread * DistanceFieldDownscale;
 
     // Default glyph code if caching fails.
     FT_ULong DefaultGlyph = '?';
@@ -87,7 +90,7 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
     }
 
     // Set font size.
-    if(FT_Set_Pixel_Sizes(m_fontFace, 0, size) != 0)
+    if(FT_Set_Pixel_Sizes(m_fontFace, 0, size * DistanceFieldDownscale) != 0)
     {
         Log() << LogLoadError(filename) << "Couldn't set font size.";
         Cleanup();
@@ -235,7 +238,12 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     uint8_t* glyphBitmapPixels = glyphBitmap.buffer;
 
     // Create a field surface.
-    SDL_Surface* fieldSurface = SDL_CreateRGBSurface(0, glyphBitmapWidth + DistanceFieldSpread * 2, glyphBitmapHeight + DistanceFieldSpread * 2, 8, 0, 0, 0, 0);
+    SDL_Surface* fieldSurface = SDL_CreateRGBSurface(
+        0, 
+        glyphBitmapWidth / DistanceFieldDownscale + DistanceFieldSpread * 2, 
+        glyphBitmapHeight / DistanceFieldDownscale + DistanceFieldSpread * 2, 
+        8, 0, 0, 0, 0
+    );
 
     if(fieldSurface == nullptr)
         return nullptr;
@@ -250,64 +258,61 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     uint8_t* fieldBitmapPixels = reinterpret_cast<uint8_t*>(fieldSurface->pixels);
 
     //
-    auto GetGlyphBitmapPixel = [&](int x, int y) -> uint8_t*
+    auto GetGlyphBitmapPixel = [&](int x, int y) -> uint8_t
     {
-        int gx = x - DistanceFieldSpread;
-        int gy = y - DistanceFieldSpread;
+        if(x < 0 || x > glyphBitmapWidth - 1)
+            return 0;
 
-        if(gx < 0 || gx > glyphBitmapWidth - 1)
-            return nullptr;
+        if(y < 0 || y > glyphBitmapHeight - 1)
+            return 0;
 
-        if(gy < 0 || gy > glyphBitmapHeight - 1)
-            return nullptr;
-
-        return &glyphBitmapPixels[gy * glyphBitmapPitch + gx];
+        return glyphBitmapPixels[y * glyphBitmapPitch + x];
     };
 
     auto IsPixelInsideGlyph = [&](int x, int y) -> bool
     {
-        uint8_t* pixel = GetGlyphBitmapPixel(x, y);
-
-        if(pixel == nullptr)
-            return false;
-
-        return *pixel == 1;
+        uint8_t pixel = GetGlyphBitmapPixel(x, y);
+        return pixel == 1;
     };
 
-    // Calculate a lookup matrix.
-    const int MatrixWidth = DistanceFieldSpread + 1;
-    float distanceFieldMatrix[MatrixWidth * MatrixWidth];
-
-    distanceFieldMatrix[0] = 0.0f;
-
-    float spreadInverted = 1.0f / (DistanceFieldSpread + 0.5f);
-
-    for(int y = 0; y < MatrixWidth; ++y)
-    for(int x = 0; x < MatrixWidth; ++x)
+    auto SquaredLength = [](float x, float y) -> float
     {
-        // We already have this calculated.
-        if(x == 0 && y == 0)
-            continue;
+		return x * x + y * y;
+    };
 
-        // Get the matrix value.
-        float& matrixValue = distanceFieldMatrix[y * MatrixWidth + x];
+    auto FindSignedDistance = [&](int x, int y) -> float
+    {
+        //
+        int gx = x * DistanceFieldDownscale + DistanceFieldDownscale / 2 - DistanceFieldSpreadScaled;
+        int gy = y * DistanceFieldDownscale + DistanceFieldDownscale / 2 - DistanceFieldSpreadScaled;
 
-        // Calculate distance from origin.
-        glm::vec2 vector((float)x, (float)y);
-        float length = glm::length(vector);
+        //
+        bool insideGlyph = IsPixelInsideGlyph(gx, gy);
 
-        // Calculate a normal value in spread range.
-        float spreadValue = length * spreadInverted;
+        //
+        float distanceSquared = DistanceFieldSpreadScaled * DistanceFieldSpreadScaled;
 
-        if(spreadValue <= 1.0f)
+        //
+        for(int ny = -DistanceFieldSpreadScaled; ny <= DistanceFieldSpreadScaled; ++ny)
+        for(int nx = -DistanceFieldSpreadScaled; nx <= DistanceFieldSpreadScaled; ++nx)
         {
-            matrixValue = spreadValue;
+            if(nx == 0 && ny == 0)
+                continue;
+
+            //
+            const uint8_t glyphBitmapPixel = GetGlyphBitmapPixel(gx + nx, gy + ny);
+
+            //
+            if(glyphBitmapPixel != (uint8_t)insideGlyph)
+            {
+                distanceSquared = std::min(distanceSquared, SquaredLength((float)nx, (float)ny));
+            }
         }
-        else
-        {
-            matrixValue = 0.0f;
-        }
-    }
+
+        //
+        float distance = std::sqrtf(distanceSquared);
+        return insideGlyph ? distance : distance * -1.0f;
+    };
 
     // Calculate distance field values.
     SDL_LockSurface(fieldSurface);
@@ -318,59 +323,16 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
         // Get the pixel pointer.
         uint8_t* fieldBitmapPixel = &fieldBitmapPixels[y * fieldBitmapPitch + x];
 
-        // Is the pixel inside a glyph?
-        bool insideGlyph = IsPixelInsideGlyph(x, y);
+        // Find distance to the nearest opposite pixel.
+        float pixelDistance = FindSignedDistance(x, y);
 
-        // Search through neighbors for a nearest opposite pixel.
-        float spreadValue = 1.0f;
+        // Map the value spread values to 0.0 - 1.0 range.
+        float alpha = 0.5f + 0.5f * (pixelDistance / DistanceFieldSpreadScaled);
+        alpha = std::min(1.0f, std::max(0.0f, alpha));
+        uint8_t byte = (uint8_t)(alpha * 0xFF);
 
-        for(int ny = -DistanceFieldSpread; ny <= DistanceFieldSpread; ++ny)
-        for(int nx = -DistanceFieldSpread; nx <= DistanceFieldSpread; ++nx)
-        {
-            // You are not your own neighbor.
-            if(nx == 0 && ny == 0)
-                continue;
-
-            // Get the glyph bitmap pixel.
-            const uint8_t* glyphBitmapPixel = GetGlyphBitmapPixel(x + nx, y + ny);
-            
-            if(glyphBitmapPixel == nullptr)
-            {
-                // The bitmap containing the glyph is as small as possible, 
-                // so detecting outside pixels won't simply work if there
-                // isn't any pixel at all.
-                if(!insideGlyph)
-                    continue;
-
-                // Assign the pointer to a 'fake' zero value.
-                static const uint8_t outsideBitmapValue = 0;
-                glyphBitmapPixel = &outsideBitmapValue;
-            }
-
-            // Get the matrix value.
-            float matrixValue = distanceFieldMatrix[std::abs(ny) * MatrixWidth + std::abs(nx)];
-
-            if(matrixValue == 0.0f)
-                continue;
-
-            // Check for an opposite pixel value.
-            if(*glyphBitmapPixel != (uint8_t)insideGlyph)
-            {
-                spreadValue = std::min(spreadValue, matrixValue);
-            }
-        }
-
-        // Map the value spread values.
-        // For outside pixels 0.49 (125) from the edge to 0.0 (0) outwards.
-        // For inside pixels 0.5 (126) from the edge to 1.0f (255) inwards.
-        if(insideGlyph)
-        {
-            *fieldBitmapPixel = (uint8_t)(126.0f + (125.0f * spreadValue));
-        }
-        else
-        {
-            *fieldBitmapPixel = (uint8_t)(125.0f * (1.0f - spreadValue));
-        }
+        // Save the pixel value.
+        *fieldBitmapPixel = byte;
     }
 
     SDL_UnlockSurface(fieldSurface);
@@ -407,8 +369,10 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     glyph.advance.x = glyphSlot->advance.x >> 6;
     glyph.advance.y = glyphSlot->advance.y >> 6;
 
-    glyph.offset.x -= DistanceFieldSpread;
-    glyph.offset.y -= DistanceFieldSpread;
+    glyph.offset.x = glyph.offset.x / DistanceFieldDownscale - DistanceFieldSpread;
+    glyph.offset.y = glyph.offset.y / DistanceFieldDownscale - DistanceFieldSpread;
+    glyph.advance.x = glyph.advance.x / DistanceFieldDownscale;
+    glyph.advance.y = glyph.advance.y / DistanceFieldDownscale;
 
     // Add glyph to the cache.
     auto result = m_glyphCache.insert(std::make_pair(character, glyph));
@@ -460,7 +424,7 @@ int Font::GetKerning(FT_ULong left, FT_ULong right) const
     if(FT_Get_Kerning(m_fontFace, glyphLeft, glyphRight, FT_KERNING_DEFAULT, &kerning) != 0)
         return 0;
 
-    return kerning.x >> 6;
+    return (kerning.x >> 6) / DistanceFieldDownscale;
 }
 
 int Font::GetLineSpacing() const
@@ -468,7 +432,7 @@ int Font::GetLineSpacing() const
     if(!m_initialized)
         return 0;
 
-    return m_fontFace->size->metrics.height >> 6;
+    return (m_fontFace->size->metrics.height >> 6) / DistanceFieldDownscale;
 }
 
 int Font::GetAscender() const
@@ -476,7 +440,7 @@ int Font::GetAscender() const
     if(!m_initialized)
         return 0;
 
-    return m_fontFace->size->metrics.ascender >> 6;
+    return (m_fontFace->size->metrics.ascender >> 6) / DistanceFieldDownscale;
 }
 
 int Font::GetDescender() const
@@ -484,5 +448,5 @@ int Font::GetDescender() const
     if(!m_initialized)
         return 0;
 
-    return m_fontFace->size->metrics.descender >> 6;
+    return (m_fontFace->size->metrics.descender >> 6) / DistanceFieldDownscale;
 }
