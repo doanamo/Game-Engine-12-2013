@@ -59,7 +59,7 @@ void MainFrame::Draw()
     TextDrawInfo drawInfo;
     drawInfo.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     drawInfo.font = &m_font;
-    drawInfo.size = 512;
+    drawInfo.size = 256;
     drawInfo.position = glm::vec2(50.0f, 800.0f * scale);
     drawInfo.debug = true;
 
@@ -78,7 +78,7 @@ void MainFrame::Draw()
     }
 
     //Main::TextRenderer().Draw(drawInfo, transform, ascii.c_str());
-    Main::TextRenderer().Draw(drawInfo, transform, "X/y67");
+    Main::TextRenderer().Draw(drawInfo, transform, "Hello world!\n1234567890");
 
     // Those character will break the output: óœ³ (not utf8 valid encoding, repalce with ?).
 }
