@@ -47,7 +47,7 @@
         float distance = texture2D(fontTexture, fragmentTexture).r;
         float alpha = smoothstep(0.5f - step, 0.5f + step, distance);
 
-        // Gamme correction.
+        // Gamma correction.
         alpha = pow(alpha, 1.0f / 2.2f);
 
         // Output a final color.

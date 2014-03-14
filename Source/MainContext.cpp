@@ -330,8 +330,11 @@ bool Main::Initialize()
     if(!mainFrame.Initialize())
         return false;
 
-    // Set as the default frame.
-    frameState.ChangeState(&mainFrame);
+    // Set a default frame if there hasn't been set any by now.
+    if(!frameState.IsValid())
+    {
+        frameState.ChangeState(&mainFrame);
+    }
 
     //
     // Success!

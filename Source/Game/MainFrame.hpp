@@ -2,7 +2,6 @@
 
 #include "Precompiled.hpp"
 #include "System/BaseFrame.hpp"
-#include "Graphics/Font.hpp"
 
 //
 // Main Frame
