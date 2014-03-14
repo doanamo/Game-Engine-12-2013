@@ -29,7 +29,7 @@ public:
     Font();
     ~Font();
 
-    bool Load(std::string filename, int size, int atlasWidth, int atlasHeight);
+    bool Load(std::string filename);
     void Cleanup();
 
     void CacheASCII();
@@ -43,22 +43,15 @@ public:
     int GetAscender() const;
     int GetDescender() const;
 
-    int GetAtlasWidth() const
-    {
-        return m_atlasWidth;
-    }
+    int GetAtlasWidth() const;
+    int GetAtlasHeight() const;
 
-    int GetAtlasHeight() const
-    {
-        return m_atlasHeight;
-    }
-
-    const SDL_Surface* GetSurface() const
+    const SDL_Surface* GetAtlasSurface() const
     {
         return m_atlasSurface;
     }
 
-    const Texture* GetTexture() const
+    const Texture* GetAtlasTexture() const
     {
         return &m_atlasTexture;
     }
@@ -74,8 +67,6 @@ private:
     const Glyph*    m_glyphDefault;
 
     // Font atlas where glyphs are stores.
-    int             m_atlasWidth;
-    int             m_atlasHeight;
     SDL_Surface*    m_atlasSurface;
     Texture         m_atlasTexture;
     bool            m_atlasUpload;

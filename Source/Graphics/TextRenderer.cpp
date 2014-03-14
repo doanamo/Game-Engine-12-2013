@@ -597,7 +597,7 @@ void TextRenderer::Draw(const DrawInfo& info, const glm::mat4& transform, const 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, info.font->GetTexture()->GetHandle());
+    glBindTexture(GL_TEXTURE_2D, info.font->GetAtlasTexture()->GetHandle());
 
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

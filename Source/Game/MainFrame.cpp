@@ -18,7 +18,7 @@ bool MainFrame::Initialize()
 {
     Cleanup();
 
-    if(!m_font.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 96, 512, 512))
+    if(!m_font.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf"))
     {
         Cleanup();
         return false;
@@ -46,7 +46,7 @@ void MainFrame::Draw()
     float windowWidth = Console::windowWidth;
     float windowHeight = Console::windowHeight;
 
-    float scale = 0.5f;
+    float scale = 0.25f;
 
     glm::mat4 transform = glm::ortho(0.0f, windowWidth * scale, 0.0f, windowHeight * scale);
 
@@ -59,10 +59,24 @@ void MainFrame::Draw()
     TextRenderer::DrawInfo drawInfo;
     drawInfo.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     drawInfo.font = &m_font;
-    drawInfo.position = glm::vec2(10.0f, 350.0f);
+    drawInfo.position = glm::vec2(10.0f, 450.0f);
     drawInfo.debug = true;
 
-    Main::TextRenderer().Draw(drawInfo, transform, "Hello world! :) :P\n1234567890\nXBHGgy Melone");
+    std::string ascii;
+    int breakCounter = 0;
+
+    for(char c = 33; c < 127; ++c)
+    {
+        ascii.push_back(c);
+
+        if(++breakCounter == 20)
+        {
+            ascii.push_back('\n');
+            breakCounter = 0;
+        }
+    }
+
+    Main::TextRenderer().Draw(drawInfo, transform, ascii.c_str());
 
     // Those character will break the output: óœ³ (not utf8 valid encoding, repalce with ?).
 }

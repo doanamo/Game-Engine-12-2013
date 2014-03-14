@@ -38,7 +38,7 @@ bool ConsoleFrame::Initialize()
     Cleanup();
 
     // Load font file.
-    if(!m_font.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 16, 512, 512))
+    if(!m_font.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf"))
     {
         Cleanup();
         return false;

@@ -7,12 +7,18 @@ namespace
     // Log error messages.
     #define LogLoadError(filename) "Failed to load a font from \"" << filename << "\" file! "
 
+    // Size of atlas texture.
+    const int AtlasWidth = 512;
+    const int AtlasHeight = 512;
+
     // Spacing between characters on the atlas (to avoid filtering artifacts).
     const int AtlasGlyphSpacing = 1;
 
-    //
-    const int DistanceFieldDownscale = 8;
-    const int DistanceFieldSpread = 4;
+    // Signed distance field calculation parameters.
+    const int BaseFontSize = 64;
+
+    const int DistanceFieldDownscale = 16;
+    const int DistanceFieldSpread = 2;
 
     const int DistanceFieldSpreadScaled = DistanceFieldSpread * DistanceFieldDownscale;
 
@@ -24,8 +30,6 @@ Font::Font() :
     m_fontFace(nullptr),
     m_glyphCache(),
     m_glyphDefault(nullptr),
-    m_atlasWidth(0),
-    m_atlasHeight(0),
     m_atlasSurface(nullptr),
     m_atlasTexture(),
     m_atlasUpload(false),
@@ -39,7 +43,7 @@ Font::~Font()
     Cleanup();
 }
 
-bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
+bool Font::Load(std::string filename)
 {
     Cleanup();
 
@@ -51,27 +55,6 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
         Log() << LogLoadError(filename) << "Invalid argument - \"filename\" is invalid.";
         return false;
     }
-
-    if(size <= 0)
-    {
-        Log() << LogLoadError(filename) << "Invalid argument - \"size\" is invalid.";
-        return false;
-    }
-
-    if(atlasWidth <= 0)
-    {
-        Log() << LogLoadError(filename) << "Invalid argument - \"atlasWidth\" is invalid.";
-        return false;
-    }
-
-    if(atlasHeight <= 0)
-    {
-        Log() << LogLoadError(filename) << "Invalid argument - \"atlasHeight\" is invalid.";
-        return false;
-    }
-
-    m_atlasWidth = atlasWidth;
-    m_atlasHeight = atlasHeight;
 
     // Load font face.
     if(FT_New_Face(Main::FontLibrary(), filename.c_str(), 0, &m_fontFace) != 0)
@@ -90,7 +73,7 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
     }
 
     // Set font size.
-    if(FT_Set_Pixel_Sizes(m_fontFace, 0, size * DistanceFieldDownscale) != 0)
+    if(FT_Set_Pixel_Sizes(m_fontFace, 0, BaseFontSize * DistanceFieldDownscale) != 0)
     {
         Log() << LogLoadError(filename) << "Couldn't set font size.";
         Cleanup();
@@ -98,7 +81,7 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
     }
 
     // Create font atlas surface.
-    m_atlasSurface = SDL_CreateRGBSurface(0, m_atlasWidth, m_atlasHeight, 8, 0, 0, 0, 0);
+    m_atlasSurface = SDL_CreateRGBSurface(0, AtlasWidth, AtlasHeight, 8, 0, 0, 0, 0);
 
     if(m_atlasSurface == nullptr)
     {
@@ -108,7 +91,7 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
     }
 
     // Create font atlas texture.
-    if(!m_atlasTexture.Initialize(m_atlasWidth, m_atlasHeight, GL_RED, nullptr))
+    if(!m_atlasTexture.Initialize(AtlasWidth, AtlasHeight, GL_RED, nullptr))
     {
         Log() << LogLoadError(filename) << "Couldn't create atlas texture.";
         Cleanup();
@@ -117,7 +100,7 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
 
     // Create a shelf packer.
     m_packer.Create(
-        glm::ivec2(m_atlasWidth, m_atlasHeight),
+        glm::ivec2(AtlasWidth, AtlasHeight),
         glm::ivec2(AtlasGlyphSpacing, AtlasGlyphSpacing)
     );
 
@@ -135,7 +118,7 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
     }
 
     // Success!
-    Log() << "Loaded font from \"" << filename << "\" file. (Size: " << size << ")";
+    Log() << "Loaded font from \"" << filename << "\" file.";
 
     return true;
 }
@@ -146,9 +129,6 @@ void Font::Cleanup()
     m_packer.Cleanup();
 
     // Cleanup font atlas.
-    m_atlasWidth = 0;
-    m_atlasHeight = 0;
-
     SDL_FreeSurface(m_atlasSurface);
     m_atlasSurface = nullptr;
 
@@ -173,9 +153,10 @@ void Font::CacheASCII()
     if(!m_initialized)
         return;
 
-    for(int i = '!'; i <= '~'; ++i)
+    // Cache base ASCII characters.
+    for(char c = '!'; c <= '~'; ++c)
     {
-        CacheGlyph((FT_ULong)i);
+        CacheGlyph((FT_ULong)c);
     }
 }
 
@@ -184,6 +165,7 @@ void Font::CacheGlyphs(const char* characters)
     if(!m_initialized)
         return;
 
+    // Cache a UTF8 string of characters.
     if(characters != nullptr)
     {
         const char* it = characters;
@@ -357,7 +339,7 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     SDL_BlitSurface(fieldSurface, nullptr, m_atlasSurface, &drawRect);
 
     // Fill glyph structure.
-    glm::vec2 pixelSize(1.0f / m_atlasWidth, 1.0f / m_atlasHeight);
+    glm::vec2 pixelSize(1.0f / AtlasWidth, 1.0f / AtlasHeight);
 
     Glyph glyph;
     glyph.position.x = drawRect.x;
@@ -449,4 +431,14 @@ int Font::GetDescender() const
         return 0;
 
     return (m_fontFace->size->metrics.descender >> 6) / DistanceFieldDownscale;
+}
+
+int Font::GetAtlasWidth() const
+{
+    return AtlasWidth;
+}
+
+int Font::GetAtlasHeight() const
+{
+    return AtlasHeight;
 }
