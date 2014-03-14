@@ -17,8 +17,8 @@ namespace
     // Signed distance field calculation parameters.
     const int BaseFontSize = 64;
 
-    const int DistanceFieldDownscale = 16;
-    const int DistanceFieldSpread = 4;
+    const int DistanceFieldDownscale = 8;
+    const int DistanceFieldSpread = 2;
 
     const int DistanceFieldSpreadScaled = DistanceFieldSpread * DistanceFieldDownscale;
 
@@ -248,14 +248,15 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
         int byteIndex = x / 8;
         int bitOffset = x % 8;
 
+        // Even though bits start from right, the pixels are 
+        // packed from the left (just like they are laid out).
+        bitOffset = 7 - bitOffset;
+
         // Get the glyph bitmap byte.
         uint8_t byte = glyphBitmapBytes[y * glyphBitmapPitch + byteIndex];
 
         // Extract the bit pixel.
-        uint8_t mask = 1 << bitOffset;
-        uint8_t value = byte & mask;
-
-        return value ? 1 : 0;
+        return (byte >> bitOffset) & 0x1;
     };
 
     // Checks if glyph bitmap pixel is inside the glyph.
