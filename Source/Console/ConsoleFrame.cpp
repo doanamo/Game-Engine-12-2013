@@ -282,12 +282,14 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 
     if(m_open)
     {
+        const float fontSize = 16;
+
         // Calculate console metrics.
         float windowWidth = Console::windowWidth;
         float windowHeight = Console::windowHeight;
 
         float consoleExtra = 1.0f;
-        float consoleSize = (float)ConsoleSize * m_font.GetLineSpacing();
+        float consoleSize = (float)ConsoleSize * m_font.GetLineSpacing() * m_font.GetScaling(fontSize);
         float consolePosition = windowHeight - consoleSize;
 
         // Draw console background.
@@ -311,10 +313,11 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 
             TextDrawInfo info;
             info.font = &m_font;
+            info.size = fontSize;
             info.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
             info.position.x = 5.0f;
-            info.position.y = consolePosition + (i + 2) * m_font.GetLineSpacing();
-            //info.size.x = windowWidth - 1.0f;
+            info.position.y = consolePosition + (i + 2) * m_font.GetLineSpacing() * m_font.GetScaling(fontSize);
+            //info.area.x = windowWidth - 1.0f;
             info.area.x = 0.0f; // Text wrap doesn't work in console.
             info.area.y = 0.0f;
 
@@ -328,10 +331,11 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 
             TextDrawInfo info;
             info.font = &m_font;
+            info.size = fontSize;
             info.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
             info.position.x = 5.0f;
-            info.position.y = consolePosition + m_font.GetLineSpacing();
-            //info.size.x = windowWidth - 1.0f;
+            info.position.y = consolePosition + m_font.GetLineSpacing() * m_font.GetScaling(fontSize);
+            //info.area.x = windowWidth - 1.0f;
             info.area.x = 0.0f; // Text wrap doesn't work in console.
             info.area.y = 0.0f;
             info.cursorIndex = 2 + m_cursorPosition;

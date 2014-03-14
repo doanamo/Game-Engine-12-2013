@@ -297,11 +297,9 @@ bool Main::Initialize()
     // Console Frame
     //
 
-    /*
     // Initialize the console frame.
     if(!consoleFrame.Initialize())
         return false;
-    */
 
     //
     // Frame Counter

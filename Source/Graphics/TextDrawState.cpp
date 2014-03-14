@@ -54,7 +54,7 @@ bool TextDrawState::Initialize(const TextDrawInfo& info, const char* text)
     m_drawInfo = &info;
 
     // Calculate font scale.
-    m_fontScale = info.size / info.font->GetBaseSize();
+    m_fontScale = info.font->GetScaling(info.size);
 
     // Calculate text size.
     size_t textSize = strlen(text);

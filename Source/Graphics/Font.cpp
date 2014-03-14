@@ -476,3 +476,9 @@ int Font::GetBaseSize() const
 {
     return BaseFontSize;
 }
+
+float Font::GetScaling(float size) const
+{
+    static const float Inverse = 1.0f / BaseFontSize;
+    return size * Inverse;
+}

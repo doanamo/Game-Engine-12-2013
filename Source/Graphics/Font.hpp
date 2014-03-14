@@ -55,6 +55,8 @@ public:
 
     int GetBaseSize() const;
 
+    float GetScaling(float size) const;
+
     const SDL_Surface* GetAtlasSurface() const
     {
         return m_atlasSurface;
