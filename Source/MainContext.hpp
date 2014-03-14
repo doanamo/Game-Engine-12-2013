@@ -14,7 +14,9 @@ class CoreRenderer;
 class ShapeRenderer;
 class TextRenderer;
 class FrameCounter;
+
 class Texture;
+class Font;
 
 class BaseFrame;
 class MainFrame;
@@ -63,7 +65,8 @@ namespace Main
     TextRenderer&   TextRenderer();
     FrameCounter&   FrameCounter();
 
-    Texture&        TextureBlank();
+    Texture&        BlankTexture();
+    Font&           DefaultFont();
 
     SDL_Window*     SystemWindow();
     SDL_GLContext   GraphicsContext();

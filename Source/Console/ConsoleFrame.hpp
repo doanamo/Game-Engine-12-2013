@@ -42,8 +42,6 @@ private:
     void MoveInputCursor(InputCursor move);
 
 private:
-    Font m_font;
-
     std::string m_input;
     int m_cursorPosition;
 

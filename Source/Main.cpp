@@ -55,13 +55,7 @@ int main(int argc, char* argv[])
     // Font
     //
 
-    // Load font file.
-    Font font;
-    if(!font.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf"))
-        return -1;
     
-    // Cache ASCII character set.
-    font.CacheASCII();
     
     //
     // Main Loop
@@ -152,11 +146,11 @@ int main(int argc, char* argv[])
                 << " (" << std::setprecision(4) << Main::FrameCounter().GetFrameTime() << "s)";
 
             TextDrawInfo info;
-            info.font = &font;
+            info.font = &Main::DefaultFont();
             info.size = 22;
             info.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
             info.position.x = 10.0f;
-            info.position.y = 5.0f + font.GetLineSpacing() * font.GetScaling(info.size);
+            info.position.y = 5.0f + Main::DefaultFont().GetLineSpacing() * Main::DefaultFont().GetScaling(info.size);
 
             Main::TextRenderer().Draw(info, projection, frameCounterText.str().c_str());
         }

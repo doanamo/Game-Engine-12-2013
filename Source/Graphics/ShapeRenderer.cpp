@@ -108,7 +108,7 @@ void ShapeRenderer::DrawLines(const Line* data, int count, const glm::mat4& tran
 
     // Bind rendering states.
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, Main::TextureBlank().GetHandle());
+    glBindTexture(GL_TEXTURE_2D, Main::BlankTexture().GetHandle());
 
     glUseProgram(m_shader.GetHandle());
     glBindVertexArray(m_vertexInput.GetHandle());
@@ -178,7 +178,7 @@ void ShapeRenderer::DrawRectangles(const Rectangle* data, int count, const glm::
 
     // Bind rendering states.
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, Main::TextureBlank().GetHandle());
+    glBindTexture(GL_TEXTURE_2D, Main::BlankTexture().GetHandle());
 
     glUseProgram(m_shader.GetHandle());
     glBindVertexArray(m_vertexInput.GetHandle());
@@ -331,7 +331,7 @@ void ShapeRenderer::DrawQuads(const Quad* data, int count, const glm::mat4& tran
             }
             else
             {
-                glBindTexture(GL_TEXTURE_2D, Main::TextureBlank().GetHandle());
+                glBindTexture(GL_TEXTURE_2D, Main::BlankTexture().GetHandle());
             }
 
             // Draw shapes.

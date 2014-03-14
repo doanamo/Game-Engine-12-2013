@@ -22,5 +22,5 @@ public:
     void Draw();
 
 private:
-    Font m_font;
+
 };

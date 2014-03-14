@@ -18,18 +18,11 @@ bool MainFrame::Initialize()
 {
     Cleanup();
 
-    if(!m_font.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf"))
-    {
-        Cleanup();
-        return false;
-    }
-
     return true;
 }
 
 void MainFrame::Cleanup()
 {
-    m_font.Cleanup();
 }
 
 bool MainFrame::Process(const SDL_Event& event)
@@ -58,7 +51,7 @@ void MainFrame::Draw()
     // Draw some text.
     TextDrawInfo drawInfo;
     drawInfo.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    drawInfo.font = &m_font;
+    drawInfo.font = &Main::DefaultFont();
     drawInfo.size = 256;
     drawInfo.position = glm::vec2(50.0f, 800.0f * scale);
     drawInfo.debug = true;

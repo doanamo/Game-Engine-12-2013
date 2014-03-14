@@ -13,6 +13,7 @@
 #include "Console/ConsoleFrame.hpp"
 
 #include "Graphics/Texture.hpp"
+#include "Graphics/Font.hpp"
 
 #include "Graphics/CoreRenderer.hpp"
 #include "Graphics/ShapeRenderer.hpp"
@@ -57,7 +58,8 @@ namespace
     TextRenderer        textRenderer;
     FrameCounter        frameCounter;
 
-    Texture             textureBlank;
+    Texture             blankTexture;
+    Font                defaultFont;
 
     SDL_Window*         systemWindow = nullptr;
     SDL_GLContext       graphicsContext = nullptr;
@@ -263,11 +265,22 @@ bool Main::Initialize()
     unsigned char* textureBlankData[2 * 2 * 4];
     memset(&textureBlankData[0], 255, sizeof(unsigned char) * 4 * 2 * 2);
 
-    if(!textureBlank.Initialize(2, 2, GL_RGBA, textureBlankData))
+    if(!blankTexture.Initialize(2, 2, GL_RGBA, textureBlankData))
     {
         Log() << "Failed to initialize a blank texture!";
         return false;
     }
+
+    //
+    // Default Font
+    //
+
+    // Load a default font.
+    if(!defaultFont.Load(workingDir + "Data/Fonts/SourceSansPro.ttf"))
+        return false;
+    
+    // Cache ASCII character set.
+    defaultFont.CacheASCII();
 
     //
     // Core Renderer
@@ -363,7 +376,9 @@ void Main::Cleanup()
     textRenderer.Cleanup();
     shapeRenderer.Cleanup();
     coreRenderer.Cleanup();
-    textureBlank.Cleanup();
+
+    blankTexture.Cleanup();
+    defaultFont.Cleanup();
 
     //
     // FreeType
@@ -497,9 +512,14 @@ FrameCounter& Main::FrameCounter()
     return frameCounter;
 }
 
-Texture& Main::TextureBlank()
+Texture& Main::BlankTexture()
 {
-    return textureBlank;
+    return blankTexture;
+}
+
+Font& Main::DefaultFont()
+{
+    return defaultFont;
 }
 
 SDL_Window* Main::SystemWindow()
