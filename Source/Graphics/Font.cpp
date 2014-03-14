@@ -7,8 +7,24 @@ namespace
     // Log error messages.
     #define LogLoadError(filename) "Failed to load a font from \"" << filename << "\" file! "
 
+    // Size of atlas texture.
+    const int AtlasWidth = 512;
+    const int AtlasHeight = 512;
+
     // Spacing between characters on the atlas (to avoid filtering artifacts).
     const int AtlasGlyphSpacing = 1;
+
+    // Signed distance field calculation parameters.
+    const int BaseFontSize = 64;
+
+    const int DistanceFieldDownscale = 8;
+    const int DistanceFieldSpread = 2;
+
+    const int DistanceFieldSpreadScaled = DistanceFieldSpread * DistanceFieldDownscale;
+
+    // Inverted constant values.
+    const float DistanceFieldDownscaleInverted = 1.0f / DistanceFieldDownscale;
+    const float DistanceFieldSpreadScaledInverted = 1.0f / DistanceFieldSpreadScaled;
 
     // Default glyph code if caching fails.
     FT_ULong DefaultGlyph = '?';
@@ -18,8 +34,6 @@ Font::Font() :
     m_fontFace(nullptr),
     m_glyphCache(),
     m_glyphDefault(nullptr),
-    m_atlasWidth(0),
-    m_atlasHeight(0),
     m_atlasSurface(nullptr),
     m_atlasTexture(),
     m_atlasUpload(false),
@@ -33,7 +47,7 @@ Font::~Font()
     Cleanup();
 }
 
-bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
+bool Font::Load(std::string filename)
 {
     Cleanup();
 
@@ -45,27 +59,6 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
         Log() << LogLoadError(filename) << "Invalid argument - \"filename\" is invalid.";
         return false;
     }
-
-    if(size <= 0)
-    {
-        Log() << LogLoadError(filename) << "Invalid argument - \"size\" is invalid.";
-        return false;
-    }
-
-    if(atlasWidth <= 0)
-    {
-        Log() << LogLoadError(filename) << "Invalid argument - \"atlasWidth\" is invalid.";
-        return false;
-    }
-
-    if(atlasHeight <= 0)
-    {
-        Log() << LogLoadError(filename) << "Invalid argument - \"atlasHeight\" is invalid.";
-        return false;
-    }
-
-    m_atlasWidth = atlasWidth;
-    m_atlasHeight = atlasHeight;
 
     // Load font face.
     if(FT_New_Face(Main::FontLibrary(), filename.c_str(), 0, &m_fontFace) != 0)
@@ -84,7 +77,7 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
     }
 
     // Set font size.
-    if(FT_Set_Pixel_Sizes(m_fontFace, 0, size) != 0)
+    if(FT_Set_Pixel_Sizes(m_fontFace, 0, BaseFontSize * DistanceFieldDownscale) != 0)
     {
         Log() << LogLoadError(filename) << "Couldn't set font size.";
         Cleanup();
@@ -92,7 +85,7 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
     }
 
     // Create font atlas surface.
-    m_atlasSurface = SDL_CreateRGBSurface(0, m_atlasWidth, m_atlasHeight, 8, 0, 0, 0, 0);
+    m_atlasSurface = SDL_CreateRGBSurface(0, AtlasWidth, AtlasHeight, 8, 0, 0, 0, 0);
 
     if(m_atlasSurface == nullptr)
     {
@@ -102,7 +95,7 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
     }
 
     // Create font atlas texture.
-    if(!m_atlasTexture.Initialize(m_atlasWidth, m_atlasHeight, GL_RED, nullptr))
+    if(!m_atlasTexture.Initialize(AtlasWidth, AtlasHeight, GL_RED, nullptr))
     {
         Log() << LogLoadError(filename) << "Couldn't create atlas texture.";
         Cleanup();
@@ -111,7 +104,7 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
 
     // Create a shelf packer.
     m_packer.Create(
-        glm::ivec2(m_atlasWidth, m_atlasHeight),
+        glm::ivec2(AtlasWidth, AtlasHeight),
         glm::ivec2(AtlasGlyphSpacing, AtlasGlyphSpacing)
     );
 
@@ -129,7 +122,7 @@ bool Font::Load(std::string filename, int size, int atlasWidth, int atlasHeight)
     }
 
     // Success!
-    Log() << "Loaded font from \"" << filename << "\" file. (Size: " << size << ")";
+    Log() << "Loaded font from \"" << filename << "\" file.";
 
     return true;
 }
@@ -140,9 +133,6 @@ void Font::Cleanup()
     m_packer.Cleanup();
 
     // Cleanup font atlas.
-    m_atlasWidth = 0;
-    m_atlasHeight = 0;
-
     SDL_FreeSurface(m_atlasSurface);
     m_atlasSurface = nullptr;
 
@@ -167,9 +157,10 @@ void Font::CacheASCII()
     if(!m_initialized)
         return;
 
-    for(int i = '!'; i <= '~'; ++i)
+    // Cache base ASCII characters.
+    for(char c = '!'; c <= '~'; ++c)
     {
-        CacheGlyph((FT_ULong)i);
+        CacheGlyph((FT_ULong)c);
     }
 }
 
@@ -178,6 +169,7 @@ void Font::CacheGlyphs(const char* characters)
     if(!m_initialized)
         return;
 
+    // Cache a UTF8 string of characters.
     if(characters != nullptr)
     {
         const char* it = characters;
@@ -212,37 +204,152 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     FT_GlyphSlot glyphSlot = m_fontFace->glyph;
 
     // Render font glyph.
-    if(FT_Render_Glyph(m_fontFace->glyph, FT_RENDER_MODE_NORMAL) != 0)
+    if(FT_Render_Glyph(m_fontFace->glyph, FT_RENDER_MODE_MONO) != 0)
         return nullptr;
 
-    FT_Bitmap* glyphBitmap = &glyphSlot->bitmap;
+    // Get glyph bitmap parameters.
+    int glyphBitmapWidth = glyphSlot->bitmap.width;
+    int glyphBitmapHeight = glyphSlot->bitmap.rows;
+    int glyphBitmapPitch = glyphSlot->bitmap.pitch;
 
-    // Create a glyph surface.
-    // Todo: Allocated a surface that can hold all glyph bitmaps once.
-    SDL_Surface* glyphSurface = SDL_CreateRGBSurface(0, glyphBitmap->width, glyphBitmap->rows, 8, 0, 0, 0, 0);
+    uint8_t* glyphBitmapBytes = glyphSlot->bitmap.buffer;
 
-    if(glyphSurface == nullptr)
+    // Create a distance field surface.
+    SDL_Surface* distanceSurface = SDL_CreateRGBSurface(
+        0, 
+        glyphBitmapWidth / DistanceFieldDownscale + DistanceFieldSpread * 2, 
+        glyphBitmapHeight / DistanceFieldDownscale + DistanceFieldSpread * 2, 
+        8, 0, 0, 0, 0
+    );
+
+    if(distanceSurface == nullptr)
         return nullptr;
 
-    SCOPE_GUARD(SDL_FreeSurface(glyphSurface));
+    SCOPE_GUARD(SDL_FreeSurface(distanceSurface));
 
-    // Copy glyph pixels.
-    SDL_LockSurface(glyphSurface);
+    // Get distance bitmap parameters.
+    int distanceBitmapWidth = distanceSurface->w;
+    int distanceBitmapHeight = distanceSurface->h;
+    int distanceBitmapPitch = distanceSurface->pitch;
 
-    unsigned char* glyphSurfaceData = reinterpret_cast<unsigned char*>(glyphSurface->pixels);
+    uint8_t* distanceBitmapPixels = reinterpret_cast<uint8_t*>(distanceSurface->pixels);
 
-    for(long i = 0; i < glyphBitmap->rows; ++i)
+    // Get a pixel from the gylph surface.
+    // Each pixel is stored in one bit, so every byte contains 8 pixels.
+    auto GetGlyphBitmapPixel = [&](int x, int y) -> uint8_t
     {
-        memcpy(&glyphSurfaceData[i * glyphSurface->pitch], &glyphBitmap->buffer[i * glyphBitmap->pitch], glyphBitmap->width);
+        if(x < 0 || x > glyphBitmapWidth - 1)
+            return 0;
+
+        if(y < 0 || y > glyphBitmapHeight - 1)
+            return 0;
+
+        // Calculate byte index and bit offset.
+        int byteIndex = x / 8;
+        int bitOffset = x % 8;
+
+        // Even though bits start from right, the pixels are 
+        // packed from the left (just like they are laid out).
+        bitOffset = 7 - bitOffset;
+
+        // Get the glyph bitmap byte.
+        uint8_t byte = glyphBitmapBytes[y * glyphBitmapPitch + byteIndex];
+
+        // Extract the bit pixel.
+        return (byte >> bitOffset) & 0x1;
+    };
+
+    // Checks if glyph bitmap pixel is inside the glyph.
+    auto IsPixelInsideGlyph = [&](int x, int y) -> bool
+    {
+        uint8_t pixel = GetGlyphBitmapPixel(x, y);
+        return pixel == 1;
+    };
+
+    // Calculates a square length of a vector.
+    auto SquaredLength = [](float x, float y) -> float
+    {
+		return x * x + y * y;
+    };
+
+    // Find a distance to nearest opposite pixel (translated to glyph bitmap space).
+    // This is a brute force approach that is very cache unfriendly.
+    auto FindSignedDistance = [&](int x, int y) -> float
+    {
+        // Transform coordinates to glyph bitmap space.
+        int gx = x * DistanceFieldDownscale + DistanceFieldDownscale / 2 - DistanceFieldSpreadScaled;
+        int gy = y * DistanceFieldDownscale + DistanceFieldDownscale / 2 - DistanceFieldSpreadScaled;
+
+        // Check if inside a glyph.
+        bool insideGlyph = IsPixelInsideGlyph(gx, gy);
+
+        // Set initial maximum distance.
+        float distanceSquared = DistanceFieldSpreadScaled * DistanceFieldSpreadScaled;
+
+        // Check neighbors from nearest to furthest.
+        bool found = false;
+
+        for(int offset = 1; offset <= DistanceFieldSpreadScaled; ++offset)
+        {
+            for(int ny = -offset; ny <= offset; ++ny)
+            for(int nx = -offset; nx <= offset; ++nx)
+            {
+                // You are not your own neighbor.
+                if(nx == 0 && ny == 0)
+                    continue;
+
+                // Only check at offset edges.
+                if(std::abs(nx) != offset && std::abs(ny) != offset)
+                    continue;
+
+                // Get the glyph bitmap pixel.
+                const uint8_t glyphBitmapPixel = GetGlyphBitmapPixel(gx + nx, gy + ny);
+
+                // Check if it's an opposite pixel value.
+                if(glyphBitmapPixel != (uint8_t)insideGlyph)
+                {
+                    distanceSquared = std::min(distanceSquared, SquaredLength((float)nx, (float)ny));
+                    found = true;
+                }
+            }
+
+            // Break if we found the nearest pixel.
+            if(found) break;
+        }
+
+        // Return a signed distance.
+        float distance = std::sqrtf(distanceSquared);
+        return insideGlyph ? distance : distance * -1.0f;
+    };
+
+    // Calculate distance field values.
+    SDL_LockSurface(distanceSurface);
+
+    for(int y = 0; y < distanceBitmapHeight; ++y)
+    for(int x = 0; x < distanceBitmapWidth; ++x)
+    {
+        // Get the pixel pointer.
+        uint8_t* fieldBitmapPixel = &distanceBitmapPixels[y * distanceBitmapPitch + x];
+
+        // Find distance to the nearest opposite pixel.
+        float pixelDistance = FindSignedDistance(x, y);
+
+        // Map the value spread values to 0.0 - 1.0 range.
+        float alpha = 0.5f + 0.5f * (pixelDistance * DistanceFieldSpreadScaledInverted);
+        alpha = std::min(1.0f, std::max(0.0f, alpha));
+        uint8_t byte = (uint8_t)(alpha * 0xFF);
+
+        // Save the pixel value.
+        *fieldBitmapPixel = byte;
     }
 
-    SDL_UnlockSurface(glyphSurface);
+    SDL_UnlockSurface(distanceSurface);
 
-    // Flip glyph surface (we will draw upside down on SDL surface).
-    FlipSurface(glyphSurface);
+    // Flip surface (we will draw upside down on SDL surface).
+    FlipSurface(distanceSurface);
 
     // Add element to the packer.
-    if(!m_packer.AddElement(glm::ivec2(glyphBitmap->width, glyphBitmap->rows)))
+    if(!m_packer.AddElement(glm::ivec2(distanceBitmapWidth, distanceBitmapHeight)))
     {
         // Not enough space on the atlas for this glyph.
         return nullptr;
@@ -252,23 +359,29 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     SDL_Rect drawRect;
     drawRect.x = m_packer.GetPosition().x;
     drawRect.y = m_packer.GetPosition().y;
-    drawRect.w = glyphBitmap->width;
-    drawRect.h = glyphBitmap->rows;
+    drawRect.w = distanceBitmapWidth;
+    drawRect.h = distanceBitmapHeight;
 
-    SDL_BlitSurface(glyphSurface, nullptr, m_atlasSurface, &drawRect);
+    SDL_BlitSurface(distanceSurface, nullptr, m_atlasSurface, &drawRect);
 
     // Fill glyph structure.
-    glm::vec2 pixelSize(1.0f / m_atlasWidth, 1.0f / m_atlasHeight);
+    glm::vec2 pixelSize(1.0f / AtlasWidth, 1.0f / AtlasHeight);
 
     Glyph glyph;
     glyph.position.x = drawRect.x;
     glyph.position.y = drawRect.y;
     glyph.size.x = drawRect.w;
     glyph.size.y = drawRect.h;
-    glyph.offset.x = glyphSlot->bitmap_left;
-    glyph.offset.y = glyphSlot->bitmap_top - glyphBitmap->rows;
-    glyph.advance.x = glyphSlot->advance.x >> 6;
-    glyph.advance.y = glyphSlot->advance.y >> 6;
+
+    glyph.offset.x = (float)(glyphSlot->bitmap_left);
+    glyph.offset.y = (float)(glyphSlot->bitmap_top - glyphSlot->bitmap.rows);
+    glyph.advance.x = (float)(glyphSlot->advance.x >> 6);
+    glyph.advance.y = (float)(glyphSlot->advance.y >> 6);
+
+    glyph.offset.x = glyph.offset.x * DistanceFieldDownscaleInverted - DistanceFieldSpread;
+    glyph.offset.y = glyph.offset.y * DistanceFieldDownscaleInverted - DistanceFieldSpread;
+    glyph.advance.x = glyph.advance.x * DistanceFieldDownscaleInverted;
+    glyph.advance.y = glyph.advance.y * DistanceFieldDownscaleInverted;
 
     // Add glyph to the cache.
     auto result = m_glyphCache.insert(std::make_pair(character, glyph));
@@ -285,6 +398,7 @@ void Font::UpdateAtlasTexture()
     if(!m_initialized)
         return;
 
+    // Upload atlas surface to GPU.
     if(m_atlasUpload)
     {
         m_atlasTexture.Update(m_atlasSurface->pixels);
@@ -310,39 +424,61 @@ const Glyph* Font::GetGlyph(FT_ULong character)
     }
 }
 
-int Font::GetKerning(FT_ULong left, FT_ULong right) const
+float Font::GetKerning(FT_ULong left, FT_ULong right) const
 {
     FT_Vector kerning;
 
+    // Get kerning value between two characters.
     FT_UInt glyphLeft = FT_Get_Char_Index(m_fontFace, left);
     FT_UInt glyphRight = FT_Get_Char_Index(m_fontFace, right);
 
     if(FT_Get_Kerning(m_fontFace, glyphLeft, glyphRight, FT_KERNING_DEFAULT, &kerning) != 0)
-        return 0;
+        return 0.0f;
 
-    return kerning.x >> 6;
+    return (kerning.x >> 6) * DistanceFieldDownscaleInverted;
 }
 
-int Font::GetLineSpacing() const
+float Font::GetLineSpacing() const
 {
     if(!m_initialized)
-        return 0;
+        return 0.0f;
 
-    return m_fontFace->size->metrics.height >> 6;
+    return (m_fontFace->size->metrics.height >> 6) * DistanceFieldDownscaleInverted;
 }
 
-int Font::GetAscender() const
+float Font::GetAscender() const
 {
     if(!m_initialized)
-        return 0;
+        return 0.0f;
 
-    return m_fontFace->size->metrics.ascender >> 6;
+    return (m_fontFace->size->metrics.ascender >> 6) * DistanceFieldDownscaleInverted;
 }
 
-int Font::GetDescender() const
+float Font::GetDescender() const
 {
     if(!m_initialized)
-        return 0;
+        return 0.0f;
 
-    return m_fontFace->size->metrics.descender >> 6;
+    return (m_fontFace->size->metrics.descender >> 6) * DistanceFieldDownscaleInverted;
+}
+
+int Font::GetAtlasWidth() const
+{
+    return AtlasWidth;
+}
+
+int Font::GetAtlasHeight() const
+{
+    return AtlasHeight;
+}
+
+int Font::GetBaseSize() const
+{
+    return BaseFontSize;
+}
+
+float Font::GetScaling(float size) const
+{
+    static const float Inverse = 1.0f / BaseFontSize;
+    return size * Inverse;
 }

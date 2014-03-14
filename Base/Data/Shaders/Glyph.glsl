@@ -24,14 +24,14 @@
 
         // Calculate texture coordinates (vertex position is the same as vertex texture for a quad).
         fragmentTexture = (vertexPosition * instanceSize + instanceTexture) * texturePixelSize;
-        
+
         // Set glyph color.
         fragmentColor = instanceColor;
     }
 #endif
 
 #if defined(FRAGMENT_SHADER)
-    uniform sampler2D texture;
+    uniform sampler2D fontTexture;
 
     in vec2 fragmentTexture;
     in vec4 fragmentColor;
@@ -40,6 +40,17 @@
 
     void main()
     {
-        outputColor = vec4(1.0f, 1.0f, 1.0f, texture2D(texture, fragmentTexture)) * fragmentColor;
+        // Use distance field to calculate glyph alpha value.
+        const float smoothness = 64.0f;
+
+        float step = clamp(smoothness * (abs(dFdx(fragmentTexture.x)) + abs(dFdy(fragmentTexture.y))), 0.0f, 0.5f);
+        float distance = texture2D(fontTexture, fragmentTexture).r;
+        float alpha = smoothstep(0.5f - step, 0.5f + step, distance);
+
+        // Gamma correction.
+        alpha = pow(alpha, 1.0f / 2.2f);
+
+        // Output a final color.
+        outputColor = vec4(1.0f, 1.0f, 1.0f, alpha) * fragmentColor;
     }
 #endif

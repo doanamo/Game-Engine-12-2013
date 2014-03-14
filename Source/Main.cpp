@@ -55,13 +55,7 @@ int main(int argc, char* argv[])
     // Font
     //
 
-    // Load font file.
-    Font font;
-    if(!font.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 22, 512, 512))
-        return -1;
     
-    // Cache ASCII character set.
-    font.CacheASCII();
     
     //
     // Main Loop
@@ -151,18 +145,19 @@ int main(int argc, char* argv[])
             frameCounterText << "FPS: " << std::fixed << std::setprecision(0) << Main::FrameCounter().GetFrameRate() 
                 << " (" << std::setprecision(4) << Main::FrameCounter().GetFrameTime() << "s)";
 
-            TextRenderer::DrawInfo info;
-            info.font = &font;
+            TextDrawInfo info;
+            info.font = &Main::DefaultFont();
+            info.size = 22;
             info.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
             info.position.x = 10.0f;
-            info.position.y = 5.0f + font.GetLineSpacing();
+            info.position.y = 5.0f + Main::DefaultFont().GetLineSpacing() * Main::DefaultFont().GetScaling(info.size);
 
             Main::TextRenderer().Draw(info, projection, frameCounterText.str().c_str());
         }
 
         // Draw console frame.
         Main::ConsoleFrame().Draw(projection);
-        
+
         // Present the window content.
         bool verticalSync = false;
 
