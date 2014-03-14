@@ -204,24 +204,15 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     FT_GlyphSlot glyphSlot = m_fontFace->glyph;
 
     // Render font glyph.
-    //if(FT_Render_Glyph(m_fontFace->glyph, FT_RENDER_MODE_NORMAL) != 0)
     if(FT_Render_Glyph(m_fontFace->glyph, FT_RENDER_MODE_MONO) != 0)
         return nullptr;
 
-    //
-    FT_Bitmap glyphBitmap;
-    FT_Bitmap_New(&glyphBitmap);
-
-    FT_Bitmap_Convert(Main::FontLibrary(), &glyphSlot->bitmap, &glyphBitmap, 1);
-
-    SCOPE_GUARD(FT_Bitmap_Done(Main::FontLibrary(), &glyphBitmap));
-
     // Get glyph bitmap parameters.
-    int glyphBitmapWidth = glyphBitmap.width;
-    int glyphBitmapHeight = glyphBitmap.rows;
-    int glyphBitmapPitch = glyphBitmap.pitch;
+    int glyphBitmapWidth = glyphSlot->bitmap.width;
+    int glyphBitmapHeight = glyphSlot->bitmap.rows;
+    int glyphBitmapPitch = glyphSlot->bitmap.pitch;
 
-    uint8_t* glyphBitmapPixels = glyphBitmap.buffer;
+    uint8_t* glyphBitmapBytes = glyphSlot->bitmap.buffer;
 
     // Create a distance field surface.
     SDL_Surface* distanceSurface = SDL_CreateRGBSurface(
@@ -244,6 +235,7 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     uint8_t* distanceBitmapPixels = reinterpret_cast<uint8_t*>(distanceSurface->pixels);
 
     // Get a pixel from the gylph surface.
+    // Each pixel is stored in one bit, so every byte contains 8 pixels.
     auto GetGlyphBitmapPixel = [&](int x, int y) -> uint8_t
     {
         if(x < 0 || x > glyphBitmapWidth - 1)
@@ -252,7 +244,18 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
         if(y < 0 || y > glyphBitmapHeight - 1)
             return 0;
 
-        return glyphBitmapPixels[y * glyphBitmapPitch + x];
+        // Calculate byte index and bit offset.
+        int byteIndex = x / 8;
+        int bitOffset = x % 8;
+
+        // Get the glyph bitmap byte.
+        uint8_t byte = glyphBitmapBytes[y * glyphBitmapPitch + byteIndex];
+
+        // Extract the bit pixel.
+        uint8_t mask = 1 << bitOffset;
+        uint8_t value = byte & mask;
+
+        return value ? 1 : 0;
     };
 
     // Checks if glyph bitmap pixel is inside the glyph.
