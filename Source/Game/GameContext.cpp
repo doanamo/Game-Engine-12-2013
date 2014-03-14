@@ -20,6 +20,9 @@
 #include "SpawnSystem.hpp"
 #include "ProgressSystem.hpp"
 
+#include "Game/MenuFrame.hpp"
+#include "Game/GameFrame.hpp"
+
 //
 // Context Data
 //
@@ -45,6 +48,9 @@ namespace
 
     SpawnSystem    spawnSystem;
     ProgressSystem progressSystem;
+
+    MenuFrame menuFrame;
+    GameFrame gameFrame;
 }
 
 //
@@ -255,4 +261,14 @@ SpawnSystem& Game::SpawnSystem()
 ProgressSystem& Game::ProgressSystem()
 {
     return progressSystem;
+}
+
+MenuFrame& Game::MenuFrame()
+{
+    return menuFrame;
+}
+
+GameFrame& Game::GameFrame()
+{
+    return gameFrame;
 }

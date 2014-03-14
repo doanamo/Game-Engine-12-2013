@@ -300,7 +300,7 @@ void RenderSystem::Draw()
 
             // Bind a texture.
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, Main::TextureBlank().GetHandle());
+            glBindTexture(GL_TEXTURE_2D, Main::BlankTexture().GetHandle());
 
             // Draw instanced quads.
             glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, m_vertexBuffer.GetElementCount(), instancesBatched);

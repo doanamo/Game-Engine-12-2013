@@ -5,6 +5,7 @@
 #include "MainContext.hpp"
 #include "GameContext.hpp"
 
+#include "Graphics/Font.hpp"
 #include "Graphics/CoreRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
 
@@ -19,6 +20,10 @@ namespace
         "Credits",
         "Quit",
     };
+
+    // Font sizes.
+    const float TitleFontSize = 176;
+    const float OptionFontSize = 48;
 }
 
 MenuFrame::MenuFrame() :
@@ -46,13 +51,6 @@ bool MenuFrame::Initialize()
         }
     });
 
-    // Load fonts.
-    if(!m_fontTitle.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 176, 512, 512))
-        return false;
-
-    if(!m_fontElement.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 48, 512, 512))
-        return false;
-
     // Get window size.
     int windowWidth = Console::windowWidth;
     int windowHeight = Console::windowHeight;
@@ -77,14 +75,15 @@ bool MenuFrame::Initialize()
 
         // Set element draw data.
         element.position.x = 175.0f;
-        element.position.y = windowHeight - 195.0f - i * m_fontElement.GetLineSpacing();
+        element.position.y = windowHeight - 195.0f - i * Main::DefaultFont().GetLineSpacing() * Main::DefaultFont().GetScaling(OptionFontSize);
 
         // Calculate a bounding box.
-        TextRenderer::DrawInfo info;
-        info.font = &m_fontElement;
+        TextDrawInfo info;
+        info.font = &Main::DefaultFont();
+        info.size = OptionFontSize;
         info.position = element.position;
 
-        TextRenderer::DrawMetrics metrics = Main::TextRenderer().Measure(info, element.text);
+        TextDrawMetrics metrics = Main::TextRenderer().Measure(info, element.text);
 
         element.boundingBox = metrics.drawingArea;
     }
@@ -99,16 +98,13 @@ void MenuFrame::Cleanup()
 {
     m_elementSelected = MenuElements::None;
 
-    m_fontTitle.Cleanup();
-    m_fontElement.Cleanup();
-
     m_initialized = false;
 }
 
 void MenuFrame::OnEnter()
 {
     // Enable "Continue" element if the game is active.
-    m_elements[MenuElements::Continue].enabled = Main::GameFrame().IsInitialized();
+    m_elements[MenuElements::Continue].enabled = Game::GameFrame().IsInitialized();
 }
 
 bool MenuFrame::Process(const SDL_Event& event)
@@ -122,20 +118,20 @@ bool MenuFrame::Process(const SDL_Event& event)
             {
             case MenuElements::Continue:
                 {
-                    assert(Main::GameFrame().IsInitialized());
+                    assert(Game::GameFrame().IsInitialized());
 
                     // Switch to the game frame.
-                    Main::FrameState().ChangeState(&Main::GameFrame());
+                    Main::FrameState().ChangeState(&Game::GameFrame());
                 }
                 break;
 
             case MenuElements::NewGame:
                 {
                     // Initialize the game frame.
-                    Main::GameFrame().Initialize();
+                    Game::GameFrame().Initialize();
                     
                     // Switch to the game frame.
-                    Main::FrameState().ChangeState(&Main::GameFrame());
+                    Main::FrameState().ChangeState(&Game::GameFrame());
                 }
                 break;
 
@@ -201,8 +197,9 @@ void MenuFrame::Draw()
 
     // Draw menu title.
     {
-        TextRenderer::DrawInfo info;
-        info.font = &m_fontTitle;
+        TextDrawInfo info;
+        info.font = &Main::DefaultFont();
+        info.size = TitleFontSize;
         info.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
         info.position.x = 50.0f;
         info.position.y = windowHeight + 10.0f;
@@ -216,8 +213,9 @@ void MenuFrame::Draw()
         ElementData& element = m_elements[i];
 
         // Draw an element.
-        TextRenderer::DrawInfo info;
-        info.font = &m_fontElement;
+        TextDrawInfo info;
+        info.font = &Main::DefaultFont();
+        info.size = OptionFontSize;
         
         if(m_elementSelected == i)
         {

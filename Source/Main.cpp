@@ -55,13 +55,7 @@ int main(int argc, char* argv[])
     // Font
     //
 
-    // Load font file.
-    Font font;
-    if(!font.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 22, 512, 512))
-        return -1;
     
-    // Cache ASCII character set.
-    font.CacheASCII();
     
     //
     // Main Loop
@@ -135,19 +129,14 @@ int main(int argc, char* argv[])
         // Setup the viewport.
         glViewport(0, 0, windowWidth, windowHeight);
 
-        // Calculate projection.
-        glm::mat4x4 projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
-
-        // Clear the screen.
-        Main::CoreRenderer().SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-        Main::CoreRenderer().SetClearDepth(1.0f);
-        Main::CoreRenderer().Clear(ClearFlags::Color | ClearFlags::Depth);
-
         // Draw the current state frame.
         if(Main::FrameState().IsValid())
         {
             Main::FrameState().GetState()->Draw();
         }
+
+        // Calculate projection.
+        glm::mat4x4 projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
 
         // Draw frame rate.
         if(Console::drawFrameRate)
@@ -156,18 +145,19 @@ int main(int argc, char* argv[])
             frameCounterText << "FPS: " << std::fixed << std::setprecision(0) << Main::FrameCounter().GetFrameRate() 
                 << " (" << std::setprecision(4) << Main::FrameCounter().GetFrameTime() << "s)";
 
-            TextRenderer::DrawInfo info;
-            info.font = &font;
+            TextDrawInfo info;
+            info.font = &Main::DefaultFont();
+            info.size = 22;
             info.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
             info.position.x = 10.0f;
-            info.position.y = 5.0f + font.GetLineSpacing();
+            info.position.y = 5.0f + Main::DefaultFont().GetLineSpacing() * Main::DefaultFont().GetScaling(info.size);
 
             Main::TextRenderer().Draw(info, projection, frameCounterText.str().c_str());
         }
 
         // Draw console frame.
         Main::ConsoleFrame().Draw(projection);
-        
+
         // Present the window content.
         bool verticalSync = false;
 

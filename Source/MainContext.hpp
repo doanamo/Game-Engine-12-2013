@@ -14,11 +14,12 @@ class CoreRenderer;
 class ShapeRenderer;
 class TextRenderer;
 class FrameCounter;
+
 class Texture;
+class Font;
 
 class BaseFrame;
-class MenuFrame;
-class GameFrame;
+class MainFrame;
 
 //
 // Console Definitions
@@ -64,13 +65,13 @@ namespace Main
     TextRenderer&   TextRenderer();
     FrameCounter&   FrameCounter();
 
-    Texture&        TextureBlank();
+    Texture&        BlankTexture();
+    Font&           DefaultFont();
 
     SDL_Window*     SystemWindow();
     SDL_GLContext   GraphicsContext();
     FT_Library      FontLibrary();
 
     StateMachine<BaseFrame*>& FrameState();
-    MenuFrame&                MenuFrame();
-    GameFrame&                GameFrame();
+    MainFrame&                MainFrame();
 }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Precompiled.hpp"
-#include "Graphics/Font.hpp"
 #include "System/BaseFrame.hpp"
 
 //
@@ -42,10 +41,6 @@ private:
     void OnEnter();
 
 private:
-    // Menu graphics.
-    Font m_fontTitle;
-    Font m_fontElement;
-
     // Menu elements.
     struct ElementData
     {

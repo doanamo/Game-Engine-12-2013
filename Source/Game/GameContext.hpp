@@ -22,6 +22,9 @@ class RenderComponent;
 class SpawnSystem;
 class ProgressSystem;
 
+class MenuFrame;
+class GameFrame;
+
 //
 // Game Context
 //
@@ -52,4 +55,7 @@ namespace Game
 
     SpawnSystem&    SpawnSystem();
     ProgressSystem& ProgressSystem();
+
+    MenuFrame& MenuFrame();
+    GameFrame& GameFrame();
 }

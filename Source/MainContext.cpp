@@ -13,13 +13,13 @@
 #include "Console/ConsoleFrame.hpp"
 
 #include "Graphics/Texture.hpp"
+#include "Graphics/Font.hpp"
 
 #include "Graphics/CoreRenderer.hpp"
 #include "Graphics/ShapeRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
 
-#include "Game/MenuFrame.hpp"
-#include "Game/GameFrame.hpp"
+#include "Game/MainFrame.hpp"
 
 //
 // Console Variables
@@ -58,15 +58,15 @@ namespace
     TextRenderer        textRenderer;
     FrameCounter        frameCounter;
 
-    Texture             textureBlank;
+    Texture             blankTexture;
+    Font                defaultFont;
 
     SDL_Window*         systemWindow = nullptr;
     SDL_GLContext       graphicsContext = nullptr;
     FT_Library          fontLibrary = nullptr;
 
     StateMachine<BaseFrame*> frameState;
-    MenuFrame                menuFrame;
-    GameFrame                gameFrame;
+    MainFrame                mainFrame;
 }
 
 //
@@ -265,11 +265,22 @@ bool Main::Initialize()
     unsigned char* textureBlankData[2 * 2 * 4];
     memset(&textureBlankData[0], 255, sizeof(unsigned char) * 4 * 2 * 2);
 
-    if(!textureBlank.Initialize(2, 2, GL_RGBA, textureBlankData))
+    if(!blankTexture.Initialize(2, 2, GL_RGBA, textureBlankData))
     {
         Log() << "Failed to initialize a blank texture!";
         return false;
     }
+
+    //
+    // Default Font
+    //
+
+    // Load a default font.
+    if(!defaultFont.Load(workingDir + "Data/Fonts/SourceSansPro.ttf"))
+        return false;
+    
+    // Cache ASCII character set.
+    defaultFont.CacheASCII();
 
     //
     // Core Renderer
@@ -315,12 +326,15 @@ bool Main::Initialize()
     // Frame State
     //
 
-    // Initialize the main menu frame.
-    if(!menuFrame.Initialize())
-        return false;
+    // Initialize the main frame.
+    if(!mainFrame.Initialize())
+    	return false;
 
-    // Set the default frame.
-    frameState.ChangeState(&menuFrame);
+    // Set a default frame if there hasn't been set any by now.
+    if(!frameState.IsValid())
+    {
+        frameState.ChangeState(&mainFrame);
+    }
 
     //
     // Success!
@@ -344,9 +358,9 @@ void Main::Cleanup()
     //
 
     frameState.Cleanup();
-    gameFrame.Cleanup();
-    menuFrame.Cleanup();
+    mainFrame.Cleanup();
 
+    //
     //
     // Frame Counter
     //
@@ -366,7 +380,9 @@ void Main::Cleanup()
     textRenderer.Cleanup();
     shapeRenderer.Cleanup();
     coreRenderer.Cleanup();
-    textureBlank.Cleanup();
+
+    blankTexture.Cleanup();
+    defaultFont.Cleanup();
 
     //
     // FreeType
@@ -500,9 +516,14 @@ FrameCounter& Main::FrameCounter()
     return frameCounter;
 }
 
-Texture& Main::TextureBlank()
+Texture& Main::BlankTexture()
 {
-    return textureBlank;
+    return blankTexture;
+}
+
+Font& Main::DefaultFont()
+{
+    return defaultFont;
 }
 
 SDL_Window* Main::SystemWindow()
@@ -525,12 +546,7 @@ StateMachine<BaseFrame*>& Main::FrameState()
     return frameState;
 }
 
-MenuFrame& Main::MenuFrame()
+MainFrame& Main::MainFrame()
 {
-    return menuFrame;
-}
-
-GameFrame& Main::GameFrame()
-{
-    return gameFrame;
+    return mainFrame;
 }

@@ -20,7 +20,6 @@ namespace Console
 }
 
 ConsoleFrame::ConsoleFrame() :
-    m_font(),
     m_input(""),
     m_cursorPosition(0),
     m_open(false),
@@ -37,16 +36,6 @@ bool ConsoleFrame::Initialize()
 {
     Cleanup();
 
-    // Load font file.
-    if(!m_font.Load(Main::WorkingDir() + "Data/Fonts/SourceSansPro.ttf", 16, 512, 512))
-    {
-        Cleanup();
-        return false;
-    }
-
-    // Cache ASCII character set.
-    m_font.CacheASCII();
-
     m_initialized = true;
 
     return true;
@@ -54,8 +43,6 @@ bool ConsoleFrame::Initialize()
 
 void ConsoleFrame::Cleanup()
 {
-    m_font.Cleanup();
-
     m_input.clear();
     m_cursorPosition = 0;
 
@@ -282,12 +269,15 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
 
     if(m_open)
     {
+        const float fontSize = 16;
+        const float fontSpacing = Main::DefaultFont().GetLineSpacing() * Main::DefaultFont().GetScaling(fontSize);
+
         // Calculate console metrics.
         float windowWidth = Console::windowWidth;
         float windowHeight = Console::windowHeight;
 
         float consoleExtra = 1.0f;
-        float consoleSize = (float)ConsoleSize * m_font.GetLineSpacing();
+        float consoleSize = (float)ConsoleSize * fontSpacing;
         float consolePosition = windowHeight - consoleSize;
 
         // Draw console background.
@@ -309,14 +299,15 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
             if(text == nullptr)
                 break;
 
-            TextRenderer::DrawInfo info;
-            info.font = &m_font;
+            TextDrawInfo info;
+            info.font = &Main::DefaultFont();
+            info.size = fontSize;
             info.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
             info.position.x = 5.0f;
-            info.position.y = consolePosition + (i + 2) * m_font.GetLineSpacing();
-            //info.size.x = windowWidth - 1.0f;
-            info.size.x = 0.0f; // Text wrap doesn't work in console.
-            info.size.y = 0.0f;
+            info.position.y = consolePosition + (i + 2) * fontSpacing;
+            //info.area.x = windowWidth - 1.0f;
+            info.area.x = 0.0f; // Text wrap doesn't work in console.
+            info.area.y = 0.0f;
 
             Main::TextRenderer().Draw(info, transform, text);
         }
@@ -326,14 +317,15 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
             std::string inputText = "> ";
             inputText += m_input;
 
-            TextRenderer::DrawInfo info;
-            info.font = &m_font;
+            TextDrawInfo info;
+            info.font = &Main::DefaultFont();
+            info.size = fontSize;
             info.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
             info.position.x = 5.0f;
-            info.position.y = consolePosition + m_font.GetLineSpacing();
-            //info.size.x = windowWidth - 1.0f;
-            info.size.x = 0.0f; // Text wrap doesn't work in console.
-            info.size.y = 0.0f;
+            info.position.y = consolePosition + fontSpacing;
+            //info.area.x = windowWidth - 1.0f;
+            info.area.x = 0.0f; // Text wrap doesn't work in console.
+            info.area.y = 0.0f;
             info.cursorIndex = 2 + m_cursorPosition;
 
             Main::TextRenderer().Draw(info, transform, inputText.c_str());
