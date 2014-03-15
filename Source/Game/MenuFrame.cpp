@@ -24,9 +24,16 @@ namespace
     // Font sizes.
     const float TitleFontSize = 176;
     const float OptionFontSize = 48;
+
+    // Game space size.
+    float gameWidth = 1024;
+    float gameHeight = 576;
 }
 
 MenuFrame::MenuFrame() :
+    m_projection(1.0f),
+    m_view(1.0f),
+    m_transform(1.0f),
     m_elementSelected(MenuElements::None),
     m_initialized(false)
 {
@@ -51,10 +58,6 @@ bool MenuFrame::Initialize()
         }
     });
 
-    // Get window size.
-    int windowWidth = Console::windowWidth;
-    int windowHeight = Console::windowHeight;
-
     // Fill element data array.
     for(int i = 0; i < MenuElements::Count; ++i)
     {
@@ -75,7 +78,7 @@ bool MenuFrame::Initialize()
 
         // Set element draw data.
         element.position.x = 175.0f;
-        element.position.y = windowHeight - 195.0f - i * Main::DefaultFont().GetLineSpacing() * Main::DefaultFont().GetScaling(OptionFontSize);
+        element.position.y = gameHeight - 195.0f - i * Main::DefaultFont().GetLineSpacing() * Main::DefaultFont().GetScaling(OptionFontSize);
 
         // Calculate a bounding box.
         TextDrawInfo info;
@@ -148,15 +151,55 @@ bool MenuFrame::Process(const SDL_Event& event)
 
 void MenuFrame::Update(float dt)
 {
+    //
+    // Setup View
+    //
+
+    // Get window size.
+    float windowWidth = Console::windowWidth;
+    float windowHeight = Console::windowHeight;
+
+    // Calculate apsect ratios.
+    float windowAspectRatio = windowWidth / windowHeight;
+    float gameAspectRatio = gameWidth / gameHeight;
+
+    float aspectRatio = windowAspectRatio / gameAspectRatio;
+
+    // Setup screen space coordinates.
+    glm::vec4 screenSpace(-gameWidth * 0.5f, gameWidth * 0.5f, -gameHeight * 0.5f, gameHeight * 0.5f);
+
+    if(windowAspectRatio > gameAspectRatio)
+    {
+        // Scale screen space coordinates.
+        screenSpace.x *= aspectRatio;
+        screenSpace.y *= aspectRatio;
+    }
+    else
+    {
+        // Scale screen space coordinates.
+        screenSpace.z /= aspectRatio;
+        screenSpace.w /= aspectRatio;
+    }
+
+    // Setup matrices.
+    m_projection = glm::ortho(screenSpace.x, screenSpace.y, screenSpace.z, screenSpace.w);
+    m_view = glm::translate(glm::mat4(1.0f), glm::vec3(-gameWidth * 0.5f, -gameHeight * 0.5f, 0.0f));
+    m_transform = m_projection * m_view;
+
+    //
+    // Menu Elements
+    //
+
     // Get cursor position.
-    glm::ivec2 cursorPosition;
-    SDL_GetMouseState(&cursorPosition.x, &cursorPosition.y);
+    glm::ivec2 windowCursorPosition;
+    SDL_GetMouseState(&windowCursorPosition.x, &windowCursorPosition.y);
 
     // Flip cursor y-axis.
-    int windowWidth, windowHeight;
-    SDL_GetWindowSize(Main::SystemWindow(), &windowWidth, &windowHeight);
+    windowCursorPosition.y = ((int)windowHeight - 1) - windowCursorPosition.y;
 
-    cursorPosition.y = (windowHeight - 1) - cursorPosition.y;
+    // Unproject cursor position to game space.
+    glm::vec4 viewport(0.0f, 0.0f, Console::windowWidth, Console::windowHeight);
+    glm::vec3 cursorPosition = glm::unProject(glm::vec3(windowCursorPosition.x, windowCursorPosition.y, 0.0f), m_view, m_projection, viewport);
 
     // Check which element is currently selected.
     m_elementSelected = MenuElements::None;
@@ -183,17 +226,30 @@ void MenuFrame::Update(float dt)
 
 void MenuFrame::Draw()
 {
-    // Get window size.
-    int windowWidth = Console::windowWidth;
-    int windowHeight = Console::windowHeight;
+    // Clear the depth.
+    Main::CoreRenderer().SetClearDepth(1.0f);
+    Main::CoreRenderer().Clear(ClearFlags::Depth);
 
-    // Calculate projection.
-    glm::mat4x4 projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
+    // Clear the screen.
+    Main::CoreRenderer().SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    Main::CoreRenderer().Clear(ClearFlags::Color);
+
+    // Calculate scissor area.
+    glm::vec4 viewport(0.0f, 0.0f, Console::windowWidth, Console::windowHeight);
+
+    glm::vec3 position = glm::project(glm::vec3(0.0f, 0.0f, 0.0f), m_view, m_projection, viewport);
+    glm::vec3 size = glm::project(glm::vec3(gameWidth, gameHeight, 0.0f), m_view, m_projection, viewport) - position;
+
+    glScissor((int)position.x, (int)position.y, (int)size.x, (int)size.y);
+
+    // Toggle scissor test.
+    glEnable(GL_SCISSOR_TEST);
+    
+    SCOPE_GUARD(glDisable(GL_SCISSOR_TEST));
 
     // Clear the screen.
     Main::CoreRenderer().SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    Main::CoreRenderer().SetClearDepth(1.0f);
-    Main::CoreRenderer().Clear(ClearFlags::Color | ClearFlags::Depth);
+    Main::CoreRenderer().Clear(ClearFlags::Color);
 
     // Draw menu title.
     {
@@ -202,9 +258,9 @@ void MenuFrame::Draw()
         info.size = TitleFontSize;
         info.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
         info.position.x = 50.0f;
-        info.position.y = windowHeight + 10.0f;
+        info.position.y = gameHeight + 10.0f;
 
-        Main::TextRenderer().Draw(info, projection, "Gunstar");
+        Main::TextRenderer().Draw(info, m_transform, "Gunstar");
     }
 
     // Draw menu elements.
@@ -235,6 +291,6 @@ void MenuFrame::Draw()
 
         info.position = element.position;
 
-        Main::TextRenderer().Draw(info, projection, element.text);
+        Main::TextRenderer().Draw(info, m_transform, element.text);
     }
 }

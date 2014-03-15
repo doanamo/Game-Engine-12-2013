@@ -40,7 +40,12 @@ public:
 private:
     void OnEnter();
 
-private:
+private:    
+    // Render transforms.
+    glm::mat4 m_projection;
+    glm::mat4 m_view;
+    glm::mat4 m_transform;
+
     // Menu elements.
     struct ElementData
     {

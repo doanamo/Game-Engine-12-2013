@@ -213,12 +213,8 @@ void RenderSystem::Draw()
     Main::CoreRenderer().SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     Main::CoreRenderer().Clear(ClearFlags::Color);
 
-    // Get window size.
-    float windowWidth = Console::windowWidth;
-    float windowHeight = Console::windowHeight;
-
     // Calculate scissor area.
-    glm::vec4 viewport(0.0f, 0.0f, windowWidth, windowHeight);
+    glm::vec4 viewport(0.0f, 0.0f, Console::windowWidth, Console::windowHeight);
 
     glm::vec3 position = glm::project(glm::vec3(0.0f, 0.0f, 0.0f), m_view, m_projection, viewport);
     glm::vec3 size = glm::project(glm::vec3(gameWidth, gameHeight, 0.0f), m_view, m_projection, viewport) - position;
