@@ -132,36 +132,30 @@ void RenderSystem::Update()
     // Setup View
     //
 
-    // Get window size..
+    // Get window size.
     float windowWidth = Console::windowWidth;
     float windowHeight = Console::windowHeight;
 
     // Calculate apsect ratios.
-    float windowVerticalAspectRatio = windowWidth / windowHeight;
-    float windowHorizontalAspectRatio = windowHeight / windowWidth;
+    float windowAspectRatio = windowWidth / windowHeight;
+    float gameAspectRatio = gameWidth / gameHeight;
 
-    float gameVerticalAspectRatio = gameWidth / gameHeight;
-    float gameHorizontalAspectRatio = gameHeight / gameWidth;
+    float aspectRatio = windowAspectRatio / gameAspectRatio;
 
     // Setup screen space coordinates.
     glm::vec4 screenSpace(-gameWidth * 0.5f, gameWidth * 0.5f, -gameHeight * 0.5f, gameHeight * 0.5f);
 
-    if(windowVerticalAspectRatio > gameVerticalAspectRatio)
+    if(windowAspectRatio > gameAspectRatio)
     {
-        float aspectRatio = windowVerticalAspectRatio / gameVerticalAspectRatio;
-
         // Scale screen space coordinates.
         screenSpace.x *= aspectRatio;
         screenSpace.y *= aspectRatio;
     }
     else
-    if(windowHorizontalAspectRatio > gameHorizontalAspectRatio)
     {
-        float aspectRatio = windowHorizontalAspectRatio / gameHorizontalAspectRatio;
-
         // Scale screen space coordinates.
-        screenSpace.z *= aspectRatio;
-        screenSpace.w *= aspectRatio;
+        screenSpace.z /= aspectRatio;
+        screenSpace.w /= aspectRatio;
     }
 
     // Setup matrices.
