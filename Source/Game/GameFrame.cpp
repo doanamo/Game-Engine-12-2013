@@ -95,7 +95,7 @@ bool GameFrame::Process(const SDL_Event& event)
     case SDL_KEYDOWN:
         if(event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
         {
-            Main::FrameState().ChangeState(&Game::MenuFrame());
+            Game::FrameState().ChangeState(&Game::MenuFrame());
         }
         break;
     }

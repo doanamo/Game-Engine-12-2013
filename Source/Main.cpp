@@ -50,12 +50,6 @@ int main(int argc, char* argv[])
         return -1;
 
     SCOPE_GUARD(Main::Cleanup());
-
-    //
-    // Font
-    //
-
-    
     
     //
     // Main Loop
@@ -102,12 +96,9 @@ int main(int argc, char* argv[])
             if(Main::ConsoleFrame().Process(event))
                 continue;
 
-            // Process an event by the current state frame.
-            if(Main::FrameState().IsValid())
-            {
-                if(Main::FrameState().GetState()->Process(event))
-                    continue;
-            }
+            // Process an event by main frame.
+            if(Main::MainFrame().Process(event))
+                continue;
         }
 
         // Get current window size.
@@ -120,20 +111,14 @@ int main(int argc, char* argv[])
         // Update cursor blink time.
         Main::TextRenderer().UpdateCursorBlink(dt);
 
-        // Update the current state frame.
-        if(Main::FrameState().IsValid())
-        {
-            Main::FrameState().GetState()->Update(dt);
-        }
+        // Update main frame.
+        Main::MainFrame().Update(dt);
 
         // Setup the viewport.
         glViewport(0, 0, windowWidth, windowHeight);
 
-        // Draw the current state frame.
-        if(Main::FrameState().IsValid())
-        {
-            Main::FrameState().GetState()->Draw();
-        }
+        // Draw the main frame.
+        Main::MainFrame().Draw();
 
         // Calculate projection.
         glm::mat4x4 projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);

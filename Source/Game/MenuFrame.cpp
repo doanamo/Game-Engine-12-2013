@@ -121,7 +121,7 @@ bool MenuFrame::Process(const SDL_Event& event)
                     assert(Game::GameFrame().IsInitialized());
 
                     // Switch to the game frame.
-                    Main::FrameState().ChangeState(&Game::GameFrame());
+                    Game::FrameState().ChangeState(&Game::GameFrame());
                 }
                 break;
 
@@ -131,7 +131,7 @@ bool MenuFrame::Process(const SDL_Event& event)
                     Game::GameFrame().Initialize();
                     
                     // Switch to the game frame.
-                    Main::FrameState().ChangeState(&Game::GameFrame());
+                    Game::FrameState().ChangeState(&Game::GameFrame());
                 }
                 break;
 

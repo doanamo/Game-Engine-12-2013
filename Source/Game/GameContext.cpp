@@ -20,6 +20,7 @@
 #include "SpawnSystem.hpp"
 #include "ProgressSystem.hpp"
 
+#include "System/BaseFrame.hpp"
 #include "Game/MenuFrame.hpp"
 #include "Game/GameFrame.hpp"
 
@@ -49,8 +50,9 @@ namespace
     SpawnSystem    spawnSystem;
     ProgressSystem progressSystem;
 
-    MenuFrame menuFrame;
-    GameFrame gameFrame;
+    StateMachine<BaseFrame*> frameState;
+    MenuFrame                menuFrame;
+    GameFrame                gameFrame;
 }
 
 //
@@ -146,6 +148,12 @@ void Game::Cleanup()
         return;
 
     Log() << "Cleaning up the game context...";
+
+    //
+    // Frame State
+    //
+
+    frameState.Cleanup();
 
     //
     // Input State
@@ -261,6 +269,11 @@ SpawnSystem& Game::SpawnSystem()
 ProgressSystem& Game::ProgressSystem()
 {
     return progressSystem;
+}
+
+StateMachine<BaseFrame*>& Game::FrameState()
+{
+    return frameState;
 }
 
 MenuFrame& Game::MenuFrame()

@@ -65,8 +65,7 @@ namespace
     SDL_GLContext       graphicsContext = nullptr;
     FT_Library          fontLibrary = nullptr;
 
-    StateMachine<BaseFrame*> frameState;
-    MainFrame                mainFrame;
+    MainFrame           mainFrame;
 }
 
 //
@@ -323,18 +322,12 @@ bool Main::Initialize()
         return false;
 
     //
-    // Frame State
+    // Main Frame
     //
 
     // Initialize the main frame.
     if(!mainFrame.Initialize())
         return false;
-
-    // Set a default frame if there hasn't been set any by now.
-    if(!frameState.IsValid())
-    {
-        frameState.ChangeState(&mainFrame);
-    }
 
     //
     // Success!
@@ -354,10 +347,9 @@ void Main::Cleanup()
     Log() << "Cleaning up the main context...";
 
     //
-    // Frame State
+    // Main Frame
     //
 
-    frameState.Cleanup();
     mainFrame.Cleanup();
 
     //
@@ -540,12 +532,7 @@ FT_Library Main::FontLibrary()
     return fontLibrary;
 }
 
-StateMachine<BaseFrame*>& Main::FrameState()
-{
-    return frameState;
-}
-
-MainFrame& Main::MainFrame()
+BaseFrame& Main::MainFrame()
 {
     return mainFrame;
 }

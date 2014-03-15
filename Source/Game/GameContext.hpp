@@ -3,6 +3,8 @@
 #include "Precompiled.hpp"
 #include "ComponentPool.hpp"
 
+#include "Common/StateMachine.hpp"
+
 // Forward declarations.
 class InputState;
 
@@ -22,6 +24,7 @@ class RenderComponent;
 class SpawnSystem;
 class ProgressSystem;
 
+class BaseFrame;
 class MenuFrame;
 class GameFrame;
 
@@ -56,6 +59,7 @@ namespace Game
     SpawnSystem&    SpawnSystem();
     ProgressSystem& ProgressSystem();
 
-    MenuFrame& MenuFrame();
-    GameFrame& GameFrame();
+    StateMachine<BaseFrame*>& FrameState();
+    MenuFrame&                MenuFrame();
+    GameFrame&                GameFrame();
 }
