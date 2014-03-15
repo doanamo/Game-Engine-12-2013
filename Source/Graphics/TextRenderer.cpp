@@ -7,7 +7,7 @@
 
 namespace Console
 {
-    ConsoleVariable debugTextRender("debug_textrender", false, "Enables text render debugging.");
+    ConsoleVariable debugTextRenderer("debug_textrenderer", false, "Enables text render debugging.");
 }
 
 namespace
@@ -184,6 +184,8 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
         return;
 
     // Debug drawing.
+    bool debugDraw = info.debug || Console::debugTextRenderer;
+
     float baselineMaxWidth = state.GetDrawPosition().x;
 
     glm::vec2 baselineBegin(state.GetDrawPosition());
@@ -194,7 +196,7 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
 
     auto AddDebugBaseline = [&]() -> void
     {
-        assert(info.debug || Console::debugTextRender);
+        assert(debugDraw);
 
         // Set max reached baseline width.
         baselineMaxWidth = std::max(baselineMaxWidth, baselineEnd.x);
@@ -210,7 +212,7 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
 
     auto AddDebugGlyph = [&](const glm::vec2& position, const glm::vec2& size)
     {
-        assert(info.debug || Console::debugTextRender);
+        assert(debugDraw);
 
         ShapeRenderer::Rectangle rectangle;
         rectangle.position = position;
@@ -280,7 +282,7 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
         if(currentLine != state.GetCurrentLine())
         {
             // Add debug baseline.
-            if(info.debug)
+            if(debugDraw)
             {
                 AddDebugBaseline();
             }
@@ -320,7 +322,7 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
             }
 
             // Add debug glyph rectangle.
-            if(info.debug)
+            if(debugDraw)
             {
                 AddDebugGlyph(glyphData.position, glyphData.size * glyphData.scale);
             }
@@ -353,7 +355,7 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
     }
 
     // Flush debug draw.
-    if(info.debug || Console::debugTextRender)
+    if(debugDraw)
     {
         // Draw glyph rectangles.
         if(!debugRectangles.empty())
@@ -388,10 +390,24 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
             rectangle.color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
             rectangle.position.x = state.GetDrawArea().x;
             rectangle.position.y = state.GetDrawArea().y;
-            rectangle.size.x = state.GetDrawArea().z - rectangle.position.x;
-            rectangle.size.y = state.GetDrawArea().w - rectangle.position.y;
+            rectangle.size.x = state.GetDrawArea().z - rectangle.position.x + 1.0f;
+            rectangle.size.y = state.GetDrawArea().w - rectangle.position.y + 1.0f;
 
             Main::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
+        }
+
+        // Draw origin.
+        {
+            ShapeRenderer::Line lines[2];
+            lines[0].color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+            lines[0].begin = info.position + glm::vec2(-100.0f, 0.0f);
+            lines[0].end   = info.position + glm::vec2( 100.0f, 0.0f);
+
+            lines[1].color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
+            lines[1].begin = info.position + glm::vec2(0.0f, -100.0f);
+            lines[1].end   = info.position + glm::vec2(0.0f,  100.0f);
+
+            Main::ShapeRenderer().DrawLines(&lines[0], 2, transform);
         }
     }
 }
