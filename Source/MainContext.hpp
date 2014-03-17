@@ -19,7 +19,6 @@ class Texture;
 class Font;
 
 class BaseFrame;
-class MainFrame;
 
 //
 // Console Definitions
@@ -72,6 +71,5 @@ namespace Main
     SDL_GLContext   GraphicsContext();
     FT_Library      FontLibrary();
 
-    StateMachine<BaseFrame*>& FrameState();
-    MainFrame&                MainFrame();
+    BaseFrame&      MainFrame();
 }
