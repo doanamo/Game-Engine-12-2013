@@ -255,62 +255,69 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     //
     const float d1 = 1.0f;
     const float d2 = std::sqrt(2.0f);
-    const float ds = 16.0f;
+    const int ds = 4 * DistanceFieldDownscale;
+
+    int fieldBitmapWidth = glyphBitmapWidth + ds * 2;
+    int fieldBitmapHeight = glyphBitmapHeight + ds * 2;
 
     //
-    float* fieldBitmapDistances = new float[glyphBitmapWidth * glyphBitmapHeight];
+    float* fieldBitmapDistances = new float[fieldBitmapWidth * fieldBitmapHeight];
     SCOPE_GUARD(delete[] fieldBitmapDistances);
 
     auto GetFieldBitmapDistance = [&](int x, int y) -> float
     {
-        if(x < 0 || x > glyphBitmapWidth - 1)
+        if(x < 0 || x > fieldBitmapWidth - 1)
             return std::numeric_limits<float>::max();
 
-        if(y < 0 || y > glyphBitmapHeight - 1)
+        if(y < 0 || y > fieldBitmapHeight - 1)
             return std::numeric_limits<float>::max();
 
-        return fieldBitmapDistances[y * glyphBitmapWidth + x];
+        return fieldBitmapDistances[y * fieldBitmapWidth + x];
     };
 
     //
-    glm::ivec2* fieldBitmapBorders = new glm::ivec2[glyphBitmapWidth * glyphBitmapHeight];
+    glm::ivec2* fieldBitmapBorders = new glm::ivec2[fieldBitmapWidth * fieldBitmapHeight];
     SCOPE_GUARD(delete[] fieldBitmapBorders);
 
     auto GetFieldBitmapBorder = [&](int x, int y) -> glm::ivec2
     {
-        if(x < 0 || x > glyphBitmapWidth - 1)
+        if(x < 0 || x > fieldBitmapWidth - 1)
             return glm::ivec2(-1, -1);
 
-        if(y < 0 || y > glyphBitmapHeight - 1)
+        if(y < 0 || y > fieldBitmapHeight - 1)
             return glm::ivec2(-1, -1);
 
-        return fieldBitmapBorders[y * glyphBitmapWidth + x];
+        return fieldBitmapBorders[y * fieldBitmapWidth + x];
     };
 
     //
-    for(int y = 0; y < glyphBitmapHeight; ++y)
-    for(int x = 0; x < glyphBitmapWidth; ++x)
+    for(int y = 0; y < fieldBitmapHeight; ++y)
+    for(int x = 0; x < fieldBitmapWidth; ++x)
     {
-        unsigned index = y * glyphBitmapWidth + x;
+        unsigned index = y * fieldBitmapWidth + x;
 
         fieldBitmapDistances[index] = std::numeric_limits<float>::max();
         fieldBitmapBorders[index] = glm::ivec2(-1, -1);
     }
 
     //
-    for(int y = 0; y < glyphBitmapHeight; ++y)
-    for(int x = 0; x < glyphBitmapWidth; ++x)
+    for(int y = 0; y < fieldBitmapHeight; ++y)
+    for(int x = 0; x < fieldBitmapWidth; ++x)
     {
-        unsigned index = y * glyphBitmapWidth + x;
-        uint8_t glyphPixel = GetGlyphBitmapPixel(x, y);
+        unsigned index = y * fieldBitmapWidth + x;
+
+        int gx = x - ds;
+        int gy = y - ds;
+
+        uint8_t glyphPixel = GetGlyphBitmapPixel(gx, gy);
 
         bool isAtBorder =
-            GetGlyphBitmapPixel(x - 1, y) != glyphPixel ||
-            GetGlyphBitmapPixel(x + 1, y) != glyphPixel ||
-            GetGlyphBitmapPixel(x, y - 1) != glyphPixel ||
-            GetGlyphBitmapPixel(x, y + 1) != glyphPixel;
+            GetGlyphBitmapPixel(gx - 1, gy) != glyphPixel ||
+            GetGlyphBitmapPixel(gx + 1, gy) != glyphPixel ||
+            GetGlyphBitmapPixel(gx, gy - 1) != glyphPixel ||
+            GetGlyphBitmapPixel(gx, gy + 1) != glyphPixel;
 
-        if(isAtBorder && GetGlyphBitmapPixel(x, y) != 0)
+        if(isAtBorder && GetGlyphBitmapPixel(gx, gy) != 0)
         {
             fieldBitmapDistances[index] = 0.0f;
             fieldBitmapBorders[index] = glm::ivec2(x, y);
@@ -318,10 +325,10 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     }
 
     //
-    for(int y = 0; y < glyphBitmapHeight; ++y)
-    for(int x = 0; x < glyphBitmapWidth; ++x)
+    for(int y = 0; y < fieldBitmapHeight; ++y)
+    for(int x = 0; x < fieldBitmapWidth; ++x)
     {
-        unsigned index = y * glyphBitmapWidth + x;
+        unsigned index = y * fieldBitmapWidth + x;
 
         if(GetFieldBitmapDistance(x - 1, y - 1) + d2 < GetFieldBitmapDistance(x, y))
         {
@@ -357,10 +364,10 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     }
 
     //
-    for(int y = glyphBitmapHeight - 1; y >= 0; --y)
-    for(int x = glyphBitmapWidth - 1; x >= 0; --x)
+    for(int y = fieldBitmapHeight - 1; y >= 0; --y)
+    for(int x = fieldBitmapWidth - 1; x >= 0; --x)
     {
-        unsigned index = y * glyphBitmapWidth + x;
+        unsigned index = y * fieldBitmapWidth + x;
 
         if(GetFieldBitmapDistance(x + 1, y) + d1 < GetFieldBitmapDistance(x, y))
         {
@@ -396,12 +403,15 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     }
 
     //
-    for(int y = 0; y < glyphBitmapHeight; ++y)
-    for(int x = 0; x < glyphBitmapWidth; ++x)
+    for(int y = 0; y < fieldBitmapHeight; ++y)
+    for(int x = 0; x < fieldBitmapWidth; ++x)
     {
-        unsigned index = y * glyphBitmapWidth + x;
+        unsigned index = y * fieldBitmapWidth + x;
 
-        if(GetGlyphBitmapPixel(x, y) == 0)
+        int gx = x - ds;
+        int gy = y - ds;
+
+        if(GetGlyphBitmapPixel(gx, gy) == 0)
         {
             float& distance = fieldBitmapDistances[index];
             distance = -distance;
@@ -411,8 +421,8 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     //
     SDL_Surface* distanceSurfaceTemp = SDL_CreateRGBSurface(
         0, 
-        glyphBitmapWidth, 
-        glyphBitmapHeight, 
+        fieldBitmapWidth, 
+        fieldBitmapHeight, 
         8, 0, 0, 0, 0
     );
 
@@ -426,8 +436,8 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
 
     uint8_t* fieldBitmapPixels = reinterpret_cast<uint8_t*>(distanceSurfaceTemp->pixels);
 
-    for(int y = 0; y < glyphBitmapHeight; ++y)
-    for(int x = 0; x < glyphBitmapWidth; ++x)
+    for(int y = 0; y < fieldBitmapHeight; ++y)
+    for(int x = 0; x < fieldBitmapWidth; ++x)
     {
         // Get the pixel pointer.
         uint8_t* fieldBitmapPixel = &fieldBitmapPixels[y * distanceSurfaceTemp->pitch + x];
@@ -436,7 +446,7 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
         float pixelDistance = GetFieldBitmapDistance(x, y);
 
         // Map the value spread values to 0.0 - 1.0 range.
-        float alpha = 0.5f + 0.5f * (pixelDistance / (ds * 2.0f));
+        float alpha = 0.5f + 0.5f * (pixelDistance / ds);
         alpha = std::min(1.0f, std::max(0.0f, alpha));
         uint8_t byte = (uint8_t)(alpha * 0xFF);
 
