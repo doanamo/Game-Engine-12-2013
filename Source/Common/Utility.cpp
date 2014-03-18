@@ -110,11 +110,12 @@ void SaveSurface(SDL_Surface* surface, std::string filename)
         unsigned char* outputData = reinterpret_cast<unsigned char*>(output->pixels);
         unsigned char* surfaceData = reinterpret_cast<unsigned char*>(surface->pixels);
 
-        for(long i = 0; i < surface->w * surface->h; ++i)
+        for(int y = 0; y < surface->h; ++y)
+        for(int x = 0; x < surface->w; ++x)
         {
-            outputData[i * 3 + 0] = surfaceData[i];
-            outputData[i * 3 + 1] = surfaceData[i];
-            outputData[i * 3 + 2] = surfaceData[i];
+            outputData[y * output->pitch + x * 3 + 0] = surfaceData[y * surface->pitch + x];
+            outputData[y * output->pitch + x * 3 + 1] = surfaceData[y * surface->pitch + x];
+            outputData[y * output->pitch + x * 3 + 2] = surfaceData[y * surface->pitch + x];
         }
 
         SDL_UnlockSurface(output);
