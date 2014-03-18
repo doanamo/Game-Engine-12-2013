@@ -312,7 +312,7 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
 
         if(isAtBorder && GetGlyphBitmapPixel(x, y) != 0)
         {
-            fieldBitmapDistances[index] = 0;
+            fieldBitmapDistances[index] = 0.0f;
             fieldBitmapBorders[index] = glm::ivec2(x, y);
         }
     }
@@ -436,7 +436,7 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
         float pixelDistance = GetFieldBitmapDistance(x, y);
 
         // Map the value spread values to 0.0 - 1.0 range.
-        float alpha = 0.5f + 0.5f * (pixelDistance / ds);
+        float alpha = 0.5f + 0.5f * (pixelDistance / (ds * 2.0f));
         alpha = std::min(1.0f, std::max(0.0f, alpha));
         uint8_t byte = (uint8_t)(alpha * 0xFF);
 
