@@ -36,6 +36,7 @@ Font::Font() :
     m_atlasSurface(nullptr),
     m_atlasTexture(),
     m_atlasUpload(false),
+    m_atlasOverflow(false),
     m_packer(),
     m_initialized(false)
 {
@@ -138,6 +139,7 @@ void Font::Cleanup()
     m_atlasTexture.Cleanup();
 
     m_atlasUpload = false;
+    m_atlasOverflow = false;
 
     // Cleanup glyph registry.
     ClearContainer(m_glyphCache);
@@ -193,6 +195,10 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     {
         return &it->second;
     }
+
+    // Don't waste time rendering glyphs if the atlas if full.
+    if(m_atlasOverflow)
+        return nullptr;
 
     //
     // Render Glyph
@@ -547,6 +553,7 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     if(!m_packer.AddElement(glm::ivec2(scaledSurfaceWidth, scaledSurfaceHeight)))
     {
         // Not enough space on the atlas for this glyph.
+        m_atlasOverflow = true;
         return nullptr;
     }
 
