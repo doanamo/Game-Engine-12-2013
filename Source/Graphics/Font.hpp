@@ -82,6 +82,7 @@ private:
     SDL_Surface*    m_atlasSurface;
     Texture         m_atlasTexture;
     bool            m_atlasUpload;
+    bool            m_atlasOverflow;
 
     // Glyph texture packer.
     ShelfPacker m_packer;
