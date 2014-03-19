@@ -311,16 +311,19 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
 
         uint8_t glyphPixel = GetGlyphBitmapPixel(gx, gy);
 
-        bool isAtBorder =
-            GetGlyphBitmapPixel(gx - 1, gy) != glyphPixel ||
-            GetGlyphBitmapPixel(gx + 1, gy) != glyphPixel ||
-            GetGlyphBitmapPixel(gx, gy - 1) != glyphPixel ||
-            GetGlyphBitmapPixel(gx, gy + 1) != glyphPixel;
-
-        if(isAtBorder && GetGlyphBitmapPixel(gx, gy) != 0)
+        if(glyphPixel != 0)
         {
-            fieldBitmapDistances[index] = 0.0f;
-            fieldBitmapBorders[index] = glm::ivec2(x, y);
+            bool isAtBorder =
+                GetGlyphBitmapPixel(gx - 1, gy) != glyphPixel ||
+                GetGlyphBitmapPixel(gx + 1, gy) != glyphPixel ||
+                GetGlyphBitmapPixel(gx, gy - 1) != glyphPixel ||
+                GetGlyphBitmapPixel(gx, gy + 1) != glyphPixel;
+
+            if(isAtBorder)
+            {
+                fieldBitmapDistances[index] = 0.0f;
+                fieldBitmapBorders[index] = glm::ivec2(x, y);
+            }
         }
     }
 
@@ -330,6 +333,10 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     {
         unsigned index = y * fieldBitmapWidth + x;
 
+        // x--
+        // -c-
+        // ---
+
         if(GetFieldBitmapDistance(x - 1, y - 1) + d2 < GetFieldBitmapDistance(x, y))
         {
             glm::ivec2 border = GetFieldBitmapBorder(x - 1, y - 1);
@@ -337,6 +344,10 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
             fieldBitmapBorders[index] = border;
             fieldBitmapDistances[index] = glm::distance(glm::vec2(x, y), glm::vec2((float)border.x, (float)border.y));
         }
+
+        // -x-
+        // -c-
+        // ---
 
         if(GetFieldBitmapDistance(x, y - 1) + d1 < GetFieldBitmapDistance(x, y))
         {
@@ -346,6 +357,10 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
             fieldBitmapDistances[index] = glm::distance(glm::vec2(x, y), glm::vec2((float)border.x, (float)border.y));
         }
 
+        // --x
+        // -c-
+        // ---
+
         if(GetFieldBitmapDistance(x + 1, y - 1) + d2 < GetFieldBitmapDistance(x, y))
         {
             glm::ivec2 border = GetFieldBitmapBorder(x + 1, y - 1);
@@ -353,6 +368,10 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
             fieldBitmapBorders[index] = border;
             fieldBitmapDistances[index] = glm::distance(glm::vec2(x, y), glm::vec2((float)border.x, (float)border.y));
         }
+
+        // ---
+        // xc-
+        // ---
 
         if(GetFieldBitmapDistance(x - 1, y) + d1 < GetFieldBitmapDistance(x, y))
         {
@@ -369,6 +388,10 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     {
         unsigned index = y * fieldBitmapWidth + x;
 
+        // ---
+        // -cx
+        // ---
+
         if(GetFieldBitmapDistance(x + 1, y) + d1 < GetFieldBitmapDistance(x, y))
         {
             glm::ivec2 border = GetFieldBitmapBorder(x + 1, y);
@@ -376,6 +399,10 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
             fieldBitmapBorders[index] = border;
             fieldBitmapDistances[index] = glm::distance(glm::vec2(x, y), glm::vec2((float)border.x, (float)border.y));
         }
+
+        // ---
+        // -c-
+        // x--
 
         if(GetFieldBitmapDistance(x - 1, y + 1) + d2 < GetFieldBitmapDistance(x, y))
         {
@@ -385,6 +412,10 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
             fieldBitmapDistances[index] = glm::distance(glm::vec2(x, y), glm::vec2((float)border.x, (float)border.y));
         }
 
+        // ---
+        // -c-
+        // -x-
+
         if(GetFieldBitmapDistance(x, y + 1) + d1 < GetFieldBitmapDistance(x, y))
         {
             glm::ivec2 border = GetFieldBitmapBorder(x, y + 1);
@@ -392,6 +423,10 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
             fieldBitmapBorders[index] = border;
             fieldBitmapDistances[index] = glm::distance(glm::vec2(x, y), glm::vec2((float)border.x, (float)border.y));
         }
+
+        // ---
+        // -c-
+        // --x
 
         if(GetFieldBitmapDistance(x + 1, y + 1) + d2 < GetFieldBitmapDistance(x, y))
         {
