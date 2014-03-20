@@ -4,6 +4,9 @@
 
 namespace
 {
+    // Debug defines.
+    #define DEBUG_DUMP_SURFACES FALSE
+
     // Log error messages.
     #define LogLoadError(filename) "Failed to load a font from \"" << filename << "\" file! "
 
@@ -498,7 +501,7 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     SDL_UnlockSurface(distanceSurface);
 
     // Debug surface dump.
-    #if 0
+    #if DEBUG_DUMP_SURFACES
     {
         std::string filename;
         filename += "df_";
@@ -538,7 +541,7 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     SDL_SoftStretch(distanceSurface, nullptr, scaledSurface, &scaleRect);
 
     // Debug surface dump.
-    #if 0
+    #if DEBUG_DUMP_SURFACES
     {
         std::string filename;
         filename += "dfs_";
