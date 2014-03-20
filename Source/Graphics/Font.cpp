@@ -510,10 +510,11 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     #endif
 
     // Create the scaled surface.
+    // Add 1 to sizes because SDL scaling method adds black borders on top/left but not on bottom/right.
     SDL_Surface* scaledSurface = SDL_CreateRGBSurface(
         0, 
-        fieldBitmapWidth / DistanceFieldDownscale, 
-        fieldBitmapHeight / DistanceFieldDownscale, 
+        (int)std::ceil((float)fieldBitmapWidth / DistanceFieldDownscale) + 1, 
+        (int)std::ceil((float)fieldBitmapHeight / DistanceFieldDownscale) + 1, 
         8, 0, 0, 0, 0
     );
 
@@ -528,7 +529,13 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     int scaledSurfacePitch = scaledSurface->pitch;
 
     // Scale the distance surface.
-    SDL_SoftStretch(distanceSurface, nullptr, scaledSurface, nullptr);
+    SDL_Rect scaleRect;
+    scaleRect.x = 0;
+    scaleRect.y = 0;
+    scaleRect.w = scaledSurfaceWidth - 1;
+    scaleRect.h = scaledSurfaceHeight - 1;
+
+    SDL_SoftStretch(distanceSurface, nullptr, scaledSurface, &scaleRect);
 
     // Debug surface dump.
     #if 0
@@ -558,13 +565,20 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     }
 
     // Draw glyph surface on the atlas.
+    // Skip black borders from the source rectangle.
+    SDL_Rect sourceRect;
+    sourceRect.x = 1;
+    sourceRect.y = 1;
+    sourceRect.w = scaledSurfaceWidth - 1;
+    sourceRect.h = scaledSurfaceHeight - 1;
+
     SDL_Rect drawRect;
     drawRect.x = m_packer.GetPosition().x;
     drawRect.y = m_packer.GetPosition().y;
     drawRect.w = scaledSurfaceWidth;
     drawRect.h = scaledSurfaceHeight;
 
-    SDL_BlitSurface(scaledSurface, nullptr, m_atlasSurface, &drawRect);
+    SDL_BlitSurface(scaledSurface, &sourceRect, m_atlasSurface, &drawRect);
 
     // Fill glyph structure.
     glm::vec2 pixelSize(1.0f / AtlasWidth, 1.0f / AtlasHeight);
