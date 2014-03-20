@@ -15,7 +15,7 @@ namespace
     const int AtlasGlyphSpacing = 1;
 
     // Signed distance field calculation parameters.
-    const int DistanceFieldFontSize = 96;
+    const int DistanceFieldFontSize = 128;
     const int DistanceFieldDownscale = 8;
     const int DistanceFieldSpread = 4;
 
