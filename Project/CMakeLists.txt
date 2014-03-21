@@ -269,8 +269,9 @@ If(MSVC)
     # Restore default main() entry instead of WinMain().
     Set_Property(TARGET ${TargetName} APPEND_STRING PROPERTY LINK_FLAGS "/ENTRY:mainCRTStartup ")
 
-    # Disable unsafe Standard C function warnings.
+    # Disable Standard C++ Library warnings.
     Set_Property(TARGET ${TargetName} APPEND_STRING PROPERTY COMPILE_DEFINITIONS "_CRT_SECURE_NO_WARNINGS")
+    Set_Property(TARGET ${TargetName} APPEND_STRING PROPERTY COMPILE_DEFINITIONS "_SCL_SECURE_NO_WARNINGS")
     
     # Set the precompiled header.
     Get_Filename_Component(PrecompiledName ${PrecompiledHeader} NAME_WE)
