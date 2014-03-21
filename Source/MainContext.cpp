@@ -297,7 +297,7 @@ bool Main::Initialize()
     //
 
     // Load a default font.
-    if(!defaultFont.Load(workingDir + "Data/Fonts/SourceSansPro.ttf"))
+    if(!defaultFont.Load("Data/Fonts/SourceSansPro.ttf"))
         return false;
     
     // Cache ASCII character set.

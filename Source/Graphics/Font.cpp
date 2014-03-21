@@ -64,7 +64,7 @@ bool Font::Load(std::string filename)
     }
 
     // Load font face.
-    if(FT_New_Face(Main::FontLibrary(), filename.c_str(), 0, &m_fontFace) != 0)
+    if(FT_New_Face(Main::FontLibrary(), (Main::WorkingDir() + filename).c_str(), 0, &m_fontFace) != 0)
     {
         Log() << LogLoadError(filename) << "Couldn't load the font.";
         Cleanup();

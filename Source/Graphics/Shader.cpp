@@ -1,6 +1,8 @@
 #include "Precompiled.hpp"
 #include "Shader.hpp"
 
+#include "MainContext.hpp"
+
 namespace
 {
     // Log error message.
@@ -53,7 +55,7 @@ bool Shader::Load(std::string filename)
     );
 
     // Load the shader code from a file.
-    std::string shaderCode = GetTextFileContent(filename);
+    std::string shaderCode = GetTextFileContent(Main::WorkingDir() + filename);
 
     if(shaderCode.empty())
     {
