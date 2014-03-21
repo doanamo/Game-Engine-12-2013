@@ -23,6 +23,9 @@
 // Dependencies
 //
 
+// Boost
+#include <boost/filesystem.hpp>
+
 // GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>

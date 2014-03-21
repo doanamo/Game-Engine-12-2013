@@ -53,7 +53,10 @@ namespace Main
     // Context accessors.
     bool            IsInitialized();
     bool            IsQuitting();
+
+    std::string     CurrentDir();
     std::string     WorkingDir();
+    std::string     CacheDir();
 
     Logger&         Logger();
     ConsoleSystem&  ConsoleSystem();
