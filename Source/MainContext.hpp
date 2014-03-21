@@ -3,8 +3,6 @@
 #include "Precompiled.hpp"
 #include "UserEvents.hpp"
 
-#include "Common/StateMachine.hpp"
-
 // Forward declarations.
 class Logger;
 class ConsoleSystem;
