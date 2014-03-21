@@ -17,6 +17,24 @@ Project(${ProjectName})
 Set_Property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 #
+# Boost
+#
+
+# Set Boost options.
+Set(Boost_USE_STATIC_LIBS ON)
+Set(Boost_USE_MULTITHREADED ON)
+Set(Boost_USE_STATIC_RUNTIME OFF)
+
+# Find installed Boost library.
+Find_Package(Boost 1.55.0 COMPONENTS filesystem REQUIRED)
+
+# Add include directory.
+Include_Directories(${Boost_INCLUDE_DIRS})
+
+# Add link directory.
+Link_Directories(${Boost_LIBRARY_DIRS})
+
+#
 # GLM
 #
 
@@ -205,6 +223,9 @@ Include_Directories(${SourceDir})
 Set(TargetName "Game")
 
 Add_Executable(${TargetName} ${SourceFiles})
+
+# Link Boost library.
+Target_Link_Libraries(${TargetName} ${Boost_LIBRARIES})
 
 # Link SDL2 library.
 Add_Dependencies(${TargetName} "SDL2-static" "SDL2main")
