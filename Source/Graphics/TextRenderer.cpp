@@ -53,7 +53,7 @@ bool TextRenderer::Initialize(int bufferSize)
     m_bufferData = new GlyphData[m_bufferSize];
 
     // Load glyph shader.
-    if(!m_shader.Load(Main::WorkingDir() + "Data/Shaders/Glyph.glsl"))
+    if(!m_shader.Load("Data/Shaders/Glyph.glsl"))
     {
         Log() << LogInitializeError() << "Couldn't load a shader.";
         Cleanup();

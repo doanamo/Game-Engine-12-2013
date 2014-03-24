@@ -40,7 +40,7 @@ bool ShapeRenderer::Initialize(int bufferSize)
     m_bufferData = new Vertex[m_bufferSize];
 
     // Load a shader.
-    if(!m_shader.Load(Main::WorkingDir() + "Data/Shaders/Shape.glsl"))
+    if(!m_shader.Load("Data/Shaders/Shape.glsl"))
     {
         Log() << LogInitializeError() << "Failed to load a shader.";
         Cleanup();

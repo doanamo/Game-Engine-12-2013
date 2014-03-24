@@ -54,6 +54,38 @@ std::vector<char> GetBinaryFileContent(std::string filename)
     return content;
 }
 
+bool CalculateFileCRC(std::string filename, boost::crc_32_type* result)
+{
+    if(result == nullptr)
+        return false;
+
+    // Open the target file.
+    std::ifstream file(filename, std::ios::binary);
+
+    if(!file.is_open())
+        return false;
+
+    // Calculate CRC.
+    boost::crc_32_type crc;
+
+    do
+    {
+        // Read a file block.
+        const int size = 1024;
+        char buffer[size];
+        file.read(buffer, size);
+
+        // Process the buffer.
+        crc.process_bytes(buffer, (size_t)file.gcount());
+    }
+    while(!file.fail());
+
+    // Save the result.
+    *result = crc;
+
+    return true;
+}
+
 void FlipSurface(SDL_Surface* surface)
 {
     if(surface == nullptr)

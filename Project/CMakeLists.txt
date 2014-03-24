@@ -17,6 +17,24 @@ Project(${ProjectName})
 Set_Property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 #
+# Boost
+#
+
+# Set Boost options.
+Set(Boost_USE_STATIC_LIBS ON)
+Set(Boost_USE_MULTITHREADED ON)
+Set(Boost_USE_STATIC_RUNTIME OFF)
+
+# Find installed Boost library.
+Find_Package(Boost 1.55.0 COMPONENTS filesystem REQUIRED)
+
+# Add include directory.
+Include_Directories(${Boost_INCLUDE_DIRS})
+
+# Add link directory.
+Link_Directories(${Boost_LIBRARY_DIRS})
+
+#
 # GLM
 #
 
@@ -134,6 +152,8 @@ Set(SourceFiles
     "System/BaseFrame.hpp"
     "System/FrameCounter.hpp"
     "System/FrameCounter.cpp"
+    "System/CacheManager.hpp"
+    "System/CacheManager.cpp"
     "Graphics/CoreRenderer.hpp"
     "Graphics/CoreRenderer.cpp"
     "Graphics/Shader.hpp"
@@ -206,6 +226,9 @@ Set(TargetName "Game")
 
 Add_Executable(${TargetName} ${SourceFiles})
 
+# Link Boost library.
+Target_Link_Libraries(${TargetName} ${Boost_LIBRARIES})
+
 # Link SDL2 library.
 Add_Dependencies(${TargetName} "SDL2-static" "SDL2main")
 Target_Link_Libraries(${TargetName} "SDL2-static" "SDL2main")
@@ -234,7 +257,7 @@ Set_Property(TARGET "freetype" PROPERTY FOLDER "Dependencies")
 # Write a text file in the build's directory that will point the executable to it's working directory.
 Get_Filename_Component(WorkingDir "${CMAKE_CURRENT_LIST_DIR}/../Base" ABSOLUTE)
 
-File(WRITE "${CMAKE_BINARY_DIR}/WorkingDir.txt" "${WorkingDir}/")
+File(WRITE "${CMAKE_BINARY_DIR}/WorkingDir.txt" "${WorkingDir}")
 
 #
 # Windows
@@ -248,8 +271,9 @@ If(MSVC)
     # Restore default main() entry instead of WinMain().
     Set_Property(TARGET ${TargetName} APPEND_STRING PROPERTY LINK_FLAGS "/ENTRY:mainCRTStartup ")
 
-    # Disable unsafe Standard C function warnings.
+    # Disable Standard C++ Library warnings.
     Set_Property(TARGET ${TargetName} APPEND_STRING PROPERTY COMPILE_DEFINITIONS "_CRT_SECURE_NO_WARNINGS")
+    Set_Property(TARGET ${TargetName} APPEND_STRING PROPERTY COMPILE_DEFINITIONS "_SCL_SECURE_NO_WARNINGS")
     
     # Set the precompiled header.
     Get_Filename_Component(PrecompiledName ${PrecompiledHeader} NAME_WE)

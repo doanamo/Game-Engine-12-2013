@@ -1,11 +1,28 @@
 #include "Precompiled.hpp"
 #include "Font.hpp"
+
 #include "MainContext.hpp"
+#include "System/CacheManager.hpp"
 
 namespace
 {
+    // Debug defines.
+    #define DEBUG_DUMP_SURFACES FALSE
+
     // Log error messages.
     #define LogLoadError(filename) "Failed to load a font from \"" << filename << "\" file! "
+
+    // Cache file header.
+    struct CacheHeader
+    {
+        boost::uuids::uuid magic;
+        int version;
+        boost::crc_32_type::value_type checksum;
+        int glyphs;
+    };
+
+    const char* CacheMagic = "bbc33929-f3b8-45e8-aaeb-5e7820c54f6e";
+    const int CacheVersion = 1;
 
     // Size of the atlas texture.
     const int AtlasWidth = 1024;
@@ -15,7 +32,7 @@ namespace
     const int AtlasGlyphSpacing = 1;
 
     // Signed distance field calculation parameters.
-    const int DistanceFieldFontSize = 96;
+    const int DistanceFieldFontSize = 128;
     const int DistanceFieldDownscale = 8;
     const int DistanceFieldSpread = 4;
 
@@ -30,9 +47,11 @@ namespace
 }
 
 Font::Font() :
+    m_fontFilename(""),
     m_fontFace(nullptr),
     m_glyphCache(),
     m_glyphDefault(nullptr),
+    m_cacheUpdate(true),
     m_atlasSurface(nullptr),
     m_atlasTexture(),
     m_atlasUpload(false),
@@ -60,10 +79,12 @@ bool Font::Load(std::string filename)
         return false;
     }
 
+    m_fontFilename = filename;
+
     // Load font face.
-    if(FT_New_Face(Main::FontLibrary(), filename.c_str(), 0, &m_fontFace) != 0)
+    if(FT_New_Face(Main::FontLibrary(), (Main::WorkingDir() + m_fontFilename).c_str(), 0, &m_fontFace) != 0)
     {
-        Log() << LogLoadError(filename) << "Couldn't load the font.";
+        Log() << LogLoadError(m_fontFilename) << "Couldn't load the font.";
         Cleanup();
         return false;
     }
@@ -71,7 +92,7 @@ bool Font::Load(std::string filename)
     // Set font encoding.
     if(FT_Select_Charmap(m_fontFace, FT_ENCODING_UNICODE) != 0)
     {
-        Log() << LogLoadError(filename) << "Couldn't set font encoding.";
+        Log() << LogLoadError(m_fontFilename) << "Couldn't set font encoding.";
         Cleanup();
         return false;
     }
@@ -79,7 +100,7 @@ bool Font::Load(std::string filename)
     // Set font size.
     if(FT_Set_Pixel_Sizes(m_fontFace, 0, DistanceFieldFontSize * DistanceFieldDownscale) != 0)
     {
-        Log() << LogLoadError(filename) << "Couldn't set font size.";
+        Log() << LogLoadError(m_fontFilename) << "Couldn't set font size.";
         Cleanup();
         return false;
     }
@@ -89,7 +110,7 @@ bool Font::Load(std::string filename)
 
     if(m_atlasSurface == nullptr)
     {
-        Log() << LogLoadError(filename) << "Couldn't create atlas surface.";
+        Log() << LogLoadError(m_fontFilename) << "Couldn't create atlas surface.";
         Cleanup();
         return false;
     }
@@ -97,7 +118,7 @@ bool Font::Load(std::string filename)
     // Create font atlas texture.
     if(!m_atlasTexture.Initialize(AtlasWidth, AtlasHeight, GL_RED, nullptr))
     {
-        Log() << LogLoadError(filename) << "Couldn't create atlas texture.";
+        Log() << LogLoadError(m_fontFilename) << "Couldn't create atlas texture.";
         Cleanup();
         return false;
     }
@@ -111,14 +132,18 @@ bool Font::Load(std::string filename)
     // Set initialized state.
     m_initialized = true;
 
-    // Cache the default glyph.
-    m_glyphDefault = CacheGlyph(DefaultGlyph);
-
-    if(m_glyphDefault == nullptr)
+    // Load font data from the cache.
+    if(!LoadCache())
     {
-        Log() << LogLoadError(filename) << "Couldn't cache the default glyph.";
-        Cleanup();
-        return false;
+        // Cache the default glyph.
+        m_glyphDefault = CacheGlyph(DefaultGlyph);
+
+        if(m_glyphDefault == nullptr)
+        {
+            Log() << LogLoadError(filename) << "Couldn't cache the default glyph.";
+            Cleanup();
+            return false;
+        }
     }
 
     // Success!
@@ -129,6 +154,9 @@ bool Font::Load(std::string filename)
 
 void Font::Cleanup()
 {
+    // Save cache to a file.
+    SaveCache();
+
     // Cleanup glyph packer.
     m_packer.Cleanup();
 
@@ -145,12 +173,168 @@ void Font::Cleanup()
     ClearContainer(m_glyphCache);
 
     m_glyphDefault = nullptr;
+    m_cacheUpdate = true;
 
     // Cleanup loaded font.
     FT_Done_Face(m_fontFace);
     m_fontFace = nullptr;
 
+    m_fontFilename = "";
+
     m_initialized = false;
+}
+
+bool Font::LoadCache()
+{
+    if(!m_initialized)
+        return false;
+
+    // Get the cache identifier.
+    std::string identifier = Main::CacheManager().Lookup(m_fontFilename);
+
+    // Open the cache file for reading.
+    std::ifstream file(Main::CacheDir() + identifier, std::ios::binary);
+
+    if(!file.is_open())
+    {
+        return false;
+    }
+
+    // Calculate font file CRC.
+    boost::crc_32_type crc;
+
+    if(!CalculateFileCRC(Main::WorkingDir() + m_fontFilename, &crc))
+        return false;
+
+    // Read the header.
+    CacheHeader header;
+
+    file.read((char*)&header, sizeof(header));
+
+    if(!file.good())
+        return false;
+
+    // Validate the header.
+    if(header.magic != boost::uuids::string_generator()(CacheMagic))
+        return false;
+
+    if(header.version != CacheVersion)
+        return false;
+
+    if(header.checksum != crc.checksum())
+        return false;
+
+    // Read glyph entries.
+    auto clearReadGlyphs = MakeScopeGuard([&]()
+    {
+        // Clear read glyphs in case of failure.
+        ClearContainer(m_glyphCache);
+    });
+
+    for(int i = 0; i < header.glyphs; ++i)
+    {
+        // Read the glyph entry.
+        FT_ULong character;
+        Glyph glyph;
+
+        file.read((char*)&character, sizeof(FT_ULong));
+        file.read((char*)&glyph, sizeof(Glyph));
+
+        if(!file.good())
+            return false;
+
+        // Add glyph to the list.
+        m_glyphCache.insert(std::make_pair(character, glyph));
+    }
+
+    // Read font atlas.
+    char* surfacePixels = reinterpret_cast<char*>(m_atlasSurface->pixels);
+    unsigned long surfaceSize = m_atlasSurface->h * m_atlasSurface->pitch;
+
+    auto clearReadPixels = MakeScopeGuard([&]()
+    {
+        // Clear read pixels in case of failure.
+        SDL_LockSurface(m_atlasSurface);
+        memset(surfacePixels, 0, surfaceSize);
+        SDL_UnlockSurface(m_atlasSurface);
+    });
+
+    SDL_LockSurface(m_atlasSurface);
+    file.read((char*)surfacePixels, surfaceSize);
+    SDL_UnlockSurface(m_atlasSurface);
+
+    if(!file.good())
+        return false;
+
+    // Update the atlas texture.
+    m_atlasUpload = true;
+
+    // Don't update cache unless new glyph is cached.
+    m_cacheUpdate = false;
+
+    // Disable the scope guard.
+    clearReadGlyphs.Disable();
+    clearReadPixels.Disable();
+
+    return true;
+}
+
+bool Font::SaveCache()
+{
+    if(!m_initialized)
+        return false;
+
+    // Don;t update the cache if no new glyphs has been added.
+    if(!m_cacheUpdate)
+        return true;
+
+    // Get the cache identifier.
+    std::string identifier = Main::CacheManager().Lookup(m_fontFilename);
+
+    // Open the cache file for writing.
+    std::ofstream file(Main::CacheDir() + identifier, std::ios::binary);
+
+    if(!file.is_open())
+    {
+        return false;
+    }
+
+    // Calculate font file CRC.
+    boost::crc_32_type crc;
+
+    if(!CalculateFileCRC(Main::WorkingDir() + m_fontFilename, &crc))
+        return false;
+
+    // Write the hader.
+    CacheHeader header;
+    header.magic = boost::uuids::string_generator()(CacheMagic);
+    header.version = CacheVersion;
+    header.checksum = crc.checksum();
+    header.glyphs = m_glyphCache.size();
+
+    file.write((char*)&header, sizeof(CacheHeader));
+
+    // Write glyph entries.
+    for(auto it = m_glyphCache.begin(); it != m_glyphCache.end(); ++it)
+    {
+        file.write((char*)&it->first, sizeof(FT_ULong));
+        file.write((char*)&it->second, sizeof(Glyph));
+    }
+
+    // Write the font atlas.
+    SDL_LockSurface(m_atlasSurface);
+
+    char* surfacePixels = reinterpret_cast<char*>(m_atlasSurface->pixels);
+    unsigned long surfaceSize = m_atlasSurface->h * m_atlasSurface->pitch;
+
+    file.write((char*)surfacePixels, surfaceSize);
+
+    SDL_UnlockSurface(m_atlasSurface);
+
+    // Don't update the cache until a new glyph is added.
+    m_cacheUpdate = false;
+
+    return true;
 }
 
 void Font::CacheASCII()
@@ -498,7 +682,7 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     SDL_UnlockSurface(distanceSurface);
 
     // Debug surface dump.
-    #if 0
+    #if DEBUG_DUMP_SURFACES
     {
         std::string filename;
         filename += "df_";
@@ -510,10 +694,11 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     #endif
 
     // Create the scaled surface.
+    // Add 1 to sizes because SDL scaling method adds black borders on top/left but not on bottom/right.
     SDL_Surface* scaledSurface = SDL_CreateRGBSurface(
         0, 
-        fieldBitmapWidth / DistanceFieldDownscale, 
-        fieldBitmapHeight / DistanceFieldDownscale, 
+        (int)std::ceil((float)fieldBitmapWidth / DistanceFieldDownscale) + 1, 
+        (int)std::ceil((float)fieldBitmapHeight / DistanceFieldDownscale) + 1, 
         8, 0, 0, 0, 0
     );
 
@@ -528,10 +713,16 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     int scaledSurfacePitch = scaledSurface->pitch;
 
     // Scale the distance surface.
-    SDL_SoftStretch(distanceSurface, nullptr, scaledSurface, nullptr);
+    SDL_Rect scaleRect;
+    scaleRect.x = 0;
+    scaleRect.y = 0;
+    scaleRect.w = scaledSurfaceWidth - 1;
+    scaleRect.h = scaledSurfaceHeight - 1;
+
+    SDL_SoftStretch(distanceSurface, nullptr, scaledSurface, &scaleRect);
 
     // Debug surface dump.
-    #if 0
+    #if DEBUG_DUMP_SURFACES
     {
         std::string filename;
         filename += "dfs_";
@@ -558,13 +749,20 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     }
 
     // Draw glyph surface on the atlas.
+    // Skip black borders from the source rectangle.
+    SDL_Rect sourceRect;
+    sourceRect.x = 1;
+    sourceRect.y = 1;
+    sourceRect.w = scaledSurfaceWidth - 1;
+    sourceRect.h = scaledSurfaceHeight - 1;
+
     SDL_Rect drawRect;
     drawRect.x = m_packer.GetPosition().x;
     drawRect.y = m_packer.GetPosition().y;
     drawRect.w = scaledSurfaceWidth;
     drawRect.h = scaledSurfaceHeight;
 
-    SDL_BlitSurface(scaledSurface, nullptr, m_atlasSurface, &drawRect);
+    SDL_BlitSurface(scaledSurface, &sourceRect, m_atlasSurface, &drawRect);
 
     // Fill glyph structure.
     glm::vec2 pixelSize(1.0f / AtlasWidth, 1.0f / AtlasHeight);
@@ -590,6 +788,9 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
 
     // Upload font atlas on next use.
     m_atlasUpload = true;
+
+    // Update cache on next save.
+    m_cacheUpdate = true;
 
     // Return inserted glyph.
     return &result.first->second;
