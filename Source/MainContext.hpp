@@ -5,6 +5,7 @@
 
 // Forward declarations.
 class Logger;
+class CacheManager;
 class ConsoleSystem;
 class ConsoleHistory;
 class ConsoleFrame;
@@ -57,6 +58,7 @@ namespace Main
     std::string     CacheDir();
 
     Logger&         Logger();
+    CacheManager&   CacheManager();
     ConsoleSystem&  ConsoleSystem();
     ConsoleHistory& ConsoleHistory();
     ConsoleFrame&   ConsoleFrame();

@@ -7,6 +7,7 @@
 
 #include "System/BaseFrame.hpp"
 #include "System/FrameCounter.hpp"
+#include "System/CacheManager.hpp"
 
 #include "Console/ConsoleSystem.hpp"
 #include "Console/ConsoleHistory.hpp"
@@ -53,6 +54,7 @@ namespace
     Logger              logger;
     LoggerOutputFile    loggerOutputFile;
     LoggerOutputConsole loggerOutputConsole;
+    CacheManager        cacheManager;
     ConsoleSystem       consoleSystem;
     ConsoleHistory      consoleHistory;
     ConsoleFrame        consoleFrame;
@@ -84,7 +86,7 @@ bool Main::Initialize()
     //
 
     // Emergency cleanup call on failure.
-    auto EmergenyCleanup = MakeScopeGuard([&]()
+    auto emergenyCleanup = MakeScopeGuard([&]()
     {
         // Cleanup if initialization failed.
         if(!isInitialized)
@@ -163,6 +165,14 @@ bool Main::Initialize()
     Log() << "Current directory: \"" << currentDir << "\"";
     Log() << "Working directory: \"" << workingDir << "\"";
     Log() << "Cache directory: \"" << cacheDir << "\"";
+
+    //
+    // System
+    //
+
+    // Initialize the cache manager.
+    if(!cacheManager.Initialize())
+        return false;
 
     //
     // SDL
@@ -355,7 +365,6 @@ bool Main::Initialize()
     // Success!
     //
 
-    // Set initialized state.
     isInitialized = true;
 
     return true;
@@ -363,9 +372,6 @@ bool Main::Initialize()
 
 void Main::Cleanup()
 {
-    if(!isInitialized)
-        return;
-
     Log() << "Cleaning up the main context...";
 
     //
@@ -415,6 +421,12 @@ void Main::Cleanup()
     systemWindow = nullptr;
 
     SDL_Quit();
+
+    //
+    // System
+    //
+
+    cacheManager.Cleanup();
 
     //
     // Console
@@ -505,6 +517,11 @@ std::string Main::CacheDir()
 Logger& Main::Logger()
 {
     return logger;
+}
+
+CacheManager& Main::CacheManager()
+{
+    return cacheManager;
 }
 
 ConsoleSystem& Main::ConsoleSystem()

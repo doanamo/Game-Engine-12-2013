@@ -25,6 +25,10 @@
 
 // Boost
 #include <boost/filesystem.hpp>
+#include <boost/tokenizer.hpp>
+#include <boost/uuid/uuid.hpp> 
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
 
 // GLM
 #include <glm/glm.hpp>
