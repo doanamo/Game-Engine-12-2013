@@ -67,8 +67,11 @@ bool Buffer::Initialize(unsigned int elementSize, unsigned int elementCount, con
 
 void Buffer::Cleanup()
 {
-    glDeleteBuffers(1, &m_handle);
-    m_handle = InvalidHandle;
+    if(m_handle != InvalidHandle)
+    {
+        glDeleteBuffers(1, &m_handle);
+        m_handle = InvalidHandle;
+    }
 
     m_elementSize = 0;
     m_elementCount = 0;

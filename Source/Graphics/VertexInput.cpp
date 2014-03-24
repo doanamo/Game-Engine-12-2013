@@ -88,6 +88,9 @@ namespace
 
         return 0;
     }
+
+    // OpenGL constants.
+    const GLuint InvalidHandle = 0;
 }
 
 VertexInput::VertexInput() :
@@ -217,6 +220,9 @@ bool VertexInput::Initialize(VertexAttribute* attributes, int count)
 
 void VertexInput::Cleanup()
 {
-    glDeleteVertexArrays(1, &m_handle);
-    m_handle = 0;
+    if(m_handle != InvalidHandle)
+    {
+        glDeleteVertexArrays(1, &m_handle);
+        m_handle = InvalidHandle;
+    }
 }

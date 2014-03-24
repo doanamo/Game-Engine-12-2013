@@ -213,8 +213,11 @@ bool Shader::Load(std::string filename)
 
 void Shader::Cleanup()
 {
-    glDeleteProgram(m_handle);
-    m_handle = InvalidHandle;
+    if(m_handle != InvalidHandle)
+    {
+        glDeleteProgram(m_handle);
+        m_handle = InvalidHandle;
+    }
 }
 
 GLint Shader::GetAttribute(std::string name) const

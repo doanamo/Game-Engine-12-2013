@@ -83,8 +83,11 @@ bool Texture::Initialize(int width, int height, GLenum format, const void* data)
 
 void Texture::Cleanup()
 {
-    glDeleteTextures(1, &m_handle);
-    m_handle = InvalidHandle;
+    if(m_handle != InvalidHandle)
+    {
+        glDeleteTextures(1, &m_handle);
+        m_handle = InvalidHandle;
+    }
 
     m_width = 0;
     m_height = 0;
