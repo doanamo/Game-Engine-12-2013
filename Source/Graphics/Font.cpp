@@ -22,7 +22,7 @@ namespace
     };
 
     const char* CacheMagic = "bbc33929-f3b8-45e8-aaeb-5e7820c54f6e";
-    const int CacheVersion = 1;
+    const int CacheVersion = 2;
 
     // Size of the atlas texture.
     const int AtlasWidth = 1024;
@@ -247,7 +247,7 @@ bool Font::LoadCache()
         m_glyphCache.insert(std::make_pair(character, glyph));
     }
 
-    // Read font atlas.
+    // Read the font atlas.
     char* surfacePixels = reinterpret_cast<char*>(m_atlasSurface->pixels);
     unsigned long surfaceSize = m_atlasSurface->h * m_atlasSurface->pitch;
 
@@ -266,6 +266,18 @@ bool Font::LoadCache()
     if(!file.good())
         return false;
 
+    // Read the packer.
+    auto clearReadPacker = MakeScopeGuard([&]()
+    {
+        // Clear read packer in case of failure.
+        m_packer.Cleanup();
+    });
+
+    file.read((char*)&m_packer, sizeof(ShelfPacker));
+
+    if(!file.good())
+        return false;
+
     // Update the atlas texture.
     m_atlasUpload = true;
 
@@ -275,6 +287,7 @@ bool Font::LoadCache()
     // Disable the scope guard.
     clearReadGlyphs.Disable();
     clearReadPixels.Disable();
+    clearReadPacker.Disable();
 
     return true;
 }
@@ -330,6 +343,9 @@ bool Font::SaveCache()
     file.write((char*)surfacePixels, surfaceSize);
 
     SDL_UnlockSurface(m_atlasSurface);
+
+    // Write the packer.
+    file.write((char*)&m_packer, sizeof(ShelfPacker));
 
     // Don't update the cache until a new glyph is added.
     m_cacheUpdate = false;
