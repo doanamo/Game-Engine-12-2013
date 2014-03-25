@@ -3,10 +3,9 @@
 #include "Precompiled.hpp"
 #include "UserEvents.hpp"
 
-#include "Common/StateMachine.hpp"
-
 // Forward declarations.
 class Logger;
+class CacheManager;
 class ConsoleSystem;
 class ConsoleHistory;
 class ConsoleFrame;
@@ -53,9 +52,13 @@ namespace Main
     // Context accessors.
     bool            IsInitialized();
     bool            IsQuitting();
+
+    std::string     CurrentDir();
     std::string     WorkingDir();
+    std::string     CacheDir();
 
     Logger&         Logger();
+    CacheManager&   CacheManager();
     ConsoleSystem&  ConsoleSystem();
     ConsoleHistory& ConsoleHistory();
     ConsoleFrame&   ConsoleFrame();

@@ -12,17 +12,37 @@ class ScopeGuard : public NonCopyable
 {
 public:
     ScopeGuard(Type function) :
-        m_function(function)
+        m_function(function),
+        m_enabled(true)
     {
     }
 
     ~ScopeGuard()
     {
-        m_function();
+        if(m_enabled)
+        {
+            m_function();
+        }
+    }
+
+    void Enable()
+    {
+        m_enabled = true;
+    }
+
+    void Disable()
+    {
+        m_enabled = false;
+    }
+
+    bool IsEnabled() const
+    {
+        return m_enabled;
     }
 
 private:
     Type m_function;
+    bool m_enabled;
 };
 
 // Creates a scope guard.

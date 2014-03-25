@@ -29,6 +29,9 @@ std::string GetTextFileContent(std::string filename);
 // Gets the content of a binary file.
 std::vector<char> GetBinaryFileContent(std::string filename);
 
+// Calculates the CRC of a file.
+bool CalculateFileCRC(std::string filename, boost::crc_32_type* result);
+
 // Flips SDL surface upside down.
 void FlipSurface(SDL_Surface* surface);
 

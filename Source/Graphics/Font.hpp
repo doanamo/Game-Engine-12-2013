@@ -70,19 +70,24 @@ public:
 private:
     const Glyph* CacheGlyph(FT_ULong character);
 
+    bool LoadCache();
+    bool SaveCache();
+
 private:
     // Font face.
-    FT_Face m_fontFace;
+    std::string m_fontFilename;
+    FT_Face     m_fontFace;
 
     // Glyph registry.
-    GlyphCache      m_glyphCache;
-    const Glyph*    m_glyphDefault;
+    GlyphCache   m_glyphCache;
+    const Glyph* m_glyphDefault;
+    bool         m_cacheUpdate;
 
     // Font atlas where glyphs are stores.
-    SDL_Surface*    m_atlasSurface;
-    Texture         m_atlasTexture;
-    bool            m_atlasUpload;
-    bool            m_atlasOverflow;
+    SDL_Surface* m_atlasSurface;
+    Texture      m_atlasTexture;
+    bool         m_atlasUpload;
+    bool         m_atlasOverflow;
 
     // Glyph texture packer.
     ShelfPacker m_packer;

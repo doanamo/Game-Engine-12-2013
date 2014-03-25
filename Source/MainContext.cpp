@@ -7,6 +7,7 @@
 
 #include "System/BaseFrame.hpp"
 #include "System/FrameCounter.hpp"
+#include "System/CacheManager.hpp"
 
 #include "Console/ConsoleSystem.hpp"
 #include "Console/ConsoleHistory.hpp"
@@ -45,11 +46,15 @@ namespace
 {
     bool                isInitialized = false;
     bool                isQuitting = false;
-    std::string         workingDir = "";
+
+    std::string         currentDir;
+    std::string         workingDir;
+    std::string         cacheDir;
 
     Logger              logger;
     LoggerOutputFile    loggerOutputFile;
     LoggerOutputConsole loggerOutputConsole;
+    CacheManager        cacheManager;
     ConsoleSystem       consoleSystem;
     ConsoleHistory      consoleHistory;
     ConsoleFrame        consoleFrame;
@@ -81,7 +86,7 @@ bool Main::Initialize()
     //
 
     // Emergency cleanup call on failure.
-    auto EmergenyCleanup = MakeScopeGuard([&]()
+    auto emergenyCleanup = MakeScopeGuard([&]()
     {
         // Cleanup if initialization failed.
         if(!isInitialized)
@@ -94,8 +99,25 @@ bool Main::Initialize()
     // Config
     //
 
-    // Get the path to the asset directory.
-    workingDir = GetTextFileContent("WorkingDir.txt");
+    // Set the current directory.
+    boost::filesystem::path currentDirPath = boost::filesystem::current_path();
+
+    currentDir = currentDirPath.generic_string() + '/';
+
+    // Set the working directory.
+    boost::filesystem::path workingDirPath = GetTextFileContent("WorkingDir.txt");
+
+    if(!workingDirPath.empty())
+    {
+        workingDir = workingDirPath.generic_string() + '/';
+    }
+    else
+    {
+        workingDir = currentDir;
+    }
+
+    // Set the cache directory.
+    cacheDir = workingDir + "Cache/";
 
     //
     // Logger Outputs
@@ -139,8 +161,18 @@ bool Main::Initialize()
     // Print system info after logger systems are up.
     //
 
-    // Print the working directory path.
+    // Print directory paths.
+    Log() << "Current directory: \"" << currentDir << "\"";
     Log() << "Working directory: \"" << workingDir << "\"";
+    Log() << "Cache directory: \"" << cacheDir << "\"";
+
+    //
+    // System
+    //
+
+    // Initialize the cache manager.
+    if(!cacheManager.Initialize())
+        return false;
 
     //
     // SDL
@@ -275,7 +307,7 @@ bool Main::Initialize()
     //
 
     // Load a default font.
-    if(!defaultFont.Load(workingDir + "Data/Fonts/SourceSansPro.ttf"))
+    if(!defaultFont.Load("Data/Fonts/SourceSansPro.ttf"))
         return false;
     
     // Cache ASCII character set.
@@ -333,7 +365,6 @@ bool Main::Initialize()
     // Success!
     //
 
-    // Set initialized state.
     isInitialized = true;
 
     return true;
@@ -341,9 +372,6 @@ bool Main::Initialize()
 
 void Main::Cleanup()
 {
-    if(!isInitialized)
-        return;
-
     Log() << "Cleaning up the main context...";
 
     //
@@ -395,6 +423,12 @@ void Main::Cleanup()
     SDL_Quit();
 
     //
+    // System
+    //
+
+    cacheManager.Cleanup();
+
+    //
     // Console
     //
 
@@ -415,7 +449,10 @@ void Main::Cleanup()
     // Context
     //
 
+    currentDir = "";
     workingDir = "";
+    cacheDir = "";
+
     isQuitting = false;
     isInitialized = false;
 }
@@ -462,14 +499,29 @@ bool Main::IsQuitting()
     return isQuitting;
 }
 
+std::string Main::CurrentDir()
+{
+    return currentDir;
+}
+
 std::string Main::WorkingDir()
 {
     return workingDir;
 }
 
+std::string Main::CacheDir()
+{
+    return cacheDir;
+}
+
 Logger& Main::Logger()
 {
     return logger;
+}
+
+CacheManager& Main::CacheManager()
+{
+    return cacheManager;
 }
 
 ConsoleSystem& Main::ConsoleSystem()

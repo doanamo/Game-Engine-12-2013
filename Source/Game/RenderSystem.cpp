@@ -64,7 +64,7 @@ bool RenderSystem::Initialize(int bufferSize)
     m_bufferSize = bufferSize;
 
     // Load shader.
-    if(!m_shader.Load(Main::WorkingDir() + "Data/Shaders/Sprite.glsl"))
+    if(!m_shader.Load("Data/Shaders/Sprite.glsl"))
     {
         Cleanup();
         return false;
