@@ -147,7 +147,7 @@ bool Font::Load(std::string filename)
     }
 
     // Success!
-    Log() << "Loaded font from \"" << filename << "\" file.";
+    Log() << "Loaded a font from \"" << filename << "\" file.";
 
     return true;
 }
