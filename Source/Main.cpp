@@ -4,6 +4,7 @@
 #include "Console/ConsoleFrame.hpp"
 
 #include "Graphics/Font.hpp"
+#include "Graphics/ScreenSpace.hpp"
 #include "Graphics/CoreRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
 #include "Graphics/ShapeRenderer.hpp"
@@ -34,7 +35,7 @@ int main(int argc, char* argv[])
 
     // Window settings.
     Console::windowName = "Game";
-    Console::windowWidth = 1024;
+    Console::windowWidth = 1312; //1024;
     Console::windowHeight = 576;
     Console::windowResize = true;
 
@@ -105,6 +106,10 @@ int main(int argc, char* argv[])
         int windowWidth = Console::windowWidth;
         int windowHeight = Console::windowHeight;
 
+        // Setup screen space.
+        Main::ScreenSpace().SetSourceSize(glm::vec2((float)windowWidth, (float)windowHeight));
+        Main::ScreenSpace().SetTargetAspect(16.0f / 9.0f);
+
         // Update frame counter.
         Main::FrameCounter().Update(dt);
 
@@ -121,7 +126,10 @@ int main(int argc, char* argv[])
         Main::MainFrame().Draw();
 
         // Calculate projection.
-        glm::mat4x4 projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
+        glm::vec4 screenSpace = Main::ScreenSpace().GetRectangle();
+        glm::mat4x4 projection = glm::ortho(screenSpace.x, screenSpace.y, screenSpace.z, screenSpace.w);
+        glm::mat4x4 view = glm::translate(glm::mat4(1.0f), glm::vec3(Main::ScreenSpace().GetOffset(), 0.0f));
+        glm::mat4x4 transform = projection * view;
 
         // Draw frame rate.
         if(Console::drawFrameRate)
@@ -137,11 +145,11 @@ int main(int argc, char* argv[])
             info.position.x = 10.0f;
             info.position.y = 5.0f + Main::DefaultFont().GetLineSpacing() * Main::DefaultFont().GetScaling(info.size);
 
-            Main::TextRenderer().Draw(info, projection, frameCounterText.str().c_str());
+            Main::TextRenderer().Draw(info, transform, frameCounterText.str().c_str());
         }
 
         // Draw console frame.
-        Main::ConsoleFrame().Draw(projection);
+        Main::ConsoleFrame().Draw(transform);
 
         // Present the window content.
         bool verticalSync = false;

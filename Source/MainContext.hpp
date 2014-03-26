@@ -9,6 +9,7 @@ class CacheManager;
 class ConsoleSystem;
 class ConsoleHistory;
 class ConsoleFrame;
+class ScreenSpace;
 class CoreRenderer;
 class ShapeRenderer;
 class TextRenderer;
@@ -62,6 +63,7 @@ namespace Main
     ConsoleSystem&  ConsoleSystem();
     ConsoleHistory& ConsoleHistory();
     ConsoleFrame&   ConsoleFrame();
+    ScreenSpace&    ScreenSpace();
     CoreRenderer&   CoreRenderer();
     ShapeRenderer&  ShapeRenderer();
     TextRenderer&   TextRenderer();
