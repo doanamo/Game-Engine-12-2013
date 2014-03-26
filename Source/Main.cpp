@@ -21,6 +21,7 @@
 namespace Console
 {
     ConsoleVariable drawFrameRate("r_drawfps", true, "Displays current frame rate on the screen.");
+    ConsoleVariable debugScreenBorder("debug_screenborder", false, "Enables screen border debugging.");
 }
 
 //
@@ -165,9 +166,8 @@ int main(int argc, char* argv[])
         }
 
         // Draw debug screen target borders.
-        #if 0
+        if(Console::debugScreenBorder)
         {
-            // Info: Line rasterization is inaccurate to make this useful for debugging.
             ShapeRenderer::Rectangle rectangle;
             rectangle.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
             rectangle.position = glm::vec2(0.0f, 0.0f);
@@ -175,7 +175,6 @@ int main(int argc, char* argv[])
 
             Main::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
         }
-        #endif
 
         // Draw console frame.
         Main::ConsoleFrame().Draw(transform, Main::ScreenSpace().GetTargetSize());

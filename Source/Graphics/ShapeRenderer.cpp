@@ -281,13 +281,13 @@ void ShapeRenderer::DrawQuads(const Quad* data, int count, const glm::mat4& tran
 
         Vertex shapeVertices[ShapeVerticeCount] =
         {
-            { glm::vec2(rect.x, rect.y) + glm::vec2(-0.5f, -0.5f), glm::vec2(0.0f, 0.0f), quad.color },
-            { glm::vec2(rect.z, rect.y) + glm::vec2(+0.5f, -0.5f), glm::vec2(1.0f, 0.0f), quad.color },
-            { glm::vec2(rect.z, rect.w) + glm::vec2(+0.5f, +0.5f), glm::vec2(1.0f, 1.0f), quad.color },
+            { glm::vec2(rect.x, rect.y), glm::vec2(0.0f, 0.0f), quad.color },
+            { glm::vec2(rect.z, rect.y), glm::vec2(1.0f, 0.0f), quad.color },
+            { glm::vec2(rect.z, rect.w), glm::vec2(1.0f, 1.0f), quad.color },
 
-            { glm::vec2(rect.z, rect.w) + glm::vec2(+0.5f, +0.5f), glm::vec2(1.0f, 1.0f), quad.color },
-            { glm::vec2(rect.x, rect.y) + glm::vec2(-0.5f, -0.5f), glm::vec2(0.0f, 0.0f), quad.color },
-            { glm::vec2(rect.x, rect.w) + glm::vec2(-0.5f, +0.5f), glm::vec2(0.0f, 1.0f), quad.color },
+            { glm::vec2(rect.z, rect.w), glm::vec2(1.0f, 1.0f), quad.color },
+            { glm::vec2(rect.x, rect.y), glm::vec2(0.0f, 0.0f), quad.color },
+            { glm::vec2(rect.x, rect.w), glm::vec2(0.0f, 1.0f), quad.color },
         };
 
         // Copy vertices to a temporary buffer.

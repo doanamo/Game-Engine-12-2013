@@ -2,7 +2,7 @@
 #include "ScreenSpace.hpp"
 
 ScreenSpace::ScreenSpace() :
-    m_sourceSize(1.0f, 1.0f),
+    m_sourceSize(2.0f, 2.0f),
     m_targetSize(1.0f, 1.0f),
     m_rectangle(0.0f, 0.0f, 0.0f, 0.0f),
     m_offset(0.0f, 0.0f),
@@ -25,7 +25,16 @@ void ScreenSpace::Cleanup()
 
 void ScreenSpace::SetSourceSize(const glm::vec2& size)
 {
-    m_sourceSize = size;
+    // Floor and make a multiple of 2.
+    int width = (int)size.x;
+    int height = (int)size.y;
+
+    if(width % 2) width += 1;
+    if(height % 2) height += 1;
+
+    m_sourceSize.x = (float)width;
+    m_sourceSize.y = (float)height;
+
     m_rebuild = true;
 }
 
@@ -53,7 +62,6 @@ void ScreenSpace::SetTargetAspect(float aspect)
     }
 
     // Floor the target size.
-    // Workaround for rasterization problems.
     m_targetSize.x = std::floor(m_targetSize.x);
     m_targetSize.y = std::floor(m_targetSize.y);
 
