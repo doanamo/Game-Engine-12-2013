@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
         glm::vec3 position = glm::project(glm::vec3(0.0f, 0.0f, 0.0f), view, projection, viewport);
         glm::vec3 size = glm::project(glm::vec3(Main::ScreenSpace().GetTargetSize(), 0.0f), view, projection, viewport) - position;
 
-        glScissor((int)(position.x + 0.5f), (int)(position.y + 0.5f), (int)(size.x - 0.5f), (int)(size.y - 0.5f));
+        glScissor((int)(position.x + 0.5f), (int)(position.y + 0.5f), (int)(size.x + 0.5f), (int)(size.y + 0.5f));
 
         // Toggle scissor test.
         glEnable(GL_SCISSOR_TEST);
@@ -164,8 +164,21 @@ int main(int argc, char* argv[])
             Main::TextRenderer().Draw(info, transform, frameCounterText.str().c_str());
         }
 
+        // Draw debug screen target borders.
+        #if 0
+        {
+            // Info: Line rasterization is inaccurate to make this useful for debugging.
+            ShapeRenderer::Rectangle rectangle;
+            rectangle.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+            rectangle.position = glm::vec2(0.0f, 0.0f);
+            rectangle.size = Main::ScreenSpace().GetTargetSize();
+
+            Main::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
+        }
+        #endif
+
         // Draw console frame.
-        Main::ConsoleFrame().Draw(transform);
+        Main::ConsoleFrame().Draw(transform, Main::ScreenSpace().GetTargetSize());
 
         // Present the window content.
         bool verticalSync = false;

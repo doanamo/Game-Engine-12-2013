@@ -52,6 +52,11 @@ void ScreenSpace::SetTargetAspect(float aspect)
         m_targetSize.y = m_sourceSize.y * (sourceAspect / aspect);
     }
 
+    // Floor the target size.
+    // Workaround for rasterization problems.
+    m_targetSize.x = std::floor(m_targetSize.x);
+    m_targetSize.y = std::floor(m_targetSize.y);
+
     m_rebuild = true;
 }
 

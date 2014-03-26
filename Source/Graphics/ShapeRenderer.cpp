@@ -196,8 +196,8 @@ void ShapeRenderer::DrawRectangles(const Rectangle* data, int count, const glm::
         // Calculate rectangle area.
         glm::vec4 rect(rectangle.position, rectangle.position + rectangle.size - glm::vec2(1.0f, 1.0f));
 
-        // Line rasterization workaround.
-        // This will make line vertex positions pixel perfect.
+        // Rasterization workaround.
+        // This will make vertex positions pixel perfect.
         // Could cause problems with antialiasing.
         // See: http://stackoverflow.com/questions/10040961/opengl-pixel-perfect-2d-drawing
         glm::vec2 offset(0.5f, 0.5f);
@@ -281,13 +281,13 @@ void ShapeRenderer::DrawQuads(const Quad* data, int count, const glm::mat4& tran
 
         Vertex shapeVertices[ShapeVerticeCount] =
         {
-            { glm::vec2(rect.x, rect.y), glm::vec2(0.0f, 0.0f), quad.color },
-            { glm::vec2(rect.z, rect.y), glm::vec2(1.0f, 0.0f), quad.color },
-            { glm::vec2(rect.z, rect.w), glm::vec2(1.0f, 1.0f), quad.color },
+            { glm::vec2(rect.x, rect.y) + glm::vec2(-0.5f, -0.5f), glm::vec2(0.0f, 0.0f), quad.color },
+            { glm::vec2(rect.z, rect.y) + glm::vec2(+0.5f, -0.5f), glm::vec2(1.0f, 0.0f), quad.color },
+            { glm::vec2(rect.z, rect.w) + glm::vec2(+0.5f, +0.5f), glm::vec2(1.0f, 1.0f), quad.color },
 
-            { glm::vec2(rect.z, rect.w), glm::vec2(1.0f, 1.0f), quad.color },
-            { glm::vec2(rect.x, rect.y), glm::vec2(0.0f, 0.0f), quad.color },
-            { glm::vec2(rect.x, rect.w), glm::vec2(0.0f, 1.0f), quad.color },
+            { glm::vec2(rect.z, rect.w) + glm::vec2(+0.5f, +0.5f), glm::vec2(1.0f, 1.0f), quad.color },
+            { glm::vec2(rect.x, rect.y) + glm::vec2(-0.5f, -0.5f), glm::vec2(0.0f, 0.0f), quad.color },
+            { glm::vec2(rect.x, rect.w) + glm::vec2(-0.5f, +0.5f), glm::vec2(0.0f, 1.0f), quad.color },
         };
 
         // Copy vertices to a temporary buffer.

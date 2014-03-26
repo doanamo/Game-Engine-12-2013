@@ -30,7 +30,7 @@ public:
     void Close();
 
     bool Process(const SDL_Event& event);
-    void Draw(const glm::mat4& transform);
+    void Draw(const glm::mat4& transform, glm::vec2 targetSize);
 
     bool IsOpen() const
     {
