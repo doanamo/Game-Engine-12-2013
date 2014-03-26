@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
         glm::vec3 position = glm::project(glm::vec3(0.0f, 0.0f, 0.0f), view, projection, viewport);
         glm::vec3 size = glm::project(glm::vec3(Main::ScreenSpace().GetTargetSize(), 0.0f), view, projection, viewport) - position;
 
-        glScissor((int)(position.x + 0.5f), (int)(position.y + 0.5f), (int)(size.x + 0.5f), (int)(size.y + 0.5f));
+        glScissor((int)(position.x + 0.5f), (int)(position.y + 0.5f), (int)(size.x - 0.5f), (int)(size.y - 0.5f));
 
         // Toggle scissor test.
         glEnable(GL_SCISSOR_TEST);
