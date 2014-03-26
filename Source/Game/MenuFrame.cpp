@@ -240,7 +240,7 @@ void MenuFrame::Draw()
     glm::vec3 position = glm::project(glm::vec3(0.0f, 0.0f, 0.0f), m_view, m_projection, viewport);
     glm::vec3 size = glm::project(glm::vec3(gameWidth, gameHeight, 0.0f), m_view, m_projection, viewport) - position;
 
-    glScissor((int)position.x, (int)position.y, (int)size.x, (int)size.y);
+    glScissor((int)(position.x + 0.5f), (int)(position.y + 0.5f), (int)(size.x + 0.5f), (int)(size.y + 0.5f));
 
     // Toggle scissor test.
     glEnable(GL_SCISSOR_TEST);
