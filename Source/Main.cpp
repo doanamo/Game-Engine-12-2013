@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 
     // Window settings.
     Console::windowName = "Game";
-    Console::windowWidth = 1312; //1024;
+    Console::windowWidth = 1024;
     Console::windowHeight = 576;
     Console::windowResize = true;
 
@@ -123,8 +123,9 @@ int main(int argc, char* argv[])
         glm::ivec4 viewport(0, 0, windowWidth, windowHeight);
         glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
 
-        // Draw the main frame.
-        Main::MainFrame().Draw();
+        // Clear the screen.
+        Main::CoreRenderer().SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        Main::CoreRenderer().Clear(ClearFlags::Color);
 
         // Calculate projection.
         glm::vec4 screenSpace = Main::ScreenSpace().GetRectangle();
@@ -142,6 +143,9 @@ int main(int argc, char* argv[])
         glEnable(GL_SCISSOR_TEST);
     
         SCOPE_GUARD(glDisable(GL_SCISSOR_TEST));
+
+        // Draw the main frame.
+        Main::MainFrame().Draw();
 
         // Draw frame rate.
         if(Console::drawFrameRate)
