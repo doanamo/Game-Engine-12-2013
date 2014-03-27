@@ -41,6 +41,8 @@ void RenderSystem::Cleanup()
 
     m_bufferSize = 0;
 
+    m_screenSpace.Cleanup();
+
     m_projection = glm::mat4(1.0f);
     m_view = glm::mat4(1.0f);
     m_transform = glm::mat4(1.0f);
@@ -136,31 +138,14 @@ void RenderSystem::Update()
     float windowWidth = Console::windowWidth;
     float windowHeight = Console::windowHeight;
 
-    // Calculate apsect ratios.
-    float windowAspectRatio = windowWidth / windowHeight;
-    float gameAspectRatio = gameWidth / gameHeight;
-
-    float aspectRatio = windowAspectRatio / gameAspectRatio;
-
-    // Setup screen space coordinates.
-    glm::vec4 screenSpace(-gameWidth * 0.5f, gameWidth * 0.5f, -gameHeight * 0.5f, gameHeight * 0.5f);
-
-    if(windowAspectRatio > gameAspectRatio)
-    {
-        // Scale screen space coordinates.
-        screenSpace.x *= aspectRatio;
-        screenSpace.y *= aspectRatio;
-    }
-    else
-    {
-        // Scale screen space coordinates.
-        screenSpace.z /= aspectRatio;
-        screenSpace.w /= aspectRatio;
-    }
+    // Setup screen space.
+    m_screenSpace.SetSourceSize(windowWidth, windowHeight);
+    m_screenSpace.SetTargetSize(gameWidth, gameHeight);
 
     // Setup matrices.
+    glm::vec4 screenSpace = m_screenSpace.GetRectangle();
     m_projection = glm::ortho(screenSpace.x, screenSpace.y, screenSpace.z, screenSpace.w);
-    m_view = glm::translate(glm::mat4(1.0f), glm::vec3(-gameWidth * 0.5f, -gameHeight * 0.5f, 0.0f));
+    m_view = glm::translate(glm::mat4(1.0f), glm::vec3(m_screenSpace.GetOffset(), 0.0f));
     m_transform = m_projection * m_view;
 
     //

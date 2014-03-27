@@ -5,6 +5,7 @@
 #include "Graphics/Shader.hpp"
 #include "Graphics/Buffer.hpp"
 #include "Graphics/VertexInput.hpp"
+#include "Graphics/ScreenSpace.hpp"
 
 //
 // Render System
@@ -55,6 +56,9 @@ private:
     VertexInput    m_vertexInput;
 
     int m_bufferSize;
+
+    // Screen space.
+    ScreenSpace m_screenSpace;
 
     // Render transforms.
     glm::mat4 m_projection;

@@ -2,6 +2,7 @@
 
 #include "Precompiled.hpp"
 #include "System/BaseFrame.hpp"
+#include "Graphics/ScreenSpace.hpp"
 
 //
 // Menu Frame
@@ -40,7 +41,10 @@ public:
 private:
     void OnEnter();
 
-private:    
+private:
+    // Menu screen space.
+    ScreenSpace m_screenSpace;
+
     // Render transforms.
     glm::mat4 m_projection;
     glm::mat4 m_view;

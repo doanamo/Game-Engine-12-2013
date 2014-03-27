@@ -99,6 +99,8 @@ bool MenuFrame::Initialize()
 
 void MenuFrame::Cleanup()
 {
+    m_screenSpace.Cleanup();
+
     m_elementSelected = MenuElements::None;
 
     m_initialized = false;
@@ -159,31 +161,14 @@ void MenuFrame::Update(float dt)
     float windowWidth = Console::windowWidth;
     float windowHeight = Console::windowHeight;
 
-    // Calculate apsect ratios.
-    float windowAspectRatio = windowWidth / windowHeight;
-    float gameAspectRatio = gameWidth / gameHeight;
-
-    float aspectRatio = windowAspectRatio / gameAspectRatio;
-
-    // Setup screen space coordinates.
-    glm::vec4 screenSpace(-gameWidth * 0.5f, gameWidth * 0.5f, -gameHeight * 0.5f, gameHeight * 0.5f);
-
-    if(windowAspectRatio > gameAspectRatio)
-    {
-        // Scale screen space coordinates.
-        screenSpace.x *= aspectRatio;
-        screenSpace.y *= aspectRatio;
-    }
-    else
-    {
-        // Scale screen space coordinates.
-        screenSpace.z /= aspectRatio;
-        screenSpace.w /= aspectRatio;
-    }
+    // Setup screen space.
+    m_screenSpace.SetSourceSize(windowWidth, windowHeight);
+    m_screenSpace.SetTargetSize(1024.0f, 576.0f);
 
     // Setup matrices.
+    glm::vec4 screenSpace = m_screenSpace.GetRectangle();
     m_projection = glm::ortho(screenSpace.x, screenSpace.y, screenSpace.z, screenSpace.w);
-    m_view = glm::translate(glm::mat4(1.0f), glm::vec3(-gameWidth * 0.5f, -gameHeight * 0.5f, 0.0f));
+    m_view = glm::translate(glm::mat4(1.0f), glm::vec3(m_screenSpace.GetOffset(), 0.0f));
     m_transform = m_projection * m_view;
 
     //
@@ -229,10 +214,6 @@ void MenuFrame::Draw()
     // Clear the depth.
     Main::CoreRenderer().SetClearDepth(1.0f);
     Main::CoreRenderer().Clear(ClearFlags::Depth);
-
-    // Clear the screen.
-    Main::CoreRenderer().SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    Main::CoreRenderer().Clear(ClearFlags::Color);
 
     // Clear the screen.
     Main::CoreRenderer().SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
