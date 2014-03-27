@@ -23,24 +23,26 @@ void ScreenSpace::Cleanup()
     m_rebuild = true;
 }
 
-void ScreenSpace::SetSourceSize(const glm::vec2& size)
+void ScreenSpace::SetSourceSize(float width, float height)
 {
     // Floor and make a multiple of 2.
-    int width = (int)size.x;
-    int height = (int)size.y;
+    int floorWidth = (int)width;
+    int floorHeight = (int)height;
 
-    if(width % 2) width += 1;
-    if(height % 2) height += 1;
+    if(floorWidth % 2) floorWidth += 1;
+    if(floorHeight % 2) floorHeight += 1;
 
-    m_sourceSize.x = (float)width;
-    m_sourceSize.y = (float)height;
+    m_sourceSize.x = (float)floorWidth;
+    m_sourceSize.y = (float)floorHeight;
 
     m_rebuild = true;
 }
 
-void ScreenSpace::SetTargetSize(const glm::vec2& size)
+void ScreenSpace::SetTargetSize(float width, float height)
 {
-    m_targetSize = size;
+    m_targetSize.x = width;
+    m_targetSize.y = height;
+
     m_rebuild = true;
 }
 
@@ -61,9 +63,16 @@ void ScreenSpace::SetTargetAspect(float aspect)
         m_targetSize.y = m_sourceSize.y * (sourceAspect / aspect);
     }
 
-    // Floor the target size.
-    m_targetSize.x = std::floor(m_targetSize.x);
-    m_targetSize.y = std::floor(m_targetSize.y);
+    // Floor and make a multiple of 2.
+    // This is done to retain pixel perfect rendering.
+    int floorWidth = (int)m_targetSize.x;
+    int floorHeight = (int)m_targetSize.y;
+
+    if(floorWidth % 2) floorWidth += 1;
+    if(floorHeight % 2) floorHeight += 1;
+
+    m_targetSize.x = (float)floorWidth;
+    m_targetSize.y = (float)floorHeight;
 
     m_rebuild = true;
 }

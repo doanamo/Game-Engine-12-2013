@@ -108,7 +108,7 @@ int main(int argc, char* argv[])
         int windowHeight = Console::windowHeight;
 
         // Setup screen space.
-        Main::ScreenSpace().SetSourceSize(glm::vec2((float)windowWidth, (float)windowHeight));
+        Main::ScreenSpace().SetSourceSize((float)windowWidth, (float)windowHeight);
         Main::ScreenSpace().SetTargetAspect(16.0f / 9.0f);
 
         // Update frame counter.

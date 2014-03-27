@@ -14,8 +14,8 @@ public:
 
     void Cleanup();
 
-    void SetSourceSize(const glm::vec2& size);
-    void SetTargetSize(const glm::vec2& size);
+    void SetSourceSize(float width, float height);
+    void SetTargetSize(float width, float height);
 
     void SetTargetAspect(float aspect);
 
