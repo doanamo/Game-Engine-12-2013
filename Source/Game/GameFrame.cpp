@@ -19,6 +19,8 @@
 #include "SpawnSystem.hpp"
 #include "ProgressSystem.hpp"
 
+#include "Graphics/TextRenderer.hpp"
+
 GameFrame::GameFrame() :
     m_initialized(false)
 {
@@ -145,4 +147,19 @@ void GameFrame::Draw()
 
     // Draw the health bar.
     m_playerHealthBar.Draw(glm::vec2(200.0f, 10.0f), Game::RenderSystem().GetTransform());
+
+    // Print debug game info.
+    {
+        std::stringstream text;
+        text << "Entities: " << Game::EntitySystem().GetEntityCount();
+
+        TextDrawInfo info;
+        info.font = &Main::DefaultFont();
+        info.size = 22;
+        info.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        info.position.x = 10.0f;
+        info.position.y = 576.0f - 5.0f;
+
+        Main::TextRenderer().Draw(info, Game::RenderSystem().GetTransform(), text.str().c_str());
+    }
 }

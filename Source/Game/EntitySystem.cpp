@@ -11,6 +11,7 @@ namespace
 }
 
 EntitySystem::EntitySystem() :
+    m_entityCount(0),
     m_freeListDequeue(InvalidQueueElement),
     m_freeListEnqueue(InvalidQueueElement),
     m_freeListEmpty(true)
@@ -36,6 +37,9 @@ void EntitySystem::Cleanup()
 
     // Remove all subscribers.
     ClearContainer(m_subscribers);
+
+    // Reset the counter of active entities.
+    m_entityCount = 0;
 
     // Reset the free list queue.
     m_freeListDequeue = InvalidQueueElement;
@@ -237,6 +241,9 @@ void EntitySystem::ProcessCommands()
 
                 handleEntry.flags |= HandleFlags::Active;
 
+                // Increment the counter of active entities.
+                m_entityCount += 1;
+
                 // Inform about the created entity.
                 OnCreateEntity(handleEntry.handle);
             }
@@ -258,7 +265,10 @@ void EntitySystem::ProcessCommands()
                 // Inform about the soon to be destroyed entity.
                 OnDestroyEntity(handleEntry.handle);
 
-                // Set the handle flags as free.
+                // Decrement the counter of active entities.
+                m_entityCount -= 1;
+
+                // Mark handle flags as free.
                 assert(handleEntry.flags & HandleFlags::Active);
                 assert(handleEntry.flags & HandleFlags::Destroy);
 
@@ -310,4 +320,9 @@ void EntitySystem::OnDestroyEntity(const EntityHandle& entity)
     {
         (*it)->OnDestroyEntity(entity);
     }
+}
+
+unsigned int EntitySystem::GetEntityCount() const
+{
+    return m_entityCount;
 }

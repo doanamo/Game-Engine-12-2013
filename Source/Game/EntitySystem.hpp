@@ -81,6 +81,9 @@ public:
     // Process entity commands.
     void ProcessCommands();
 
+    // Returns the number of active entities.
+    unsigned int GetEntityCount() const;
+
 private:
     // Called on creating an entity.
     void OnCreateEntity(const EntityHandle& entity);
@@ -97,6 +100,9 @@ private:
 
     // List of entities.
     HandleList m_handles;
+
+    // Number of active entities.
+    unsigned int m_entityCount;
 
     // List of free handles.
     int  m_freeListDequeue;
