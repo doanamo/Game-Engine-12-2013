@@ -4,6 +4,7 @@
 #include "Graphics/Shader.hpp"
 #include "Graphics/Buffer.hpp"
 #include "Graphics/VertexInput.hpp"
+#include "Graphics/TextDrawState.hpp"
 
 // Forward declarations.
 class Font;
@@ -96,6 +97,9 @@ public:
     void Draw(const TextDrawInfo& info, const glm::mat4& transform, const char* text);
 
 private:
+    // Text draw state.
+    TextDrawState m_drawState;
+
     // Batched glyphs.
     struct GlyphData
     {

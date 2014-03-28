@@ -70,12 +70,36 @@ void MainFrame::Draw()
     Main::CoreRenderer().Clear(ClearFlags::Color | ClearFlags::Depth);
 
     // Draw some text.
-    TextDrawInfo drawInfo;
-    drawInfo.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    drawInfo.font = &Main::DefaultFont();
-    drawInfo.size = 128;
-    drawInfo.position = glm::vec2(targetWidth * 0.5f, targetHeight * 0.5f);
-    drawInfo.debug = true;
+    {
+        TextDrawInfo drawInfo;
+        drawInfo.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        drawInfo.font = &Main::DefaultFont();
+        drawInfo.size = 128;
+        drawInfo.position = glm::vec2(targetWidth * 0.5f, targetHeight * 0.85f);
+        drawInfo.debug = true;
 
-    Main::TextRenderer().Draw(drawInfo, transform, "Centered");
+        Main::TextRenderer().Draw(drawInfo, transform, "Centered");
+    }
+
+    {
+        TextDrawInfo drawInfo;
+        drawInfo.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        drawInfo.font = &Main::DefaultFont();
+        drawInfo.size = 128;
+        drawInfo.position = glm::vec2(targetWidth * 0.5f, targetHeight * 0.5f);
+        drawInfo.debug = true;
+
+        Main::TextRenderer().Draw(drawInfo, transform, "Centered");
+    }
+    
+    {
+        TextDrawInfo drawInfo;
+        drawInfo.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        drawInfo.font = &Main::DefaultFont();
+        drawInfo.size = 128;
+        drawInfo.position = glm::vec2(targetWidth * 0.5f, targetHeight * 0.15f);
+        drawInfo.debug = true;
+
+        Main::TextRenderer().Draw(drawInfo, transform, "Centered");
+    }
 }
