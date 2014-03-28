@@ -223,7 +223,7 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
     };
 
     // Update font texture atlas.
-    info.font->CacheGlyphs(text);
+    info.font->CacheGlyphs(state.GetProcessedString().c_str());
     info.font->UpdateAtlasTexture();
 
     // Calculate pixel size of the atlas texture.

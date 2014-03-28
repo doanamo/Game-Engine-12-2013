@@ -32,6 +32,11 @@ public:
         return m_fontScale;
     }
 
+    const std::string& GetProcessedString() const
+    {
+        return m_textBuffer;
+    }
+
     int GetCurrentLine() const
     {
         return m_textLine;
@@ -89,11 +94,12 @@ private:
     // Text font.
     float m_fontScale;
 
-    // Text iterators.
-    int         m_textLength;
-    int         m_textLine;
-    const char* m_textIterator;
-    const char* m_textEnd;
+    // Text buffer.
+    std::string           m_textBuffer;
+    std::string::iterator m_textIterator;
+
+    int m_textLength;
+    int m_textLine;
 
     // Text character.
     int      m_characterIndex;

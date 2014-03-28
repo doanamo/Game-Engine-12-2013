@@ -78,6 +78,4 @@ void MainFrame::Draw()
     drawInfo.debug = true;
 
     Main::TextRenderer().Draw(drawInfo, transform, "Centered");
-
-    // Those character will break the output: óœ³ (not utf8 valid encoding, repalce with ?).
 }

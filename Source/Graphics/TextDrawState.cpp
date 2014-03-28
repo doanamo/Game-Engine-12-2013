@@ -7,10 +7,10 @@
 TextDrawState::TextDrawState() :
     m_drawInfo(nullptr),
     m_fontScale(0.0f),
+    m_textBuffer(),
+    m_textIterator(m_textBuffer.end()),
     m_textLength(0),
     m_textLine(0),
-    m_textIterator(nullptr),
-    m_textEnd(nullptr),
     m_characterIndex(-1),
     m_characterCurrent('\0'),
     m_characterPrevious('\0'),
@@ -56,19 +56,27 @@ bool TextDrawState::Initialize(const TextDrawInfo& info, const char* text)
     // Calculate font scale.
     m_fontScale = info.font->GetScaling(info.size);
 
-    // Calculate text size.
-    size_t textSize = strlen(text);
+    // Perform UTF8 validation on the text string and copy it to a buffer.
+    const char InvalidCharacter = '?';
 
-    // Check if the text is valid.
-    if(!utf8::is_valid(text, text + textSize))
-        return false;
+    try
+    {
+        utf8::replace_invalid(text, text + strlen(text), std::back_inserter(m_textBuffer), InvalidCharacter);
+    }
+    catch(const utf8::not_enough_room&)
+    {
+        // Workaround for UTF8 library bug.
+        // Function utf8::replace_invalid() sometimes throws this exception if
+        // the last UTF8 character is invalid, instead of just replacing it.
+        // Example string that triggers it: "Helloæ" (not UTF8)
+        m_textBuffer.push_back(InvalidCharacter);
+    }
 
     // Calculate text length.
-    m_textLength = utf8::distance(text, text + textSize);
+    m_textLength = utf8::distance(m_textBuffer.begin(), m_textBuffer.end());
 
-    // Set text iterators.
-    m_textIterator = text;
-    m_textEnd = text + textSize;
+    // Set the text iterators.
+    m_textIterator = m_textBuffer.begin();
 
     // Check if we want to wrap the text.
     if(info.area.x > 0.0f)
@@ -100,10 +108,11 @@ void TextDrawState::Cleanup()
 
     m_fontScale = 0.0f;
 
+    m_textBuffer.clear();
+    m_textIterator = m_textBuffer.end();
+
     m_textLength = 0;
     m_textLine = 0;
-    m_textIterator = nullptr;
-    m_textEnd = nullptr;
 
     m_characterIndex = -1;
     m_characterCurrent = '\0';
@@ -147,8 +156,8 @@ bool TextDrawState::ProcessNext()
     m_characterPrevious = m_characterCurrent;
 
     // Get the next UTF-8 encoded character.
-    const char* currentIterator = m_textIterator;
-    m_characterCurrent = utf8::next(m_textIterator, m_textEnd);
+    std::string::iterator currentIterator = m_textIterator;
+    m_characterCurrent = utf8::next(m_textIterator, m_textBuffer.end());
 
     // Increment the character index.
     ++m_characterIndex;
@@ -181,12 +190,12 @@ bool TextDrawState::ProcessNext()
             float wordSize = 0.0f;
 
             FT_ULong wordCharacterPrevious = ' ';
-            const char* wordCharacterIterator = currentIterator;
+            std::string::iterator wordCharacterIterator = currentIterator;
 
-            while(wordCharacterIterator != m_textEnd)
+            while(wordCharacterIterator != m_textBuffer.end())
             {
                 // Get the next word character.
-                FT_ULong wordCharacterCurrent = utf8::next(wordCharacterIterator, m_textEnd);
+                FT_ULong wordCharacterCurrent = utf8::next(wordCharacterIterator, m_textBuffer.end());
 
                 // Check if we reached an end of a word.
                 if(wordCharacterCurrent == ' ')
@@ -284,7 +293,7 @@ bool TextDrawState::ProcessNext()
 
 bool TextDrawState::IsDone() const
 {
-    return m_textIterator == m_textEnd;
+    return m_textIterator == m_textBuffer.end();
 }
 
 void TextDrawState::MoveNextLine()
