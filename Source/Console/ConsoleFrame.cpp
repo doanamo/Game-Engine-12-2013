@@ -262,7 +262,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
     return m_open;
 }
 
-void ConsoleFrame::Draw(const glm::mat4& transform)
+void ConsoleFrame::Draw(const glm::mat4& transform, glm::vec2 targetSize)
 {
     if(!m_initialized)
         return;
@@ -273,18 +273,15 @@ void ConsoleFrame::Draw(const glm::mat4& transform)
         const float fontSpacing = Main::DefaultFont().GetLineSpacing() * Main::DefaultFont().GetScaling(fontSize);
 
         // Calculate console metrics.
-        float windowWidth = Console::windowWidth;
-        float windowHeight = Console::windowHeight;
-
         float consoleExtra = 1.0f;
         float consoleSize = (float)ConsoleSize * fontSpacing;
-        float consolePosition = windowHeight - consoleSize;
+        float consolePosition = targetSize.y - consoleSize;
 
         // Draw console background.
         ShapeRenderer::Quad quad;
         quad.position.x = 0.0f;
         quad.position.y = consolePosition - consoleExtra;
-        quad.size.x = windowWidth;
+        quad.size.x = targetSize.x;
         quad.size.y = consoleSize + consoleExtra;
         quad.color = glm::vec4(0.0f, 0.0f, 0.0f, 0.85f);
         quad.texture = nullptr;

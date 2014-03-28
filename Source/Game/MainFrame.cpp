@@ -2,6 +2,7 @@
 #include "MainFrame.hpp"
 
 #include "MainContext.hpp"
+#include "Graphics/ScreenSpace.hpp"
 #include "Graphics/CoreRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
 
@@ -36,12 +37,28 @@ void MainFrame::Update(float dt)
 
 void MainFrame::Draw()
 {
+    //
+    // Setup View
+    //
+
+    // Get window size.
     float windowWidth = Console::windowWidth;
     float windowHeight = Console::windowHeight;
 
-    float scale = 1.0f;
+    // Setup screen space.
+    ScreenSpace screenSpace;
+    screenSpace.SetSourceSize(windowWidth, windowHeight);
+    screenSpace.SetTargetSize(1410.0f, 900.0f);
 
-    glm::mat4 transform = glm::ortho(0.0f, windowWidth * scale, 0.0f, windowHeight * scale);
+    // Setup matrices.
+    glm::vec4 rectangle = screenSpace.GetRectangle();
+    glm::mat4 projection = glm::ortho(rectangle.x, rectangle.y, rectangle.z, rectangle.w);
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(screenSpace.GetOffset(), 0.0f));
+    glm::mat4 transform = projection * view;
+
+    //
+    // Draw Text
+    //
 
     // Clear the back buffer.
     Main::CoreRenderer().SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -53,7 +70,7 @@ void MainFrame::Draw()
     drawInfo.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     drawInfo.font = &Main::DefaultFont();
     drawInfo.size = 256;
-    drawInfo.position = glm::vec2(50.0f, 800.0f * scale);
+    drawInfo.position = glm::vec2(50.0f, 800.0f);
     drawInfo.debug = true;
 
     std::string ascii;
