@@ -4,6 +4,7 @@
 #include "Console/ConsoleFrame.hpp"
 
 #include "Graphics/Font.hpp"
+#include "Graphics/ScreenSpace.hpp"
 #include "Graphics/CoreRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
 #include "Graphics/ShapeRenderer.hpp"
@@ -20,6 +21,7 @@
 namespace Console
 {
     ConsoleVariable drawFrameRate("r_drawfps", true, "Displays current frame rate on the screen.");
+    ConsoleVariable debugScreenBorders("debug_screenborders", false, "Enables debug draw of screen borders.");
 }
 
 //
@@ -105,6 +107,10 @@ int main(int argc, char* argv[])
         int windowWidth = Console::windowWidth;
         int windowHeight = Console::windowHeight;
 
+        // Setup screen space.
+        Main::ScreenSpace().SetSourceSize((float)windowWidth, (float)windowHeight);
+        Main::ScreenSpace().SetTargetAspect(16.0f / 9.0f);
+
         // Update frame counter.
         Main::FrameCounter().Update(dt);
 
@@ -115,13 +121,32 @@ int main(int argc, char* argv[])
         Main::MainFrame().Update(dt);
 
         // Setup the viewport.
-        glViewport(0, 0, windowWidth, windowHeight);
+        glm::ivec4 viewport(0, 0, windowWidth, windowHeight);
+        glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
+
+        // Clear the screen.
+        Main::CoreRenderer().SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        Main::CoreRenderer().Clear(ClearFlags::Color);
+
+        // Calculate projection.
+        glm::vec4 screenSpace = Main::ScreenSpace().GetRectangle();
+        glm::mat4x4 projection = glm::ortho(screenSpace.x, screenSpace.y, screenSpace.z, screenSpace.w);
+        glm::mat4x4 view = glm::translate(glm::mat4(1.0f), glm::vec3(Main::ScreenSpace().GetOffset(), 0.0f));
+        glm::mat4x4 transform = projection * view;
+
+        // Calculate scissor area.
+        glm::vec3 position = glm::project(glm::vec3(0.0f, 0.0f, 0.0f), view, projection, viewport);
+        glm::vec3 size = glm::project(glm::vec3(Main::ScreenSpace().GetTargetSize(), 0.0f), view, projection, viewport) - position;
+
+        glScissor((int)(position.x + 0.5f), (int)(position.y + 0.5f), (int)(size.x + 0.5f), (int)(size.y + 0.5f));
+
+        // Toggle scissor test.
+        glEnable(GL_SCISSOR_TEST);
+    
+        SCOPE_GUARD(glDisable(GL_SCISSOR_TEST));
 
         // Draw the main frame.
         Main::MainFrame().Draw();
-
-        // Calculate projection.
-        glm::mat4x4 projection = glm::ortho(0.0f, (float)windowWidth, 0.0f, (float)windowHeight);
 
         // Draw frame rate.
         if(Console::drawFrameRate)
@@ -137,11 +162,22 @@ int main(int argc, char* argv[])
             info.position.x = 10.0f;
             info.position.y = 5.0f + Main::DefaultFont().GetLineSpacing() * Main::DefaultFont().GetScaling(info.size);
 
-            Main::TextRenderer().Draw(info, projection, frameCounterText.str().c_str());
+            Main::TextRenderer().Draw(info, transform, frameCounterText.str().c_str());
+        }
+
+        // Draw debug screen target borders.
+        if(Console::debugScreenBorders)
+        {
+            ShapeRenderer::Rectangle rectangle;
+            rectangle.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+            rectangle.position = glm::vec2(0.0f, 0.0f);
+            rectangle.size = Main::ScreenSpace().GetTargetSize();
+
+            Main::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
         }
 
         // Draw console frame.
-        Main::ConsoleFrame().Draw(projection);
+        Main::ConsoleFrame().Draw(transform, Main::ScreenSpace().GetTargetSize());
 
         // Present the window content.
         bool verticalSync = false;

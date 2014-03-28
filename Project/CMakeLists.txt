@@ -154,6 +154,8 @@ Set(SourceFiles
     "System/FrameCounter.cpp"
     "System/CacheManager.hpp"
     "System/CacheManager.cpp"
+    "Graphics/ScreenSpace.hpp"
+    "Graphics/ScreenSpace.cpp"
     "Graphics/CoreRenderer.hpp"
     "Graphics/CoreRenderer.cpp"
     "Graphics/Shader.hpp"

@@ -16,6 +16,7 @@
 #include "Graphics/Texture.hpp"
 #include "Graphics/Font.hpp"
 
+#include "Graphics/ScreenSpace.hpp"
 #include "Graphics/CoreRenderer.hpp"
 #include "Graphics/ShapeRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
@@ -58,6 +59,7 @@ namespace
     ConsoleSystem       consoleSystem;
     ConsoleHistory      consoleHistory;
     ConsoleFrame        consoleFrame;
+    ScreenSpace         screenSpace;
     CoreRenderer        coreRenderer;
     ShapeRenderer       shapeRenderer;
     TextRenderer        textRenderer;
@@ -396,6 +398,8 @@ void Main::Cleanup()
     // Graphics
     //
 
+    screenSpace.Cleanup();
+
     textRenderer.Cleanup();
     shapeRenderer.Cleanup();
     coreRenderer.Cleanup();
@@ -537,6 +541,11 @@ ConsoleHistory& Main::ConsoleHistory()
 ConsoleFrame& Main::ConsoleFrame()
 {
     return consoleFrame;
+}
+
+ScreenSpace& Main::ScreenSpace()
+{
+    return screenSpace;
 }
 
 CoreRenderer& Main::CoreRenderer()
