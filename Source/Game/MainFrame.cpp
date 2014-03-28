@@ -45,10 +45,14 @@ void MainFrame::Draw()
     float windowWidth = Console::windowWidth;
     float windowHeight = Console::windowHeight;
 
+    // Set target size.
+    float targetWidth = 1410.0f;
+    float targetHeight = 900.0f;
+
     // Setup screen space.
     ScreenSpace screenSpace;
     screenSpace.SetSourceSize(windowWidth, windowHeight);
-    screenSpace.SetTargetSize(1410.0f, 900.0f);
+    screenSpace.SetTargetSize(targetWidth, targetHeight);
 
     // Setup matrices.
     glm::vec4 rectangle = screenSpace.GetRectangle();
@@ -69,26 +73,11 @@ void MainFrame::Draw()
     TextDrawInfo drawInfo;
     drawInfo.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     drawInfo.font = &Main::DefaultFont();
-    drawInfo.size = 256;
-    drawInfo.position = glm::vec2(50.0f, 800.0f);
+    drawInfo.size = 128;
+    drawInfo.position = glm::vec2(targetWidth * 0.5f, targetHeight * 0.5f);
     drawInfo.debug = true;
 
-    std::string ascii;
-    int breakCounter = 0;
-
-    for(char c = 33; c < 127; ++c)
-    {
-        ascii.push_back(c);
-
-        if(++breakCounter == 20)
-        {
-            ascii.push_back('\n');
-            breakCounter = 0;
-        }
-    }
-
-    //Main::TextRenderer().Draw(drawInfo, transform, ascii.c_str());
-    Main::TextRenderer().Draw(drawInfo, transform, "Hello world!\n1234567890");
+    Main::TextRenderer().Draw(drawInfo, transform, "Centered");
 
     // Those character will break the output: óœ³ (not utf8 valid encoding, repalce with ?).
 }
