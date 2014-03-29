@@ -21,7 +21,7 @@
 namespace Console
 {
     ConsoleVariable drawFrameRate("r_drawfps", true, "Displays current frame rate on the screen.");
-    ConsoleVariable debugScreenBorder("debug_screenborder", false, "Enables screen border debugging.");
+    ConsoleVariable debugScreenBorders("debug_screenborders", false, "Enables debug draw of screen borders.");
 }
 
 //
@@ -166,7 +166,7 @@ int main(int argc, char* argv[])
         }
 
         // Draw debug screen target borders.
-        if(Console::debugScreenBorder)
+        if(Console::debugScreenBorders)
         {
             ShapeRenderer::Rectangle rectangle;
             rectangle.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
