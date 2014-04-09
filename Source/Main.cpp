@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 
     // Window settings.
     Console::windowName = "Window";
-    Console::windowWidth = 1410;
+    Console::windowWidth = 1600;
     Console::windowHeight = 900;
     Console::windowResize = true;
 
@@ -109,7 +109,7 @@ int main(int argc, char* argv[])
 
         // Setup screen space.
         Main::ScreenSpace().SetSourceSize((float)windowWidth, (float)windowHeight);
-        Main::ScreenSpace().SetTargetAspect(1410.0f / 900.0f);
+        Main::ScreenSpace().SetTargetAspect(1600.0f / 900.0f);
 
         // Update frame counter.
         Main::FrameCounter().Update(dt);

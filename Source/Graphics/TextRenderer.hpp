@@ -10,6 +10,24 @@
 class Font;
 
 //
+// Text Draw Align
+//
+
+struct TextDrawAlign
+{
+    enum Type
+    {
+        TopLeft,
+        TopRight,
+        BottomLeft,
+        BottomRight,
+        Centered,
+
+        Default = TopLeft,
+    };
+};
+
+//
 // Text Draw Info
 //
 
@@ -19,6 +37,7 @@ struct TextDrawInfo
     TextDrawInfo() :
         font(nullptr),
         size(12),
+        align(TextDrawAlign::Default),
         color(0.0f, 0.0f, 0.0f, 1.0f),
         position(0.0f, 0.0f),
         area(0.0f, 0.0f),
@@ -32,6 +51,9 @@ struct TextDrawInfo
 
     // Font size;
     float size;
+
+    // Text align.
+    TextDrawAlign::Type align;
 
     // Color of the drawn text.
     glm::vec4 color;
@@ -61,17 +83,17 @@ struct TextDrawMetrics
 {
     // Default constructor.
     TextDrawMetrics() :
+        textArea(0.0f, 0.0f, 0.0f, 0.0f),
         boundingBox(0.0f, 0.0f, 0.0f, 0.0f),
-        drawingArea(0.0f, 0.0f, 0.0f, 0.0f),
         lines(0)
     {
     }
 
+    // Text drawing area.
+    glm::vec4 textArea;
+
     // Text bounding box.
     glm::vec4 boundingBox;
-
-    // Text drawing area.
-    glm::vec4 drawingArea;
 
     // Text lines.
     int lines;

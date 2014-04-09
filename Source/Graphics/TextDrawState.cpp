@@ -5,24 +5,25 @@
 #include "TextRenderer.hpp"
 
 TextDrawState::TextDrawState() :
+    m_initialized(false),
     m_drawInfo(nullptr),
     m_fontScale(0.0f),
+    m_textWrap(false),
     m_textBuffer(),
-    m_textIterator(m_textBuffer.end()),
     m_textLength(0),
     m_textLine(0),
+    m_textIterator(m_textBuffer.end()),
     m_characterIndex(-1),
     m_characterCurrent('\0'),
     m_characterPrevious('\0'),
     m_wordProcessed(true),
-    m_wordWrap(false),
-    m_drawPosition(0.0f, 0.0f),
-    m_drawArea(0.0f, 0.0f, 0.0f, 0.0f),
     m_glyph(nullptr),
+    m_drawPosition(0.0f, 0.0f),
     m_cursorPosition(0.0f, 0.0f),
     m_cursorPresent(false),
+    m_textArea(0.0f, 0.0f, 0.0f, 0.0f),
     m_boundingBox(0.0f, 0.0f, 0.0f, 0.0f),
-    m_initialized(false)
+    m_alignOffset(0.0f, 0.0f)
 {
 }
 
@@ -80,7 +81,7 @@ bool TextDrawState::Initialize(const TextDrawInfo& info, const char* text)
 
     // Check if we want to wrap the text.
     if(info.area.x > 0.0f)
-        m_wordWrap = true;
+        m_textWrap = true;
 
     // Set initial drawing position.
     m_drawPosition.x = info.position.x;
@@ -93,8 +94,11 @@ bool TextDrawState::Initialize(const TextDrawInfo& info, const char* text)
         m_cursorPresent = true;
     }
 
-    // Sucsess!
+    // Set base initialized state.
     m_initialized = true;
+
+    // Calculate text metrics.
+    this->CalculateMetrics();
 
     return true;
 }
@@ -105,35 +109,38 @@ void TextDrawState::Cleanup()
         return;
 
     m_drawInfo = nullptr;
-
     m_fontScale = 0.0f;
+    m_textWrap = false;
 
     m_textBuffer.clear();
-    m_textIterator = m_textBuffer.end();
-
     m_textLength = 0;
     m_textLine = 0;
+
+    m_textIterator = m_textBuffer.end();
 
     m_characterIndex = -1;
     m_characterCurrent = '\0';
     m_characterPrevious = '\0';
 
     m_wordProcessed = true;
-    m_wordWrap = false;
-
-    m_drawPosition = glm::vec2(0.0f, 0.0f);
-    m_drawArea = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
     m_glyph = nullptr;
+
+    m_drawPosition = glm::vec2(0.0f, 0.0f);
 
     m_cursorPosition = glm::vec2(0.0f, 0.0f);
     m_cursorPresent = false;
 
+    m_textArea = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
     m_boundingBox = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+    m_alignOffset = glm::vec2(0.0f, 0.0f);
 
     m_initialized = false;
 }
 
+// Processes the next character.
+// Returns true if processed character should be drawn.
+// Returns false if processed character should be skipped.
 bool TextDrawState::ProcessNext()
 {
     if(!m_initialized)
@@ -172,7 +179,7 @@ bool TextDrawState::ProcessNext()
         }
 
         // Skip this character entirely.
-        return true;
+        return false;
     }
     else
     if(m_characterCurrent == ' ')
@@ -185,7 +192,7 @@ bool TextDrawState::ProcessNext()
     if(m_characterCurrent != ' ' && m_wordProcessed == false)
     {
         // Check if a word will fit in the current line.
-        if(m_wordWrap)
+        if(m_textWrap)
         {
             float wordSize = 0.0f;
 
@@ -240,10 +247,8 @@ bool TextDrawState::ProcessNext()
     }
 
     // Get glyph description.
-    const Glyph* glyph = m_drawInfo->font->GetGlyph(m_characterCurrent);
-    assert(glyph != nullptr);
-
-    m_glyph = glyph;
+    m_glyph = m_drawInfo->font->GetGlyph(m_characterCurrent);
+    assert(m_glyph != nullptr);
 
     // Apply glyph kerning.
     if(m_characterIndex != 0)
@@ -255,45 +260,114 @@ bool TextDrawState::ProcessNext()
     // Check if it's the cursor position.
     if(m_drawInfo->cursorIndex == m_characterIndex + 1)
     {
-        m_cursorPosition.x = m_drawPosition.x + glyph->advance.x * m_fontScale;
-        m_cursorPosition.y = m_drawPosition.y + glyph->advance.y * m_fontScale;
+        m_cursorPosition.x = m_drawPosition.x + m_glyph->advance.x * m_fontScale;
+        m_cursorPosition.y = m_drawPosition.y + m_glyph->advance.y * m_fontScale;
     }
 
-    // Set initial bounding box.
-    if(m_characterIndex == 0)
-    {
-        m_boundingBox.x = m_boundingBox.y = std::numeric_limits<float>::max();
-        m_boundingBox.z = m_boundingBox.w = std::numeric_limits<float>::min();
-    }
-
-    // Calculate current bounding box.
-    m_boundingBox.x = std::min(m_boundingBox.x, m_drawPosition.x + glyph->offset.x * m_fontScale);
-    m_boundingBox.y = std::min(m_boundingBox.y, m_drawPosition.y + glyph->offset.y * m_fontScale);
-    m_boundingBox.z = std::max(m_boundingBox.z, m_drawPosition.x + (glyph->offset.x + glyph->size.x) * m_fontScale);
-    m_boundingBox.w = std::max(m_boundingBox.w, m_drawPosition.y + (glyph->offset.y + glyph->size.y) * m_fontScale);
-
-    // Calculate current draw area.
-    m_drawArea.x = m_drawInfo->position.x;
-    m_drawArea.y = m_drawPosition.y + m_drawInfo->font->GetDescender() * m_fontScale;
-
-    if(m_wordWrap)
-    {
-        m_drawArea.z = m_drawInfo->position.x + m_drawInfo->area.x;
-    }
-    else
-    {
-        m_drawArea.z = std::max(m_drawArea.z, m_drawPosition.x + glyph->advance.x * m_fontScale);
-        //m_drawArea.z = m_boundingBox.z;
-    }
-
-    m_drawArea.w = m_drawInfo->position.y;
-
-    return false;
+    // Draw this character.
+    return true;
 }
 
 bool TextDrawState::IsDone() const
 {
     return m_textIterator == m_textBuffer.end();
+}
+
+void TextDrawState::Reset()
+{
+    if(!m_initialized)
+        return;
+
+    // Reset character iterators.
+    m_textIterator = m_textBuffer.begin();
+
+    m_characterIndex = -1;
+    m_characterCurrent = '\0';
+    m_characterPrevious = '\0';
+
+    // Reset text state.
+    m_wordProcessed = true;
+
+    // Reset current glyph.
+    m_glyph = nullptr;
+
+    // Reset drawing position.
+    m_drawPosition.x = m_drawInfo->position.x;
+    m_drawPosition.y = m_drawInfo->position.y - m_drawInfo->font->GetAscender() * m_fontScale;
+
+    // Reset cursor position.
+    if(m_drawInfo->cursorIndex >= 0 && m_drawInfo->cursorIndex <= m_textLength)
+    {
+        m_cursorPosition = m_drawPosition;
+        m_cursorPresent = true;
+    }
+}
+
+void TextDrawState::CalculateMetrics()
+{
+    assert(m_initialized);
+
+    // Set initial bounding box.
+    m_boundingBox.x = m_boundingBox.y = std::numeric_limits<float>::max();
+    m_boundingBox.z = m_boundingBox.w = std::numeric_limits<float>::min();
+
+    // Process all characters.
+    while(!this->IsDone())
+    {
+        // Process next character.
+        if(!this->ProcessNext())
+            continue;
+
+        // Calculate current bounding box.
+        m_boundingBox.x = std::min(m_boundingBox.x, m_drawPosition.x + m_glyph->offset.x * m_fontScale);
+        m_boundingBox.y = std::min(m_boundingBox.y, m_drawPosition.y + m_glyph->offset.y * m_fontScale);
+        m_boundingBox.z = std::max(m_boundingBox.z, m_drawPosition.x + (m_glyph->offset.x + m_glyph->size.x) * m_fontScale);
+        m_boundingBox.w = std::max(m_boundingBox.w, m_drawPosition.y + (m_glyph->offset.y + m_glyph->size.y) * m_fontScale);
+
+        // Calculate current text area.
+        m_textArea.x = m_drawInfo->position.x;
+        m_textArea.y = m_drawPosition.y + m_drawInfo->font->GetDescender() * m_fontScale;
+
+        if(m_textWrap)
+        {
+            m_textArea.z = m_drawInfo->position.x + m_drawInfo->area.x;
+        }
+        else
+        {
+            m_textArea.z = std::max(m_textArea.z, m_drawPosition.x + m_glyph->advance.x * m_fontScale);
+        }
+
+        m_textArea.w = m_drawInfo->position.y;
+    }
+
+    // Calculate text align offset.
+    switch(m_drawInfo->align)
+    {
+    case TextDrawAlign::TopLeft:
+        // Default align.
+        break;
+
+    case TextDrawAlign::TopRight:
+        m_alignOffset.x -= (m_textArea.z - m_textArea.x);
+        break;
+
+    case TextDrawAlign::BottomLeft:
+        m_alignOffset.y += (m_textArea.w - m_textArea.y);
+        break;
+
+    case TextDrawAlign::BottomRight:
+        m_alignOffset.x -= (m_textArea.z - m_textArea.x);
+        m_alignOffset.y += (m_textArea.w - m_textArea.y);
+        break;
+
+    case TextDrawAlign::Centered:
+        m_alignOffset.x -= (m_textArea.z - m_textArea.x) * 0.5f;
+        m_alignOffset.y += (m_textArea.w - m_textArea.y) * 0.5f;
+        break;
+    }
+
+    // Reset the draw state.
+    this->Reset();
 }
 
 void TextDrawState::MoveNextLine()

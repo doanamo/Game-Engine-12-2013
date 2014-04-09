@@ -46,7 +46,7 @@ void MainFrame::Draw()
     float windowHeight = Console::windowHeight;
 
     // Set target size.
-    float targetWidth = 1410.0f;
+    float targetWidth = 1600.0f;
     float targetHeight = 900.0f;
 
     // Setup screen space.
@@ -76,6 +76,7 @@ void MainFrame::Draw()
         drawInfo.font = &Main::DefaultFont();
         drawInfo.size = 128;
         drawInfo.position = glm::vec2(targetWidth * 0.05f, targetHeight * 0.95f);
+        drawInfo.align = TextDrawAlign::TopLeft;
         drawInfo.debug = true;
 
         Main::TextRenderer().Draw(drawInfo, transform, "Top Left");
@@ -87,6 +88,7 @@ void MainFrame::Draw()
         drawInfo.font = &Main::DefaultFont();
         drawInfo.size = 128;
         drawInfo.position = glm::vec2(targetWidth * 0.95f, targetHeight * 0.95f);
+        drawInfo.align = TextDrawAlign::TopRight;
         drawInfo.debug = true;
 
         Main::TextRenderer().Draw(drawInfo, transform, "Top Right");
@@ -98,20 +100,10 @@ void MainFrame::Draw()
         drawInfo.font = &Main::DefaultFont();
         drawInfo.size = 128;
         drawInfo.position = glm::vec2(targetWidth * 0.5f, targetHeight * 0.5f);
+        drawInfo.align = TextDrawAlign::Centered;
         drawInfo.debug = true;
 
         Main::TextRenderer().Draw(drawInfo, transform, "Centered");
-    }
-    
-    {
-        TextDrawInfo drawInfo;
-        drawInfo.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-        drawInfo.font = &Main::DefaultFont();
-        drawInfo.size = 128;
-        drawInfo.position = glm::vec2(targetWidth * 0.95f, targetHeight * 0.05f);
-        drawInfo.debug = true;
-
-        Main::TextRenderer().Draw(drawInfo, transform, "Bottom Right");
     }
 
     {
@@ -120,8 +112,21 @@ void MainFrame::Draw()
         drawInfo.font = &Main::DefaultFont();
         drawInfo.size = 128;
         drawInfo.position = glm::vec2(targetWidth * 0.05f, targetHeight * 0.05f);
+        drawInfo.align = TextDrawAlign::BottomLeft;
         drawInfo.debug = true;
 
         Main::TextRenderer().Draw(drawInfo, transform, "Bottom Left");
+    }
+
+    {
+        TextDrawInfo drawInfo;
+        drawInfo.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        drawInfo.font = &Main::DefaultFont();
+        drawInfo.size = 128;
+        drawInfo.position = glm::vec2(targetWidth * 0.95f, targetHeight * 0.05f);
+        drawInfo.align = TextDrawAlign::BottomRight;
+        drawInfo.debug = true;
+
+        Main::TextRenderer().Draw(drawInfo, transform, "Bottom Right");
     }
 }

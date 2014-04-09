@@ -159,15 +159,9 @@ TextDrawMetrics TextRenderer::Measure(const TextDrawInfo& info, const char* text
     if(!m_drawState.Initialize(info, text))
         return output;
 
-    // Process all characters.
-    while(!m_drawState.IsDone())
-    {
-        m_drawState.ProcessNext();
-    }
-
     // Return draw metrics.
+    output.textArea = m_drawState.GetTextArea();
     output.boundingBox = m_drawState.GetBoundingBox();
-    output.drawingArea = m_drawState.GetDrawArea();
     output.lines = m_drawState.GetCurrentLine() + 1;
 
     return output;
@@ -185,10 +179,10 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
     // Debug drawing.
     bool debugDraw = info.debug || Console::debugTextRenderer;
 
-    float baselineMaxWidth = m_drawState.GetDrawPosition().x;
+    float baselineMaxWidth = m_drawState.GetDrawPosition().x + m_drawState.GetAlignOffset().x;
 
-    glm::vec2 baselineBegin(m_drawState.GetDrawPosition());
-    glm::vec2 baselineEnd(m_drawState.GetDrawPosition());
+    glm::vec2 baselineBegin(m_drawState.GetDrawPosition() + m_drawState.GetAlignOffset());
+    glm::vec2 baselineEnd(m_drawState.GetDrawPosition() + m_drawState.GetAlignOffset());
 
     std::vector<ShapeRenderer::Line> debugLines;
     std::vector<ShapeRenderer::Rectangle> debugRectangles;
@@ -274,7 +268,7 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
     while(!m_drawState.IsDone())
     {
         // Process next character.
-        if(m_drawState.ProcessNext())
+        if(!m_drawState.ProcessNext())
             continue;
 
         // Check if we moved to a next line.
@@ -287,8 +281,8 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
             }
 
             // Reset baseline position.
-            baselineBegin = m_drawState.GetDrawPosition();
-            baselineEnd = m_drawState.GetDrawPosition();
+            baselineBegin = m_drawState.GetDrawPosition() + m_drawState.GetAlignOffset();
+            baselineEnd = m_drawState.GetDrawPosition() + m_drawState.GetAlignOffset();
 
             // Set current line.
             currentLine = m_drawState.GetCurrentLine();
@@ -302,8 +296,8 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
         {
             // Fill a glyph instance data.
             GlyphData& glyphData = m_bufferData[glyphsBatched];
-            glyphData.position.x = m_drawState.GetDrawPosition().x + glyph->offset.x * m_drawState.GetFontScale();
-            glyphData.position.y = m_drawState.GetDrawPosition().y + glyph->offset.y * m_drawState.GetFontScale();
+            glyphData.position.x = m_drawState.GetDrawPosition().x + m_drawState.GetAlignOffset().x + glyph->offset.x * m_drawState.GetFontScale();
+            glyphData.position.y = m_drawState.GetDrawPosition().y + m_drawState.GetAlignOffset().y + glyph->offset.y * m_drawState.GetFontScale();
             glyphData.size.x = (float)glyph->size.x;
             glyphData.size.y = (float)glyph->size.y;
             glyphData.scale.x = m_drawState.GetFontScale();
@@ -327,7 +321,7 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
             }
 
             // Update baseline end.
-            baselineEnd.x = m_drawState.GetDrawPosition().x + glyph->advance.x * m_drawState.GetFontScale();
+            baselineEnd.x = m_drawState.GetDrawPosition().x + m_drawState.GetAlignOffset().x + glyph->advance.x * m_drawState.GetFontScale();
         }
     }
 
@@ -345,10 +339,10 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
     {
         ShapeRenderer::Line cursorLine;
         cursorLine.color = info.color;
-        cursorLine.begin.x = m_drawState.GetCursorPosition().x;
-        cursorLine.begin.y = m_drawState.GetCursorPosition().y + info.font->GetAscender() * m_drawState.GetFontScale();
-        cursorLine.end.x = m_drawState.GetCursorPosition().x;
-        cursorLine.end.y = m_drawState.GetCursorPosition().y + info.font->GetDescender() * m_drawState.GetFontScale();
+        cursorLine.begin.x = m_drawState.GetCursorPosition().x + m_drawState.GetAlignOffset().x;
+        cursorLine.begin.y = m_drawState.GetCursorPosition().y + m_drawState.GetAlignOffset().y + info.font->GetAscender() * m_drawState.GetFontScale();
+        cursorLine.end.x = m_drawState.GetCursorPosition().x + m_drawState.GetAlignOffset().x;
+        cursorLine.end.y = m_drawState.GetCursorPosition().y + m_drawState.GetAlignOffset().y + info.font->GetDescender() * m_drawState.GetFontScale();
 
         Main::ShapeRenderer().DrawLines(&cursorLine, 1, transform);
     }
@@ -375,10 +369,10 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
         {
             ShapeRenderer::Rectangle rectangle;
             rectangle.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-            rectangle.position.x = m_drawState.GetBoundingBox().x;
-            rectangle.position.y = m_drawState.GetBoundingBox().y;
-            rectangle.size.x = m_drawState.GetBoundingBox().z - rectangle.position.x;
-            rectangle.size.y = m_drawState.GetBoundingBox().w - rectangle.position.y;
+            rectangle.position.x = m_drawState.GetBoundingBox().x + m_drawState.GetAlignOffset().x;
+            rectangle.position.y = m_drawState.GetBoundingBox().y + m_drawState.GetAlignOffset().y;
+            rectangle.size.x = m_drawState.GetBoundingBox().z - m_drawState.GetBoundingBox().x;
+            rectangle.size.y = m_drawState.GetBoundingBox().w - m_drawState.GetBoundingBox().y;
 
             Main::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
         }
@@ -387,10 +381,10 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
         {
             ShapeRenderer::Rectangle rectangle;
             rectangle.color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
-            rectangle.position.x = m_drawState.GetDrawArea().x;
-            rectangle.position.y = m_drawState.GetDrawArea().y;
-            rectangle.size.x = m_drawState.GetDrawArea().z - rectangle.position.x + 1.0f;
-            rectangle.size.y = m_drawState.GetDrawArea().w - rectangle.position.y + 1.0f;
+            rectangle.position.x = m_drawState.GetTextArea().x + m_drawState.GetAlignOffset().x;
+            rectangle.position.y = m_drawState.GetTextArea().y + m_drawState.GetAlignOffset().y;
+            rectangle.size.x = m_drawState.GetTextArea().z - m_drawState.GetTextArea().x + 1.0f;
+            rectangle.size.y = m_drawState.GetTextArea().w - m_drawState.GetTextArea().y + 1.0f;
 
             Main::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
         }

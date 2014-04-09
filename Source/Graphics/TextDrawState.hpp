@@ -21,8 +21,11 @@ public:
 
     bool ProcessNext();
     bool IsDone() const;
+    void Reset();
 
 private:
+    void CalculateMetrics();
+
     void MoveNextLine();
     void AdvancePosition(const Glyph* glyph);
 
@@ -30,6 +33,11 @@ public:
     float GetFontScale() const
     {
         return m_fontScale;
+    }
+
+    bool IsTextWrapEnabled() const
+    {
+        return m_textWrap;
     }
 
     const std::string& GetProcessedString() const
@@ -57,11 +65,6 @@ public:
         return m_drawPosition;
     }
 
-    const glm::vec4& GetDrawArea() const
-    {
-        return m_drawArea;
-    }
-
     const Glyph* GetCurrentGlyph() const
     {
         return m_glyph;
@@ -72,14 +75,19 @@ public:
         return m_cursorPosition;
     }
 
+    const glm::vec4& GetTextArea() const
+    {
+        return m_textArea;
+    }
+
     const glm::vec4& GetBoundingBox() const
     {
         return m_boundingBox;
     }
 
-    bool IsWordWrapEnabled() const
+    const glm::vec2& GetAlignOffset() const
     {
-        return m_wordWrap;
+        return m_alignOffset;
     }
 
     bool IsCursorPresent() const
@@ -88,43 +96,56 @@ public:
     }
 
 private:
-    // Text draw info.
+    bool m_initialized;
+
+    //
+    // Draw Info
+    //
+
+    // Text info.
     const TextDrawInfo* m_drawInfo;
 
-    // Text font.
     float m_fontScale;
+    bool  m_textWrap;
 
     // Text buffer.
-    std::string           m_textBuffer;
-    std::string::iterator m_textIterator;
-
+    std::string m_textBuffer;
     int m_textLength;
     int m_textLine;
 
-    // Text character.
+    //
+    // Draw State
+    //
+
+    // Text iterator.
+    std::string::iterator m_textIterator;
+
+    // Current character.
     int      m_characterIndex;
     FT_ULong m_characterCurrent;
     FT_ULong m_characterPrevious;
 
-    // Text wrapping.
+    // Text wrap.
     bool m_wordProcessed;
-    bool m_wordWrap;
 
-    // Draw position.
-    glm::vec2 m_drawPosition;
-
-    // Text draw area.
-    glm::vec4 m_drawArea;
-
-    // Current character glyph.
+    // Current text glyph.
     const Glyph* m_glyph;
+
+    // Current draw position.
+    glm::vec2 m_drawPosition;
 
     // Text cursor.
     glm::vec2 m_cursorPosition;
     bool      m_cursorPresent;
 
-    // Text bounding box.
+    //
+    // Draw Metrics
+    //
+
+    // Text metrics.
+    glm::vec4 m_textArea;
     glm::vec4 m_boundingBox;
 
-    bool m_initialized;
+    // Text align offset.
+    glm::vec2 m_alignOffset;
 };
