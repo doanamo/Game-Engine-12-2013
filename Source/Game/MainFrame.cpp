@@ -65,67 +65,70 @@ void MainFrame::Draw()
     //
 
     // Clear the back buffer.
-    Main::CoreRenderer().SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    Main::CoreRenderer().SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     Main::CoreRenderer().SetClearDepth(1.0f);
     Main::CoreRenderer().Clear(ClearFlags::Color | ClearFlags::Depth);
 
     // Draw some text.
+    glm::vec4 textColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    bool textDebug = false;
+
     {
         TextDrawInfo drawInfo;
-        drawInfo.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        drawInfo.color = textColor;
         drawInfo.font = &Main::DefaultFont();
         drawInfo.size = 128;
         drawInfo.position = glm::vec2(targetWidth * 0.05f, targetHeight * 0.95f);
         drawInfo.align = TextDrawAlign::TopLeft;
-        drawInfo.debug = true;
+        drawInfo.debug = textDebug;
 
         Main::TextRenderer().Draw(drawInfo, transform, "Top Left");
     }
 
     {
         TextDrawInfo drawInfo;
-        drawInfo.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        drawInfo.color = textColor;
         drawInfo.font = &Main::DefaultFont();
         drawInfo.size = 128;
         drawInfo.position = glm::vec2(targetWidth * 0.95f, targetHeight * 0.95f);
         drawInfo.align = TextDrawAlign::TopRight;
-        drawInfo.debug = true;
+        drawInfo.debug = textDebug;
 
         Main::TextRenderer().Draw(drawInfo, transform, "Top Right");
     }
 
     {
         TextDrawInfo drawInfo;
-        drawInfo.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        drawInfo.color = textColor;
         drawInfo.font = &Main::DefaultFont();
         drawInfo.size = 128;
         drawInfo.position = glm::vec2(targetWidth * 0.5f, targetHeight * 0.5f);
         drawInfo.align = TextDrawAlign::Centered;
-        drawInfo.debug = true;
+        drawInfo.debug = textDebug;
 
         Main::TextRenderer().Draw(drawInfo, transform, "Centered");
     }
 
     {
         TextDrawInfo drawInfo;
-        drawInfo.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        drawInfo.color = textColor;
         drawInfo.font = &Main::DefaultFont();
         drawInfo.size = 128;
         drawInfo.position = glm::vec2(targetWidth * 0.05f, targetHeight * 0.05f);
         drawInfo.align = TextDrawAlign::BottomLeft;
-        drawInfo.debug = true;
+        drawInfo.debug = textDebug;
 
         Main::TextRenderer().Draw(drawInfo, transform, "Bottom Left");
     }
 
     {
         TextDrawInfo drawInfo;
-        drawInfo.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        drawInfo.color = textColor;
         drawInfo.font = &Main::DefaultFont();
         drawInfo.size = 128;
         drawInfo.position = glm::vec2(targetWidth * 0.95f, targetHeight * 0.05f);
         drawInfo.align = TextDrawAlign::BottomRight;
-        drawInfo.debug = true;
+        drawInfo.debug = textDebug;
 
         Main::TextRenderer().Draw(drawInfo, transform, "Bottom Right");
     }

@@ -40,17 +40,42 @@
 
     void main()
     {
-        // Use distance field to calculate glyph alpha value.
-        const float smoothness = 64.0f;
+        // Set initial foreground glyph color.
+        outputColor = fragmentColor;
 
-        float step = clamp(smoothness * (abs(dFdx(fragmentTexture.x)) + abs(dFdy(fragmentTexture.y))), 0.0f, 0.5f);
+        // Get distance from the glyph's edge.
         float distance = texture2D(fontTexture, fragmentTexture).r;
-        float alpha = smoothstep(0.5f - step, 0.5f + step, distance);
+
+        // Calculate edge smooth step.
+        float step = clamp(16.0f * (abs(dFdx(fragmentTexture.x)) + abs(dFdy(fragmentTexture.y))), 0.0f, 0.5f);
+
+        // Apply smoothed glyph edge alpha.
+        outputColor.a *= smoothstep(0.5f - step, 0.5f + step, distance);
+
+        // Create an outline.
+        float size = 0.1f;
+        float distanceMin = 0.5f - size;
+        float distanceMax = 0.5f + size;
+
+        if(distance >= (distanceMin - step) && distance <= (distanceMax + step))
+        {
+            float outline = 1.0f;
+
+            if(distance <= 0.5f)
+            {
+                // Outside glyph.
+                outline = smoothstep(distanceMin - step, distanceMin + step, distance);
+                outputColor = vec4(1.0f, 0.0f, 0.0f, outline);
+            }
+            else
+            {
+                // Inside glyph.
+                outline = smoothstep(distanceMax + step, distanceMax - step, distance);
+                outputColor = mix(outputColor, vec4(1.0f, 0.0f, 0.0f, 1.0f), outline);
+            }
+        }
 
         // Gamma correction.
-        alpha = pow(alpha, 1.0f / 2.2f);
-
-        // Output a final color.
-        outputColor = vec4(1.0f, 1.0f, 1.0f, alpha) * fragmentColor;
+        outputColor.a = pow(outputColor.a, 1.0f / 2.2f);
     }
 #endif

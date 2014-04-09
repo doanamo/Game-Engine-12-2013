@@ -22,7 +22,7 @@ namespace
     };
 
     const char* CacheMagic = "bbc33929-f3b8-45e8-aaeb-5e7820c54f6e";
-    const int CacheVersion = 2;
+    const int CacheVersion = 3;
 
     // Size of the atlas texture.
     const int AtlasWidth = 1024;
@@ -34,7 +34,7 @@ namespace
     // Signed distance field calculation parameters.
     const int DistanceFieldFontSize = 128;
     const int DistanceFieldDownscale = 8;
-    const int DistanceFieldSpread = 4;
+    const int DistanceFieldSpread = 8;
 
     const int DistanceFieldSpreadScaled = DistanceFieldSpread * DistanceFieldDownscale;
 
