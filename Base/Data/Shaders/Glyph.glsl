@@ -40,42 +40,59 @@
 
     void main()
     {
-        // Set initial foreground glyph color.
-        outputColor = fragmentColor;
+        vec4 glyphColor = fragmentColor;
+        vec4 outlineColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+
+        float outlineOuter = 0.5f;
+        float outlineInner = 0.5f;
 
         // Get distance from the glyph's edge.
         float distance = texture2D(fontTexture, fragmentTexture).r;
 
         // Calculate edge smooth step.
-        float step = clamp(16.0f * (abs(dFdx(fragmentTexture.x)) + abs(dFdy(fragmentTexture.y))), 0.0f, 0.5f);
+        float step = clamp(32.0f * (abs(dFdx(fragmentTexture.x)) + abs(dFdy(fragmentTexture.y))), 0.0f, outlineOuter);
 
-        // Apply smoothed glyph edge alpha.
-        outputColor.a *= smoothstep(0.5f - step, 0.5f + step, distance);
-
-        // Create an outline.
-        float size = 0.1f;
-        float distanceMin = 0.5f - size;
-        float distanceMax = 0.5f + size;
-
-        if(distance >= (distanceMin - step) && distance <= (distanceMax + step))
+        // Set foreground color.
+        if(outlineColor.a > 0.0f)
         {
-            float outline = 1.0f;
+            outputColor = vec4(outlineColor.rgb, 0.0f);
+        }
+        else
+        {
+            outputColor = vec4(glyphColor.rgb, 0.0f);
+        }
 
-            if(distance <= 0.5f)
+        // Create glyph outline.
+        float outlineMin = outlineOuter - step;
+        float outlineMax = outlineInner + step;
+
+        if(outlineColor.a > 0.0f && outlineMin <= distance && distance <= outlineMax)
+        {
+            float outlineAlpha = 1.0f;
+
+            if(distance <= outlineOuter)
             {
-                // Outside glyph.
-                outline = smoothstep(distanceMin - step, distanceMin + step, distance);
-                outputColor = vec4(1.0f, 0.0f, 0.0f, outline);
+                outlineAlpha = smoothstep(outlineOuter - step, outlineOuter + step, distance);
             }
-            else
+            else if(distance >= outlineInner)
             {
-                // Inside glyph.
-                outline = smoothstep(distanceMax + step, distanceMax - step, distance);
-                outputColor = mix(outputColor, vec4(1.0f, 0.0f, 0.0f, 1.0f), outline);
+                outlineAlpha = smoothstep(outlineInner + step, outlineInner - step, distance);
             }
+
+            outputColor = mix(outputColor, outlineColor, outlineAlpha);
+        }
+
+        // Create glyph body.
+        if(glyphColor.a > 0.0f)
+        {
+            float glyphAlpha = smoothstep(outlineInner - step, outlineInner + step, distance);
+            outputColor = mix(outputColor, glyphColor, glyphAlpha);
         }
 
         // Gamma correction.
         outputColor.a = pow(outputColor.a, 1.0f / 2.2f);
+
+        // Premultiply alpha.
+        outputColor.rgb *= outputColor.a;
     }
 #endif

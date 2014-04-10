@@ -222,10 +222,12 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
     // Calculate pixel size of the atlas texture.
     glm::vec2 pixelSize(1.0f / info.font->GetAtlasWidth(), 1.0f / info.font->GetAtlasHeight());
 
-    // Bind render states.
+    // Use premultiplied alpha.
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    // Bind render states.
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, info.font->GetAtlasTexture()->GetHandle());
 
