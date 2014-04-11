@@ -9,10 +9,22 @@
     layout(location = 2) in vec2 instanceSize;
     layout(location = 3) in vec2 instanceScale;
     layout(location = 4) in vec2 instanceTexture;
-    layout(location = 5) in vec4 instanceColor;
+
+    layout(location = 5) in vec4 instanceBodyColor;
+    layout(location = 6) in vec4 instanceOutlineColor;
+    layout(location = 7) in vec4 instanceGlowColor;
+
+    layout(location = 8) in vec2 instanceOutlineRange;
+    layout(location = 9) in vec2 instanceGlowRange;
 
     out vec2 fragmentTexture;
-    out vec4 fragmentColor;
+
+    out vec4 fragmentBodyColor;
+    out vec4 fragmentOutlineColor;
+    out vec4 fragmentGlowColor;
+
+    out vec2 fragmentOutlineRange;
+    out vec2 fragmentGlowRange;
 
     void main()
     {
@@ -25,8 +37,13 @@
         // Calculate texture coordinates (vertex position is the same as vertex texture for a quad).
         fragmentTexture = (vertexPosition * instanceSize + instanceTexture) * texturePixelSize;
 
-        // Set glyph color.
-        fragmentColor = instanceColor;
+        // Set glyph parameters.
+        fragmentBodyColor = instanceBodyColor;
+        fragmentOutlineColor = instanceOutlineColor;
+        fragmentGlowColor = instanceGlowColor;
+
+        fragmentOutlineRange = instanceOutlineRange;
+        fragmentGlowRange = instanceGlowRange;
     }
 #endif
 
@@ -34,24 +51,26 @@
     uniform sampler2D fontTexture;
 
     in vec2 fragmentTexture;
-    in vec4 fragmentColor;
+
+    in vec4 fragmentBodyColor;
+    in vec4 fragmentOutlineColor;
+    in vec4 fragmentGlowColor;
+
+    in vec2 fragmentOutlineRange;
+    in vec2 fragmentGlowRange;
 
     out vec4 outputColor;
 
     void main()
     {
         // Get glyph parameters.
-        vec4 glyphColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
-        vec4 outlineColor = vec4(1.0f, 0.0f, 0.0f, 0.0f);
-        vec4 glowColor = vec4(0.0f, 1.0f, 0.0f, 0.0f);
+        const float glyphThreshold = 0.5f;
 
-        float glyphThreshold = 0.5f;
+        float outlineOuter = fragmentOutlineRange.x;
+        float outlineInner = fragmentOutlineRange.y;
 
-        float outlineOuter = 0.45f;
-        float outlineInner = 0.55f;
-
-        float glowBegin = 0.6f;
-        float glowEnd = 0.2f;
+        float glowEnd = fragmentGlowRange.x;
+        float glowBegin = fragmentGlowRange.y;
 
         // Get distance from the glyph's edge.
         float distance = texture2D(fontTexture, fragmentTexture).r;
@@ -60,42 +79,45 @@
         float step = clamp(32.0f * (abs(dFdx(fragmentTexture.x)) + abs(dFdy(fragmentTexture.y))), 0.0f, outlineOuter);
 
         // Set initial color.
-        if(glowColor.a > 0.0f)
+        if(fragmentGlowColor.a > 0.0f)
         {
-            outputColor = vec4(glowColor.rgb, 0.0f);
+            outputColor = vec4(fragmentGlowColor.rgb, 0.0f);
         }
-        else if(outlineColor.a > 0.0f)
+        else if(fragmentOutlineColor.a > 0.0f)
         {
-            outputColor = vec4(outlineColor.rgb, 0.0f);
+            outputColor = vec4(fragmentOutlineColor.rgb, 0.0f);
         }
         else
         {
-            outputColor = vec4(glyphColor.rgb, 0.0f);
+            outputColor = vec4(fragmentBodyColor.rgb, 0.0f);
         }
 
         // Create glyph glow.
-        if(glowColor.a > 0.0f)
+        if(fragmentGlowColor.a > 0.0f)
         {
             vec2 glowOffset = vec2(0.0f, 0.0f);
             float glowDistance = texture2D(fontTexture, fragmentTexture + glowOffset).r;
             float glowAlpha = smoothstep(glowEnd, glowBegin, glowDistance);
 
-            outputColor = mix(outputColor, glowColor, glowAlpha);
+            outputColor = mix(outputColor, fragmentGlowColor, glowAlpha);
+
+            // Inverted gamma correction.
+            outputColor.a = pow(outputColor.a, 2.2f);
         }
 
         // Create glyph body.
-        if(glyphColor.a > 0.0f)
+        if(fragmentBodyColor.a > 0.0f)
         {
             float glyphAlpha = smoothstep(glyphThreshold - step, glyphThreshold + step, distance);
             
-            outputColor = mix(outputColor, glyphColor, glyphAlpha);
+            outputColor = mix(outputColor, fragmentBodyColor, glyphAlpha);
         }
 
         // Create glyph outline.
         float outlineMin = outlineOuter - step;
         float outlineMax = outlineInner + step;
 
-        if(outlineColor.a > 0.0f && outlineMin <= distance && distance <= outlineMax)
+        if(fragmentOutlineColor.a > 0.0f && outlineMin <= distance && distance <= outlineMax)
         {
             float outlineAlpha = 1.0f;
 
@@ -108,7 +130,7 @@
                 outlineAlpha = smoothstep(outlineInner + step, outlineInner - step, distance);
             }
 
-            outputColor = mix(outputColor, outlineColor, outlineAlpha);
+            outputColor = mix(outputColor, fragmentOutlineColor, outlineAlpha);
         }
 
         // Gamma correction.

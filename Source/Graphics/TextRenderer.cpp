@@ -99,7 +99,12 @@ bool TextRenderer::Initialize(int bufferSize)
         { &m_instanceBuffer, VertexAttributeTypes::Float2 }, // Size
         { &m_instanceBuffer, VertexAttributeTypes::Float2 }, // Scale
         { &m_instanceBuffer, VertexAttributeTypes::Float2 }, // Texture
-        { &m_instanceBuffer, VertexAttributeTypes::Float4 }, // Color
+
+        { &m_instanceBuffer, VertexAttributeTypes::Float4 }, // Body Color
+        { &m_instanceBuffer, VertexAttributeTypes::Float4 }, // Outline Color
+        { &m_instanceBuffer, VertexAttributeTypes::Float4 }, // Glow Color
+        { &m_instanceBuffer, VertexAttributeTypes::Float2 }, // Outline Range
+        { &m_instanceBuffer, VertexAttributeTypes::Float2 }, // Glow Range
     };
 
     if(!m_vertexInput.Initialize(&vertexAttributes[0], StaticArraySize(vertexAttributes)))
@@ -306,7 +311,11 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
             glyphData.scale.y = m_drawState.GetFontScale();
             glyphData.texture.x = (float)glyph->position.x;
             glyphData.texture.y = (float)glyph->position.y;
-            glyphData.color = info.color;
+            glyphData.bodyColor = info.bodyColor;
+            glyphData.outlineColor = info.outlineColor;
+            glyphData.glowColor = info.glowColor;
+            glyphData.outlineRange = info.outlineRange;
+            glyphData.glowRange = info.glowRange;
 
             ++glyphsBatched;
 
@@ -340,7 +349,7 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
     if(m_drawState.IsCursorPresent() && m_cursorBlinkTime < CursorBlinkTime * 0.5f)
     {
         ShapeRenderer::Line cursorLine;
-        cursorLine.color = info.color;
+        cursorLine.color = info.bodyColor;
         cursorLine.begin.x = m_drawState.GetCursorPosition().x + m_drawState.GetAlignOffset().x;
         cursorLine.begin.y = m_drawState.GetCursorPosition().y + m_drawState.GetAlignOffset().y + info.font->GetAscender() * m_drawState.GetFontScale();
         cursorLine.end.x = m_drawState.GetCursorPosition().x + m_drawState.GetAlignOffset().x;

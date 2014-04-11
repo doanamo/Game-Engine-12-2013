@@ -299,7 +299,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform, glm::vec2 targetSize)
             TextDrawInfo info;
             info.font = &Main::DefaultFont();
             info.size = fontSize;
-            info.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+            info.bodyColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
             info.position.x = 5.0f;
             info.position.y = consolePosition + (i + 2) * fontSpacing;
             //info.area.x = windowWidth - 1.0f;
@@ -317,7 +317,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform, glm::vec2 targetSize)
             TextDrawInfo info;
             info.font = &Main::DefaultFont();
             info.size = fontSize;
-            info.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+            info.bodyColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
             info.position.x = 5.0f;
             info.position.y = consolePosition + fontSpacing;
             //info.area.x = windowWidth - 1.0f;

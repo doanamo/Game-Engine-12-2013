@@ -158,7 +158,7 @@ int main(int argc, char* argv[])
             TextDrawInfo info;
             info.font = &Main::DefaultFont();
             info.size = 22;
-            info.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+            info.bodyColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
             info.position.x = 10.0f;
             info.position.y = 5.0f + Main::DefaultFont().GetLineSpacing() * Main::DefaultFont().GetScaling(info.size);
 
