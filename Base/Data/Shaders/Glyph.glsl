@@ -40,11 +40,18 @@
 
     void main()
     {
-        vec4 glyphColor = fragmentColor;
-        vec4 outlineColor = vec4(0.0f, 1.0f, 0.0f, 1.0f);
+        // Get glyph parameters.
+        vec4 glyphColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        vec4 outlineColor = vec4(1.0f, 0.0f, 0.0f, 0.0f);
+        vec4 glowColor = vec4(0.0f, 1.0f, 0.0f, 0.0f);
 
-        float outlineOuter = 0.5f;
-        float outlineInner = 0.5f;
+        float glyphThreshold = 0.5f;
+
+        float outlineOuter = 0.45f;
+        float outlineInner = 0.55f;
+
+        float glowBegin = 0.6f;
+        float glowEnd = 0.2f;
 
         // Get distance from the glyph's edge.
         float distance = texture2D(fontTexture, fragmentTexture).r;
@@ -52,14 +59,36 @@
         // Calculate edge smooth step.
         float step = clamp(32.0f * (abs(dFdx(fragmentTexture.x)) + abs(dFdy(fragmentTexture.y))), 0.0f, outlineOuter);
 
-        // Set foreground color.
-        if(outlineColor.a > 0.0f)
+        // Set initial color.
+        if(glowColor.a > 0.0f)
+        {
+            outputColor = vec4(glowColor.rgb, 0.0f);
+        }
+        else if(outlineColor.a > 0.0f)
         {
             outputColor = vec4(outlineColor.rgb, 0.0f);
         }
         else
         {
             outputColor = vec4(glyphColor.rgb, 0.0f);
+        }
+
+        // Create glyph glow.
+        if(glowColor.a > 0.0f)
+        {
+            vec2 glowOffset = vec2(0.0f, 0.0f);
+            float glowDistance = texture2D(fontTexture, fragmentTexture + glowOffset).r;
+            float glowAlpha = smoothstep(glowEnd, glowBegin, glowDistance);
+
+            outputColor = mix(outputColor, glowColor, glowAlpha);
+        }
+
+        // Create glyph body.
+        if(glyphColor.a > 0.0f)
+        {
+            float glyphAlpha = smoothstep(glyphThreshold - step, glyphThreshold + step, distance);
+            
+            outputColor = mix(outputColor, glyphColor, glyphAlpha);
         }
 
         // Create glyph outline.
@@ -80,13 +109,6 @@
             }
 
             outputColor = mix(outputColor, outlineColor, outlineAlpha);
-        }
-
-        // Create glyph body.
-        if(glyphColor.a > 0.0f)
-        {
-            float glyphAlpha = smoothstep(outlineInner - step, outlineInner + step, distance);
-            outputColor = mix(outputColor, glyphColor, glyphAlpha);
         }
 
         // Gamma correction.
