@@ -88,7 +88,7 @@ bool MenuFrame::Initialize()
 
         TextDrawMetrics metrics = Main::TextRenderer().Measure(info, element.text);
 
-        element.boundingBox = metrics.drawingArea;
+        element.boundingBox = metrics.textArea;
     }
 
     // Success!
@@ -224,7 +224,9 @@ void MenuFrame::Draw()
         TextDrawInfo info;
         info.font = &Main::DefaultFont();
         info.size = TitleFontSize;
-        info.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        info.bodyColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+        info.outlineColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        info.outlineRange = glm::vec2(0.45f, 0.55f);
         info.position.x = 50.0f;
         info.position.y = gameHeight + 10.0f;
 
@@ -240,20 +242,23 @@ void MenuFrame::Draw()
         TextDrawInfo info;
         info.font = &Main::DefaultFont();
         info.size = OptionFontSize;
+
+        info.outlineColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        info.outlineRange = glm::vec2(0.4f, 0.5f);
         
         if(m_elementSelected == i)
         {
-            info.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+            info.bodyColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
         }
         else
         {
             if(element.enabled)
             {
-                info.color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+                info.bodyColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
             }
             else
             {
-                info.color = glm::vec4(0.5f, 0.5f, 0.5f, 1.0f);
+                info.bodyColor = glm::vec4(0.0f, 0.0f, 0.0f, 0.05f);
             }
         }
 
