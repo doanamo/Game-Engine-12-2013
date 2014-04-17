@@ -13,6 +13,7 @@
 #include "CollisionSystem.hpp"
 #include "ScriptSystem.hpp"
 #include "RenderSystem.hpp"
+#include "InterfaceSystem.hpp"
 
 #include "HealthComponent.hpp"
 
@@ -128,6 +129,9 @@ void GameFrame::Update(float timeDelta)
     // Update the render system.
     Game::RenderSystem().Update();
 
+    // Update the interface system.
+    Game::InterfaceSystem().Update(timeDelta);
+
     // Update the health bar.
     HealthComponent* playerHealth = Game::HealthComponents().Lookup(m_playerEntity);
 
@@ -142,26 +146,12 @@ void GameFrame::Update(float timeDelta)
 
 void GameFrame::Draw()
 {
-    // Render entities.
+    // Draw the world.
     Game::RenderSystem().Draw();
+
+    // Draw the interface.
+    Game::InterfaceSystem().Draw();
 
     // Draw the health bar.
     m_playerHealthBar.Draw(glm::vec2(200.0f, 10.0f), Game::RenderSystem().GetTransform());
-
-    // Print debug game info.
-    {
-        std::stringstream text;
-        text << "Entities: " << Game::EntitySystem().GetEntityCount();
-
-        TextDrawInfo info;
-        info.font = &Main::DefaultFont();
-        info.size = 22;
-        info.bodyColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-        info.glowColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-        info.glowRange = glm::vec2(0.2f, 0.5f);
-        info.position.x = 10.0f;
-        info.position.y = 576.0f - 5.0f;
-
-        Main::TextRenderer().Draw(info, Game::RenderSystem().GetTransform(), text.str().c_str());
-    }
 }

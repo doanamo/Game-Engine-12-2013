@@ -235,6 +235,8 @@ Set(SourceFiles
     "Game/HealthPickupScript.cpp"
     "Game/ValueBar.hpp"
     "Game/ValueBar.cpp"
+    "Game/InterfaceSystem.hpp"
+    "Game/InterfaceSystem.cpp"
 )
 
 # Add the source directory prefix to each file path.

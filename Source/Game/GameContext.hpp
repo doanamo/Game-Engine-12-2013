@@ -13,6 +13,7 @@ class HealthSystem;
 class CollisionSystem;
 class ScriptSystem;
 class RenderSystem;
+class InterfaceSystem;
 
 class TransformComponent;
 class InputComponent;
@@ -48,6 +49,7 @@ namespace Game
     CollisionSystem& CollisionSystem();
     ScriptSystem&    ScriptSystem();
     RenderSystem&    RenderSystem();
+    InterfaceSystem& InterfaceSystem();
 
     ComponentPool<TransformComponent>& TransformComponents();
     ComponentPool<InputComponent>&     InputComponents();

@@ -9,6 +9,7 @@
 #include "CollisionSystem.hpp"
 #include "ScriptSystem.hpp"
 #include "RenderSystem.hpp"
+#include "InterfaceSystem.hpp"
 
 #include "TransformComponent.hpp"
 #include "InputComponent.hpp"
@@ -39,6 +40,7 @@ namespace
     CollisionSystem collisionSystem;
     ScriptSystem    scriptSystem;
     RenderSystem    renderSystem;
+    InterfaceSystem interfaceSystem;
 
     ComponentPool<TransformComponent> transformComponents;
     ComponentPool<InputComponent>     inputComponents;
@@ -109,6 +111,10 @@ bool Game::Initialize()
     if(!renderSystem.Initialize(64))
         return false;
 
+    // Initialize the interface system.
+    if(!interfaceSystem.Initialize())
+        return false;
+
     //
     // Component Pools
     //
@@ -176,6 +182,7 @@ void Game::Cleanup()
     collisionSystem.Cleanup();
     scriptSystem.Cleanup();
     renderSystem.Cleanup();
+    interfaceSystem.Cleanup();
 
     entitySystem.Cleanup();
 
@@ -229,6 +236,11 @@ ScriptSystem& Game::ScriptSystem()
 RenderSystem& Game::RenderSystem()
 {
     return renderSystem;
+}
+
+InterfaceSystem& Game::InterfaceSystem()
+{
+    return interfaceSystem;
 }
 
 ComponentPool<TransformComponent>& Game::TransformComponents()
