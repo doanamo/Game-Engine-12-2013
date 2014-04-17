@@ -2,11 +2,14 @@
 #include "ScreenSpace.hpp"
 
 ScreenSpace::ScreenSpace() :
+    m_rebuild(true),
     m_sourceSize(2.0f, 2.0f),
     m_targetSize(1.0f, 1.0f),
     m_rectangle(0.0f, 0.0f, 0.0f, 0.0f),
     m_offset(0.0f, 0.0f),
-    m_rebuild(true)
+    m_projection(1.0f),
+    m_view(1.0f),
+    m_transform(1.0f)
 {
 }
 
@@ -16,11 +19,15 @@ ScreenSpace::~ScreenSpace()
 
 void ScreenSpace::Cleanup()
 {
+    m_rebuild = true;
+
     m_sourceSize = glm::vec2(1.0f, 1.0f);
     m_targetSize = glm::vec2(1.0f, 1.0f);
     m_rectangle = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
     m_offset = glm::vec2(0.0f, 0.0f);
-    m_rebuild = true;
+    m_projection = glm::mat4(1.0f);
+    m_view = glm::mat4(1.0f);
+    m_transform = glm::mat4(1.0f);
 }
 
 void ScreenSpace::SetSourceSize(float width, float height)
@@ -77,29 +84,7 @@ void ScreenSpace::SetTargetAspect(float aspect)
     m_rebuild = true;
 }
 
-const glm::vec2& ScreenSpace::GetSourceSize() const
-{
-    return m_sourceSize;
-}
-
-const glm::vec2& ScreenSpace::GetTargetSize() const
-{
-    return m_targetSize;
-}
-
-const glm::vec4& ScreenSpace::GetRectangle() const
-{
-    RebuildScreenSpace();
-    return m_rectangle;
-}
-
-const glm::vec2& ScreenSpace::GetOffset() const
-{
-    RebuildScreenSpace();
-    return m_offset;
-}
-
-void ScreenSpace::RebuildScreenSpace() const
+void ScreenSpace::Rebuild() const
 {
     if(m_rebuild)
     {
@@ -132,6 +117,51 @@ void ScreenSpace::RebuildScreenSpace() const
         m_offset.x = -m_targetSize.x * 0.5f;
         m_offset.y = -m_targetSize.y * 0.5f;
 
+        // Calculate screen space matrices.
+        m_projection = glm::ortho(m_rectangle.x, m_rectangle.y, m_rectangle.z, m_rectangle.w);
+        m_view = glm::translate(glm::mat4(1.0f), glm::vec3(m_offset, 0.0f));
+        m_transform = m_projection * m_view;
+
         m_rebuild = false;
     }
+}
+
+const glm::vec2& ScreenSpace::GetSourceSize() const
+{
+    return m_sourceSize;
+}
+
+const glm::vec2& ScreenSpace::GetTargetSize() const
+{
+    return m_targetSize;
+}
+
+const glm::vec4& ScreenSpace::GetRectangle() const
+{
+    Rebuild();
+    return m_rectangle;
+}
+
+const glm::vec2& ScreenSpace::GetOffset() const
+{
+    Rebuild();
+    return m_offset;
+}
+
+const glm::mat4& ScreenSpace::GetProjection() const
+{
+    Rebuild();
+    return m_projection;
+}
+
+const glm::mat4& ScreenSpace::GetView() const
+{
+    Rebuild();
+    return m_view;
+}
+
+const glm::mat4& ScreenSpace::GetTransform() const
+{
+    Rebuild();
+    return m_transform;
 }

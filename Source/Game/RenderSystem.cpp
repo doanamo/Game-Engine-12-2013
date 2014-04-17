@@ -143,10 +143,9 @@ void RenderSystem::Update()
     m_screenSpace.SetTargetSize(gameWidth, gameHeight);
 
     // Setup matrices.
-    glm::vec4 screenSpace = m_screenSpace.GetRectangle();
-    m_projection = glm::ortho(screenSpace.x, screenSpace.y, screenSpace.z, screenSpace.w);
-    m_view = glm::translate(glm::mat4(1.0f), glm::vec3(m_screenSpace.GetOffset(), 0.0f));
-    m_transform = m_projection * m_view;
+    m_projection = m_screenSpace.GetProjection();
+    m_view = m_screenSpace.GetView();
+    m_transform = m_screenSpace.GetTransform();
 
     //
     // Process Components

@@ -129,10 +129,9 @@ int main(int argc, char* argv[])
         Main::CoreRenderer().Clear(ClearFlags::Color);
 
         // Calculate projection.
-        glm::vec4 screenSpace = Main::ScreenSpace().GetRectangle();
-        glm::mat4x4 projection = glm::ortho(screenSpace.x, screenSpace.y, screenSpace.z, screenSpace.w);
-        glm::mat4x4 view = glm::translate(glm::mat4(1.0f), glm::vec3(Main::ScreenSpace().GetOffset(), 0.0f));
-        glm::mat4x4 transform = projection * view;
+        glm::mat4x4 projection = Main::ScreenSpace().GetProjection();
+        glm::mat4x4 view = Main::ScreenSpace().GetView();
+        glm::mat4x4 transform = Main::ScreenSpace().GetTransform();
 
         // Calculate scissor area.
         glm::vec3 position = glm::project(glm::vec3(0.0f, 0.0f, 0.0f), view, projection, viewport);
