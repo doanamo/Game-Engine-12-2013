@@ -52,8 +52,21 @@ namespace std
     {
         std::size_t operator()(const std::pair<EntityHandle, EntityHandle>& pair) const
         {
-            // Use the identifier as a hash.
+            // Use combined identifiers as a hash.
             return pair.first.identifier * std::numeric_limits<int>::max() + pair.second.identifier;
+        }
+    };
+}
+
+namespace boost
+{
+    template<>
+    struct hash<EntityHandle>
+    {
+        std::size_t operator()(const EntityHandle& handle) const
+        {
+            // Use the identifier as a hash.
+            return handle.identifier;
         }
     };
 }

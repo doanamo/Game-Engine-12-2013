@@ -3,6 +3,7 @@
 
 #include "GameContext.hpp"
 #include "EntitySystem.hpp"
+#include "IdentitySystem.hpp"
 #include "CollisionSystem.hpp"
 
 #include "CollisionDefinitions.hpp"
@@ -74,6 +75,8 @@ void Game::CreateBounds()
 EntityHandle Game::CreatePlayer()
 {
     EntityHandle entity = Game::EntitySystem().CreateEntity();
+
+    Game::IdentitySystem().SetEntityName(entity, "Player");
 
     TransformComponent* transform = Game::TransformComponents().Create(entity);
     transform->SetPosition(glm::vec2(50.0f, 275.0f));

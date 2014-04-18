@@ -5,6 +5,7 @@
 #include "InputState.hpp"
 
 #include "EntitySystem.hpp"
+#include "IdentitySystem.hpp"
 #include "HealthSystem.hpp"
 #include "CollisionSystem.hpp"
 #include "ScriptSystem.hpp"
@@ -36,6 +37,7 @@ namespace
     InputState inputState;
 
     EntitySystem    entitySystem;
+    IdentitySystem  identitySystem;
     HealthSystem    healthSystem;
     CollisionSystem collisionSystem;
     ScriptSystem    scriptSystem;
@@ -94,6 +96,12 @@ bool Game::Initialize()
     //
     // Entity Systems
     //
+
+    // Initialize the identity system.
+    if(!identitySystem.Initialize())
+        return false;
+
+    entitySystem.RegisterSubscriber(&identitySystem);
 
     // Initialize the health system.
     if(!healthSystem.Initialize())
@@ -216,6 +224,11 @@ InputState& Game::InputState()
 EntitySystem& Game::EntitySystem()
 {
     return entitySystem;
+}
+
+IdentitySystem& Game::IdentitySystem()
+{
+    return identitySystem;
 }
 
 HealthSystem& Game::HealthSystem()

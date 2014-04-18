@@ -30,7 +30,6 @@ public:
     }
 
 private:
-    EntityHandle m_playerEntity;
     ValueBar m_playerHealthBar;
 
     bool m_initialized;
