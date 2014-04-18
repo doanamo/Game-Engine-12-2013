@@ -3,10 +3,6 @@
 #include "Precompiled.hpp"
 #include "System/BaseFrame.hpp"
 
-#include "EntityHandle.hpp"
-#include "SpawnSystem.hpp"
-#include "ValueBar.hpp"
-
 //
 // Game Frame
 //
@@ -30,7 +26,5 @@ public:
     }
 
 private:
-    ValueBar m_playerHealthBar;
-
     bool m_initialized;
 };

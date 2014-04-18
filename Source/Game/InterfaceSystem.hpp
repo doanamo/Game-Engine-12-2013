@@ -2,6 +2,7 @@
 
 #include "Precompiled.hpp"
 #include "Graphics/ScreenSpace.hpp"
+#include "ValueBar.hpp"
 
 //
 // Interface System
@@ -24,4 +25,7 @@ private:
 
     // Screen space.
     ScreenSpace m_screenSpace;
+
+    // Player health bar.
+    ValueBar m_playerHealthBar;
 };

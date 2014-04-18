@@ -12,6 +12,8 @@ public:
     ValueBar();
     ~ValueBar();
 
+    void Cleanup();
+
     void SetDrawingRectangle(const glm::vec4& rectangle);
     void SetForegroundColor(const glm::vec4&color);
     void SetBackgroundColor(const glm::vec4&color);

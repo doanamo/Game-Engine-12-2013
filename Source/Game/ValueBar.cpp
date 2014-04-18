@@ -18,6 +18,19 @@ ValueBar::ValueBar() :
 
 ValueBar::~ValueBar()
 {
+    Cleanup();
+}
+
+void ValueBar::Cleanup()
+{
+    m_drawingRectangle = glm::vec4(0.0f, 0.0f, 100.0f, 10.0f);
+    m_foregroundColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+    m_backgroundColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    m_decayColor = glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
+    m_currentValue = 100.0f;
+    m_maximumValue = 100.0f;
+    m_decayingValue = m_currentValue;
+    m_decayingSpeed = 10.0f;
 }
 
 void ValueBar::SetDrawingRectangle(const glm::vec4& rectangle)

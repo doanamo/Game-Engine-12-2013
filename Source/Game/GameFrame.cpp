@@ -63,12 +63,6 @@ bool GameFrame::Initialize()
     // Create the player.
     Game::CreatePlayer();
 
-    // Initialize the health bar.
-    m_playerHealthBar.SetDrawingRectangle(glm::vec4(0.0f, 0.0f, 624.0f, 15.0f));
-    m_playerHealthBar.SetForegroundColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-    m_playerHealthBar.SetBackgroundColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-    m_playerHealthBar.SetDecayColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
-
     // Success!
     m_initialized = true;
 
@@ -122,18 +116,6 @@ void GameFrame::Update(float timeDelta)
 
     // Update the interface system.
     Game::InterfaceSystem().Update(timeDelta);
-
-    // Update the health bar.
-    EntityHandle playerEntity = Game::IdentitySystem().GetEntityByName("Player");
-    HealthComponent* playerHealth = Game::HealthComponents().Lookup(playerEntity);
-
-    if(playerHealth != nullptr)
-    {
-        m_playerHealthBar.SetMaximumValue((float)playerHealth->GetMaximumHealth());
-        m_playerHealthBar.SetCurrentValue((float)playerHealth->GetCurrentHealth());
-    }
-
-    m_playerHealthBar.Update(timeDelta);
 }
 
 void GameFrame::Draw()
@@ -143,7 +125,4 @@ void GameFrame::Draw()
 
     // Draw the interface.
     Game::InterfaceSystem().Draw();
-
-    // Draw the health bar.
-    m_playerHealthBar.Draw(glm::vec2(200.0f, 10.0f), Game::RenderSystem().GetTransform());
 }
