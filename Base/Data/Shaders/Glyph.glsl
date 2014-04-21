@@ -109,7 +109,7 @@
         if(fragmentBodyColor.a > 0.0f)
         {
             float glyphAlpha = smoothstep(glyphThreshold - step, glyphThreshold + step, distance);
-            
+
             outputColor = mix(outputColor, fragmentBodyColor, glyphAlpha);
         }
 

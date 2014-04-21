@@ -45,8 +45,9 @@ bool InterfaceSystem::Initialize()
 void InterfaceSystem::Cleanup()
 {
     m_screenSpace.Cleanup();
-
     m_playerHealthBar.Cleanup();
+    
+    ClearContainer(m_floatingTextList);
 
     m_initialized = false;
 }
@@ -67,6 +68,40 @@ void InterfaceSystem::Update(float timeDelta)
     }
 
     m_playerHealthBar.Update(timeDelta);
+
+    // Update lifetimes of floating text elements.
+    for(auto it = m_floatingTextList.begin(); it != m_floatingTextList.end(); ++it)
+    {
+        FloatingText& element = *it;
+
+        if(element.lifetime < 0.0f)
+        {
+            // Set initial value.
+            element.lifetime = 0.0f;
+        }
+        else
+        {
+            // Increment lifetime.
+            element.lifetime += timeDelta;
+        }
+    }
+
+    // Remove floating text elements that reached their lifetimes.
+    for(auto it = m_floatingTextList.begin(); it != m_floatingTextList.end(); /* inloop */)
+    {
+        FloatingText& element = *it;
+
+        assert(element.interface != nullptr);
+
+        if(element.lifetime > element.interface->GetLifetime())
+        {
+            it = m_floatingTextList.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }
 
 void InterfaceSystem::Draw()
@@ -89,6 +124,25 @@ void InterfaceSystem::Draw()
     // Set scaled screen space target.
     m_screenSpace.SetTargetAspect(16.0f / 9.0f);
 
+    // Draw floating text elements.
+    for(auto it = m_floatingTextList.begin(); it != m_floatingTextList.end(); ++it)
+    {
+        const FloatingText& element = *it;
+
+        assert(element.lifetime >= 0.0f);
+
+        TextDrawInfo info;
+        info.font = &Main::DefaultFont();
+        info.align = TextDrawAlign::Centered;
+        info.size = 22 * element.interface->CalculateScale(element.lifetime);
+        info.position = element.origin + element.interface->CalculateOffset(element.lifetime);
+        info.bodyColor = glm::vec4(element.interface->CalculateColor(element.lifetime), element.interface->CalculateTransparency(element.lifetime));
+        info.glowColor = glm::vec4(0.0f, 0.0f, 0.0f, element.interface->CalculateTransparency(element.lifetime));
+        info.glowRange = glm::vec2(0.2f, 0.5f);
+        
+        Main::TextRenderer().Draw(info, m_screenSpace.GetTransform(), element.text.c_str());
+    }
+
     // Draw debug game info.
     {
         std::stringstream text;
@@ -105,4 +159,25 @@ void InterfaceSystem::Draw()
 
         Main::TextRenderer().Draw(info, m_screenSpace.GetTransform(), text.str().c_str());
     }
+}
+
+void InterfaceSystem::AddFloatingText(std::string text, const glm::vec2& position, const FloatingTextInterface* interface)
+{
+    if(!m_initialized)
+        return;
+
+    if(text.empty())
+        return;
+
+    if(interface == nullptr)
+        return;
+
+    // Add a floating text element to the list.
+    FloatingText element;
+    element.text = text;
+    element.origin = position;
+    element.interface = interface;
+    element.lifetime = -1.0f;
+
+    m_floatingTextList.push_back(element);
 }

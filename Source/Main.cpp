@@ -70,6 +70,9 @@ int main(int argc, char* argv[])
         uint32_t timeElapsed = timeCurrent - timePrevious;
         float dt = (float)timeElapsed / 1000.0f;
 
+        // Delta can't be negative.
+        dt = std::max(0.0f, dt);
+
         // Limit maximum frame step.
         dt = std::min(dt, 1.0f / 20.0f);
 

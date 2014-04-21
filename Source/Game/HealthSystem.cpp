@@ -3,7 +3,9 @@
 
 #include "GameContext.hpp"
 #include "EntitySystem.hpp"
+#include "InterfaceSystem.hpp"
 
+#include "TransformComponent.hpp"
 #include "HealthComponent.hpp"
 #include "ScriptComponent.hpp"
 
@@ -55,6 +57,15 @@ void HealthSystem::Damage(EntityHandle entity, int value)
             script->OnDamage(entity, value, health->IsAlive());
         }
     }
+
+    // Add a floating damage number.
+    TransformComponent* transform = Game::TransformComponents().Lookup(entity);
+    
+    if(transform != nullptr)
+    {
+        std::string text = std::to_string(value);
+        Game::InterfaceSystem().AddFloatingText(text, transform->GetPosition(), &FloatingDamageNumber::GetInstance());
+    }
 }
 
 void HealthSystem::Heal(EntityHandle entity, int value)
@@ -86,5 +97,14 @@ void HealthSystem::Heal(EntityHandle entity, int value)
         {
             script->OnHeal(entity, value);
         }
+    }
+
+    // Add a floating heal number.
+    TransformComponent* transform = Game::TransformComponents().Lookup(entity);
+    
+    if(transform != nullptr)
+    {
+        std::string text = std::to_string(value);
+        Game::InterfaceSystem().AddFloatingText(text, transform->GetPosition(), &FloatingHealNumber::GetInstance());
     }
 }
