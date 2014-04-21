@@ -258,7 +258,7 @@ void MenuFrame::Draw()
             }
             else
             {
-                info.bodyColor = glm::vec4(0.0f, 0.0f, 0.0f, 0.05f);
+                info.bodyColor = glm::vec4(0.0f, 0.0f, 0.0f, 0.1f);
             }
         }
 
