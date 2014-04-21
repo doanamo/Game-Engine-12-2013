@@ -33,19 +33,9 @@ public:
     void Update();
     void Draw();
 
-    const glm::mat4& GetProjection() const
+    const ScreenSpace& GetScreenSpace() const
     {
-        return m_projection;
-    }
-
-    const glm::mat4& GetView() const
-    {
-        return m_view;
-    }
-
-    const glm::mat4 GetTransform() const
-    {
-        return m_transform;
+        return m_screenSpace;
     }
 
 private:
@@ -59,11 +49,6 @@ private:
 
     // Screen space.
     ScreenSpace m_screenSpace;
-
-    // Render transforms.
-    glm::mat4 m_projection;
-    glm::mat4 m_view;
-    glm::mat4 m_transform;
 
     // Processed render components.
     std::vector<Sprite> m_sprites;

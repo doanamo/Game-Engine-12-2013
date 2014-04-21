@@ -20,9 +20,6 @@ namespace
 
 RenderSystem::RenderSystem() :
     m_bufferSize(0),
-    m_projection(1.0f),
-    m_view(1.0f),
-    m_transform(1.0f),
     m_initialized(false)
 {
 }
@@ -42,10 +39,6 @@ void RenderSystem::Cleanup()
     m_bufferSize = 0;
 
     m_screenSpace.Cleanup();
-
-    m_projection = glm::mat4(1.0f);
-    m_view = glm::mat4(1.0f);
-    m_transform = glm::mat4(1.0f);
 
     ClearContainer(m_sprites);
 
@@ -131,7 +124,7 @@ void RenderSystem::Update()
         return;
 
     //
-    // Setup View
+    // Setup Screen Space
     //
 
     // Get window size.
@@ -141,11 +134,6 @@ void RenderSystem::Update()
     // Setup screen space.
     m_screenSpace.SetSourceSize(windowWidth, windowHeight);
     m_screenSpace.SetTargetSize(gameWidth, gameHeight);
-
-    // Setup matrices.
-    m_projection = m_screenSpace.GetProjection();
-    m_view = m_screenSpace.GetView();
-    m_transform = m_screenSpace.GetTransform();
 
     //
     // Process Components
@@ -212,7 +200,7 @@ void RenderSystem::Draw()
     glUseProgram(m_shader.GetHandle());
     glBindVertexArray(m_vertexInput.GetHandle());
 
-    glUniformMatrix4fv(m_shader.GetUniform("viewTransform"), 1, GL_FALSE, glm::value_ptr(m_transform));
+    glUniformMatrix4fv(m_shader.GetUniform("viewTransform"), 1, GL_FALSE, glm::value_ptr(m_screenSpace.GetTransform()));
     glUniform1i(m_shader.GetUniform("texture"), 0);
 
     auto ResetState = MakeScopeGuard([&]()
