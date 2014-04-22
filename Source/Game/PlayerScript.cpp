@@ -10,6 +10,7 @@
 #include "CollisionDefinitions.hpp"
 
 #include "TransformComponent.hpp"
+#include "CollisionComponent.hpp"
 #include "InputComponent.hpp"
 
 PlayerScript::PlayerScript() :
@@ -22,6 +23,9 @@ void PlayerScript::OnUpdate(EntityHandle self, float timeDelta)
     // Check if entity has needed components.
     TransformComponent* transform = Game::TransformComponents().Lookup(self);
     if(transform == nullptr) return;
+
+    CollisionComponent* collision = Game::CollisionComponents().Lookup(self);
+    if(collision == nullptr) return;
 
     InputComponent* input = Game::InputComponents().Lookup(self);
     if(input == nullptr) return;
@@ -67,8 +71,16 @@ void PlayerScript::OnUpdate(EntityHandle self, float timeDelta)
     // Update player position.
     if(direction != glm::vec2(0.0f))
     {
+        // Calculate new position.
         glm::vec2 position = transform->GetPosition();
         position += glm::normalize(direction) * 400.0f * timeDelta;
+
+        // Prevent from moving out of the playable area.
+        glm::vec4 boundingBox = collision->GetBoundingBox();
+        position.x = Clamp(position.x, 0.0f - boundingBox.x, 1024.0f - boundingBox.w);
+        position.y = Clamp(position.y, 0.0f - boundingBox.y, 576.0f - boundingBox.z);
+
+        // Set new position.
         transform->SetPosition(position);
     }
 }

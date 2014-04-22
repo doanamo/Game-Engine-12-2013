@@ -38,6 +38,8 @@ public:
         m_boundingBox = boundingBox;
     }
 
+    // Gets the bounding box.
+    // Returned vector represents bottom left and top right corners of a rectangle.
     const glm::vec4& GetBoundingBox() const
     {
         return m_boundingBox;
