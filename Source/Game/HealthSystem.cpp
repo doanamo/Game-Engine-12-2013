@@ -3,11 +3,17 @@
 
 #include "GameContext.hpp"
 #include "EntitySystem.hpp"
+#include "IdentitySystem.hpp"
 #include "InterfaceSystem.hpp"
 
 #include "TransformComponent.hpp"
 #include "HealthComponent.hpp"
 #include "ScriptComponent.hpp"
+
+namespace Console
+{
+    ConsoleVariable cheatGodMode("godmode", false, "Toggles player invulnerability.");
+}
 
 HealthSystem::HealthSystem()
 {
@@ -41,8 +47,17 @@ void HealthSystem::Damage(EntityHandle entity, int value)
     if(health->IsDead())
         return;
 
+    // Check if it's the player entity.
+    bool playerInvulnerable = false;
+
+    if(Console::cheatGodMode)
+    {
+        EntityHandle player = Game::IdentitySystem().GetEntityByName("Player");
+        playerInvulnerable = entity == player;
+    }
+
     // Apply damage.
-    if(value > 0)
+    if(value > 0 && !playerInvulnerable)
     {
         // Change current health value.
         int currentHealth = health->GetCurrentHealth();
