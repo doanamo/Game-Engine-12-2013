@@ -14,8 +14,11 @@
 namespace
 {
     // Interface space size.
-    float interfaceWidth = 1024;
-    float interfaceHeight = 576;
+    const float InterfaceWidth = 1024;
+    const float InterfaceHeight = 576;
+
+    // Interface parameters.
+    const bool InterfaceSpaceFloatingText = false;
 }
 
 InterfaceSystem::InterfaceSystem() :
@@ -117,14 +120,25 @@ void InterfaceSystem::Draw()
 
     m_screenSpace.SetSourceSize(windowWidth, windowHeight);
 
+    //
+    // Ingame Interface
+    //
+
     // Set scaled screen space target.
-    m_screenSpace.SetTargetSize(interfaceWidth, interfaceHeight);
+    m_screenSpace.SetTargetSize(InterfaceWidth, InterfaceHeight);
 
     // Draw the health bar.
     m_playerHealthBar.Draw(glm::vec2(200.0f, 10.0f), m_screenSpace.GetTransform());
 
+    //
+    // Floating Text
+    //
+
     // Set window screen space target.
-    m_screenSpace.SetTargetSize(windowWidth, windowHeight);
+    if(InterfaceSpaceFloatingText)
+    {
+        m_screenSpace.SetTargetSize(windowWidth, windowHeight);
+    }
 
     // Draw floating text elements.
     for(auto it = m_floatingTextList.begin(); it != m_floatingTextList.end(); ++it)
@@ -145,6 +159,10 @@ void InterfaceSystem::Draw()
         
         Main::TextRenderer().Draw(info, m_screenSpace.GetTransform(), element.text.c_str());
     }
+
+    //
+    // Debug Info
+    //
 
     // Set aspect screen space target.
     m_screenSpace.SetTargetAspect(16.0f / 9.0f);
@@ -178,18 +196,27 @@ void InterfaceSystem::AddFloatingText(std::string text, const glm::vec2& positio
     if(interface == nullptr)
         return;
 
-    // Transform position to window space.
-    const ScreenSpace& gameScreenSpace = Game::RenderSystem().GetScreenSpace();
-    glm::ivec4 viewport(0, 0, Console::windowWidth, Console::windowHeight);
-
-    glm::vec3 windowPosition = glm::project(glm::vec3(position, 0.0f), gameScreenSpace.GetView(), gameScreenSpace.GetProjection(), viewport);
-
-    // Add a floating text element to the list.
+    // Create a floating text element.
     FloatingText element;
     element.text = text;
-    element.origin = glm::vec2(windowPosition.x, windowPosition.y);
+    element.origin = position;
     element.interface = interface;
     element.lifetime = -1.0f;
 
+    // Transform element position to interface space.
+    if(InterfaceSpaceFloatingText)
+    {
+        // Get the source transform along with current viewport.
+        const ScreenSpace& gameScreenSpace = Game::RenderSystem().GetScreenSpace();
+        glm::ivec4 viewport(0, 0, Console::windowWidth, Console::windowHeight);
+
+        // Project position from the world to window space.
+        glm::vec3 windowPosition = glm::project(glm::vec3(element.origin, 0.0f), gameScreenSpace.GetView(), gameScreenSpace.GetProjection(), viewport);
+
+        // Set the new floating text origin.
+        element.origin = glm::vec2(windowPosition.x, windowPosition.y);
+    }
+
+    // Add floating text element to the list.
     m_floatingTextList.push_back(element);
 }
