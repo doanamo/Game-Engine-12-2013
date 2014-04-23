@@ -21,6 +21,7 @@
 namespace Console
 {
     ConsoleVariable drawFrameRate("r_drawfps", true, "Displays current frame rate on the screen.");
+    ConsoleVariable lockAspectRatio("r_lockaspectratio", true, "Locks aspect ratio of the display resolution.");
     ConsoleVariable debugScreenBorders("debug_screenborders", false, "Enables debug draw of screen borders.");
 }
 
@@ -90,8 +91,35 @@ int main(int argc, char* argv[])
                 switch(event.window.event)
                 {
                 case SDL_WINDOWEVENT_RESIZED:
-                    Console::windowWidth = event.window.data1;
-                    Console::windowHeight = event.window.data2;
+                    {
+                        // Get new window size.
+                        int width = event.window.data1;
+                        int height = event.window.data2;
+                        
+                        // Change resolution to match the aspect ratio.
+                        if(Console::lockAspectRatio)
+                        {
+                            // Set new window size with locked aspect ratio.
+                            if(width != Console::windowWidth.GetInteger())
+                            {
+                                height = (int)(width * (9.0f / 16.0f));
+                                width = (int)(height * (16.0f / 9.0f));
+                            }
+                            else
+                            {
+                                width = (int)(height * (16.0f / 9.0f));
+                                height = (int)(width * (9.0f / 16.0f));
+                            }
+
+                            // Change window size.
+                            // Doing this won't emit another window resize event.
+                            SDL_SetWindowSize(Main::SystemWindow(), width, height);
+                        }
+                        
+                        // Update the console variables.
+                        Console::windowWidth = width;
+                        Console::windowHeight = height;
+                    }
                     break;
                 }
                 break;
