@@ -102,17 +102,31 @@ int main(int argc, char* argv[])
                             // Set new window size with locked aspect ratio.
                             if(width != Console::windowWidth.GetInteger())
                             {
-                                height = (int)(width * (9.0f / 16.0f));
-                                width = (int)(height * (16.0f / 9.0f));
+                                // Find next multiple of horizontal aspect ratio.
+                                while(width % 16)
+                                {
+                                    width += 1;
+                                }
+
+                                // Calculate the other dimmension.
+                                height = (int)(width * (9.0f / 16.0f) + 0.5f);
                             }
                             else
+                            if(height != Console::windowHeight.GetInteger())
                             {
-                                width = (int)(height * (16.0f / 9.0f));
-                                height = (int)(width * (9.0f / 16.0f));
+                                // Find next multiple of vertical aspect ratio.
+                                while(height % 9)
+                                {
+                                    height += 1;
+                                }
+
+                                // Calculate the other dimmension.
+                                width = (int)(height * (16.0f / 9.0f) + 0.5f);
                             }
 
                             // Change window size.
-                            // Doing this won't emit another window resize event.
+                            // This event is only triggered on user system resize.
+                            // Function below triggers another, regular size change event.
                             SDL_SetWindowSize(Main::SystemWindow(), width, height);
                         }
                         
