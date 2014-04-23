@@ -22,6 +22,8 @@ namespace Console
 {
     ConsoleVariable drawFrameRate("r_drawfps", true, "Displays current frame rate on the screen.");
     ConsoleVariable lockAspectRatio("r_lockaspectratio", true, "Locks aspect ratio of the display resolution.");
+    ConsoleVariable horizontalAspectRatio("r_horizontalaspectratio", 16, "Horizontal aspect ratio.");
+    ConsoleVariable verticalAspectRatio("r_verticalaspectratio", 9, "Vertical aspect ratio.");
     ConsoleVariable debugScreenBorders("debug_screenborders", false, "Enables debug draw of screen borders.");
 }
 
@@ -92,6 +94,10 @@ int main(int argc, char* argv[])
                 {
                 case SDL_WINDOWEVENT_RESIZED:
                     {
+                        // Get aspect ratio settings.
+                        const int horizontalAspectRatio = Console::horizontalAspectRatio;
+                        const int verticalAspectRatio = Console::verticalAspectRatio;
+
                         // Get new window size.
                         int width = event.window.data1;
                         int height = event.window.data2;
@@ -103,25 +109,25 @@ int main(int argc, char* argv[])
                             if(width != Console::windowWidth.GetInteger())
                             {
                                 // Find next multiple of horizontal aspect ratio.
-                                while(width % 16)
+                                while(width % horizontalAspectRatio)
                                 {
                                     width += 1;
                                 }
 
                                 // Calculate the other dimmension.
-                                height = (int)(width * (9.0f / 16.0f) + 0.5f);
+                                height = (int)(width * ((float)verticalAspectRatio / horizontalAspectRatio) + 0.5f);
                             }
                             else
                             if(height != Console::windowHeight.GetInteger())
                             {
                                 // Find next multiple of vertical aspect ratio.
-                                while(height % 9)
+                                while(height % verticalAspectRatio)
                                 {
                                     height += 1;
                                 }
 
                                 // Calculate the other dimmension.
-                                width = (int)(height * (16.0f / 9.0f) + 0.5f);
+                                width = (int)(height * ((float)horizontalAspectRatio / verticalAspectRatio) + 0.5f);
                             }
 
                             // Change window size.
@@ -149,12 +155,15 @@ int main(int argc, char* argv[])
         }
 
         // Get current window size.
-        int windowWidth = Console::windowWidth;
-        int windowHeight = Console::windowHeight;
+        const int windowWidth = Console::windowWidth;
+        const int windowHeight = Console::windowHeight;
+
+        const int horizontalAspectRatio = Console::horizontalAspectRatio;
+        const int verticalAspectRatio = Console::verticalAspectRatio;
 
         // Setup screen space.
         Main::ScreenSpace().SetSourceSize((float)windowWidth, (float)windowHeight);
-        Main::ScreenSpace().SetTargetAspect(16.0f / 9.0f);
+        Main::ScreenSpace().SetTargetAspect((float)horizontalAspectRatio / verticalAspectRatio);
 
         // Update frame counter.
         Main::FrameCounter().Update(dt);
