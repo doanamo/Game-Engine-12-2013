@@ -94,13 +94,16 @@ int main(int argc, char* argv[])
                 {
                 case SDL_WINDOWEVENT_RESIZED:
                     {
-                        // Get aspect ratio settings.
-                        const int horizontalAspectRatio = Console::horizontalAspectRatio;
-                        const int verticalAspectRatio = Console::verticalAspectRatio;
-
                         // Get new window size.
                         int width = event.window.data1;
                         int height = event.window.data2;
+
+                        if(width == Console::windowWidth.GetInteger() && height == Console::windowHeight.GetInteger())
+                            break;
+
+                        // Get aspect ratio settings.
+                        const int horizontalAspectRatio = Console::horizontalAspectRatio;
+                        const int verticalAspectRatio = Console::verticalAspectRatio;
                         
                         // Change resolution to match the aspect ratio.
                         if(Console::lockAspectRatio)
@@ -134,11 +137,18 @@ int main(int argc, char* argv[])
                             // This event is only triggered on user system resize.
                             // Function below triggers another, regular size change event.
                             SDL_SetWindowSize(Main::SystemWindow(), width, height);
+
+                            // Get the current window size.
+                            // The requested window size can't always be set.
+                            SDL_GetWindowSize(Main::SystemWindow(), &width, &height);
                         }
                         
                         // Update the console variables.
                         Console::windowWidth = width;
                         Console::windowHeight = height;
+
+                        // Print a log message.
+                        Log() << "Resolution changed to " << event.window.data1 << "x" << event.window.data2 << ".";
                     }
                     break;
                 }
