@@ -55,7 +55,7 @@ bool GameFrame::Initialize()
     Game::SpawnSystem().SetSpawnArea(glm::vec4(1024.0f + 100.0f, 50.0f, 1024.0f + 100.0f, 526.0f));
 
     // Setup the progress system.
-    Game::ProgressSystem().SetNextStage(std::make_shared<AsteroidStage>());
+    Game::ProgressSystem().SetNextStage(std::make_shared<EnemyStage>());
 
     // Create bounds.
     Game::CreateBounds();
