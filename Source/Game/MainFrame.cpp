@@ -2,11 +2,9 @@
 #include "MainFrame.hpp"
 
 #include "MainContext.hpp"
-#include "GameContext.hpp"
-
-#include "MenuFrame.hpp"
-
 #include "Graphics/CoreRenderer.hpp"
+#include "Game/GameContext.hpp"
+#include "Game/MenuFrame.hpp"
 
 MainFrame::MainFrame()
 {

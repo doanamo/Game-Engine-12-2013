@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Precompiled.hpp"
-#include "EntityHandle.hpp"
+
+#include "Game/Entity/EntityHandle.hpp"
 
 //
 // Game Factory

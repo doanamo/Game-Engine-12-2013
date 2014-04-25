@@ -1,11 +1,10 @@
 #include "Precompiled.hpp"
 #include "GameStages.hpp"
 
-#include "GameContext.hpp"
-#include "GameFactory.hpp"
-
-#include "SpawnSystem.hpp"
-#include "ProgressSystem.hpp"
+#include "Game/GameContext.hpp"
+#include "Game/GameFactory.hpp"
+#include "Game/Spawn/SpawnSystem.hpp"
+#include "Game/Progress/ProgressSystem.hpp"
 
 //
 // Enemy Stage

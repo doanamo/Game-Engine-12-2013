@@ -1,26 +1,23 @@
 #include "Precompiled.hpp"
 #include "GameFactory.hpp"
 
-#include "GameContext.hpp"
-#include "EntitySystem.hpp"
-#include "IdentitySystem.hpp"
-#include "CollisionSystem.hpp"
-
-#include "CollisionDefinitions.hpp"
-
-#include "TransformComponent.hpp"
-#include "InputComponent.hpp"
-#include "HealthComponent.hpp"
-#include "CollisionComponent.hpp"
-#include "ScriptComponent.hpp"
-#include "RenderComponent.hpp"
-
-#include "CommonScripts.hpp"
-#include "PlayerScript.hpp"
-#include "EnemyScript.hpp"
-#include "ProjectileScript.hpp"
-#include "HealthPickupScript.hpp"
-#include "SpawnerScript.hpp"
+#include "Game/GameContext.hpp"
+#include "Game/Entity/EntitySystem.hpp"
+#include "Game/Identity/IdentitySystem.hpp"
+#include "Game/Input/InputComponent.hpp"
+#include "Game/Transform/TransformComponent.hpp"
+#include "Game/Collision/CollisionObject.hpp"
+#include "Game/Collision/CollisionComponent.hpp"
+#include "Game/Collision/CollisionDefinitions.hpp"
+#include "Game/Health/HealthComponent.hpp"
+#include "Game/Script/ScriptComponent.hpp"
+#include "Game/Script/CommonScripts.hpp"
+#include "Game/Script/PlayerScript.hpp"
+#include "Game/Script/EnemyScript.hpp"
+#include "Game/Script/ProjectileScript.hpp"
+#include "Game/Script/HealthPickupScript.hpp"
+#include "Game/Script/SpawnerScript.hpp"
+#include "Game/Render/RenderComponent.hpp"
 
 void Game::CreateBounds()
 {

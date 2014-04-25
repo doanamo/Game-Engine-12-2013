@@ -1,27 +1,20 @@
 #include "Precompiled.hpp"
 #include "GameFrame.hpp"
-#include "MenuFrame.hpp"
 
 #include "MainContext.hpp"
-#include "GameContext.hpp"
-#include "GameFactory.hpp"
-#include "GameStages.hpp"
-
-#include "InputState.hpp"
-
-#include "EntitySystem.hpp"
-#include "IdentitySystem.hpp"
-#include "CollisionSystem.hpp"
-#include "ScriptSystem.hpp"
-#include "RenderSystem.hpp"
-#include "InterfaceSystem.hpp"
-
-#include "HealthComponent.hpp"
-
-#include "SpawnSystem.hpp"
-#include "ProgressSystem.hpp"
-
-#include "Graphics/TextRenderer.hpp"
+#include "Game/GameContext.hpp"
+#include "Game/GameFactory.hpp"
+#include "Game/GameStages.hpp"
+#include "Game/MenuFrame.hpp"
+#include "Game/Entity/EntitySystem.hpp"
+#include "Game/Identity/IdentitySystem.hpp"
+#include "Game/Input/InputState.hpp"
+#include "Game/Collision/CollisionSystem.hpp"
+#include "Game/Script/ScriptSystem.hpp"
+#include "Game/Render/RenderSystem.hpp"
+#include "Game/Interface/InterfaceSystem.hpp"
+#include "Game/Spawn/SpawnSystem.hpp"
+#include "Game/Progress/ProgressSystem.hpp"
 
 GameFrame::GameFrame() :
     m_initialized(false)

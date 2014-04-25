@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Precompiled.hpp"
-#include "ProgressStage.hpp"
+
+#include "Game/Progress/ProgressStage.hpp"
 
 //
 // Enemy Stage

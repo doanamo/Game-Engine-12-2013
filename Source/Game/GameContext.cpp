@@ -1,30 +1,26 @@
 #include "Precompiled.hpp"
 #include "GameContext.hpp"
+
 #include "MainContext.hpp"
-
-#include "InputState.hpp"
-
-#include "EntitySystem.hpp"
-#include "IdentitySystem.hpp"
-#include "HealthSystem.hpp"
-#include "CollisionSystem.hpp"
-#include "ScriptSystem.hpp"
-#include "RenderSystem.hpp"
-#include "InterfaceSystem.hpp"
-
-#include "TransformComponent.hpp"
-#include "InputComponent.hpp"
-#include "HealthComponent.hpp"
-#include "CollisionComponent.hpp"
-#include "ScriptComponent.hpp"
-#include "RenderComponent.hpp"
-
-#include "SpawnSystem.hpp"
-#include "ProgressSystem.hpp"
-
 #include "System/BaseFrame.hpp"
 #include "Game/MenuFrame.hpp"
 #include "Game/GameFrame.hpp"
+#include "Game/Entity/EntitySystem.hpp"
+#include "Game/Identity/IdentitySystem.hpp"
+#include "Game/Input/InputState.hpp"
+#include "Game/Input/InputComponent.hpp"
+#include "Game/Transform/TransformComponent.hpp"
+#include "Game/Collision/CollisionSystem.hpp"
+#include "Game/Collision/CollisionComponent.hpp"
+#include "Game/Health/HealthSystem.hpp"
+#include "Game/Health/HealthComponent.hpp"
+#include "Game/Script/ScriptSystem.hpp"
+#include "Game/Script/ScriptComponent.hpp"
+#include "Game/Render/RenderSystem.hpp"
+#include "Game/Render/RenderComponent.hpp"
+#include "Game/Interface/InterfaceSystem.hpp"
+#include "Game/Spawn/SpawnSystem.hpp"
+#include "Game/Progress/ProgressSystem.hpp"
 
 //
 // Context Data

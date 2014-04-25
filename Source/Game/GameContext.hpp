@@ -1,9 +1,9 @@
 #pragma once
 
 #include "Precompiled.hpp"
-#include "ComponentPool.hpp"
 
 #include "Common/StateMachine.hpp"
+#include "Component/ComponentPool.hpp"
 
 // Forward declarations.
 class InputState;
