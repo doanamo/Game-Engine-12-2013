@@ -13,18 +13,6 @@ HealthPickupScript::HealthPickupScript(int healValue) :
 {
 }
 
-void HealthPickupScript::OnUpdate(EntityHandle self, float timeDelta)
-{
-    // Check if entity has needed components.
-    TransformComponent* transform = Game::TransformComponents().Lookup(self);
-    if(transform == nullptr) return;
-
-    // Move the entity to the left.
-    glm::vec2 position = transform->GetPosition();
-    position.x -= 100.0f * timeDelta;
-    transform->SetPosition(position);
-}
-
 void HealthPickupScript::OnCollision(CollisionObject& self, CollisionObject& other)
 {
     assert(self.collision != nullptr);

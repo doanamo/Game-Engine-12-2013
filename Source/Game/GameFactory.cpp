@@ -19,6 +19,11 @@
 #include "Game/Script/SpawnerScript.hpp"
 #include "Game/Render/RenderComponent.hpp"
 
+namespace
+{
+    std::random_device deviceRandom;
+}
+
 void Game::CreateBounds()
 {
     // Bounds script.
@@ -105,7 +110,6 @@ EntityHandle Game::CreatePlayer()
 
 namespace
 {
-    std::random_device deviceRandom;
     std::mt19937 asteroidRandom(deviceRandom());
 }
 
@@ -153,6 +157,11 @@ EntityHandle Game::CreateAsteroid(const glm::vec2& position)
     return entity;
 }
 
+namespace
+{
+    std::mt19937 enemyRandom(deviceRandom());
+}
+
 EntityHandle Game::CreateEnemy(const glm::vec2& position)
 {
     EntityHandle entity = Game::EntitySystem().CreateEntity();
@@ -188,16 +197,17 @@ EntityHandle Game::CreateProjectile(const glm::vec2& position, const glm::vec2& 
 
     TransformComponent* transform = Game::TransformComponents().Create(entity);
     transform->SetPosition(position);
-    transform->SetScale(glm::vec2(40.0f, 40.0f));
+    transform->SetScale(glm::vec2(30.0f, 30.0f));
     transform->SetRotation(0.0f);
 
     CollisionComponent* collision = Game::CollisionComponents().Create(entity);
-    collision->SetBoundingBox(glm::vec4(-20.0f, -20.0f, 20.0f, 20.0f));
+    collision->SetBoundingBox(glm::vec4(-15.0f, -15.0f, 15.0f, 15.0f));
     collision->SetType(CollisionTypes::Projectile);
     collision->SetMask(collisionMask);
 
     ScriptComponent* script = Game::ScriptComponents().Create(entity);
-    script->AddScript(std::make_shared<ProjectileScript>(direction, speed));
+    script->AddScript(std::make_shared<ConstantVelocityScript>(direction * speed));
+    script->AddScript(std::make_shared<ProjectileScript>());
 
     RenderComponent* render = Game::RenderComponents().Create(entity);
     render->SetDiffuseColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
@@ -220,6 +230,7 @@ EntityHandle Game::CreateHealthPickup(const glm::vec2& position, int heal)
     collision->SetMask(CollisionTypes::Player);
 
     ScriptComponent* script = Game::ScriptComponents().Create(entity);
+    script->AddScript(std::make_shared<ConstantVelocityScript>(glm::vec2(-100.0f, 0.0f)));
     script->AddScript(std::make_shared<HealthPickupScript>(20));
 
     RenderComponent* render = Game::RenderComponents().Create(entity);
