@@ -45,11 +45,11 @@ bool MainFrame::Process(const SDL_Event& event)
     return false;
 }
 
-void MainFrame::Update(float dt)
+void MainFrame::Update(float timeDelta)
 {
     if(Game::FrameState().IsValid())
     {
-        Game::FrameState().GetState()->Update(dt);
+        Game::FrameState().GetState()->Update(timeDelta);
     }
     else
     {

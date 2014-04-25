@@ -131,6 +131,8 @@ bool MenuFrame::Process(const SDL_Event& event)
 
             case MenuElements::NewGame:
                 {
+                    Log() << "Starting a new game...";
+
                     // Initialize the game frame.
                     Game::GameFrame().Initialize();
                     
@@ -150,7 +152,7 @@ bool MenuFrame::Process(const SDL_Event& event)
     return false;
 }
 
-void MenuFrame::Update(float dt)
+void MenuFrame::Update(float timeDelta)
 {
     //
     // Setup View

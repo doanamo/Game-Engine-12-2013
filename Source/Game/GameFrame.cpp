@@ -6,6 +6,7 @@
 #include "Game/GameFactory.hpp"
 #include "Game/GameStages.hpp"
 #include "Game/MenuFrame.hpp"
+#include "Game/LoseFrame.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
 #include "Game/Input/InputState.hpp"
@@ -17,7 +18,9 @@
 #include "Game/Progress/ProgressSystem.hpp"
 
 GameFrame::GameFrame() :
-    m_initialized(false)
+    m_initialized(false),
+    m_playerDead(false),
+    m_deadTimer(0.0f)
 {
 }
 
@@ -67,6 +70,9 @@ void GameFrame::Cleanup()
     Game::Cleanup();
 
     m_initialized = false;
+
+    m_playerDead = false;
+    m_deadTimer = 0.0f;
 }
 
 bool GameFrame::Process(const SDL_Event& event)
@@ -76,6 +82,11 @@ bool GameFrame::Process(const SDL_Event& event)
     case SDL_KEYDOWN:
         if(event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
         {
+            // Prevent from quitting to the main menu if player is dead.
+            if(m_playerDead)
+                break;
+
+            // Change to main menu state.
             Game::FrameState().ChangeState(&Game::MenuFrame());
         }
         break;
@@ -109,6 +120,31 @@ void GameFrame::Update(float timeDelta)
 
     // Update the interface system.
     Game::InterfaceSystem().Update(timeDelta);
+
+    // Check if player is dead.
+    if(!m_playerDead)
+    {
+        EntityHandle player = Game::IdentitySystem().GetEntityByName("Player");
+
+        if(!Game::EntitySystem().IsHandleValid(player))
+        {
+            // Set the dead state.
+            m_playerDead = true;
+        }
+    }
+    else
+    {
+        // Increment the dead timer.
+        m_deadTimer += timeDelta;
+
+        // Change to lose frame (game over screen).
+        if(m_deadTimer > 4.0f)
+        {
+            this->Cleanup();
+
+            Game::FrameState().ChangeState(&Game::LoseFrame());
+        }
+    }
 }
 
 void GameFrame::Draw()

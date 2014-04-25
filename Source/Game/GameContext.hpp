@@ -29,6 +29,7 @@ class ProgressSystem;
 class BaseFrame;
 class MenuFrame;
 class GameFrame;
+class LoseFrame;
 
 //
 // Game Context
@@ -66,4 +67,5 @@ namespace Game
     StateMachine<BaseFrame*>& FrameState();
     MenuFrame&                MenuFrame();
     GameFrame&                GameFrame();
+    LoseFrame&                LoseFrame();
 }

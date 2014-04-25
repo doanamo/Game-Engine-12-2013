@@ -3,16 +3,17 @@
 #include "Precompiled.hpp"
 
 #include "System/BaseFrame.hpp"
+#include "Graphics/ScreenSpace.hpp"
 
 //
-// Game Frame
+// Lose Frame
 //
 
-class GameFrame : public BaseFrame
+class LoseFrame : public BaseFrame
 {
 public:
-    GameFrame();
-    ~GameFrame();
+    LoseFrame();
+    ~LoseFrame();
 
     bool Initialize();
     void Cleanup();
@@ -21,15 +22,15 @@ public:
     void Update(float timeDelta);
     void Draw();
 
-    bool IsInitialized() const
-    {
-        return m_initialized;
-    }
+private:
+    void OnEnter();
 
 private:
     bool m_initialized;
 
-    // Player dead state.
-    bool m_playerDead;
-    float m_deadTimer;
+    // Menu screen space.
+    ScreenSpace m_screenSpace;
+
+    // Frame cooldown timer.
+    float m_cooldownTimer;
 };

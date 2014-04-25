@@ -5,6 +5,7 @@
 #include "System/BaseFrame.hpp"
 #include "Game/MenuFrame.hpp"
 #include "Game/GameFrame.hpp"
+#include "Game/LoseFrame.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
 #include "Game/Input/InputState.hpp"
@@ -53,6 +54,7 @@ namespace
     StateMachine<BaseFrame*> frameState;
     MenuFrame                menuFrame;
     GameFrame                gameFrame;
+    LoseFrame                loseFrame;
 }
 
 //
@@ -305,4 +307,9 @@ MenuFrame& Game::MenuFrame()
 GameFrame& Game::GameFrame()
 {
     return gameFrame;
+}
+
+LoseFrame& Game::LoseFrame()
+{
+    return loseFrame;
 }

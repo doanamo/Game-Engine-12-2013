@@ -193,6 +193,8 @@ Set(SourceFiles
     "Game/GameFactory.cpp"
     "Game/GameStages.hpp"
     "Game/GameStages.cpp"
+    "Game/LoseFrame.hpp"
+    "Game/LoseFrame.cpp"
 
     "Game/Entity/EntityHandle.hpp"
     "Game/Entity/EntitySubscriber.hpp"
