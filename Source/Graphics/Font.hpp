@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Precompiled.hpp"
+
 #include "Common/ShelfPacker.hpp"
 #include "Graphics/Texture.hpp"
 

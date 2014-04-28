@@ -1,7 +1,8 @@
 #include "Precompiled.hpp"
 #include "LoggerOutputConsole.hpp"
-#include "Console/ConsoleHistory.hpp"
+
 #include "MainContext.hpp"
+#include "Console/ConsoleHistory.hpp"
 
 LoggerOutputConsole::LoggerOutputConsole()
 {

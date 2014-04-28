@@ -1,9 +1,10 @@
 #pragma once
 
 #include "Precompiled.hpp"
-#include "ConsoleDefinition.hpp"
-#include "ConsoleCommand.hpp"
-#include "ConsoleVariable.hpp"
+
+#include "Console/ConsoleDefinition.hpp"
+#include "Console/ConsoleCommand.hpp"
+#include "Console/ConsoleVariable.hpp"
 
 //
 // Console System

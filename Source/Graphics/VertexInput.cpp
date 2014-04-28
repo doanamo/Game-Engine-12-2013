@@ -1,6 +1,7 @@
 #include "Precompiled.hpp"
 #include "VertexInput.hpp"
-#include "Buffer.hpp"
+
+#include "Graphics/Buffer.hpp"
 
 namespace
 {

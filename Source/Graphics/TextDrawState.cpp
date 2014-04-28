@@ -1,8 +1,8 @@
 #include "Precompiled.hpp"
 #include "TextDrawState.hpp"
 
-#include "Font.hpp"
-#include "TextRenderer.hpp"
+#include "Graphics/Font.hpp"
+#include "Graphics/TextRenderer.hpp"
 
 TextDrawState::TextDrawState() :
     m_initialized(false),

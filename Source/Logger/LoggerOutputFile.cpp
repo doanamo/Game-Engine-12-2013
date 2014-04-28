@@ -1,9 +1,6 @@
 #include "Precompiled.hpp"
 #include "LoggerOutputFile.hpp"
 
-#include <ctime>
-#include <iomanip>
-
 LoggerOutputFile::LoggerOutputFile()
 {
 }

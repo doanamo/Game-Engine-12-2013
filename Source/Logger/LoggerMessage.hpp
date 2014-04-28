@@ -2,8 +2,6 @@
 
 #include "Precompiled.hpp"
 
-#include <sstream>
-
 //
 // Logger Message
 //

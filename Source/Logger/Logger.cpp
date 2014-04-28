@@ -1,9 +1,6 @@
 #include "Precompiled.hpp"
 #include "Logger.hpp"
 
-#include <ctime>
-#include <iomanip>
-
 Logger* Logger::m_global = nullptr;
 
 Logger::Logger()

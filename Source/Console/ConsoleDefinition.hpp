@@ -2,6 +2,7 @@
 
 #include "Precompiled.hpp"
 
+// Forward declarations.
 class ConsoleSystem;
 
 //

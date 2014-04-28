@@ -1,8 +1,9 @@
 #include "Precompiled.hpp"
 #include "TextRenderer.hpp"
-#include "ShapeRenderer.hpp"
+
 #include "MainContext.hpp"
-#include "Font.hpp"
+#include "Graphics/ShapeRenderer.hpp"
+#include "Graphics/Font.hpp"
 
 namespace Console
 {
