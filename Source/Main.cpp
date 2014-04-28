@@ -21,6 +21,9 @@
 namespace Console
 {
     ConsoleVariable drawFrameRate("r_drawfps", true, "Displays current frame rate on the screen.");
+    ConsoleVariable lockAspectRatio("r_lockaspectratio", true, "Locks aspect ratio of the display resolution.");
+    ConsoleVariable horizontalAspectRatio("r_horizontalaspectratio", 16, "Horizontal aspect ratio.");
+    ConsoleVariable verticalAspectRatio("r_verticalaspectratio", 9, "Vertical aspect ratio.");
     ConsoleVariable debugScreenBorders("debug_screenborders", false, "Enables debug draw of screen borders.");
 }
 
@@ -70,6 +73,9 @@ int main(int argc, char* argv[])
         uint32_t timeElapsed = timeCurrent - timePrevious;
         float dt = (float)timeElapsed / 1000.0f;
 
+        // Delta can't be negative.
+        dt = std::max(0.0f, dt);
+
         // Limit maximum frame step.
         dt = std::min(dt, 1.0f / 20.0f);
 
@@ -87,8 +93,63 @@ int main(int argc, char* argv[])
                 switch(event.window.event)
                 {
                 case SDL_WINDOWEVENT_RESIZED:
-                    Console::windowWidth = event.window.data1;
-                    Console::windowHeight = event.window.data2;
+                    {
+                        // Get new window size.
+                        int width = event.window.data1;
+                        int height = event.window.data2;
+
+                        if(width == Console::windowWidth.GetInteger() && height == Console::windowHeight.GetInteger())
+                            break;
+
+                        // Get aspect ratio settings.
+                        const int horizontalAspectRatio = Console::horizontalAspectRatio;
+                        const int verticalAspectRatio = Console::verticalAspectRatio;
+                        
+                        // Change resolution to match the aspect ratio.
+                        if(Console::lockAspectRatio)
+                        {
+                            // Set new window size with locked aspect ratio.
+                            if(width != Console::windowWidth.GetInteger())
+                            {
+                                // Find next multiple of horizontal aspect ratio.
+                                while(width % horizontalAspectRatio)
+                                {
+                                    width += 1;
+                                }
+
+                                // Calculate the other dimmension.
+                                height = (int)(width * ((float)verticalAspectRatio / horizontalAspectRatio) + 0.5f);
+                            }
+                            else
+                            if(height != Console::windowHeight.GetInteger())
+                            {
+                                // Find next multiple of vertical aspect ratio.
+                                while(height % verticalAspectRatio)
+                                {
+                                    height += 1;
+                                }
+
+                                // Calculate the other dimmension.
+                                width = (int)(height * ((float)horizontalAspectRatio / verticalAspectRatio) + 0.5f);
+                            }
+
+                            // Change window size.
+                            // This event is only triggered on user system resize.
+                            // Function below triggers another, regular size change event.
+                            SDL_SetWindowSize(Main::SystemWindow(), width, height);
+
+                            // Get the current window size.
+                            // The requested window size can't always be set.
+                            SDL_GetWindowSize(Main::SystemWindow(), &width, &height);
+                        }
+                        
+                        // Update the console variables.
+                        Console::windowWidth = width;
+                        Console::windowHeight = height;
+
+                        // Print a log message.
+                        Log() << "Resolution changed to " << event.window.data1 << "x" << event.window.data2 << ".";
+                    }
                     break;
                 }
                 break;
@@ -104,12 +165,15 @@ int main(int argc, char* argv[])
         }
 
         // Get current window size.
-        int windowWidth = Console::windowWidth;
-        int windowHeight = Console::windowHeight;
+        const int windowWidth = Console::windowWidth;
+        const int windowHeight = Console::windowHeight;
+
+        const int horizontalAspectRatio = Console::horizontalAspectRatio;
+        const int verticalAspectRatio = Console::verticalAspectRatio;
 
         // Setup screen space.
         Main::ScreenSpace().SetSourceSize((float)windowWidth, (float)windowHeight);
-        Main::ScreenSpace().SetTargetAspect(16.0f / 9.0f);
+        Main::ScreenSpace().SetTargetAspect((float)horizontalAspectRatio / verticalAspectRatio);
 
         // Update frame counter.
         Main::FrameCounter().Update(dt);
@@ -129,10 +193,9 @@ int main(int argc, char* argv[])
         Main::CoreRenderer().Clear(ClearFlags::Color);
 
         // Calculate projection.
-        glm::vec4 screenSpace = Main::ScreenSpace().GetRectangle();
-        glm::mat4x4 projection = glm::ortho(screenSpace.x, screenSpace.y, screenSpace.z, screenSpace.w);
-        glm::mat4x4 view = glm::translate(glm::mat4(1.0f), glm::vec3(Main::ScreenSpace().GetOffset(), 0.0f));
-        glm::mat4x4 transform = projection * view;
+        glm::mat4x4 projection = Main::ScreenSpace().GetProjection();
+        glm::mat4x4 view = Main::ScreenSpace().GetView();
+        glm::mat4x4 transform = Main::ScreenSpace().GetTransform();
 
         // Calculate scissor area.
         glm::vec3 position = glm::project(glm::vec3(0.0f, 0.0f, 0.0f), view, projection, viewport);

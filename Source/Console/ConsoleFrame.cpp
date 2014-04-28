@@ -97,6 +97,10 @@ bool ConsoleFrame::Process(const SDL_Event& event)
 
                 // End text input.
                 SDL_StopTextInput();
+
+                // Block the key that just closed 
+                // the frame from being send further.
+                return true;
             }
         }
         else

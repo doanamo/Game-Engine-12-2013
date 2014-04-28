@@ -101,15 +101,15 @@
 
             outputColor = mix(outputColor, fragmentGlowColor, glowAlpha);
 
-            // Inverted gamma correction (it doesn't work well with this effect).
-            outputColor.a = pow(outputColor.a, 2.2f);
+            // Inverted gamma correction (it doesn't work well in some cases).
+            //outputColor.a = pow(outputColor.a, 2.2f);
         }
 
         // Create glyph body.
         if(fragmentBodyColor.a > 0.0f)
         {
             float glyphAlpha = smoothstep(glyphThreshold - step, glyphThreshold + step, distance);
-            
+
             outputColor = mix(outputColor, fragmentBodyColor, glyphAlpha);
         }
 

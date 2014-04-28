@@ -29,7 +29,7 @@ bool MainFrame::Process(const SDL_Event& event)
     return false;
 }
 
-void MainFrame::Update(float dt)
+void MainFrame::Update(float timeDelta)
 {
 }
 

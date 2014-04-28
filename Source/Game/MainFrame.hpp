@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Precompiled.hpp"
+
 #include "System/BaseFrame.hpp"
 
 //
@@ -17,7 +18,7 @@ public:
     void Cleanup();
 
     bool Process(const SDL_Event& event);
-    void Update(float dt);
+    void Update(float timeDelta);
     void Draw();
 
 private:

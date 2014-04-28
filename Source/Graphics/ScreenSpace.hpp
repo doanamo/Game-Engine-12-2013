@@ -25,8 +25,13 @@ public:
     const glm::vec4& GetRectangle() const;
     const glm::vec2& GetOffset() const;
 
+    const glm::mat4& GetProjection() const;
+    const glm::mat4& GetView() const;
+    const glm::mat4& GetTransform() const;
+
 private:
-    void RebuildScreenSpace() const;
+    void Rebuild() const;
+    mutable bool m_rebuild;
 
 private:
     glm::vec2 m_sourceSize;
@@ -34,5 +39,8 @@ private:
 
     mutable glm::vec4 m_rectangle;
     mutable glm::vec2 m_offset;
-    mutable bool m_rebuild;
+
+    mutable glm::mat4 m_projection;
+    mutable glm::mat4 m_view;
+    mutable glm::mat4 m_transform;
 };

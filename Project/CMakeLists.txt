@@ -115,10 +115,12 @@ Set(PrecompiledSource "Precompiled.cpp")
 Set(SourceFiles
     "${PrecompiledHeader}"
     "${PrecompiledSource}"
+
     "Main.cpp"
     "MainContext.hpp"
     "MainContext.cpp"
     "UserEvents.hpp"
+
     "Common/NonCopyable.hpp"
     "Common/ScopeGuard.hpp"
     "Common/Utility.hpp"
@@ -126,6 +128,7 @@ Set(SourceFiles
     "Common/StateMachine.hpp"
     "Common/ShelfPacker.hpp"
     "Common/ShelfPacker.cpp"
+
     "Logger/Logger.hpp"
     "Logger/Logger.cpp"
     "Logger/LoggerOutput.hpp"
@@ -137,6 +140,7 @@ Set(SourceFiles
     "Logger/LoggerMessage.cpp"
     "Logger/LoggerScopedMessage.hpp"
     "Logger/LoggerScopedMessage.cpp"
+
     "Console/ConsoleSystem.hpp"
     "Console/ConsoleSystem.cpp"
     "Console/ConsoleHistory.hpp"
@@ -149,11 +153,13 @@ Set(SourceFiles
     "Console/ConsoleVariable.cpp"
     "Console/ConsoleFrame.hpp"
     "Console/ConsoleFrame.cpp"
+
     "System/BaseFrame.hpp"
     "System/FrameCounter.hpp"
     "System/FrameCounter.cpp"
     "System/CacheManager.hpp"
     "System/CacheManager.cpp"
+
     "Graphics/ScreenSpace.hpp"
     "Graphics/ScreenSpace.cpp"
     "Graphics/CoreRenderer.hpp"
@@ -174,6 +180,7 @@ Set(SourceFiles
     "Graphics/TextRenderer.cpp"
     "Graphics/TextDrawState.hpp"
     "Graphics/TextDrawState.cpp"
+
     "Game/MainFrame.hpp"
     "Game/MainFrame.cpp"
 )

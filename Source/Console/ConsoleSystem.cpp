@@ -36,6 +36,10 @@ void ConsoleSystem::Execute(std::string input)
     // Print input string.
     Log() << "> " << input;
 
+    // Abort if input is empty.
+    if(input.empty())
+        return;
+
     // Locate the first white space.
     std::size_t separator = input.find(' ');
 
