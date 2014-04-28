@@ -53,7 +53,11 @@ void HealthSystem::Damage(EntityHandle entity, int value)
     if(Console::cheatGodMode)
     {
         EntityHandle player = GameState::IdentitySystem().GetEntityByName("Player");
-        playerInvulnerable = entity == player;
+
+        if(entity == player)
+        {
+            playerInvulnerable = true;
+        }
     }
 
     // Apply damage.
