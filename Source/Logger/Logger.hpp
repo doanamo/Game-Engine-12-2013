@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Common/NonCopyable.hpp"
-#include "LoggerOutput.hpp"
-#include "LoggerMessage.hpp"
-#include "LoggerScopedMessage.hpp"
+#include "Precompiled.hpp"
 
-#include <fstream>
+#include "Common/NonCopyable.hpp"
+#include "Logger/LoggerOutput.hpp"
+#include "Logger/LoggerMessage.hpp"
+#include "Logger/LoggerScopedMessage.hpp"
 
 // Log macro.
 #ifdef _DEBUG

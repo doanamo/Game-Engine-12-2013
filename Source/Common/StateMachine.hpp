@@ -1,6 +1,6 @@
 #pragma once
 
-#include "NonCopyable.hpp"
+#include "Common/NonCopyable.hpp"
 
 //
 // State

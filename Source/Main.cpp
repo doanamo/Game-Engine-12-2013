@@ -1,18 +1,15 @@
 #include "Precompiled.hpp"
 
+#include "MainContext.hpp"
+#include "System/BaseFrame.hpp"
+#include "System/FrameCounter.hpp"
 #include "Console/ConsoleSystem.hpp"
 #include "Console/ConsoleFrame.hpp"
-
 #include "Graphics/Font.hpp"
 #include "Graphics/ScreenSpace.hpp"
 #include "Graphics/CoreRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
 #include "Graphics/ShapeRenderer.hpp"
-
-#include "System/BaseFrame.hpp"
-#include "System/FrameCounter.hpp"
-
-#include "MainContext.hpp"
 
 //
 // Console Variables

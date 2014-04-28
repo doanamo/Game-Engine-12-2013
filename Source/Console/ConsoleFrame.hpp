@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Precompiled.hpp"
+
 #include "Graphics/Font.hpp"
 
 //

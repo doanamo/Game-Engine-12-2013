@@ -4,23 +4,18 @@
 #include "Logger/Logger.hpp"
 #include "Logger/LoggerOutputFile.hpp"
 #include "Logger/LoggerOutputConsole.hpp"
-
 #include "System/BaseFrame.hpp"
 #include "System/FrameCounter.hpp"
 #include "System/CacheManager.hpp"
-
 #include "Console/ConsoleSystem.hpp"
 #include "Console/ConsoleHistory.hpp"
 #include "Console/ConsoleFrame.hpp"
-
 #include "Graphics/Texture.hpp"
 #include "Graphics/Font.hpp"
-
 #include "Graphics/ScreenSpace.hpp"
 #include "Graphics/CoreRenderer.hpp"
 #include "Graphics/ShapeRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
-
 #include "Game/MainFrame.hpp"
 
 //
