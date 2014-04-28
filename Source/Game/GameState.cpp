@@ -146,20 +146,20 @@ void GameState::Cleanup()
     //
     // Game Systems
     //
-
-    spawnSystem.Cleanup();
+    
     progressSystem.Cleanup();
+    spawnSystem.Cleanup();
 
     //
     // Entity Systems
     //
     
-    healthSystem.Cleanup();
-    collisionSystem.Cleanup();
-    scriptSystem.Cleanup();
-    renderSystem.Cleanup();
     interfaceSystem.Cleanup();
-
+    renderSystem.Cleanup();
+    scriptSystem.Cleanup();
+    collisionSystem.Cleanup();
+    healthSystem.Cleanup();
+    identitySystem.Cleanup();
     entitySystem.Cleanup();
 
     //
