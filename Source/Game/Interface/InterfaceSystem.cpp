@@ -4,6 +4,7 @@
 #include "MainContext.hpp"
 #include "Graphics/TextRenderer.hpp"
 #include "Game/GameContext.hpp"
+#include "Game/GameState.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
 #include "Game/Render/RenderSystem.hpp"
@@ -61,8 +62,8 @@ void InterfaceSystem::Update(float timeDelta)
         return;
 
     // Update the health bar.
-    EntityHandle playerEntity = Game::IdentitySystem().GetEntityByName("Player");
-    HealthComponent* playerHealth = Game::HealthComponents().Lookup(playerEntity);
+    EntityHandle playerEntity = GameState::IdentitySystem().GetEntityByName("Player");
+    HealthComponent* playerHealth = GameState::HealthComponents().Lookup(playerEntity);
 
     if(playerHealth != nullptr)
     {
@@ -168,7 +169,7 @@ void InterfaceSystem::Draw()
     // Draw debug game info.
     {
         std::stringstream text;
-        text << "Entities: " << Game::EntitySystem().GetEntityCount();
+        text << "Entities: " << GameState::EntitySystem().GetEntityCount();
 
         TextDrawInfo info;
         info.font = &Main::DefaultFont();
@@ -205,7 +206,7 @@ void InterfaceSystem::AddFloatingText(std::string text, const glm::vec2& positio
     if(InterfaceSpaceFloatingText)
     {
         // Get the source transform along with current viewport.
-        const ScreenSpace& gameScreenSpace = Game::RenderSystem().GetScreenSpace();
+        const ScreenSpace& gameScreenSpace = GameState::RenderSystem().GetScreenSpace();
         glm::ivec4 viewport(0, 0, Console::windowWidth, Console::windowHeight);
 
         // Project position from the world to window space.

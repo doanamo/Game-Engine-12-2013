@@ -8,7 +8,7 @@
 // Game Factory
 //
 
-namespace Game
+namespace GameFactory
 {
     void         CreateBounds();
     EntityHandle CreatePlayer();

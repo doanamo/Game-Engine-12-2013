@@ -3,6 +3,7 @@
 #include "HealthComponent.hpp"
 
 #include "Game/GameContext.hpp"
+#include "Game/GameState.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
 #include "Game/Transform/TransformComponent.hpp"
@@ -35,11 +36,11 @@ void HealthSystem::Cleanup()
 void HealthSystem::Damage(EntityHandle entity, int value)
 {
     // Check if handle is valid.
-    if(!Game::EntitySystem().IsHandleValid(entity))
+    if(!GameState::EntitySystem().IsHandleValid(entity))
         return;
 
     // Get the health component.
-    HealthComponent* health = Game::HealthComponents().Lookup(entity);
+    HealthComponent* health = GameState::HealthComponents().Lookup(entity);
     if(health == nullptr) return;
 
     // Don't damage if dead.
@@ -51,7 +52,7 @@ void HealthSystem::Damage(EntityHandle entity, int value)
 
     if(Console::cheatGodMode)
     {
-        EntityHandle player = Game::IdentitySystem().GetEntityByName("Player");
+        EntityHandle player = GameState::IdentitySystem().GetEntityByName("Player");
         playerInvulnerable = entity == player;
     }
 
@@ -64,7 +65,7 @@ void HealthSystem::Damage(EntityHandle entity, int value)
         health->SetCurrentHealth(currentHealth);
 
         // Inform about received damage.
-        ScriptComponent* script = Game::ScriptComponents().Lookup(entity);
+        ScriptComponent* script = GameState::ScriptComponents().Lookup(entity);
 
         if(script != nullptr)
         {
@@ -73,23 +74,23 @@ void HealthSystem::Damage(EntityHandle entity, int value)
     }
 
     // Add a floating damage number.
-    TransformComponent* transform = Game::TransformComponents().Lookup(entity);
+    TransformComponent* transform = GameState::TransformComponents().Lookup(entity);
     
     if(transform != nullptr)
     {
         std::string text = std::to_string(value);
-        Game::InterfaceSystem().AddFloatingText(text, transform->GetPosition(), &FloatingDamageNumber::GetInstance());
+        GameState::InterfaceSystem().AddFloatingText(text, transform->GetPosition(), &FloatingDamageNumber::GetInstance());
     }
 }
 
 void HealthSystem::Heal(EntityHandle entity, int value)
 {
     // Check if handle is valid.
-    if(!Game::EntitySystem().IsHandleValid(entity))
+    if(!GameState::EntitySystem().IsHandleValid(entity))
         return;
 
     // Get the health component.
-    HealthComponent* health = Game::HealthComponents().Lookup(entity);
+    HealthComponent* health = GameState::HealthComponents().Lookup(entity);
     if(health == nullptr) return;
 
     // Don't heal if dead.
@@ -105,7 +106,7 @@ void HealthSystem::Heal(EntityHandle entity, int value)
         health->SetCurrentHealth(currentHealth);
 
         // Inform about received heal.
-        ScriptComponent* script = Game::ScriptComponents().Lookup(entity);
+        ScriptComponent* script = GameState::ScriptComponents().Lookup(entity);
 
         if(script != nullptr)
         {
@@ -114,11 +115,11 @@ void HealthSystem::Heal(EntityHandle entity, int value)
     }
 
     // Add a floating heal number.
-    TransformComponent* transform = Game::TransformComponents().Lookup(entity);
+    TransformComponent* transform = GameState::TransformComponents().Lookup(entity);
     
     if(transform != nullptr)
     {
         std::string text = std::to_string(value);
-        Game::InterfaceSystem().AddFloatingText(text, transform->GetPosition(), &FloatingHealNumber::GetInstance());
+        GameState::InterfaceSystem().AddFloatingText(text, transform->GetPosition(), &FloatingHealNumber::GetInstance());
     }
 }

@@ -2,6 +2,7 @@
 #include "HealthPickupScript.hpp"
 
 #include "Game/GameContext.hpp"
+#include "Game/GameState.hpp"
 #include "Game/GameFactory.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Transform/TransformComponent.hpp"
@@ -21,9 +22,9 @@ void HealthPickupScript::OnCollision(CollisionObject& self, CollisionObject& oth
     // Heal the collided entity.
     if(m_healValue > 0)
     {
-        Game::HealthSystem().Heal(other.entity, m_healValue);
+        GameState::HealthSystem().Heal(other.entity, m_healValue);
     }
     
     // Destroy itself.
-    Game::EntitySystem().DestroyEntity(self.entity);
+    GameState::EntitySystem().DestroyEntity(self.entity);
 }

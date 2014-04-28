@@ -2,6 +2,7 @@
 #include "GameFactory.hpp"
 
 #include "Game/GameContext.hpp"
+#include "Game/GameState.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
 #include "Game/Input/InputComponent.hpp"
@@ -24,7 +25,7 @@ namespace
     std::random_device deviceRandom;
 }
 
-void Game::CreateBounds()
+void GameFactory::CreateBounds()
 {
     // Bounds script.
     class BoundsScript : public Script
@@ -35,74 +36,74 @@ void Game::CreateBounds()
             assert(other.collision != nullptr);
 
             // Destroy entity.
-            Game::EntitySystem().DestroyEntity(other.entity);
+            GameState::EntitySystem().DestroyEntity(other.entity);
         }
     };
 
     // Create projectile bounds.
     {
-        EntityHandle entity = Game::EntitySystem().CreateEntity();
+        EntityHandle entity = GameState::EntitySystem().CreateEntity();
 
-        TransformComponent* transform = Game::TransformComponents().Create(entity);
+        TransformComponent* transform = GameState::TransformComponents().Create(entity);
         transform->SetPosition(glm::vec2(0.0f, 0.0f));
 
-        CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+        CollisionComponent* collision = GameState::CollisionComponents().Create(entity);
         collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 1024.0f, 576.0f));
         collision->SetType(CollisionTypes::None);
         collision->SetMask(CollisionTypes::Projectile);
         collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reversed);
 
-        ScriptComponent* script = Game::ScriptComponents().Create(entity);
+        ScriptComponent* script = GameState::ScriptComponents().Create(entity);
         script->AddScript(std::make_shared<BoundsScript>());
     }
 
     // Create entity bounds.
     {
-        EntityHandle entity = Game::EntitySystem().CreateEntity();
+        EntityHandle entity = GameState::EntitySystem().CreateEntity();
 
-        TransformComponent* transform = Game::TransformComponents().Create(entity);
+        TransformComponent* transform = GameState::TransformComponents().Create(entity);
         transform->SetPosition(glm::vec2(0.0f, 0.0f));
 
-        CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+        CollisionComponent* collision = GameState::CollisionComponents().Create(entity);
         collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 1024.0f + 200.0f, 576.0f));
         collision->SetType(CollisionTypes::None);
         collision->SetMask(CollisionMasks::All ^ CollisionTypes::Player);
         collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reversed);
 
-        ScriptComponent* script = Game::ScriptComponents().Create(entity);
+        ScriptComponent* script = GameState::ScriptComponents().Create(entity);
         script->AddScript(std::make_shared<BoundsScript>());
     }
 }
 
-EntityHandle Game::CreatePlayer()
+EntityHandle GameFactory::CreatePlayer()
 {
-    EntityHandle entity = Game::EntitySystem().CreateEntity();
+    EntityHandle entity = GameState::EntitySystem().CreateEntity();
 
-    Game::IdentitySystem().SetEntityName(entity, "Player");
+    GameState::IdentitySystem().SetEntityName(entity, "Player");
 
-    TransformComponent* transform = Game::TransformComponents().Create(entity);
+    TransformComponent* transform = GameState::TransformComponents().Create(entity);
     transform->SetPosition(glm::vec2(50.0f, 275.0f));
     transform->SetScale(glm::vec2(50.0f, 50.0f));
     transform->SetRotation(0.0f);
 
-    InputComponent* input = Game::InputComponents().Create(entity);
-    input->SetStateReference(&Game::InputState());
+    InputComponent* input = GameState::InputComponents().Create(entity);
+    input->SetStateReference(&GameState::InputState());
 
-    HealthComponent* health = Game::HealthComponents().Create(entity);
+    HealthComponent* health = GameState::HealthComponents().Create(entity);
     health->SetMaximumHealth(100);
     health->SetCurrentHealth(100);
 
-    CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+    CollisionComponent* collision = GameState::CollisionComponents().Create(entity);
     collision->SetBoundingBox(glm::vec4(-25.0f, -25.0f, 25.0f, 25.0f));
     collision->SetType(CollisionTypes::Player);
     collision->SetMask(CollisionTypes::Enemy);
 
-    ScriptComponent* script = Game::ScriptComponents().Create(entity);
+    ScriptComponent* script = GameState::ScriptComponents().Create(entity);
     script->AddScript(std::make_shared<PlayerScript>());
     script->AddScript(std::make_shared<DamageOnCollision>(10, 0.2f));
     script->AddScript(std::make_shared<FlashOnDamageScript>());
 
-    RenderComponent* render = Game::RenderComponents().Create(entity);
+    RenderComponent* render = GameState::RenderComponents().Create(entity);
     render->SetDiffuseColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
     return entity;
@@ -113,7 +114,7 @@ namespace
     std::mt19937 asteroidRandom(deviceRandom());
 }
 
-EntityHandle Game::CreateAsteroid(const glm::vec2& position)
+EntityHandle GameFactory::CreateAsteroid(const glm::vec2& position)
 {
     // Calculate entity parameters.
     std::array<double, 3> intervals = { 0.2f, 0.3f, 1.0f };
@@ -129,29 +130,29 @@ EntityHandle Game::CreateAsteroid(const glm::vec2& position)
     float speed = 400.0f - 300.0f * scale;
 
     // Create an entity.
-    EntityHandle entity = Game::EntitySystem().CreateEntity();
+    EntityHandle entity = GameState::EntitySystem().CreateEntity();
 
-    TransformComponent* transform = Game::TransformComponents().Create(entity);
+    TransformComponent* transform = GameState::TransformComponents().Create(entity);
     transform->SetPosition(position);
     transform->SetScale(glm::vec2(size, size));
     transform->SetRotation(0.0f);
 
-    HealthComponent* health = Game::HealthComponents().Create(entity);
+    HealthComponent* health = GameState::HealthComponents().Create(entity);
     health->SetMaximumHealth(hitpoints);
     health->SetCurrentHealth(hitpoints);
 
-    CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+    CollisionComponent* collision = GameState::CollisionComponents().Create(entity);
     collision->SetBoundingBox(glm::vec4(-halfSize, -halfSize, halfSize, halfSize));
     collision->SetType(CollisionTypes::Environment);
     collision->SetMask(CollisionTypes::Player | CollisionTypes::Enemy);
 
-    ScriptComponent* script = Game::ScriptComponents().Create(entity);
+    ScriptComponent* script = GameState::ScriptComponents().Create(entity);
     script->AddScript(std::make_shared<ConstantVelocityScript>(glm::vec2(-speed, 0.0f)));
     script->AddScript(std::make_shared<DamageOnCollision>(5, 0.2f));
     script->AddScript(std::make_shared<FlashOnDamageScript>());
     script->AddScript(std::make_shared<DestroyOnDeathScript>());
 
-    RenderComponent* render = Game::RenderComponents().Create(entity);
+    RenderComponent* render = GameState::RenderComponents().Create(entity);
     render->SetDiffuseColor(glm::vec4(0.6f, 0.3f, 0.0f, 1.0f));
 
     return entity;
@@ -162,91 +163,91 @@ namespace
     std::mt19937 enemyRandom(deviceRandom());
 }
 
-EntityHandle Game::CreateEnemy(const glm::vec2& position)
+EntityHandle GameFactory::CreateEnemy(const glm::vec2& position)
 {
-    EntityHandle entity = Game::EntitySystem().CreateEntity();
+    EntityHandle entity = GameState::EntitySystem().CreateEntity();
 
-    TransformComponent* transform = Game::TransformComponents().Create(entity);
+    TransformComponent* transform = GameState::TransformComponents().Create(entity);
     transform->SetPosition(position);
     transform->SetScale(glm::vec2(50.0f, 50.0f));
     transform->SetRotation(0.0f);
 
-    HealthComponent* health = Game::HealthComponents().Create(entity);
+    HealthComponent* health = GameState::HealthComponents().Create(entity);
     health->SetMaximumHealth(30);
     health->SetCurrentHealth(30);
 
-    CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+    CollisionComponent* collision = GameState::CollisionComponents().Create(entity);
     collision->SetBoundingBox(glm::vec4(-25.0f, -25.0f, 25.0f, 25.0f));
     collision->SetType(CollisionTypes::Enemy);
     collision->SetMask(CollisionTypes::Player);
 
-    ScriptComponent* script = Game::ScriptComponents().Create(entity);
+    ScriptComponent* script = GameState::ScriptComponents().Create(entity);
     script->AddScript(std::make_shared<EnemyScript>());
     script->AddScript(std::make_shared<DamageOnCollision>(5, 0.2f));
     script->AddScript(std::make_shared<FlashOnDamageScript>());
 
-    RenderComponent* render = Game::RenderComponents().Create(entity);
+    RenderComponent* render = GameState::RenderComponents().Create(entity);
     render->SetDiffuseColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 
     return entity;
 }
 
-EntityHandle Game::CreateProjectile(const glm::vec2& position, const glm::vec2& direction, float speed, uint32_t collisionMask)
+EntityHandle GameFactory::CreateProjectile(const glm::vec2& position, const glm::vec2& direction, float speed, uint32_t collisionMask)
 {
-    EntityHandle entity = Game::EntitySystem().CreateEntity();
+    EntityHandle entity = GameState::EntitySystem().CreateEntity();
 
-    TransformComponent* transform = Game::TransformComponents().Create(entity);
+    TransformComponent* transform = GameState::TransformComponents().Create(entity);
     transform->SetPosition(position);
     transform->SetScale(glm::vec2(30.0f, 30.0f));
     transform->SetRotation(0.0f);
 
-    CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+    CollisionComponent* collision = GameState::CollisionComponents().Create(entity);
     collision->SetBoundingBox(glm::vec4(-15.0f, -15.0f, 15.0f, 15.0f));
     collision->SetType(CollisionTypes::Projectile);
     collision->SetMask(collisionMask);
 
-    ScriptComponent* script = Game::ScriptComponents().Create(entity);
+    ScriptComponent* script = GameState::ScriptComponents().Create(entity);
     script->AddScript(std::make_shared<ConstantVelocityScript>(direction * speed));
     script->AddScript(std::make_shared<ProjectileScript>());
 
-    RenderComponent* render = Game::RenderComponents().Create(entity);
+    RenderComponent* render = GameState::RenderComponents().Create(entity);
     render->SetDiffuseColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 
     return entity;
 };
 
-EntityHandle Game::CreateHealthPickup(const glm::vec2& position, int heal)
+EntityHandle GameFactory::CreateHealthPickup(const glm::vec2& position, int heal)
 {
-    EntityHandle entity = Game::EntitySystem().CreateEntity();
+    EntityHandle entity = GameState::EntitySystem().CreateEntity();
 
-    TransformComponent* transform = Game::TransformComponents().Create(entity);
+    TransformComponent* transform = GameState::TransformComponents().Create(entity);
     transform->SetPosition(position);
     transform->SetScale(glm::vec2(40.0f, 40.0f));
     transform->SetRotation(0.0f);
 
-    CollisionComponent* collision = Game::CollisionComponents().Create(entity);
+    CollisionComponent* collision = GameState::CollisionComponents().Create(entity);
     collision->SetBoundingBox(glm::vec4(-20.0f, -20.0f, 20.0f, 20.0f));
     collision->SetType(CollisionTypes::Pickup);
     collision->SetMask(CollisionTypes::Player);
 
-    ScriptComponent* script = Game::ScriptComponents().Create(entity);
+    ScriptComponent* script = GameState::ScriptComponents().Create(entity);
     script->AddScript(std::make_shared<ConstantVelocityScript>(glm::vec2(-100.0f, 0.0f)));
     script->AddScript(std::make_shared<HealthPickupScript>(20));
 
-    RenderComponent* render = Game::RenderComponents().Create(entity);
+    RenderComponent* render = GameState::RenderComponents().Create(entity);
     render->SetDiffuseColor(glm::vec4(0.6f, 1.0f, 0.6f, 1.0f));
 
     return entity;
 }
 
-EntityHandle Game::CreateSpawner(const glm::vec2& position)
+EntityHandle GameFactory::CreateSpawner(const glm::vec2& position)
 {
-    EntityHandle entity = Game::EntitySystem().CreateEntity();
+    EntityHandle entity = GameState::EntitySystem().CreateEntity();
 
-    TransformComponent* transform = Game::TransformComponents().Create(entity);
+    TransformComponent* transform = GameState::TransformComponents().Create(entity);
     transform->SetPosition(position);
 
-    ScriptComponent* script = Game::ScriptComponents().Create(entity);
+    ScriptComponent* script = GameState::ScriptComponents().Create(entity);
     script->AddScript(std::make_shared<SpawnerScript>());
 
     return entity;

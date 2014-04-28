@@ -2,6 +2,7 @@
 #include "CommonScripts.hpp"
 
 #include "Game/GameContext.hpp"
+#include "Game/GameState.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Transform/TransformComponent.hpp"
 #include "Game/Collision/CollisionSystem.hpp"
@@ -35,7 +36,7 @@ TransformComponent* ConstantVelocityScript::GetTransformComponent(EntityHandle s
     // Cache the transform component.
     if(m_transform == nullptr)
     {
-        m_transform = Game::TransformComponents().Lookup(self);
+        m_transform = GameState::TransformComponents().Lookup(self);
     }
 
     return m_transform;
@@ -57,10 +58,10 @@ void DamageOnCollision::OnCollision(CollisionObject& self, CollisionObject& othe
     assert(other.collision != nullptr);
 
     // Apply damage to target entity.
-    Game::HealthSystem().Damage(other.entity, m_damage);
+    GameState::HealthSystem().Damage(other.entity, m_damage);
 
     // Temporarily disable collision response with this entity.
-    Game::CollisionSystem().DisableCollisionResponse(self.entity, other.entity, m_interval);
+    GameState::CollisionSystem().DisableCollisionResponse(self.entity, other.entity, m_interval);
 }
 
 //
@@ -72,7 +73,7 @@ void DestroyOnDeathScript::OnDamage(EntityHandle self, int value, bool alive)
     // Destroy the entity on fatal damage.
     if(!alive)
     {
-        Game::EntitySystem().DestroyEntity(self);
+        GameState::EntitySystem().DestroyEntity(self);
     }
 }
 
@@ -120,7 +121,7 @@ RenderComponent* FlashOnDamageScript::GetRenderComponent(EntityHandle self)
     // Cache the render component.
     if(m_render == nullptr)
     {
-        m_render = Game::RenderComponents().Lookup(self);
+        m_render = GameState::RenderComponents().Lookup(self);
     }
 
     return m_render;

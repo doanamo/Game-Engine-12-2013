@@ -2,6 +2,7 @@
 #include "ProjectileScript.hpp"
 
 #include "Game/GameContext.hpp"
+#include "Game/GameState.hpp"
 #include "Game/GameFactory.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Transform/TransformComponent.hpp"
@@ -19,8 +20,8 @@ void ProjectileScript::OnCollision(CollisionObject& self, CollisionObject& other
     assert(other.collision != nullptr);
 
     // Apply damage to target entity.
-    Game::HealthSystem().Damage(other.entity, 10);
+    GameState::HealthSystem().Damage(other.entity, 10);
 
     // Destroy itself.
-    Game::EntitySystem().DestroyEntity(self.entity);
+    GameState::EntitySystem().DestroyEntity(self.entity);
 }

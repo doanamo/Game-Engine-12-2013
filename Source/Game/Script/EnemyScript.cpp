@@ -2,6 +2,7 @@
 #include "EnemyScript.hpp"
 
 #include "Game/GameContext.hpp"
+#include "Game/GameState.hpp"
 #include "Game/GameFactory.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Transform/TransformComponent.hpp"
@@ -23,7 +24,7 @@ EnemyScript::EnemyScript() :
 void EnemyScript::OnUpdate(EntityHandle self, float timeDelta)
 {
     // Check if entity has needed components.
-    TransformComponent* transform = Game::TransformComponents().Lookup(self);
+    TransformComponent* transform = GameState::TransformComponents().Lookup(self);
     if(transform == nullptr) return;
 
     // Move to the left side of the screen.
@@ -37,7 +38,7 @@ void EnemyScript::OnUpdate(EntityHandle self, float timeDelta)
     if(m_shootTime == 0.0f)
     {
         // Create a projectile entity.
-        Game::CreateProjectile(transform->GetPosition(), glm::vec2(-1.0f, 0.0f), 400.0f, CollisionTypes::Player | CollisionTypes::Environment);
+        GameFactory::CreateProjectile(transform->GetPosition(), glm::vec2(-1.0f, 0.0f), 400.0f, CollisionTypes::Player | CollisionTypes::Environment);
 
         // Set a shooting delay.
         m_shootTime = std::uniform_real<float>(1.0f, 3.0f)(shootRandom);
@@ -55,16 +56,16 @@ void EnemyScript::OnDamage(EntityHandle self, int value, bool alive)
         if(roll <= 0.1f)
         {
             // Get the transform component.
-            TransformComponent* transform = Game::TransformComponents().Lookup(self);
+            TransformComponent* transform = GameState::TransformComponents().Lookup(self);
 
             // Create a health pickup entity.
             if(transform != nullptr)
             {
-                Game::CreateHealthPickup(transform->GetPosition(), 20);
+                GameFactory::CreateHealthPickup(transform->GetPosition(), 20);
             }
         }
 
         // Destroy the entity.
-        Game::EntitySystem().DestroyEntity(self);
+        GameState::EntitySystem().DestroyEntity(self);
     }
 }

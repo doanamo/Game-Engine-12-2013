@@ -2,6 +2,7 @@
 #include "SpawnerScript.hpp"
 
 #include "Game/GameContext.hpp"
+#include "Game/GameState.hpp"
 #include "Game/GameFactory.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Transform/TransformComponent.hpp"
@@ -22,7 +23,7 @@ SpawnerScript::SpawnerScript() :
 void SpawnerScript::OnUpdate(EntityHandle self, float timeDelta)
 {
     // Check if entity has needed components.
-    TransformComponent* transform = Game::TransformComponents().Lookup(self);
+    TransformComponent* transform = GameState::TransformComponents().Lookup(self);
     if(transform == nullptr) return;
 
     // Create an enitity after a delay.
@@ -31,7 +32,7 @@ void SpawnerScript::OnUpdate(EntityHandle self, float timeDelta)
     if(m_respawnTime == 0.0f)
     {
         // Create an enemy entity.
-        Game::CreateEnemy(transform->GetPosition());
+        GameFactory::CreateEnemy(transform->GetPosition());
 
         // Reset respawn timer.
         m_respawnTime = std::uniform_real<float>(3.0f, 6.0)(spawnRandom);

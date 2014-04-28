@@ -23,9 +23,6 @@ public:
     void Draw();
 
 private:
-    void OnEnter();
-
-private:
     bool m_initialized;
 
     // Menu screen space.

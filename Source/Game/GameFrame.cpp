@@ -3,6 +3,7 @@
 
 #include "MainContext.hpp"
 #include "Game/GameContext.hpp"
+#include "Game/GameState.hpp"
 #include "Game/GameFactory.hpp"
 #include "Game/GameStages.hpp"
 #include "Game/MenuFrame.hpp"
@@ -43,21 +44,21 @@ bool GameFrame::Initialize()
         }
     });
 
-    // Initialize the game context.
-    if(!Game::Initialize())
+    // Initialize the game state.
+    if(!GameState::Initialize())
         return false;
 
     // Setup the spawn system.
-    Game::SpawnSystem().SetSpawnArea(glm::vec4(1024.0f + 100.0f, 50.0f, 1024.0f + 100.0f, 526.0f));
+    GameState::SpawnSystem().SetSpawnArea(glm::vec4(1024.0f + 100.0f, 50.0f, 1024.0f + 100.0f, 526.0f));
 
     // Setup the progress system.
-    Game::ProgressSystem().SetNextStage(std::make_shared<EnemyStage>());
+    GameState::ProgressSystem().SetNextStage(std::make_shared<EnemyStage>());
 
     // Create bounds.
-    Game::CreateBounds();
+    GameFactory::CreateBounds();
 
     // Create the player.
-    Game::CreatePlayer();
+    GameFactory::CreatePlayer();
 
     // Success!
     m_initialized = true;
@@ -67,7 +68,7 @@ bool GameFrame::Initialize()
 
 void GameFrame::Cleanup()
 {
-    Game::Cleanup();
+    GameState::Cleanup();
 
     m_initialized = false;
 
@@ -87,13 +88,13 @@ bool GameFrame::Process(const SDL_Event& event)
                 break;
 
             // Change to main menu state.
-            Game::FrameState().ChangeState(&Game::MenuFrame());
+            GameContext::FrameState().ChangeState(&GameContext::MenuFrame());
         }
         break;
     }
 
     // Process input events.
-    Game::InputState().Process(event);
+    GameState::InputState().Process(event);
 
     return false;
 }
@@ -101,32 +102,32 @@ bool GameFrame::Process(const SDL_Event& event)
 void GameFrame::Update(float timeDelta)
 {
     // Update the progress system.
-    Game::ProgressSystem().Update(timeDelta);
+    GameState::ProgressSystem().Update(timeDelta);
 
     // Update the spawn system.
-    Game::SpawnSystem().Update(timeDelta);
+    GameState::SpawnSystem().Update(timeDelta);
 
     // Process entity commands.
-    Game::EntitySystem().ProcessCommands();
+    GameState::EntitySystem().ProcessCommands();
 
     // Update the collision system.
-    Game::CollisionSystem().Update(timeDelta);
+    GameState::CollisionSystem().Update(timeDelta);
 
     // Update the script system.
-    Game::ScriptSystem().Update(timeDelta);
+    GameState::ScriptSystem().Update(timeDelta);
 
     // Update the render system.
-    Game::RenderSystem().Update();
+    GameState::RenderSystem().Update();
 
     // Update the interface system.
-    Game::InterfaceSystem().Update(timeDelta);
+    GameState::InterfaceSystem().Update(timeDelta);
 
     // Check if player is dead.
     if(!m_playerDead)
     {
-        EntityHandle player = Game::IdentitySystem().GetEntityByName("Player");
+        EntityHandle player = GameState::IdentitySystem().GetEntityByName("Player");
 
-        if(!Game::EntitySystem().IsHandleValid(player))
+        if(!GameState::EntitySystem().IsHandleValid(player))
         {
             // Set the dead state.
             m_playerDead = true;
@@ -140,9 +141,8 @@ void GameFrame::Update(float timeDelta)
         // Change to lose frame (game over screen).
         if(m_deadTimer > 4.0f)
         {
-            this->Cleanup();
-
-            Game::FrameState().ChangeState(&Game::LoseFrame());
+            GameContext::GameFrame().Cleanup();
+            GameContext::FrameState().ChangeState(&GameContext::LoseFrame());
         }
     }
 }
@@ -150,8 +150,8 @@ void GameFrame::Update(float timeDelta)
 void GameFrame::Draw()
 {
     // Draw the world.
-    Game::RenderSystem().Draw();
+    GameState::RenderSystem().Draw();
 
     // Draw the interface.
-    Game::InterfaceSystem().Draw();
+    GameState::InterfaceSystem().Draw();
 }

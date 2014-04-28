@@ -3,6 +3,7 @@
 #include "CollisionComponent.hpp"
 
 #include "Game/GameContext.hpp"
+#include "Game/GameState.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Transform/TransformComponent.hpp"
 #include "Game/Script/ScriptComponent.hpp"
@@ -64,7 +65,7 @@ void CollisionSystem::Update(float timeDelta)
         auto eraseIt = it++;
 
         // Check if entities are still valid.
-        if(!Game::EntitySystem().IsHandleValid(sourceEntity) || !Game::EntitySystem().IsHandleValid(targetEntity))
+        if(!GameState::EntitySystem().IsHandleValid(sourceEntity) || !GameState::EntitySystem().IsHandleValid(targetEntity))
         {
             m_disabled.erase(eraseIt);
             continue;
@@ -86,10 +87,10 @@ void CollisionSystem::Update(float timeDelta)
     }
 
     // Create a list of collision objects.
-    for(auto it = Game::CollisionComponents().Begin(); it != Game::CollisionComponents().End(); ++it)
+    for(auto it = GameState::CollisionComponents().Begin(); it != GameState::CollisionComponents().End(); ++it)
     {
         // Check if entity is active.
-        if(!Game::EntitySystem().IsHandleValid(it->first))
+        if(!GameState::EntitySystem().IsHandleValid(it->first))
             continue;
 
         // Get the collision component.
@@ -101,13 +102,13 @@ void CollisionSystem::Update(float timeDelta)
             continue;
 
         // Get the transform component.
-        TransformComponent* transform = Game::TransformComponents().Lookup(it->first);
+        TransformComponent* transform = GameState::TransformComponents().Lookup(it->first);
 
         if(transform == nullptr)
             continue;
 
         // Get the script component (not required).
-        ScriptComponent* script = Game::ScriptComponents().Lookup(it->first);
+        ScriptComponent* script = GameState::ScriptComponents().Lookup(it->first);
 
         // Transform the bounding box to world space.
         glm::vec4 boundingBox = collision->GetBoundingBox();
@@ -167,13 +168,13 @@ void CollisionSystem::Update(float timeDelta)
                     it->script->OnCollision(*it, *other);
 
                     // Check if other collision object is still valid.
-                    if(!Game::EntitySystem().IsHandleValid(other->entity) || !other->collision->IsEnabled())
+                    if(!GameState::EntitySystem().IsHandleValid(other->entity) || !other->collision->IsEnabled())
                     {
                         other->enabled = false;
                     }
 
                     // Check if this collision object is still valid.
-                    if(!Game::EntitySystem().IsHandleValid(it->entity) || !it->collision->IsEnabled())
+                    if(!GameState::EntitySystem().IsHandleValid(it->entity) || !it->collision->IsEnabled())
                     {
                         it->enabled = false;
                         break;

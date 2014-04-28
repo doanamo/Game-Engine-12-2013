@@ -1,7 +1,14 @@
 #include "Precompiled.hpp"
 #include "IdentitySystem.hpp"
 
-IdentitySystem::IdentitySystem()
+namespace
+{
+    // Invalid name constant.
+    const char* InvalidName = "";
+}
+
+IdentitySystem::IdentitySystem() :
+    m_initialized(false)
 {
 }
 
@@ -14,16 +21,23 @@ bool IdentitySystem::Initialize()
 {
     Cleanup();
 
+    m_initialized = true;
+
     return true;
 }
 
 void IdentitySystem::Cleanup()
 {
+    m_initialized = false;
+
     ClearContainer(m_names);
 }
 
 bool IdentitySystem::SetEntityName(const EntityHandle& entity, std::string name)
 {
+    if(!m_initialized)
+        return false;
+
     // Remove existing entity from the map (make it anonymous). 
     auto it = m_names.right.find(entity);
 
@@ -49,6 +63,9 @@ bool IdentitySystem::SetEntityName(const EntityHandle& entity, std::string name)
 
 std::string IdentitySystem::GetEntityName(const EntityHandle& entity) const
 {
+    if(!m_initialized)
+        return InvalidName;
+
     // Find entity name.
     auto it = m_names.right.find(entity);
 
@@ -60,12 +77,15 @@ std::string IdentitySystem::GetEntityName(const EntityHandle& entity) const
     else
     {
         // Entity doesn't have a name (is anonymous).
-        return "";
+        return InvalidName;
     }
 }
 
 EntityHandle IdentitySystem::GetEntityByName(std::string name) const
 {
+    if(!m_initialized)
+        return EntityHandle();
+
     // Find entity by name.
     auto it = m_names.left.find(name);
 
@@ -83,6 +103,9 @@ EntityHandle IdentitySystem::GetEntityByName(std::string name) const
 
 void IdentitySystem::OnDestroyEntity(const EntityHandle& entity)
 {
+    if(!m_initialized)
+        return;
+
     // Remove entity from the name map.
     auto result = m_names.right.erase(entity);
     assert(result == 0 || result == 1);

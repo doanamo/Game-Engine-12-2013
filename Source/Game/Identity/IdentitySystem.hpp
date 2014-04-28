@@ -32,5 +32,8 @@ private:
     void OnDestroyEntity(const EntityHandle& entity);
 
 private:
+    bool m_initialized;
+
+    // List of named entities.
     EntityNameMap m_names;
 };

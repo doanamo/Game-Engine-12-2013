@@ -4,6 +4,7 @@
 #include "Script.hpp"
 
 #include "Game/GameContext.hpp"
+#include "Game/GameState.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 
 ScriptSystem::ScriptSystem()
@@ -29,10 +30,10 @@ void ScriptSystem::Cleanup()
 void ScriptSystem::Update(float timeDelta)
 {
     // Process script components.
-    for(auto it = Game::ScriptComponents().Begin(); it != Game::ScriptComponents().End(); ++it)
+    for(auto it = GameState::ScriptComponents().Begin(); it != GameState::ScriptComponents().End(); ++it)
     {
         // Check if entity is active.
-        if(!Game::EntitySystem().IsHandleValid(it->first))
+        if(!GameState::EntitySystem().IsHandleValid(it->first))
             continue;
 
         // Get the script component.

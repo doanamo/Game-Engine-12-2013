@@ -2,6 +2,7 @@
 #include "PlayerScript.hpp"
 
 #include "Game/GameContext.hpp"
+#include "Game/GameState.hpp"
 #include "Game/GameFactory.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Input/InputState.hpp"
@@ -18,13 +19,13 @@ PlayerScript::PlayerScript() :
 void PlayerScript::OnUpdate(EntityHandle self, float timeDelta)
 {
     // Check if entity has needed components.
-    TransformComponent* transform = Game::TransformComponents().Lookup(self);
+    TransformComponent* transform = GameState::TransformComponents().Lookup(self);
     if(transform == nullptr) return;
 
-    CollisionComponent* collision = Game::CollisionComponents().Lookup(self);
+    CollisionComponent* collision = GameState::CollisionComponents().Lookup(self);
     if(collision == nullptr) return;
 
-    InputComponent* input = Game::InputComponents().Lookup(self);
+    InputComponent* input = GameState::InputComponents().Lookup(self);
     if(input == nullptr) return;
 
     // Shoot a projectile.
@@ -35,7 +36,7 @@ void PlayerScript::OnUpdate(EntityHandle self, float timeDelta)
         if(m_shootTime == 0.0f)
         {
             // Create a projectile entity.
-            Game::CreateProjectile(transform->GetPosition(), glm::vec2(1.0f, 0.0f), 700, CollisionTypes::Enemy | CollisionTypes::Environment);
+            GameFactory::CreateProjectile(transform->GetPosition(), glm::vec2(1.0f, 0.0f), 700, CollisionTypes::Enemy | CollisionTypes::Environment);
 
             // Set a shooting delay.
             m_shootTime = 0.2f;
@@ -87,6 +88,6 @@ void PlayerScript::OnDamage(EntityHandle self, int value, bool alive)
     // Destroy the entity on fatal damage.
     if(!alive)
     {
-        Game::EntitySystem().DestroyEntity(self);
+        GameState::EntitySystem().DestroyEntity(self);
     }
 }

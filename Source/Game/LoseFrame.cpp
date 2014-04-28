@@ -57,11 +57,9 @@ bool LoseFrame::Process(const SDL_Event& event)
             // Transist back to the main menu.
             if(m_cooldownTimer > FrameTransitionCooldown)
             {
-                // Cleanup the game state.
-                Game::GameFrame().Cleanup();
-
                 // Change to the menu frame.
-                Game::FrameState().ChangeState(&Game::MenuFrame());
+                GameContext::LoseFrame().Cleanup();
+                GameContext::FrameState().ChangeState(&GameContext::MenuFrame());
             }
         }
         return true;
@@ -128,10 +126,4 @@ void LoseFrame::Draw()
 
         Main::TextRenderer().Draw(info, m_screenSpace.GetTransform(), "Press any key to continue...");
     }
-}
-
-void LoseFrame::OnEnter()
-{
-    // Reset the cooldown timer.
-    m_cooldownTimer = 0.0f;
 }
