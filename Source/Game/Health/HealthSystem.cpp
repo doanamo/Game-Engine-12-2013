@@ -6,7 +6,6 @@
 #include "Game/GameState.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
-#include "Game/Script/ScriptComponent.hpp"
 
 namespace Console
 {
@@ -29,7 +28,9 @@ bool HealthSystem::Initialize()
 
 void HealthSystem::Cleanup()
 {
-    m_dispatcherHealthChange.Cleanup();
+    m_dispatcherEntityHealth.Cleanup();
+    m_dispatcherEntityDamaged.Cleanup();
+    m_dispatcherEntityHealed.Cleanup();
 }
 
 void HealthSystem::Damage(EntityHandle entity, int value)
@@ -67,21 +68,24 @@ void HealthSystem::Damage(EntityHandle entity, int value)
         currentHealth = std::max(0, currentHealth - value);
         health->SetCurrentHealth(currentHealth);
 
-        // Inform about received damage.
-        ScriptComponent* script = GameState::ScriptComponents().Lookup(entity);
-
-        if(script != nullptr)
+        // Dispatch an entity health event.
         {
-            script->OnDamage(entity, value, health->IsAlive());
+            GameEvent::EntityHealth event;
+            event.entity = entity;
+            event.component = health;
+
+            m_dispatcherEntityHealth.Dispatch(event);
         }
 
-        // Dispatch a health change event.
-        HealthChangeEvent event;
-        event.entity = entity;
-        event.component = health;
-        event.value = -value;
+        // Dispatch an entity damaged event.
+        {
+            GameEvent::EntityDamaged event;
+            event.entity = entity;
+            event.component = health;
+            event.value = value;
 
-        m_dispatcherHealthChange.Dispatch(event);
+            m_dispatcherEntityDamaged.Dispatch(event);
+        }
     }
 }
 
@@ -107,25 +111,38 @@ void HealthSystem::Heal(EntityHandle entity, int value)
         currentHealth = std::min(currentHealth + value, health->GetMaximumHealth());
         health->SetCurrentHealth(currentHealth);
 
-        // Inform about received heal.
-        ScriptComponent* script = GameState::ScriptComponents().Lookup(entity);
-
-        if(script != nullptr)
+        // Dispatch an entity health event.
         {
-            script->OnHeal(entity, value);
+            GameEvent::EntityHealth event;
+            event.entity = entity;
+            event.component = health;
+
+            m_dispatcherEntityHealth.Dispatch(event);
         }
 
-        // Dispatch a health change event.
-        HealthChangeEvent event;
-        event.entity = entity;
-        event.component = health;
-        event.value = value;
+        // Dispatch an entity healed event.
+        {
+            GameEvent::EntityHealed event;
+            event.entity = entity;
+            event.component = health;
+            event.value = value;
 
-        m_dispatcherHealthChange.Dispatch(event);
+            m_dispatcherEntityHealed.Dispatch(event);
+        }
     }
 }
 
-void HealthSystem::SubscribeReceiver(const ReceiverSignature<HealthChangeEvent>& signature)
+void HealthSystem::SubscribeReceiver(const ReceiverSignature<GameEvent::EntityHealth>& signature)
 {
-    m_dispatcherHealthChange.Subscribe(signature);
+    m_dispatcherEntityHealth.Subscribe(signature);
+}
+
+void HealthSystem::SubscribeReceiver(const ReceiverSignature<GameEvent::EntityDamaged>& signature)
+{
+    m_dispatcherEntityDamaged.Subscribe(signature);
+}
+
+void HealthSystem::SubscribeReceiver(const ReceiverSignature<GameEvent::EntityHealed>& signature)
+{
+    m_dispatcherEntityHealed.Subscribe(signature);
 }

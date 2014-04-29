@@ -41,8 +41,9 @@ bool InterfaceSystem::Initialize()
     m_playerHealthBar.SetBackgroundColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
     m_playerHealthBar.SetDecayColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 
-    // Bind the event receiver.
-    m_receiverHealthChange.Bind<InterfaceSystem, &InterfaceSystem::OnHealthChangeEvent>(this);
+    // Bind event receivers.
+    m_receiverEntityDamaged.Bind<InterfaceSystem, &InterfaceSystem::OnEntityDamagedEvent>(this);
+    m_receiverEntityHealed.Bind<InterfaceSystem, &InterfaceSystem::OnEntityHealedEvent>(this);
 
     // Success!
     m_initialized = true;
@@ -64,7 +65,8 @@ void InterfaceSystem::Cleanup()
     ClearContainer(m_floatingTextList);
 
     // Event receivers.
-    m_receiverHealthChange.Cleanup();
+    m_receiverEntityDamaged.Cleanup();
+    m_receiverEntityHealed.Cleanup();
 }
 
 void InterfaceSystem::Update(float timeDelta)
@@ -231,28 +233,33 @@ void InterfaceSystem::AddFloatingText(std::string text, const glm::vec2& positio
     m_floatingTextList.push_back(element);
 }
 
-ReceiverSignature<HealthChangeEvent> InterfaceSystem::GetHealthChangeReceiver()
+ReceiverSignature<GameEvent::EntityDamaged> InterfaceSystem::GetEntityDamagedReceiver()
 {
-    return m_receiverHealthChange;
+    return m_receiverEntityDamaged;
 }
 
-void InterfaceSystem::OnHealthChangeEvent(const HealthChangeEvent& event)
+ReceiverSignature<GameEvent::EntityHealed> InterfaceSystem::GetEntityHealedReceiver()
 {
-    // Handle health change event for floating text display.
+    return m_receiverEntityHealed;
+}
+
+void InterfaceSystem::OnEntityDamagedEvent(const GameEvent::EntityDamaged& event)
+{
+    // Get the transform component.
     TransformComponent* transform = GameState::TransformComponents().Lookup(event.entity);
     if(transform == nullptr) return;
 
-    if(event.value < 0)
-    {
-        // Add floating text for damage.
-        std::string text = std::to_string(event.value * -1);
-        AddFloatingText(text, transform->GetPosition(), &FloatingDamageNumber::GetInstance());
-    }
-    else
-    if(event.value > 0)
-    {
-        // Add floating text for healing.
-        std::string text = std::to_string(event.value);
-        AddFloatingText(text, transform->GetPosition(), &FloatingHealNumber::GetInstance());
-    }
+    // Add a floating text element.
+    AddFloatingText(std::to_string(event.value), transform->GetPosition(), &FloatingDamageNumber::GetInstance());
 }
+
+void InterfaceSystem::OnEntityHealedEvent(const GameEvent::EntityHealed& event)
+{
+    // Get the transform component.
+    TransformComponent* transform = GameState::TransformComponents().Lookup(event.entity);
+    if(transform == nullptr) return;
+
+    // Add a floating text element.
+    AddFloatingText(std::to_string(event.value), transform->GetPosition(), &FloatingHealNumber::GetInstance());
+}
+

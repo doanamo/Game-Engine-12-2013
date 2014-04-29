@@ -20,11 +20,17 @@ bool ScriptSystem::Initialize()
 {
     Cleanup();
 
+    // Bind event receivers.
+    m_receiverEntityDamaged.Bind<ScriptSystem, &ScriptSystem::OnEntityDamagedEvent>(this);
+    m_receiverEntityHealed.Bind<ScriptSystem, &ScriptSystem::OnEntityHealedEvent>(this);
+
     return true;
 }
 
 void ScriptSystem::Cleanup()
 {
+    m_receiverEntityDamaged.Cleanup();
+    m_receiverEntityHealed.Cleanup();
 }
 
 void ScriptSystem::Update(float timeDelta)
@@ -48,5 +54,37 @@ void ScriptSystem::Update(float timeDelta)
 
         // Call OnUpdate() method.
         script.OnUpdate(it->first, timeDelta);
+    }
+}
+
+ReceiverSignature<GameEvent::EntityDamaged> ScriptSystem::GetEntityDamagedReceiver()
+{
+    return m_receiverEntityDamaged;
+}
+
+ReceiverSignature<GameEvent::EntityHealed> ScriptSystem::GetEntityHealedReceiver()
+{
+    return m_receiverEntityHealed;
+}
+
+void ScriptSystem::OnEntityDamagedEvent(const GameEvent::EntityDamaged& event)
+{
+    // Execute the event script.
+    ScriptComponent* script = GameState::ScriptComponents().Lookup(event.entity);
+
+    if(script != nullptr)
+    {
+        script->OnDamage(event.entity, event.value, event.component->IsAlive());
+    }
+}
+
+void ScriptSystem::OnEntityHealedEvent(const GameEvent::EntityHealed& event)
+{
+    // Execute the event script.
+    ScriptComponent* script = GameState::ScriptComponents().Lookup(event.entity);
+
+    if(script != nullptr)
+    {
+        script->OnHeal(event.entity, event.value);
     }
 }

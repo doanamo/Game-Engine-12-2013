@@ -23,9 +23,13 @@ public:
     void Heal(EntityHandle entity, int value);
 
 public:
-    void SubscribeReceiver(const ReceiverSignature<HealthChangeEvent>& signature);
+    void SubscribeReceiver(const ReceiverSignature<GameEvent::EntityHealth>& signature);
+    void SubscribeReceiver(const ReceiverSignature<GameEvent::EntityDamaged>& signature);
+    void SubscribeReceiver(const ReceiverSignature<GameEvent::EntityHealed>& signature);
 
 private:
-    // Event dispatcher.
-    Dispatcher<HealthChangeEvent> m_dispatcherHealthChange;
+    // Event dispatchers.
+    Dispatcher<GameEvent::EntityHealth> m_dispatcherEntityHealth;
+    Dispatcher<GameEvent::EntityDamaged> m_dispatcherEntityDamaged;
+    Dispatcher<GameEvent::EntityHealed> m_dispatcherEntityHealed;
 };

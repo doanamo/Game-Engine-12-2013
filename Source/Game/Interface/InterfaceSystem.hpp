@@ -27,8 +27,11 @@ public:
     void AddFloatingText(std::string text, const glm::vec2& position, const FloatingTextInterface* interface);
 
 public:
-    ReceiverSignature<HealthChangeEvent> GetHealthChangeReceiver();
-    void OnHealthChangeEvent(const HealthChangeEvent& event);
+    ReceiverSignature<GameEvent::EntityDamaged> GetEntityDamagedReceiver();
+    ReceiverSignature<GameEvent::EntityHealed> GetEntityHealedReceiver();
+
+    void OnEntityDamagedEvent(const GameEvent::EntityDamaged& event);
+    void OnEntityHealedEvent(const GameEvent::EntityHealed& event);
 
 private:
     bool m_initialized;
@@ -50,6 +53,7 @@ private:
 
     std::vector<FloatingText> m_floatingTextList;
 
-    // Event receiver.
-    Receiver<HealthChangeEvent> m_receiverHealthChange;
+    // Event receivers.
+    Receiver<GameEvent::EntityDamaged> m_receiverEntityDamaged;
+    Receiver<GameEvent::EntityHealed> m_receiverEntityHealed;
 };

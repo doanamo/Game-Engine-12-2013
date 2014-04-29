@@ -89,6 +89,9 @@ bool GameState::Initialize()
     if(!scriptSystem.Initialize())
         return false;
 
+    healthSystem.SubscribeReceiver(scriptSystem.GetEntityDamagedReceiver());
+    healthSystem.SubscribeReceiver(scriptSystem.GetEntityHealedReceiver());
+
     // Initialize the render system.
     if(!renderSystem.Initialize(64))
         return false;
@@ -97,7 +100,8 @@ bool GameState::Initialize()
     if(!interfaceSystem.Initialize())
         return false;
 
-    healthSystem.SubscribeReceiver(interfaceSystem.GetHealthChangeReceiver());
+    healthSystem.SubscribeReceiver(interfaceSystem.GetEntityDamagedReceiver());
+    healthSystem.SubscribeReceiver(interfaceSystem.GetEntityHealedReceiver());
 
     //
     // Component Pools
