@@ -35,15 +35,16 @@ bool InterfaceSystem::Initialize()
 {
     Cleanup();
 
-    // Bind the event receiver.
-    m_receiverHealthChange.Bind<InterfaceSystem, &InterfaceSystem::OnHealthChangeEvent>(this);
-
     // Initialize the health bar.
     m_playerHealthBar.SetDrawingRectangle(glm::vec4(0.0f, 0.0f, 624.0f, 15.0f));
     m_playerHealthBar.SetForegroundColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
     m_playerHealthBar.SetBackgroundColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
     m_playerHealthBar.SetDecayColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 
+    // Bind the event receiver.
+    m_receiverHealthChange.Bind<InterfaceSystem, &InterfaceSystem::OnHealthChangeEvent>(this);
+
+    // Success!
     m_initialized = true;
 
     return true;
@@ -51,15 +52,19 @@ bool InterfaceSystem::Initialize()
 
 void InterfaceSystem::Cleanup()
 {
-    m_receiverHealthChange.Cleanup();
+    m_initialized = false;
 
+    // Screen space.
     m_screenSpace.Cleanup();
 
+    // Player health bar.
     m_playerHealthBar.Cleanup();
     
+    // Floating text elements.
     ClearContainer(m_floatingTextList);
 
-    m_initialized = false;
+    // Event receivers.
+    m_receiverHealthChange.Cleanup();
 }
 
 void InterfaceSystem::Update(float timeDelta)
@@ -67,7 +72,7 @@ void InterfaceSystem::Update(float timeDelta)
     if(!m_initialized)
         return;
 
-    // Update the health bar.
+    // Update the health bar element.
     EntityHandle playerEntity = GameState::IdentitySystem().GetEntityByName("Player");
     HealthComponent* playerHealth = GameState::HealthComponents().Lookup(playerEntity);
 

@@ -129,6 +129,7 @@ Set(SourceFiles
     "Common/ShelfPacker.hpp"
     "Common/ShelfPacker.cpp"
     "Common/Dispatcher.hpp"
+    "Common/Dispatcher.inl"
     "Common/Receiver.hpp"
     "Common/Delegate.hpp"
 

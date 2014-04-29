@@ -6,6 +6,9 @@
 
 // Forward delcarations.
 template<typename Type>
+class Dispatcher;
+
+template<typename Type>
 class Receiver;
 
 //

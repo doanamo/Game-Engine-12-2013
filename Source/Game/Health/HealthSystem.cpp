@@ -6,9 +6,7 @@
 #include "Game/GameState.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
-#include "Game/Transform/TransformComponent.hpp"
 #include "Game/Script/ScriptComponent.hpp"
-#include "Game/Interface/InterfaceSystem.hpp"
 
 namespace Console
 {

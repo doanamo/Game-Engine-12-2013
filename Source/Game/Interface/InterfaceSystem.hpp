@@ -33,9 +33,6 @@ public:
 private:
     bool m_initialized;
 
-    // Event receiver.
-    Receiver<HealthChangeEvent> m_receiverHealthChange;
-
     // Screen space.
     ScreenSpace m_screenSpace;
 
@@ -52,4 +49,7 @@ private:
     };
 
     std::vector<FloatingText> m_floatingTextList;
+
+    // Event receiver.
+    Receiver<HealthChangeEvent> m_receiverHealthChange;
 };
