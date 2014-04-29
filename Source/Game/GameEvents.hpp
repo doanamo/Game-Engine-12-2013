@@ -3,6 +3,7 @@
 #include "Precompiled.hpp"
 
 #include "Game/Entity/EntityHandle.hpp"
+#include "Game/Collision/CollisionObject.hpp"
 #include "Game/Health/HealthComponent.hpp"
 
 //
@@ -52,5 +53,17 @@ namespace GameEvent
         EntityHandle entity;
         HealthComponent* component;
         int value;
+    };
+
+    // Called when entity collides with another one.
+    struct EntityCollision
+    {
+        EntityCollision(const CollisionObject& self, const CollisionObject& other) :
+            self(self), other(other)
+        {
+        }
+
+        const CollisionObject& self;
+        const CollisionObject& other;
     };
 }

@@ -12,7 +12,7 @@ class HealthPickupScript : public Script
 public:
     HealthPickupScript(int healValue);
 
-    void OnCollision(CollisionObject& self, CollisionObject& other);
+    void OnCollision(const CollisionObject& self, const CollisionObject& other);
 
 private:
     int m_healValue;

@@ -52,7 +52,7 @@ DamageOnCollision::DamageOnCollision(int damage, float interval) :
 {
 }
 
-void DamageOnCollision::OnCollision(CollisionObject& self, CollisionObject& other)
+void DamageOnCollision::OnCollision(const CollisionObject& self, const CollisionObject& other)
 {
     assert(self.collision != nullptr);
     assert(other.collision != nullptr);
@@ -62,6 +62,18 @@ void DamageOnCollision::OnCollision(CollisionObject& self, CollisionObject& othe
 
     // Temporarily disable collision response with this entity.
     GameState::CollisionSystem().DisableCollisionResponse(self.entity, other.entity, m_interval);
+}
+
+//
+// Destroy On Collision
+//
+
+void DestroyOnCollision::OnCollision(const CollisionObject& self, const CollisionObject& other)
+{
+    assert(other.collision != nullptr);
+
+    // Destroy entity.
+    GameState::EntitySystem().DestroyEntity(other.entity);
 }
 
 //

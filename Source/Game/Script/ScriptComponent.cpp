@@ -53,7 +53,7 @@ void ScriptComponent::OnHeal(EntityHandle self, int value)
     }
 }
 
-void ScriptComponent::OnCollision(CollisionObject& self, CollisionObject& other)
+void ScriptComponent::OnCollision(const CollisionObject& self, const CollisionObject& other)
 {
     for(ScriptPtr& script : m_scripts)
     {

@@ -30,7 +30,7 @@ public:
     void OnUpdate(EntityHandle self, float timeDelta);
     void OnDamage(EntityHandle self, int value, bool alive);
     void OnHeal(EntityHandle self, int value);
-    void OnCollision(CollisionObject& self, CollisionObject& other);
+    void OnCollision(const CollisionObject& self, const CollisionObject& other);
     
 private:
     ScriptList m_scripts;

@@ -7,7 +7,6 @@
 // Forward declarations.
 class TransformComponent;
 class CollisionComponent;
-class ScriptComponent;
 
 //
 // Collision Object
@@ -19,7 +18,6 @@ struct CollisionObject
     EntityHandle entity;
     TransformComponent* transform;
     CollisionComponent* collision;
-    ScriptComponent* script;
     glm::vec4 worldAABB;
     bool enabled;
 };

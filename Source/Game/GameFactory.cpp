@@ -27,19 +27,6 @@ namespace
 
 void GameFactory::CreateBounds()
 {
-    // Bounds script.
-    class BoundsScript : public Script
-    {
-    public:
-        void OnCollision(CollisionObject& self, CollisionObject& other)
-        {
-            assert(other.collision != nullptr);
-
-            // Destroy entity.
-            GameState::EntitySystem().DestroyEntity(other.entity);
-        }
-    };
-
     // Create projectile bounds.
     {
         EntityHandle entity = GameState::EntitySystem().CreateEntity();
@@ -54,7 +41,7 @@ void GameFactory::CreateBounds()
         collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reversed);
 
         ScriptComponent* script = GameState::ScriptComponents().Create(entity);
-        script->AddScript(std::make_shared<BoundsScript>());
+        script->AddScript(std::make_shared<DestroyOnCollision>());
     }
 
     // Create entity bounds.
@@ -71,7 +58,7 @@ void GameFactory::CreateBounds()
         collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reversed);
 
         ScriptComponent* script = GameState::ScriptComponents().Create(entity);
-        script->AddScript(std::make_shared<BoundsScript>());
+        script->AddScript(std::make_shared<DestroyOnCollision>());
     }
 }
 

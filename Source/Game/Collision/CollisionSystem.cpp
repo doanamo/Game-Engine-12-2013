@@ -6,8 +6,6 @@
 #include "Game/GameState.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Transform/TransformComponent.hpp"
-#include "Game/Script/ScriptComponent.hpp"
-#include "Game/Script/Script.hpp"
 
 namespace
 {
@@ -49,6 +47,8 @@ void CollisionSystem::Cleanup()
 {
     ClearContainer(m_objects);
     ClearContainer(m_disabled);
+
+    m_dispatcherEntityCollision.Cleanup();
 }
 
 void CollisionSystem::Update(float timeDelta)
@@ -107,9 +107,6 @@ void CollisionSystem::Update(float timeDelta)
         if(transform == nullptr)
             continue;
 
-        // Get the script component (not required).
-        ScriptComponent* script = GameState::ScriptComponents().Lookup(it->first);
-
         // Transform the bounding box to world space.
         glm::vec4 boundingBox = collision->GetBoundingBox();
         TransformBoundingBox(&boundingBox, transform);
@@ -119,7 +116,6 @@ void CollisionSystem::Update(float timeDelta)
         object.entity = it->first;
         object.transform = transform;
         object.collision = collision;
-        object.script = script;
         object.worldAABB = boundingBox;
         object.enabled = true;
 
@@ -129,10 +125,6 @@ void CollisionSystem::Update(float timeDelta)
     // Process collision objects.
     for(auto it = m_objects.begin(); it != m_objects.end(); ++it)
     {
-        // Need a script component for collision reaction.
-        if(it->script == nullptr)
-            continue;
-
         // Check if collision object is still enabled.
         if(!it->enabled)
             continue;
@@ -164,8 +156,11 @@ void CollisionSystem::Update(float timeDelta)
                 // If they don't interset and collision is marked as reverted, still call it.
                 if(IntersectBoundingBox(it->worldAABB, other->worldAABB) == !(it->collision->GetFlags() & CollisionFlags::Reversed))
                 {
-                    // Execute object script.
-                    it->script->OnCollision(*it, *other);
+                    // Dispatch an entity collision event.
+                    {
+                        GameEvent::EntityCollision event(*it, *other);
+                        m_dispatcherEntityCollision.Dispatch(event);
+                    }
 
                     // Check if other collision object is still valid.
                     if(!GameState::EntitySystem().IsHandleValid(other->entity) || !other->collision->IsEnabled())
@@ -208,4 +203,9 @@ void CollisionSystem::DisableCollisionResponse(EntityHandle sourceEntity, Entity
         // Insert a new pair.
         m_disabled.emplace(std::make_pair(pair, duration));
     }
+}
+
+void CollisionSystem::SubscribeReceiver(const ReceiverSignature<GameEvent::EntityCollision>& signature)
+{
+    m_dispatcherEntityCollision.Subscribe(signature);
 }

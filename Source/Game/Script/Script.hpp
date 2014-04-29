@@ -30,7 +30,7 @@ public:
     {
     }
 
-    virtual void OnCollision(CollisionObject& self, CollisionObject& other)
+    virtual void OnCollision(const CollisionObject& self, const CollisionObject& other)
     {
     }
 };

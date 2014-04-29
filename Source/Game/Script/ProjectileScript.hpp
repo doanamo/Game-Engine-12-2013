@@ -12,5 +12,5 @@ class ProjectileScript : public Script
 public:
     ProjectileScript();
 
-    void OnCollision(CollisionObject& self, CollisionObject& other);
+    void OnCollision(const CollisionObject& self, const CollisionObject& other);
 };

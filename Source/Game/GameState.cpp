@@ -91,6 +91,7 @@ bool GameState::Initialize()
 
     healthSystem.SubscribeReceiver(scriptSystem.GetEntityDamagedReceiver());
     healthSystem.SubscribeReceiver(scriptSystem.GetEntityHealedReceiver());
+    collisionSystem.SubscribeReceiver(scriptSystem.GetEntityCollisionReceiver());
 
     // Initialize the render system.
     if(!renderSystem.Initialize(64))

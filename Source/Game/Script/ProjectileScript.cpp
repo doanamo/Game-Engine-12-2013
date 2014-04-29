@@ -14,7 +14,7 @@ ProjectileScript::ProjectileScript()
 {
 }
 
-void ProjectileScript::OnCollision(CollisionObject& self, CollisionObject& other)
+void ProjectileScript::OnCollision(const CollisionObject& self, const CollisionObject& other)
 {
     assert(self.collision != nullptr);
     assert(other.collision != nullptr);
