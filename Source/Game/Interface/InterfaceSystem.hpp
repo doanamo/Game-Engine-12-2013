@@ -4,7 +4,9 @@
 #include "ValueBar.hpp"
 #include "FloatingText.hpp"
 
+#include "Common/Receiver.hpp"
 #include "Graphics/ScreenSpace.hpp"
+#include "Game/GameEvents.hpp"
 
 //
 // Interface System
@@ -24,8 +26,15 @@ public:
 
     void AddFloatingText(std::string text, const glm::vec2& position, const FloatingTextInterface* interface);
 
+public:
+    ReceiverSignature<HealthChangeEvent> GetHealthChangeReceiver();
+    void OnHealthChangeEvent(const HealthChangeEvent& event);
+
 private:
     bool m_initialized;
+
+    // Event receiver.
+    Receiver<HealthChangeEvent> m_receiverHealthChange;
 
     // Screen space.
     ScreenSpace m_screenSpace;

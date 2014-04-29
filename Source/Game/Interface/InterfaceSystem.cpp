@@ -7,8 +7,9 @@
 #include "Game/GameState.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
-#include "Game/Render/RenderSystem.hpp"
+#include "Game/Transform/TransformComponent.hpp"
 #include "Game/Health/HealthComponent.hpp"
+#include "Game/Render/RenderSystem.hpp"
 
 namespace
 {
@@ -34,6 +35,9 @@ bool InterfaceSystem::Initialize()
 {
     Cleanup();
 
+    // Bind the event receiver.
+    m_receiverHealthChange.Bind<InterfaceSystem, &InterfaceSystem::OnHealthChangeEvent>(this);
+
     // Initialize the health bar.
     m_playerHealthBar.SetDrawingRectangle(glm::vec4(0.0f, 0.0f, 624.0f, 15.0f));
     m_playerHealthBar.SetForegroundColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
@@ -47,6 +51,8 @@ bool InterfaceSystem::Initialize()
 
 void InterfaceSystem::Cleanup()
 {
+    m_receiverHealthChange.Cleanup();
+
     m_screenSpace.Cleanup();
 
     m_playerHealthBar.Cleanup();
@@ -218,4 +224,30 @@ void InterfaceSystem::AddFloatingText(std::string text, const glm::vec2& positio
 
     // Add floating text element to the list.
     m_floatingTextList.push_back(element);
+}
+
+ReceiverSignature<HealthChangeEvent> InterfaceSystem::GetHealthChangeReceiver()
+{
+    return m_receiverHealthChange;
+}
+
+void InterfaceSystem::OnHealthChangeEvent(const HealthChangeEvent& event)
+{
+    // Handle health change event for floating text display.
+    TransformComponent* transform = GameState::TransformComponents().Lookup(event.entity);
+    if(transform == nullptr) return;
+
+    if(event.value < 0)
+    {
+        // Add floating text for damage.
+        std::string text = std::to_string(event.value * -1);
+        AddFloatingText(text, transform->GetPosition(), &FloatingDamageNumber::GetInstance());
+    }
+    else
+    if(event.value > 0)
+    {
+        // Add floating text for healing.
+        std::string text = std::to_string(event.value);
+        AddFloatingText(text, transform->GetPosition(), &FloatingHealNumber::GetInstance());
+    }
 }

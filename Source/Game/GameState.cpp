@@ -97,6 +97,8 @@ bool GameState::Initialize()
     if(!interfaceSystem.Initialize())
         return false;
 
+    healthSystem.SubscribeReceiver(interfaceSystem.GetHealthChangeReceiver());
+
     //
     // Component Pools
     //

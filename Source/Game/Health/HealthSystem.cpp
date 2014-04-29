@@ -31,6 +31,7 @@ bool HealthSystem::Initialize()
 
 void HealthSystem::Cleanup()
 {
+    m_dispatcherHealthChange.Cleanup();
 }
 
 void HealthSystem::Damage(EntityHandle entity, int value)
@@ -75,15 +76,14 @@ void HealthSystem::Damage(EntityHandle entity, int value)
         {
             script->OnDamage(entity, value, health->IsAlive());
         }
-    }
 
-    // Add a floating damage number.
-    TransformComponent* transform = GameState::TransformComponents().Lookup(entity);
-    
-    if(transform != nullptr)
-    {
-        std::string text = std::to_string(value);
-        GameState::InterfaceSystem().AddFloatingText(text, transform->GetPosition(), &FloatingDamageNumber::GetInstance());
+        // Dispatch a health change event.
+        HealthChangeEvent event;
+        event.entity = entity;
+        event.component = health;
+        event.value = -value;
+
+        m_dispatcherHealthChange.Dispatch(event);
     }
 }
 
@@ -116,14 +116,18 @@ void HealthSystem::Heal(EntityHandle entity, int value)
         {
             script->OnHeal(entity, value);
         }
-    }
 
-    // Add a floating heal number.
-    TransformComponent* transform = GameState::TransformComponents().Lookup(entity);
-    
-    if(transform != nullptr)
-    {
-        std::string text = std::to_string(value);
-        GameState::InterfaceSystem().AddFloatingText(text, transform->GetPosition(), &FloatingHealNumber::GetInstance());
+        // Dispatch a health change event.
+        HealthChangeEvent event;
+        event.entity = entity;
+        event.component = health;
+        event.value = value;
+
+        m_dispatcherHealthChange.Dispatch(event);
     }
+}
+
+void HealthSystem::SubscribeReceiver(const ReceiverSignature<HealthChangeEvent>& signature)
+{
+    m_dispatcherHealthChange.Subscribe(signature);
 }

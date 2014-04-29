@@ -2,6 +2,8 @@
 
 #include "Precompiled.hpp"
 
+#include "Common/Dispatcher.hpp"
+#include "Game/GameEvents.hpp"
 #include "Game/Entity/EntityHandle.hpp"
 
 //
@@ -20,6 +22,10 @@ public:
     void Damage(EntityHandle entity, int value);
     void Heal(EntityHandle entity, int value);
 
-private:
+public:
+    void SubscribeReceiver(const ReceiverSignature<HealthChangeEvent>& signature);
 
+private:
+    // Event dispatcher.
+    Dispatcher<HealthChangeEvent> m_dispatcherHealthChange;
 };

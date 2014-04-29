@@ -128,6 +128,9 @@ Set(SourceFiles
     "Common/StateMachine.hpp"
     "Common/ShelfPacker.hpp"
     "Common/ShelfPacker.cpp"
+    "Common/Dispatcher.hpp"
+    "Common/Receiver.hpp"
+    "Common/Delegate.hpp"
 
     "Logger/Logger.hpp"
     "Logger/Logger.cpp"
@@ -197,6 +200,7 @@ Set(SourceFiles
     "Game/GameFactory.cpp"
     "Game/GameStages.hpp"
     "Game/GameStages.cpp"
+    "Game/GameEvents.hpp"
 
     "Game/Entity/EntityHandle.hpp"
     "Game/Entity/EntitySubscriber.hpp"
