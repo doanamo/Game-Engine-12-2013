@@ -199,8 +199,6 @@ Set(SourceFiles
     "Game/GameState.cpp"
     "Game/GameFactory.hpp"
     "Game/GameFactory.cpp"
-    "Game/GameStages.hpp"
-    "Game/GameStages.cpp"
     "Game/GameEvents.hpp"
 
     "Game/Entity/EntityHandle.hpp"
@@ -266,10 +264,6 @@ Set(SourceFiles
 
     "Game/Spawn/SpawnSystem.hpp"
     "Game/Spawn/SpawnSystem.cpp"
-
-    "Game/Progress/ProgressStage.hpp"
-    "Game/Progress/ProgressSystem.hpp"
-    "Game/Progress/ProgressSystem.cpp"
 )
 
 # Add the source directory prefix to each file path.

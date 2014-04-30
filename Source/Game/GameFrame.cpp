@@ -5,7 +5,6 @@
 #include "Game/GameContext.hpp"
 #include "Game/GameState.hpp"
 #include "Game/GameFactory.hpp"
-#include "Game/GameStages.hpp"
 #include "Game/MenuFrame.hpp"
 #include "Game/LoseFrame.hpp"
 #include "Game/Entity/EntitySystem.hpp"
@@ -16,7 +15,14 @@
 #include "Game/Render/RenderSystem.hpp"
 #include "Game/Interface/InterfaceSystem.hpp"
 #include "Game/Spawn/SpawnSystem.hpp"
-#include "Game/Progress/ProgressSystem.hpp"
+
+namespace
+{
+    void SpawnFunction(const glm::vec2& position)
+    {
+        GameFactory::CreateEnemy(position);
+    }
+}
 
 GameFrame::GameFrame() :
     m_initialized(false),
@@ -48,17 +54,15 @@ bool GameFrame::Initialize()
     if(!GameState::Initialize())
         return false;
 
-    // Setup the spawn system.
-    GameState::SpawnSystem().SetSpawnArea(glm::vec4(1024.0f + 100.0f, 50.0f, 1024.0f + 100.0f, 526.0f));
-
-    // Setup the progress system.
-    GameState::ProgressSystem().SetNextStage(std::make_shared<EnemyStage>());
-
     // Create bounds.
     GameFactory::CreateBounds();
 
     // Create the player.
     GameFactory::CreatePlayer();
+
+    // Setup the spawn system.
+    GameState::SpawnSystem().SetSpawnArea(glm::vec4(1024.0f + 100.0f, 50.0f, 1024.0f + 100.0f, 526.0f));
+    GameState::SpawnSystem().AddSpawn(&SpawnFunction, 0.5f, 1.0f);
 
     // Success!
     m_initialized = true;
@@ -101,9 +105,6 @@ bool GameFrame::Process(const SDL_Event& event)
 
 void GameFrame::Update(float timeDelta)
 {
-    // Update the progress system.
-    GameState::ProgressSystem().Update(timeDelta);
-
     // Update the spawn system.
     GameState::SpawnSystem().Update(timeDelta);
 

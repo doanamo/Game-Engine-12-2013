@@ -16,7 +16,6 @@
 #include "Game/Render/RenderComponent.hpp"
 #include "Game/Interface/InterfaceSystem.hpp"
 #include "Game/Spawn/SpawnSystem.hpp"
-#include "Game/Progress/ProgressSystem.hpp"
 
 //
 // State Data
@@ -48,7 +47,6 @@ namespace
 
     // Game systems.
     SpawnSystem     spawnSystem;
-    ProgressSystem  progressSystem;
 }
 
 //
@@ -124,10 +122,6 @@ bool GameState::Initialize()
     if(!spawnSystem.Initialize())
         return false;
 
-    // Initialize the progress system.
-    if(!progressSystem.Initialize())
-        return false;
-
     //
     // Success
     //
@@ -154,7 +148,6 @@ void GameState::Cleanup()
     // Game Systems
     //
     
-    progressSystem.Cleanup();
     spawnSystem.Cleanup();
 
     //
@@ -269,9 +262,4 @@ InterfaceSystem& GameState::InterfaceSystem()
 SpawnSystem& GameState::SpawnSystem()
 {
     return spawnSystem;
-}
-
-ProgressSystem& GameState::ProgressSystem()
-{
-    return progressSystem;
 }
