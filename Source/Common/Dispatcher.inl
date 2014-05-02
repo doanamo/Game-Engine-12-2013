@@ -18,7 +18,7 @@ void Dispatcher<Type>::Cleanup()
 {
     // Unsubscribe all receivers.
     Receiver<Type>* iterator = m_begin;
-        
+    
     while(iterator != nullptr)
     {
         Receiver<Type>* receiver = iterator;
@@ -30,7 +30,7 @@ void Dispatcher<Type>::Cleanup()
         receiver->m_subject = nullptr;
         receiver->m_next = nullptr;
     }
-            
+    
     m_begin = nullptr;
     m_end = nullptr;
 }
@@ -57,6 +57,7 @@ void Dispatcher<Type>::Subscribe(Receiver<Type>* receiver)
     // Add receiver to the linked list.
     if(m_begin == nullptr)
     {
+        assert(m_end == nullptr);
         m_begin = receiver;
         m_end = receiver;
     }
@@ -69,7 +70,6 @@ void Dispatcher<Type>::Subscribe(Receiver<Type>* receiver)
 
     // Set dispatcher as receiver's subject.
     receiver->m_subject = this;
-    assert(receiver->m_next == nullptr);
 }
 
 template<typename Type>

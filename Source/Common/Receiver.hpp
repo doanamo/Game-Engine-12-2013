@@ -56,9 +56,10 @@ public:
     void Cleanup()
     {
         // Unregister from the dispatcher.
-        if(m_subject)
+        if(m_subject != nullptr)
         {
             m_subject->Unsubscribe(this);
+            assert(m_next == nullptr);
         }
     }
 
