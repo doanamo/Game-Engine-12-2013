@@ -3,8 +3,8 @@
 
 ScreenSpace::ScreenSpace() :
     m_rebuild(true),
-    m_sourceSize(2.0f, 2.0f),
-    m_targetSize(1.0f, 1.0f),
+    m_sourceSize(4.0f, 4.0f),
+    m_targetSize(4.0f, 4.0f),
     m_rectangle(0.0f, 0.0f, 0.0f, 0.0f),
     m_offset(0.0f, 0.0f),
     m_projection(1.0f),
@@ -21,8 +21,8 @@ void ScreenSpace::Cleanup()
 {
     m_rebuild = true;
 
-    m_sourceSize = glm::vec2(1.0f, 1.0f);
-    m_targetSize = glm::vec2(1.0f, 1.0f);
+    m_sourceSize = glm::vec2(4.0f, 4.0f);
+    m_targetSize = glm::vec2(4.0f, 4.0f);
     m_rectangle = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
     m_offset = glm::vec2(0.0f, 0.0f);
     m_projection = glm::mat4(1.0f);
