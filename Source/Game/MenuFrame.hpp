@@ -4,6 +4,9 @@
 
 #include "System/BaseFrame.hpp"
 #include "Graphics/ScreenSpace.hpp"
+#include "Interface/InterfaceRoot.hpp"
+#include "Interface/InterfaceElement.hpp"
+#include "Interface/Button.hpp"
 
 //
 // Menu Frame
@@ -40,30 +43,31 @@ public:
     void Draw();
 
 private:
+    // Button event handlers.
+    void ButtonContinue(const Button::EventAction& event);
+    void ButtonNewGame(const Button::EventAction& event);
+    void ButtonQuit(const Button::EventAction& event);
+
+private:
     void OnEnter();
 
 private:
+    bool m_initialized;
+
     // Menu screen space.
     ScreenSpace m_screenSpace;
 
-    // Render transforms.
-    glm::mat4 m_projection;
-    glm::mat4 m_view;
-    glm::mat4 m_transform;
+    // Interface elements.
+    InterfaceRoot m_interfaceRoot;
 
-    // Menu elements.
-    struct ElementData
-    {
-        bool        enabled;
-        const char* text;
-        glm::vec2   position;
-        glm::vec4   boundingBox;
-    };
+    Button m_buttonContinue;
+    Button m_buttonNewGame;
+    Button m_buttonOptions;
+    Button m_buttonCredits;
+    Button m_buttonQuit;
 
-    typedef std::array<ElementData, MenuElements::Count> ElementArray;
-
-    ElementArray m_elements;
-    int          m_elementSelected;
-
-    bool m_initialized;
+    // Button event receivers.
+    Receiver<Button::EventAction> m_actionContinue;
+    Receiver<Button::EventAction> m_actionNewGame;
+    Receiver<Button::EventAction> m_actionQuit;
 };

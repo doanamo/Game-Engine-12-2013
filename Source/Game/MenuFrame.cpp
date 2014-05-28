@@ -10,30 +10,16 @@
 
 namespace
 {
-    // Menu element text.
-    const char* MenuElementText[MenuFrame::MenuElements::Count] =
-    {
-        "Continue",
-        "New Game",
-        "Options",
-        "Credits",
-        "Quit",
-    };
-
     // Font sizes.
     const float TitleFontSize = 176;
-    const float OptionFontSize = 48;
+    const float ButtonFontSize = 48;
 
-    // Game space size.
-    float gameWidth = 1024;
-    float gameHeight = 576;
+    // View space size.
+    float viewWidth = 1024;
+    float viewHeight = 576;
 }
 
 MenuFrame::MenuFrame() :
-    m_projection(1.0f),
-    m_view(1.0f),
-    m_transform(1.0f),
-    m_elementSelected(MenuElements::None),
     m_initialized(false)
 {
 }
@@ -41,6 +27,25 @@ MenuFrame::MenuFrame() :
 MenuFrame::~MenuFrame()
 {
     Cleanup();
+}
+
+void MenuFrame::Cleanup()
+{
+    m_screenSpace.Cleanup();
+
+    m_interfaceRoot.Cleanup();
+
+    m_buttonContinue.Cleanup();
+    m_buttonNewGame.Cleanup();
+    m_buttonOptions.Cleanup();
+    m_buttonCredits.Cleanup();
+    m_buttonQuit.Cleanup();
+
+    m_actionContinue.Cleanup();
+    m_actionNewGame.Cleanup();
+    m_actionQuit.Cleanup();
+
+    m_initialized = false;
 }
 
 bool MenuFrame::Initialize()
@@ -57,38 +62,147 @@ bool MenuFrame::Initialize()
         }
     });
 
-    // Fill element data array.
-    for(int i = 0; i < MenuElements::Count; ++i)
+    // Set interface screen space.
+    m_interfaceRoot.SetScreenSpace(&m_screenSpace);
+
+    // Setup interface elements.
+    glm::vec2 currentPosition(175.0f, viewHeight - 260.0f);
+
     {
-        ElementData& element = m_elements[i];
+        const char* buttonText = "Continue";
 
-        // Set enabled state.
-        if(i == MenuElements::NewGame || i == MenuElements::Quit)
-        {
-            element.enabled = true;
-        }
-        else
-        {
-            element.enabled = false;
-        }
+        TextDrawInfo textDrawInfo;
+        textDrawInfo.font = &Main::DefaultFont();
+        textDrawInfo.size = ButtonFontSize;
+        textDrawInfo.position = currentPosition;
+        textDrawInfo.align = TextDrawAlign::BottomLeft;
 
-        // Set element text.
-        element.text = MenuElementText[i];
+        TextDrawMetrics textDrawMetrics;
+        textDrawMetrics = Main::TextRenderer().Measure(textDrawInfo, buttonText);
 
-        // Set element draw data.
-        element.position.x = 175.0f;
-        element.position.y = gameHeight - 195.0f - i * Main::DefaultFont().GetLineSpacing() * Main::DefaultFont().GetScaling(OptionFontSize);
+        glm::vec2 size;
+        size.x = textDrawMetrics.textArea.z - textDrawMetrics.textArea.x;
+        size.y = textDrawMetrics.textArea.w - textDrawMetrics.textArea.y;
 
-        // Calculate a bounding box.
-        TextDrawInfo info;
-        info.font = &Main::DefaultFont();
-        info.size = OptionFontSize;
-        info.position = element.position;
+        m_buttonContinue.SetEnabled(false);
+        m_buttonContinue.SetText(buttonText);
+        m_buttonContinue.SetPosition(currentPosition);
+        m_buttonContinue.SetSize(size);
 
-        TextDrawMetrics metrics = Main::TextRenderer().Measure(info, element.text);
-
-        element.boundingBox = metrics.textArea;
+        currentPosition.y -= size.y;
     }
+
+    {
+        const char* buttonText = "New Game";
+
+        TextDrawInfo textDrawInfo;
+        textDrawInfo.font = &Main::DefaultFont();
+        textDrawInfo.size = ButtonFontSize;
+        textDrawInfo.position = currentPosition;
+        textDrawInfo.align = TextDrawAlign::BottomLeft;
+
+        TextDrawMetrics textDrawMetrics;
+        textDrawMetrics = Main::TextRenderer().Measure(textDrawInfo, buttonText);
+
+        glm::vec2 size;
+        size.x = textDrawMetrics.textArea.z - textDrawMetrics.textArea.x;
+        size.y = textDrawMetrics.textArea.w - textDrawMetrics.textArea.y;
+
+        m_buttonNewGame.SetEnabled(true);
+        m_buttonNewGame.SetText(buttonText);
+        m_buttonNewGame.SetPosition(currentPosition);
+        m_buttonNewGame.SetSize(size);
+
+        currentPosition.y -= size.y;
+    }
+
+    {
+        const char* buttonText = "Options";
+
+        TextDrawInfo textDrawInfo;
+        textDrawInfo.font = &Main::DefaultFont();
+        textDrawInfo.size = ButtonFontSize;
+        textDrawInfo.position = currentPosition;
+        textDrawInfo.align = TextDrawAlign::BottomLeft;
+
+        TextDrawMetrics textDrawMetrics;
+        textDrawMetrics = Main::TextRenderer().Measure(textDrawInfo, buttonText);
+
+        glm::vec2 size;
+        size.x = textDrawMetrics.textArea.z - textDrawMetrics.textArea.x;
+        size.y = textDrawMetrics.textArea.w - textDrawMetrics.textArea.y;
+
+        m_buttonOptions.SetEnabled(false);
+        m_buttonOptions.SetText(buttonText);
+        m_buttonOptions.SetPosition(currentPosition);
+        m_buttonOptions.SetSize(size);
+
+        currentPosition.y -= size.y;
+    }
+
+    {
+        const char* buttonText = "Credits";
+
+        TextDrawInfo textDrawInfo;
+        textDrawInfo.font = &Main::DefaultFont();
+        textDrawInfo.size = ButtonFontSize;
+        textDrawInfo.position = currentPosition;
+        textDrawInfo.align = TextDrawAlign::BottomLeft;
+
+        TextDrawMetrics textDrawMetrics;
+        textDrawMetrics = Main::TextRenderer().Measure(textDrawInfo, buttonText);
+
+        glm::vec2 size;
+        size.x = textDrawMetrics.textArea.z - textDrawMetrics.textArea.x;
+        size.y = textDrawMetrics.textArea.w - textDrawMetrics.textArea.y;
+
+        m_buttonCredits.SetEnabled(false);
+        m_buttonCredits.SetText(buttonText);
+        m_buttonCredits.SetPosition(currentPosition);
+        m_buttonCredits.SetSize(size);
+
+        currentPosition.y -= size.y;
+    }
+
+    {
+        const char* buttonText = "Quit";
+
+        TextDrawInfo textDrawInfo;
+        textDrawInfo.font = &Main::DefaultFont();
+        textDrawInfo.size = ButtonFontSize;
+        textDrawInfo.position = currentPosition;
+        textDrawInfo.align = TextDrawAlign::BottomLeft;
+
+        TextDrawMetrics textDrawMetrics;
+        textDrawMetrics = Main::TextRenderer().Measure(textDrawInfo, buttonText);
+
+        glm::vec2 size;
+        size.x = textDrawMetrics.textArea.z - textDrawMetrics.textArea.x;
+        size.y = textDrawMetrics.textArea.w - textDrawMetrics.textArea.y;
+
+        m_buttonQuit.SetEnabled(true);
+        m_buttonQuit.SetText(buttonText);
+        m_buttonQuit.SetPosition(currentPosition);
+        m_buttonQuit.SetSize(size);
+
+        currentPosition.y -= size.y;
+    }
+
+    // Add buttons to the interface root.
+    m_interfaceRoot.AddChild(&m_buttonContinue);
+    m_interfaceRoot.AddChild(&m_buttonNewGame);
+    m_interfaceRoot.AddChild(&m_buttonOptions);
+    m_interfaceRoot.AddChild(&m_buttonCredits);
+    m_interfaceRoot.AddChild(&m_buttonQuit);
+
+    // Setup event receivers.
+    m_actionContinue.Bind<MenuFrame, &MenuFrame::ButtonContinue>(this);
+    m_actionNewGame.Bind<MenuFrame, &MenuFrame::ButtonNewGame>(this);
+    m_actionQuit.Bind<MenuFrame, &MenuFrame::ButtonQuit>(this);
+
+    m_buttonContinue.OnEventAction(m_actionContinue);
+    m_buttonNewGame.OnEventAction(m_actionNewGame);
+    m_buttonQuit.OnEventAction(m_actionQuit);
 
     // Success!
     m_initialized = true;
@@ -96,58 +210,50 @@ bool MenuFrame::Initialize()
     return true;
 }
 
-void MenuFrame::Cleanup()
+void MenuFrame::ButtonContinue(const Button::EventAction& event)
 {
-    m_screenSpace.Cleanup();
+    assert(m_initialized);
+    assert(GameContext::GameFrame().IsInitialized());
 
-    m_elementSelected = MenuElements::None;
+    // Switch back to the game frame.
+    GameContext::FrameState().ChangeState(&GameContext::GameFrame());
+}
 
-    m_initialized = false;
+void MenuFrame::ButtonNewGame(const Button::EventAction& event)
+{
+    assert(m_initialized);
+
+    // Initialize the game frame.
+    Log() << "Starting a new game...";
+
+    GameContext::GameFrame().Initialize();
+
+    // Enable the continue button.
+    m_buttonContinue.Enable();
+                    
+    // Switch to the game frame.
+    GameContext::FrameState().ChangeState(&GameContext::GameFrame());
+}
+
+void MenuFrame::ButtonQuit(const Button::EventAction& event)
+{
+    assert(m_initialized);
+
+    // Quit the application.
+    Main::Quit();
 }
 
 void MenuFrame::OnEnter()
 {
-    // Enable "Continue" element if the game is active.
-    m_elements[MenuElements::Continue].enabled = GameContext::GameFrame().IsInitialized();
+    // Enable the continue button if the game is active.
+    bool isGameRunning = GameContext::GameFrame().IsInitialized();
+    m_buttonContinue.SetEnabled(isGameRunning);
 }
 
 bool MenuFrame::Process(const SDL_Event& event)
 {
-    switch(event.type)
-    {
-    case SDL_MOUSEBUTTONDOWN:
-        if(event.button.button == SDL_BUTTON_LEFT)
-        {
-            switch(m_elementSelected)
-            {
-            case MenuElements::Continue:
-                {
-                    assert(GameContext::GameFrame().IsInitialized());
-
-                    // Switch to the game frame.
-                    GameContext::FrameState().ChangeState(&GameContext::GameFrame());
-                }
-                break;
-
-            case MenuElements::NewGame:
-                {
-                    Log() << "Starting a new game...";
-
-                    // Initialize the game frame.
-                    GameContext::GameFrame().Initialize();
-                    
-                    // Switch to the game frame.
-                    GameContext::FrameState().ChangeState(&GameContext::GameFrame());
-                }
-                break;
-
-            case MenuElements::Quit:
-                Main::Quit();
-                break;
-            }
-        }
+    if(m_interfaceRoot.Process(event))
         return true;
-    }
 
     return false;
 }
@@ -165,49 +271,6 @@ void MenuFrame::Update(float timeDelta)
     // Setup screen space.
     m_screenSpace.SetSourceSize(windowWidth, windowHeight);
     m_screenSpace.SetTargetSize(1024.0f, 576.0f);
-
-    // Setup matrices.
-    glm::vec4 screenSpace = m_screenSpace.GetRectangle();
-    m_projection = glm::ortho(screenSpace.x, screenSpace.y, screenSpace.z, screenSpace.w);
-    m_view = glm::translate(glm::mat4(1.0f), glm::vec3(m_screenSpace.GetOffset(), 0.0f));
-    m_transform = m_projection * m_view;
-
-    //
-    // Menu Elements
-    //
-
-    // Get cursor position.
-    glm::ivec2 windowCursorPosition;
-    SDL_GetMouseState(&windowCursorPosition.x, &windowCursorPosition.y);
-
-    // Flip cursor y-axis.
-    windowCursorPosition.y = ((int)windowHeight - 1) - windowCursorPosition.y;
-
-    // Unproject cursor position to game space.
-    glm::vec4 viewport(0.0f, 0.0f, Console::windowWidth, Console::windowHeight);
-    glm::vec3 cursorPosition = glm::unProject(glm::vec3(windowCursorPosition.x, windowCursorPosition.y, 0.0f), m_view, m_projection, viewport);
-
-    // Check which element is currently selected.
-    m_elementSelected = MenuElements::None;
-
-    for(int i = 0; i < MenuElements::Count; ++i)
-    {
-        ElementData& element = m_elements[i];
-
-        // Check if element is enabled.
-        if(!element.enabled)
-            continue;
-
-        // Check if the cursor is over this element.
-        const glm::vec4& boundingBox = element.boundingBox;
-
-        if(boundingBox.x <= cursorPosition.x && cursorPosition.x < boundingBox.z &&
-            boundingBox.y <= cursorPosition.y && cursorPosition.y < boundingBox.w)
-        {
-            m_elementSelected = i;
-            break;
-        }
-    }
 }
 
 void MenuFrame::Draw()
@@ -229,31 +292,31 @@ void MenuFrame::Draw()
         info.outlineColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
         info.outlineRange = glm::vec2(0.45f, 0.55f);
         info.position.x = 50.0f;
-        info.position.y = gameHeight + 10.0f;
+        info.position.y = viewHeight + 10.0f;
 
-        Main::TextRenderer().Draw(info, m_transform, "Gunstar");
+        Main::TextRenderer().Draw(info, m_screenSpace.GetTransform(), "Gunstar");
     }
 
-    // Draw menu elements.
-    for(int i = 0; i < MenuElements::Count; ++i)
+    // Define button drawing routine.
+    auto DrawButton = [&](const Button& button)
     {
-        ElementData& element = m_elements[i];
-
-        // Draw an element.
         TextDrawInfo info;
         info.font = &Main::DefaultFont();
-        info.size = OptionFontSize;
+        
+        info.position = button.GetPosition();
+        info.size = ButtonFontSize;
+        info.align = TextDrawAlign::BottomLeft;
 
         info.outlineColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
         info.outlineRange = glm::vec2(0.4f, 0.5f);
-        
-        if(m_elementSelected == i)
+
+        if(button.IsHovered())
         {
             info.bodyColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
         }
         else
         {
-            if(element.enabled)
+            if(button.IsEnabled())
             {
                 info.bodyColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
             }
@@ -263,8 +326,13 @@ void MenuFrame::Draw()
             }
         }
 
-        info.position = element.position;
+        Main::TextRenderer().Draw(info, m_screenSpace.GetTransform(), button.GetText().c_str());
+    };
 
-        Main::TextRenderer().Draw(info, m_transform, element.text);
-    }
+    // Draw buttons.
+    DrawButton(m_buttonContinue);
+    DrawButton(m_buttonNewGame);
+    DrawButton(m_buttonOptions);
+    DrawButton(m_buttonCredits);
+    DrawButton(m_buttonQuit);
 }

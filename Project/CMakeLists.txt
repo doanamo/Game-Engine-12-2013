@@ -185,6 +185,13 @@ Set(SourceFiles
     "Graphics/TextDrawState.hpp"
     "Graphics/TextDrawState.cpp"
 
+    "Interface/InterfaceElement.hpp"
+    "Interface/InterfaceElement.cpp"
+    "Interface/InterfaceRoot.hpp"
+    "Interface/InterfaceRoot.cpp"
+    "Interface/Button.hpp"
+    "Interface/Button.cpp"
+
     "Game/MainFrame.hpp"
     "Game/MainFrame.cpp"
     "Game/GameContext.hpp"
