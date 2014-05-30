@@ -234,10 +234,6 @@ bool Main::Initialize()
     // For some reason text input is enabled by default.
     SDL_StopTextInput();
 
-    // Register an user event.
-    Uint32 userEvent = SDL_RegisterEvents(1);
-    assert(userEvent == SDL_USEREVENT);
-
     //
     // OpenGL
     //
@@ -454,26 +450,6 @@ void Main::Cleanup()
 
     isQuitting = false;
     isInitialized = false;
-}
-
-void Main::SendEvent(UserEvents::Type type)
-{
-    if(!isInitialized)
-        return;
-
-    if(type == UserEvents::Invalid)
-        return;
-
-    // Create event structure.
-    SDL_Event event;
-    SDL_zero(event);
-
-    // Set the event type.
-    event.type = SDL_USEREVENT;
-    event.user.code = type;
-
-    // Send the event.
-    SDL_PushEvent(&event);
 }
 
 void Main::Quit()

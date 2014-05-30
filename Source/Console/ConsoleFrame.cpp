@@ -82,9 +82,6 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                 // Open console frame.
                 m_open = true;
 
-                // Reset global input state.
-                Main::SendEvent(UserEvents::ResetInput);
-
                 // Start text input.
                 SDL_StartTextInput();
 
@@ -232,7 +229,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                 Main::TextRenderer().ResetCursorBlink();
             }
         }
-        break;
+        return m_open;
 
     case SDL_TEXTINPUT:
         if(m_open)
@@ -252,19 +249,10 @@ bool ConsoleFrame::Process(const SDL_Event& event)
             // Reset cursor blink.
             Main::TextRenderer().ResetCursorBlink();
         }
-        break;
-
-    case SDL_USEREVENT:
-        if(event.user.code == UserEvents::ResetInput)
-        {
-            // Don't block input reset event we sent ourselves.
-            return false;
-        }
-        break;
+        return m_open;
     }
 
-    // Block all input events when console is open.
-    return m_open;
+    return false;
 }
 
 void ConsoleFrame::Draw(const glm::mat4& transform, glm::vec2 targetSize)
