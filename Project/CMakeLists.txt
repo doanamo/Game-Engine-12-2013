@@ -9,99 +9,8 @@ CMake_Minimum_Required(VERSION 2.8.12)
 #
 
 # Project name.
-set(ProjectName "Patrycja")
-
+set(ProjectName "Project")
 Project(${ProjectName})
-
-# Enable project folders.
-Set_Property(GLOBAL PROPERTY USE_FOLDERS ON)
-
-#
-# Boost
-#
-
-# Set Boost options.
-Set(Boost_USE_STATIC_LIBS ON)
-Set(Boost_USE_MULTITHREADED ON)
-Set(Boost_USE_STATIC_RUNTIME OFF)
-
-# Find installed Boost library.
-Find_Package(Boost 1.55.0 COMPONENTS filesystem REQUIRED)
-
-# Add include directory.
-Include_Directories(${Boost_INCLUDE_DIRS})
-
-# Add link directory.
-Link_Directories(${Boost_LIBRARY_DIRS})
-
-#
-# GLM
-#
-
-# Add include directory.
-Include_Directories("../External/GLM-0.9.4.6")
-
-#
-# SDL2
-#
-
-# We are going to use the static library.
-Set(SDL_SHARED OFF CACHE BOOL "")
-Set(SDL_STATIC ON CACHE BOOL "")
-
-# Add library directory.
-Add_SubDirectory("../External/SDL-2.0.1" "SDL2" EXCLUDE_FROM_ALL)
-
-# Add include directory.
-Include_Directories("../External/SDL-2.0.1/include")
-
-# Add additional link dependencies.
-Link_Directories("$ENV{DXSDK_DIR}/Lib/x86")
-
-# Disable annoying warnings that we can't do anything about.
-If(MSVC)
-    # C4996: "'x' was declared deprecated."
-    Set_Property(TARGET "SDL2-static" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4996 ")
-
-    # C4018: "Signed/unsigned mismatch."
-    Set_Property(TARGET "SDL2-static" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4018 ")
-EndIf()
-
-#
-# GLEW
-#
-
-# Add library directory.
-Add_SubDirectory("../External/GLEW-1.10.0" "GLEW" EXCLUDE_FROM_ALL)
-
-# Add include directory.
-Include_Directories("../External/GLEW-1.10.0/include")
-
-#
-# FreeType
-#
-
-# Add library directory.
-Add_SubDirectory("../External/FreeType-2.5.2" "FreeType" EXCLUDE_FROM_ALL)
-
-# Add include directory.
-Include_Directories("../External/FreeType-2.5.2/include")
-
-# Disable annoying warnings that we can't do anything about.
-If(MSVC)
-    # C4996: "This function or variable may be unsafe. Consider using 'x' instead."
-    Set_Property(TARGET "freetype" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4996 ")
-
-    # C4244: "Conversion from 'x' to 'y', possible loss of data."
-    Set_Property(TARGET "freetype" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4244 ")
-EndIf()
-
-#
-# UTF8
-#
-
-# Add include directory.
-Include_Directories("../External/UTF8-2.3.4/source")
 
 #
 # Source
@@ -273,6 +182,9 @@ Set(SourceFiles
     "Game/Spawn/SpawnSystem.cpp"
 )
 
+# Enable source folders.
+Set_Property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 # Add the source directory prefix to each file path.
 ForEach(SourceFile ${SourceFiles})
     List(APPEND SourceFilesTemp "${SourceDir}/${SourceFile}")
@@ -281,33 +193,33 @@ EndForEach()
 Set(SourceFiles ${SourceFilesTemp})
 Set(SourceFilesTemp)
 
-# Setup automatic source grouping.
+# Setup automatic source grouping based on the file path.
 ForEach(SourceFile ${SourceFiles})
-    # Get source file path.
+    # Get the source file path.
     Get_Filename_Component(SourceFilePath ${SourceFile} PATH)
     
     # Remove the base path.
     String(REPLACE "${SourceDir}" "" SourceFilePath ${SourceFilePath})
 
-    # Add source file to a group.
+    # Add a source file to a group.
     If(NOT ${SourceFilePath} STREQUAL "")
+        # Replace folder separators.
+        String(REPLACE "/" "\\" SourceFilePath ${SourceFilePath})
+
         # Remove leading folder separator.
         String(SUBSTRING ${SourceFilePath} 0 1 FirstCharacter)
-        
-        If(FirstCharacter STREQUAL "/" OR FirstCharacter STREQUAL "\\")
+
+        If(FirstCharacter STREQUAL "\\")
             String(LENGTH ${SourceFilePath} SourceFilePathLength)
             Math(EXPR SourceFilePathLength "${SourceFilePathLength} - 1")
             String(SUBSTRING ${SourceFilePath} 1 ${SourceFilePathLength} SourceFilePath)
         EndIf()
-    
-        # Replace folder separators.
-        String(REPLACE "/" "\\" SourceFilePath ${SourceFilePath})
-    
-        # Add source file to a group.
-        Source_Group("Source\\${SourceFilePath}" FILES ${SourceFile})
+
+        # Add a source file to a group.
+        Source_Group("Source Files\\${SourceFilePath}" FILES ${SourceFile})
     Else()
-        # Add source file to a default group.
-        Source_Group("Source" FILES ${SourceFile})
+        # Add a source file to the default group.
+        Source_Group("Source Files" FILES ${SourceFile})
     EndIf()
 EndForEach()
 
@@ -315,13 +227,112 @@ EndForEach()
 Include_Directories(${SourceDir})
 
 #
+# Boost
+#
+
+# Set Boost options.
+Set(Boost_USE_STATIC_LIBS ON)
+Set(Boost_USE_MULTITHREADED ON)
+Set(Boost_USE_STATIC_RUNTIME OFF)
+
+# Find installed Boost library.
+Find_Package(Boost 1.55.0 COMPONENTS filesystem REQUIRED)
+
+# Add include directory.
+Include_Directories(${Boost_INCLUDE_DIRS})
+
+# Add link directory.
+Link_Directories(${Boost_LIBRARY_DIRS})
+
+#
+# GLM
+#
+
+# Add include directory.
+Include_Directories("../External/GLM-0.9.4.6")
+
+#
+# SDL2
+#
+
+# Compile as a static library.
+Set(SDL_SHARED OFF CACHE BOOL "")
+Set(SDL_STATIC ON CACHE BOOL "")
+
+# Add library directory.
+Add_SubDirectory("../External/SDL-2.0.1" "SDL2" EXCLUDE_FROM_ALL)
+
+# Move library targets to dependencies.
+Set_Property(TARGET "SDL2-static" PROPERTY FOLDER "Dependencies")
+Set_Property(TARGET "SDL2main" PROPERTY FOLDER "Dependencies")
+
+# Add include directory.
+Include_Directories("../External/SDL-2.0.1/include")
+
+# Add additional link dependencies.
+Link_Directories("$ENV{DXSDK_DIR}Lib/x86")
+
+# Disable annoying warnings that we can't do anything about.
+If(MSVC)
+    # C4996: "Function was declared deprecated."
+    Set_Property(TARGET "SDL2-static" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4996 ")
+
+    # C4018: "Signed/unsigned mismatch."
+    Set_Property(TARGET "SDL2-static" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4018 ")
+EndIf()
+
+#
+# GLEW
+#
+
+# Add library directory.
+Add_SubDirectory("../External/GLEW-1.10.0" "GLEW" EXCLUDE_FROM_ALL)
+
+# Move library target to dependencies.
+Set_Property(TARGET "glew32s" PROPERTY FOLDER "Dependencies")
+
+# Add include directory.
+Include_Directories("../External/GLEW-1.10.0/include")
+
+#
+# FreeType
+#
+
+# Add library directory.
+Add_SubDirectory("../External/FreeType-2.5.2" "FreeType" EXCLUDE_FROM_ALL)
+
+# Move library target to dependencies.
+Set_Property(TARGET "freetype" PROPERTY FOLDER "Dependencies")
+
+# Add include directory.
+Include_Directories("../External/FreeType-2.5.2/include")
+
+# Disable annoying warnings that we can't do anything about.
+If(MSVC)
+    # C4996: "This function or variable may be unsafe."
+    Set_Property(TARGET "freetype" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4996 ")
+
+    # C4244: "Conversion from one type to another, possible loss of data."
+    Set_Property(TARGET "freetype" APPEND_STRING PROPERTY COMPILE_FLAGS "/wd4244 ")
+EndIf()
+
+#
+# UTF8
+#
+
+# Add include directory.
+Include_Directories("../External/UTF8-2.3.4/source")
+
+#
 # Target
 #
 
 # Create an executable target.
 Set(TargetName "Game")
-
 Add_Executable(${TargetName} ${SourceFiles})
+
+# Enable unicode support.
+Add_Definitions(-DUNICODE -D_UNICODE)
 
 # Link Boost library.
 Target_Link_Libraries(${TargetName} ${Boost_LIBRARIES})
@@ -338,22 +349,12 @@ Target_Link_Libraries(${TargetName} "glew32s")
 Add_Dependencies(${TargetName} "freetype")
 Target_Link_Libraries(${TargetName} "freetype")
 
-# Set unicode support.
-Add_Definitions(-DUNICODE -D_UNICODE)
-
-# Group dependencies in a single folder.
-Set_Property(TARGET "SDL2-static" PROPERTY FOLDER "Dependencies")
-Set_Property(TARGET "SDL2main" PROPERTY FOLDER "Dependencies")
-Set_Property(TARGET "glew32s" PROPERTY FOLDER "Dependencies")
-Set_Property(TARGET "freetype" PROPERTY FOLDER "Dependencies")
-
 #
 # Debugging
 #
 
-# Write a text file in the build's directory that will point the executable to it's working directory.
+# Write a file in the build directory that will point the executable to it's working directory.
 Get_Filename_Component(WorkingDir "${CMAKE_CURRENT_LIST_DIR}/../Base" ABSOLUTE)
-
 File(WRITE "${CMAKE_BINARY_DIR}/WorkingDir.txt" "${WorkingDir}")
 
 #
@@ -372,7 +373,7 @@ If(MSVC)
     Set_Property(TARGET ${TargetName} APPEND_STRING PROPERTY COMPILE_DEFINITIONS "_CRT_SECURE_NO_WARNINGS")
     Set_Property(TARGET ${TargetName} APPEND_STRING PROPERTY COMPILE_DEFINITIONS "_SCL_SECURE_NO_WARNINGS")
     
-    # Set the precompiled header.
+    # Use the precompiled header.
     Get_Filename_Component(PrecompiledName ${PrecompiledHeader} NAME_WE)
     
     Set(PrecompiledBinary "$(IntDir)/${PrecompiledName}.pch")
