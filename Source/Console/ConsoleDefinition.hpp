@@ -41,7 +41,7 @@ private:
 
 private:
     // List of static definitions that will be registered 
-    // after the console system is initialized.
+    // after the console system has been initialized.
     ConsoleDefinition*          m_staticNext;
     static ConsoleDefinition*   m_staticHead;
     static bool                 m_staticDone;

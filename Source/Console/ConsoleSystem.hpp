@@ -2,9 +2,9 @@
 
 #include "Precompiled.hpp"
 
-#include "Console/ConsoleDefinition.hpp"
-#include "Console/ConsoleCommand.hpp"
-#include "Console/ConsoleVariable.hpp"
+// Forward declarations.
+class ConsoleDefinition;
+class ConsoleVariable;
 
 //
 // Console System
