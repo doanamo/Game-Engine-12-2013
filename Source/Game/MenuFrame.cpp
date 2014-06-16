@@ -322,7 +322,7 @@ void MenuFrame::Draw()
             }
             else
             {
-                info.bodyColor = glm::vec4(0.0f, 0.0f, 0.0f, 0.1f);
+                info.bodyColor = glm::vec4(0.0f, 0.0f, 0.0f, 0.4f);
             }
         }
 

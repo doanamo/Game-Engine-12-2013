@@ -130,11 +130,14 @@
                 outlineAlpha = smoothstep(outlineInner + step, outlineInner - step, distance);
             }
 
+            outlineAlpha = pow(outlineAlpha, 1.0f / 2.2f);
             outputColor = mix(outputColor, fragmentOutlineColor, outlineAlpha);
         }
 
         // Gamma correction.
-        outputColor.a = pow(outputColor.a, 1.0f / 2.2f);
+        // Correcting final alpha value will break the linear fade.
+        // Instead of this apply gamma correction only where really needed.
+        //outputColor.a = pow(outputColor.a, 1.0f / 2.2f);
 
         // Premultiply alpha.
         outputColor.rgb *= outputColor.a;
