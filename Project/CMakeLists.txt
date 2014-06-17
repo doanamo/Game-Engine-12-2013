@@ -353,7 +353,7 @@ Target_Link_Libraries(${TargetName} "freetype")
 #
 
 # Write a file in the build directory that will point the executable to it's working directory.
-Get_Filename_Component(WorkingDir "${CMAKE_CURRENT_LIST_DIR}/../Base" ABSOLUTE)
+Get_Filename_Component(WorkingDir "${CMAKE_CURRENT_LIST_DIR}/../Deploy" ABSOLUTE)
 File(WRITE "${CMAKE_BINARY_DIR}/WorkingDir.txt" "${WorkingDir}")
 
 #
