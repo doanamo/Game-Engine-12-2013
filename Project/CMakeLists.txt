@@ -63,6 +63,7 @@ Set(SourceFiles
     "Console/ConsoleCommand.cpp"
     "Console/ConsoleVariable.hpp"
     "Console/ConsoleVariable.cpp"
+    "Console/ConsoleUtility.cpp"
     "Console/ConsoleFrame.hpp"
     "Console/ConsoleFrame.cpp"
 
