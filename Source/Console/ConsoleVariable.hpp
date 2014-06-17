@@ -11,15 +11,14 @@ class ConsoleVariable : public ConsoleDefinition
 {
 public:
     ConsoleVariable(std::string name, std::string value, std::string description = "");
-    ConsoleVariable(std::string name, const char* value, std::string description = "");
     ConsoleVariable(std::string name, bool        value, std::string description = "");
     ConsoleVariable(std::string name, int         value, std::string description = "");
     ConsoleVariable(std::string name, float       value, std::string description = "");
-
     ~ConsoleVariable();
 
     void Execute(std::string arguments);
 
+    // Assign operators.
     ConsoleVariable& operator=(const std::string& right)
     {
         m_value = right;
@@ -32,24 +31,25 @@ public:
         return *this;
     }
 
-    ConsoleVariable& operator=(bool right)
+    ConsoleVariable& operator=(const bool& right)
     {
         this->SetBool(right);
         return *this;
     }
 
-    ConsoleVariable& operator=(int right)
+    ConsoleVariable& operator=(const int& right)
     {
         this->SetInteger(right);
         return *this;
     }
 
-    ConsoleVariable& operator=(float right)
+    ConsoleVariable& operator=(const float& right)
     {
         this->SetFloat(right);
         return *this;
     }
 
+    // Conversion operators.
     operator std::string() const
     {
         return this->GetString();
@@ -75,7 +75,8 @@ public:
         return this->GetFloat();
     }
 
-    void SetString(const char* value)
+    // Setter methods.
+    void SetString(std::string value)
     {
         m_value = value;
     }
@@ -95,6 +96,7 @@ public:
         m_value = std::to_string(value);
     }
 
+    // Getter methods.
     std::string GetString() const
     {
         return m_value;
@@ -102,22 +104,7 @@ public:
 
     bool GetBool() const
     {
-        if(m_value == "true")
-        {
-            return true;
-        }
-        else
-        if(m_value == "false")
-        {
-            return false;
-        }
-        else
-        if(GetFloat() != 0.0)
-        {
-            return true;
-        }
-
-        return false;
+        return m_value == "true" || this->GetFloat() != 0.0;
     }
 
     int GetInteger() const

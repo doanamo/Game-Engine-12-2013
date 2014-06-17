@@ -6,11 +6,6 @@ ConsoleVariable::ConsoleVariable(std::string name, std::string value, std::strin
 {
 }
 
-ConsoleVariable::ConsoleVariable(std::string name, const char* value, std::string description) :
-    ConsoleDefinition(name, description), m_value(value)
-{
-}
-
 ConsoleVariable::ConsoleVariable(std::string name, bool value, std::string description) :
     ConsoleDefinition(name, description)
 {
@@ -37,10 +32,12 @@ void ConsoleVariable::Execute(std::string arguments)
 {
     if(arguments.empty())
     {
-        Log() << GetName() << " = " << GetString();
+        // Print current value.
+        Log() << this->GetName() << " = " << this->GetString();
     }
     else
     {
+        // Assign new value.
         m_value = arguments;
     }
 }
