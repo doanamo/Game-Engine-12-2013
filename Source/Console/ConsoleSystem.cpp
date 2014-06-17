@@ -76,8 +76,6 @@ void ConsoleSystem::Execute(std::string input)
 
 void ConsoleSystem::RegisterDefinition(ConsoleDefinition* definition)
 {
-    assert(definition != nullptr);
-
     if(!m_initialized)
         return;
 

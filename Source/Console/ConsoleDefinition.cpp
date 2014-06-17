@@ -12,7 +12,7 @@ ConsoleDefinition::ConsoleDefinition(std::string name, std::string description) 
     m_name(name), m_description(description), m_staticNext(nullptr)
 {
     // Add static definition to the list.
-    if(m_staticDone == false)
+    if(!m_staticDone)
     {
         m_staticNext = m_staticHead;
         m_staticHead = this;
@@ -34,11 +34,13 @@ ConsoleDefinition::~ConsoleDefinition()
 
 void ConsoleDefinition::RegisterStatic()
 {
-    assert(Main::ConsoleSystem().IsValid());
+    if(m_staticDone)
+        return;
 
     // Register all definitions that were created before the console system initialization.
     for(auto definition = m_staticHead; definition != nullptr; definition = definition->m_staticNext)
     {
+        assert(Main::ConsoleSystem().IsValid());
         Main::ConsoleSystem().RegisterDefinition(definition);
     }
 
