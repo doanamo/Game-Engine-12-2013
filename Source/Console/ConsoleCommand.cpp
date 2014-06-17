@@ -17,6 +17,5 @@ ConsoleCommand::~ConsoleCommand()
 void ConsoleCommand::Execute(std::string arguments)
 {
     assert(m_function != nullptr);
-
     m_function(arguments);
 }

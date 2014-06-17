@@ -18,6 +18,13 @@ public:
 
     void Execute(std::string arguments);
 
+    // Call operator.
+    ConsoleCommand& operator()(std::string arguments = "")
+    {
+        this->Execute(arguments);
+        return *this;
+    }
+
 private:
     FunctionPointer m_function;
 };
