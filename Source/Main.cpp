@@ -269,13 +269,7 @@ int main(int argc, char* argv[])
         Main::ConsoleFrame().Draw(transform, Main::ScreenSpace().GetTargetSize());
 
         // Present the window content.
-        bool verticalSync = false;
-
-        if(Console::renderVsync)
-        {
-            verticalSync = true;
-        }
-
+        bool verticalSync = Console::renderVsync;
         SDL_GL_SetSwapInterval((int)verticalSync);
         SDL_GL_SwapWindow(Main::SystemWindow());
     }
