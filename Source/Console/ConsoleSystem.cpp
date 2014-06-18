@@ -1,7 +1,6 @@
 #include "Precompiled.hpp"
 #include "ConsoleSystem.hpp"
 #include "ConsoleDefinition.hpp"
-#include "ConsoleVariable.hpp"
 
 ConsoleSystem::ConsoleSystem() :
     m_initialized(false)
@@ -100,6 +99,7 @@ void ConsoleSystem::RegisterDefinition(ConsoleDefinition* definition)
     // Register a definition.
     auto result = m_definitions.insert(std::make_pair(definition->GetName(), definition));
 
+    // Make sure insertion succeeded.
     assert(result.second == true);
 }
 
@@ -111,6 +111,7 @@ void ConsoleSystem::UnregisterDefinition(ConsoleDefinition* definition)
     // Unregister a definition.
     auto result = m_definitions.erase(definition->GetName());
 
+    // Make sure a definition got removed.
     assert(result == 1);
 }
 

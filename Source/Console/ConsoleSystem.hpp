@@ -4,7 +4,6 @@
 
 // Forward declarations.
 class ConsoleDefinition;
-class ConsoleVariable;
 
 //
 // Console System
@@ -32,6 +31,7 @@ public:
     }
 
 private:
+    // List of registered definitions.
     std::map<std::string, ConsoleDefinition*> m_definitions;
 
     bool m_initialized;
