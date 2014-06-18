@@ -25,6 +25,71 @@ namespace Console
 }
 
 //
+// Helper Functions
+//
+
+void HandleWindowSizeChange(int oldWidth, int oldHeight, int newWidth, int newHeight)
+{
+    // Check if window size actually differs.
+    if(oldWidth == newWidth && oldHeight == newHeight)
+        return;
+
+    // Get aspect ratio settings.
+    const int horizontalAspectRatio = Console::horizontalAspectRatio;
+    const int verticalAspectRatio = Console::verticalAspectRatio;
+                        
+    // Change resolution to match the aspect ratio.
+    if(Console::lockAspectRatio)
+    {
+        // Set new window size with locked aspect ratio.
+        if(newWidth != oldWidth)
+        {
+            // Find next multiple of horizontal aspect ratio.
+            while(newWidth % horizontalAspectRatio)
+            {
+                newWidth += 1;
+            }
+
+            // Calculate the other dimmension.
+            newHeight = (int)(newWidth * ((float)verticalAspectRatio / horizontalAspectRatio) + 0.5f);
+        }
+        else
+        if(newHeight != oldHeight)
+        {
+            // Find next multiple of vertical aspect ratio.
+            while(newHeight % verticalAspectRatio)
+            {
+                newHeight += 1;
+            }
+
+            // Calculate the other dimmension.
+            newWidth = (int)(newHeight * ((float)horizontalAspectRatio / verticalAspectRatio) + 0.5f);
+        }
+    }
+
+    // Change window size.
+    // This event is only triggered on user system resize.
+    // Function below triggers another, regular size change event.
+    SDL_SetWindowSize(Main::SystemWindow(), newWidth, newHeight);
+
+    // Get the current window size.
+    // The requested window size can't always be set.
+    int windowWidth, windowHeight;
+    SDL_GetWindowSize(Main::SystemWindow(), &windowWidth, &windowHeight);
+
+    // Check if window size actually changed.
+    if(windowWidth != oldWidth || windowHeight != oldHeight)
+    {
+        // Update the console variables.
+        Console::windowWidth = windowWidth;
+        Console::windowHeight = windowHeight;
+
+        // Print a log message.
+        Log() << "Resolution changed to " << windowWidth << "x" << windowHeight << ".";
+    }
+}
+
+//
 // Main
 //
 
@@ -94,61 +159,10 @@ int main(int argc, char* argv[])
                 {
                 case SDL_WINDOWEVENT_RESIZED:
                     {
-                        // Get new window size.
-                        int width = event.window.data1;
-                        int height = event.window.data2;
+                        int windowWidth = event.window.data1;
+                        int windowHeight = event.window.data2;
 
-                        if(width == Console::windowWidth.GetInteger() && height == Console::windowHeight.GetInteger())
-                            break;
-
-                        // Get aspect ratio settings.
-                        const int horizontalAspectRatio = Console::horizontalAspectRatio;
-                        const int verticalAspectRatio = Console::verticalAspectRatio;
-                        
-                        // Change resolution to match the aspect ratio.
-                        if(Console::lockAspectRatio)
-                        {
-                            // Set new window size with locked aspect ratio.
-                            if(width != Console::windowWidth.GetInteger())
-                            {
-                                // Find next multiple of horizontal aspect ratio.
-                                while(width % horizontalAspectRatio)
-                                {
-                                    width += 1;
-                                }
-
-                                // Calculate the other dimmension.
-                                height = (int)(width * ((float)verticalAspectRatio / horizontalAspectRatio) + 0.5f);
-                            }
-                            else
-                            if(height != Console::windowHeight.GetInteger())
-                            {
-                                // Find next multiple of vertical aspect ratio.
-                                while(height % verticalAspectRatio)
-                                {
-                                    height += 1;
-                                }
-
-                                // Calculate the other dimmension.
-                                width = (int)(height * ((float)horizontalAspectRatio / verticalAspectRatio) + 0.5f);
-                            }
-
-                            // Change window size.
-                            // This event is only triggered on user system resize.
-                            // Function below triggers another, regular size change event.
-                            SDL_SetWindowSize(Main::SystemWindow(), width, height);
-
-                            // Get the current window size.
-                            // The requested window size can't always be set.
-                            SDL_GetWindowSize(Main::SystemWindow(), &width, &height);
-                        }
-                        
-                        // Update the console variables.
-                        Console::windowWidth = width;
-                        Console::windowHeight = height;
-
-                        // Print a log message.
-                        Log() << "Resolution changed to " << event.window.data1 << "x" << event.window.data2 << ".";
+                        HandleWindowSizeChange(Console::windowWidth, Console::windowHeight, windowWidth, windowHeight);
                     }
                     break;
                 }
@@ -162,6 +176,14 @@ int main(int argc, char* argv[])
             // Process an event by main frame.
             if(Main::MainFrame().Process(event))
                 continue;
+        }
+
+        // Handle console variable change for window size.
+        {
+            int windowWidth, windowHeight;
+            SDL_GetWindowSize(Main::SystemWindow(), &windowWidth, &windowHeight);
+
+            HandleWindowSizeChange(windowWidth, windowHeight, Console::windowWidth, Console::windowHeight);
         }
 
         // Get current window size.
