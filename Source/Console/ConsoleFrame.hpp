@@ -39,6 +39,7 @@ private:
     int m_cursorPosition;
 
     // History positions.
+    int m_historyOutput;
     int m_historyInput;
 
     // Frame state.

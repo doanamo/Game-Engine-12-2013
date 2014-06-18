@@ -23,6 +23,7 @@ namespace Console
 ConsoleFrame::ConsoleFrame() :
     m_input(""),
     m_cursorPosition(0),
+    m_historyOutput(0),
     m_historyInput(0),
     m_open(false),
     m_initialized(false)
@@ -48,6 +49,7 @@ void ConsoleFrame::Cleanup()
     m_input.clear();
     m_cursorPosition = 0;
 
+    m_historyOutput = 0;
     m_historyInput = 0;
 
     m_open = false;
@@ -190,6 +192,24 @@ bool ConsoleFrame::Process(const SDL_Event& event)
             }
         }
         else
+        if(event.key.keysym.scancode == SDL_SCANCODE_PAGEUP)
+        {
+            if(m_open)
+            {
+                // Move output history up.
+                m_historyOutput = std::min(m_historyOutput + 1, std::max(0, Main::ConsoleHistory().GetOutputSize() - ConsoleSize + 1));
+            }
+        }
+        else
+        if(event.key.keysym.scancode == SDL_SCANCODE_PAGEDOWN)
+        {
+            if(m_open)
+            {
+                // Move output history down.
+                m_historyOutput = std::max(0, m_historyOutput - 1);
+            }
+        }
+        else
         if(event.key.keysym.scancode == SDL_SCANCODE_HOME)
         {
             if(m_open)
@@ -227,6 +247,9 @@ bool ConsoleFrame::Process(const SDL_Event& event)
 
                 // Reset input history position.
                 m_historyInput = 0;
+
+                // Reset output history position.
+                m_historyOutput = 0;
 
                 // Clear input.
                 this->ClearInput();
@@ -334,6 +357,10 @@ void ConsoleFrame::Draw(const glm::mat4& transform, glm::vec2 targetSize)
 
     if(m_open)
     {
+        // Make sure output history is within range in case it gets cleared.
+        m_historyOutput = std::min(m_historyOutput, std::max(0, Main::ConsoleHistory().GetOutputSize() - ConsoleSize + 1));
+
+        // Calculate font sizes.
         const float fontSize = 16;
         const float fontSpacing = Main::DefaultFont().GetLineSpacing() * Main::DefaultFont().GetScaling(fontSize);
 
@@ -353,10 +380,10 @@ void ConsoleFrame::Draw(const glm::mat4& transform, glm::vec2 targetSize)
 
         Main::ShapeRenderer().DrawQuads(&quad, 1, transform);
 
-        // Draw console text.
+        // Draw console output.
         for(int i = 0; i < ConsoleSize - 1; ++i)
         {
-            const char* text = Main::ConsoleHistory().GetOutput(i);
+            const char* text = Main::ConsoleHistory().GetOutput(i + m_historyOutput);
 
             if(text == nullptr)
                 break;
