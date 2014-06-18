@@ -12,17 +12,50 @@ public:
     ConsoleHistory();
     ~ConsoleHistory();
 
-    bool Initialize(int outputSize);
+    bool Initialize(int outputCapacity, int inputCapacity);
     void Cleanup();
 
-    void Write(const char* text);
-    void Clear();
+    // Console output.
+    void WriteOutput(const char* text);
+    void ClearOutput();
 
-    const char* GetText(int index) const;
+    const char* GetOutput(int index) const;
 
-    bool IsEmpty() const
+    // Console input.
+    void WriteInput(const char* text);
+    void ClearInput();
+
+    const char* GetInput(int index) const;
+
+    // Accessor methods.
+    int GetOutputSize() const
+    {
+        return m_outputHistory.size();
+    }
+
+    int GetInputSize() const
+    {
+        return m_inputHistory.size();
+    } 
+
+    int GetOutputCapacity() const
+    {
+        return m_outputCapacity;
+    }
+
+    int GetInputCapacity() const
+    {
+        return m_inputCapacity;
+    }
+
+    bool IsOutputEmpty() const
     {
         return m_outputHistory.empty();
+    }
+
+    bool IsInputEmpty() const
+    {
+        return m_inputHistory.empty();
     }
 
     bool IsValid() const
@@ -34,7 +67,10 @@ private:
     typedef std::deque<std::string> StringQueue;
 
     StringQueue m_outputHistory;
-    int         m_outputSize;
+    int         m_outputCapacity;
+
+    StringQueue m_inputHistory;
+    int         m_inputCapacity;
 
     bool m_initialized;
 };

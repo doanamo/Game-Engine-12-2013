@@ -8,7 +8,8 @@ namespace
 }
 
 ConsoleHistory::ConsoleHistory() :
-    m_outputSize(0),
+    m_outputCapacity(0),
+    m_inputCapacity(0),
     m_initialized(false)
 {
 }
@@ -18,18 +19,25 @@ ConsoleHistory::~ConsoleHistory()
     Cleanup();
 }
 
-bool ConsoleHistory::Initialize(int outputSize)
+bool ConsoleHistory::Initialize(int outputCapacity, int inputCapacity)
 {
     Cleanup();
 
     // Validate arguments.
-    if(outputSize <= 0)
+    if(outputCapacity <= 0)
     {
-        Log() << LogInitializeError() << "Invalid argument - \"outputSize\" is invalid.";
+        Log() << LogInitializeError() << "Invalid argument - \"outputCapacity\" is invalid.";
         return false;
     }
 
-    m_outputSize = outputSize;
+    if(inputCapacity <= 0)
+    {
+        Log() << LogInitializeError() << "Invalid argument - \"inputCapacity\" is invalid.";
+        return false;
+    }
+
+    m_outputCapacity = outputCapacity;
+    m_inputCapacity = inputCapacity;
 
     // Success!
     m_initialized = true;
@@ -40,12 +48,15 @@ bool ConsoleHistory::Initialize(int outputSize)
 void ConsoleHistory::Cleanup()
 {
     ClearContainer(m_outputHistory);
-    m_outputSize = 0;
+    ClearContainer(m_inputHistory);
+
+    m_outputCapacity = 0;
+    m_inputCapacity = 0;
 
     m_initialized = false;
 }
 
-void ConsoleHistory::Write(const char* text)
+void ConsoleHistory::WriteOutput(const char* text)
 {
     if(!m_initialized)
         return;
@@ -54,9 +65,9 @@ void ConsoleHistory::Write(const char* text)
         return;
 
     // Check if there is space for another string.
-    assert((int)m_outputHistory.size() <= m_outputSize);
+    assert((int)m_outputHistory.size() <= m_outputCapacity);
 
-    if((int)m_outputHistory.size() == m_outputSize)
+    if((int)m_outputHistory.size() == m_outputCapacity)
     {
         // Remove oldest string.
         m_outputHistory.pop_back();
@@ -66,7 +77,7 @@ void ConsoleHistory::Write(const char* text)
     m_outputHistory.emplace_front(text);
 }
 
-void ConsoleHistory::Clear()
+void ConsoleHistory::ClearOutput()
 {
     if(!m_initialized)
         return;
@@ -75,9 +86,9 @@ void ConsoleHistory::Clear()
     ClearContainer(m_outputHistory);
 }
 
-const char* ConsoleHistory::GetText(int index) const
+const char* ConsoleHistory::GetOutput(int index) const
 {
-    if(IsEmpty())
+    if(IsOutputEmpty())
         return nullptr;
 
     if(index < 0)
@@ -88,4 +99,49 @@ const char* ConsoleHistory::GetText(int index) const
 
     // Return string at index.
     return m_outputHistory[index].c_str();
+}
+
+void ConsoleHistory::WriteInput(const char* text)
+{
+    if(!m_initialized)
+        return;
+
+    if(text == nullptr)
+        return;
+
+    // Check if there is space for another string.
+    assert((int)m_inputHistory.size() <= m_inputCapacity);
+
+    if((int)m_inputHistory.size() == m_inputCapacity)
+    {
+        // Remove oldest string.
+        m_inputHistory.pop_back();
+    }
+
+    // Add string to the history.
+    m_inputHistory.emplace_front(text);
+}
+
+void ConsoleHistory::ClearInput()
+{
+    if(!m_initialized)
+        return;
+
+    // Clear output strings.
+    ClearContainer(m_inputHistory);
+}
+
+const char* ConsoleHistory::GetInput(int index) const
+{
+    if(IsInputEmpty())
+        return nullptr;
+
+    if(index < 0)
+        return nullptr;
+
+    if(index >= (int)m_inputHistory.size())
+        return nullptr;
+
+    // Return string at index.
+    return m_inputHistory[index].c_str();
 }

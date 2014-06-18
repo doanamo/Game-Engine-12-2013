@@ -23,6 +23,7 @@ namespace Console
 ConsoleFrame::ConsoleFrame() :
     m_input(""),
     m_cursorPosition(0),
+    m_historyInput(0),
     m_open(false),
     m_initialized(false)
 {
@@ -46,6 +47,8 @@ void ConsoleFrame::Cleanup()
 {
     m_input.clear();
     m_cursorPosition = 0;
+
+    m_historyInput = 0;
 
     m_open = false;
     m_initialized = false;
@@ -127,6 +130,66 @@ bool ConsoleFrame::Process(const SDL_Event& event)
             }
         }
         else
+        if(event.key.keysym.scancode == SDL_SCANCODE_UP)
+        {
+            if(m_open)
+            {
+                // Move to next history input entry.
+                m_historyInput = std::min(m_historyInput + 1, Main::ConsoleHistory().GetInputSize());
+
+                // Read history input.
+                const char* input = Main::ConsoleHistory().GetInput(m_historyInput - 1);
+
+                if(input != nullptr)
+                {
+                    // Set current input.
+                    m_input = input;
+                }
+                else
+                {
+                    // Reset input.
+                    m_input = "";
+                }
+
+                // Move cursor position to the end.
+                int inputLength = utf8::distance(m_input.begin(), m_input.end());
+                m_cursorPosition = inputLength;
+
+                // Reset cursor blink.
+                Main::TextRenderer().ResetCursorBlink();
+            }
+        }
+        else
+        if(event.key.keysym.scancode == SDL_SCANCODE_DOWN)
+        {
+            if(m_open)
+            {
+                // Move to previous history input entry.
+                m_historyInput = std::max(0, m_historyInput - 1);
+
+                // Read history input.
+                const char* input = Main::ConsoleHistory().GetInput(m_historyInput - 1);
+
+                if(input != nullptr)
+                {
+                    // Set current input.
+                    m_input = input;
+                }
+                else
+                {
+                    // Reset input.
+                    m_input = "";
+                }
+
+                // Move cursor position to the end.
+                int inputLength = utf8::distance(m_input.begin(), m_input.end());
+                m_cursorPosition = inputLength;
+
+                // Reset cursor blink.
+                Main::TextRenderer().ResetCursorBlink();
+            }
+        }
+        else
         if(event.key.keysym.scancode == SDL_SCANCODE_HOME)
         {
             if(m_open)
@@ -158,6 +221,12 @@ bool ConsoleFrame::Process(const SDL_Event& event)
             {
                 // Execute input.
                 Main::ConsoleSystem().Execute(m_input);
+
+                // Add to input history.
+                Main::ConsoleHistory().WriteInput(m_input.c_str());
+
+                // Reset input history position.
+                m_historyInput = 0;
 
                 // Clear input.
                 this->ClearInput();
@@ -222,6 +291,9 @@ bool ConsoleFrame::Process(const SDL_Event& event)
         {
             if(m_open)
             {
+                // Reset input history position.
+                m_historyInput = 0;
+
                 // Clear console input.
                 this->ClearInput();
 
@@ -284,7 +356,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform, glm::vec2 targetSize)
         // Draw console text.
         for(int i = 0; i < ConsoleSize - 1; ++i)
         {
-            const char* text = Main::ConsoleHistory().GetText(i);
+            const char* text = Main::ConsoleHistory().GetOutput(i);
 
             if(text == nullptr)
                 break;

@@ -52,7 +52,7 @@ void CommandClear(std::string arguments)
 {
     assert(Main::ConsoleHistory().IsValid());
 
-    Main::ConsoleHistory().Clear();
+    Main::ConsoleHistory().ClearOutput();
 }
 
 void CommandQuit(std::string arguments)

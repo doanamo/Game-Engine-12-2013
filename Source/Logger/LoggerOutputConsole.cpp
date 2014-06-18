@@ -22,5 +22,5 @@ void LoggerOutputConsole::Write(const LoggerMessage& message)
     if(message.IsEmpty())
         return;
 
-    Main::ConsoleHistory().Write(message.GetText().c_str());
+    Main::ConsoleHistory().WriteOutput(message.GetText().c_str());
 }

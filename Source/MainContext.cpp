@@ -142,11 +142,11 @@ bool Main::Initialize()
     //
 
     // Initialize the console history.
-    if(!consoleHistory.Initialize(32))
+    if(!consoleHistory.Initialize(128, 32))
         return false;
 
     // Write a welcoming message.
-    consoleHistory.Write("Welcome to developer's console!");
+    consoleHistory.WriteOutput("Welcome to developer's console!");
 
     // Add a logger console output that writes to history.
     logger.AddOutput(&loggerOutputConsole);

@@ -32,9 +32,17 @@ private:
     void ClearInput();
 
 private:
+    // Current input.
     std::string m_input;
+
+    // Input cursor position.
     int m_cursorPosition;
 
+    // History positions.
+    int m_historyInput;
+
+    // Frame state.
     bool m_open;
+
     bool m_initialized;
 };
