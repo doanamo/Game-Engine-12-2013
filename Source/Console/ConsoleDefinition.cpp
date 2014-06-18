@@ -4,7 +4,7 @@
 
 #include "MainContext.hpp"
 
-const char*        ConsoleDefinition::Internal = "internal";
+const char*        ConsoleDefinition::Internal = "";
 ConsoleDefinition* ConsoleDefinition::m_staticHead = nullptr;
 bool               ConsoleDefinition::m_staticDone = false;
 

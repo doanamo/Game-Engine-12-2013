@@ -37,7 +37,6 @@ public:
     // Use this string as a name to mark definition as internal.
     static const char* Internal;
 
-public:
     // Call at the very beginning of main() to finalize
     // static instances of this class, so static and normal
     // instanced can be distinguished.

@@ -90,9 +90,6 @@ void ConsoleSystem::RegisterDefinition(ConsoleDefinition* definition)
     if(definition == nullptr)
         return;
 
-    // Definition name can't be empty.
-    assert(definition->GetName() != "");
-
     // Check if a definition is meant to be used as internal.
     if(definition->GetName() == ConsoleDefinition::Internal)
         return;
