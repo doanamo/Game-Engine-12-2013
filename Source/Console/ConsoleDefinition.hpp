@@ -2,27 +2,23 @@
 
 #include "Precompiled.hpp"
 
-// Forward declarations.
-class ConsoleSystem;
-
 //
 // Console Definition
+//  - Base class used by console variable/command classes.
 //
 
 class ConsoleDefinition : public NonCopyable
 {
-public:
-    // Use this string as a name to mark definition as internal.
-    static const char* Internal;
-
 protected:
-    ConsoleDefinition(std::string name, std::string description = "");
+    ConsoleDefinition(std::string name, std::string description);
 
 public:
     virtual ~ConsoleDefinition();
 
+    // Called when a definition has been executed in the console.
     virtual void Execute(std::string arguments) = 0;
 
+    // Accessor methods.
     std::string GetName() const
     {
         return m_name;
@@ -38,12 +34,17 @@ private:
     std::string m_description;
 
 public:
+    // Use this string as a name to mark definition as internal.
+    static const char* Internal;
+
+public:
     // Call at the very beginning of main() to finalize
     // static instances of this class, so static and normal
     // instanced can be distinguished.
     static void FinalizeStatic();
 
 private:
+    // Allow console system to register static definitions.
     friend class ConsoleSystem;
 
     // List of static definitions that were created
