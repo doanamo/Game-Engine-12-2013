@@ -117,7 +117,7 @@ bool Main::Initialize()
     cacheDir = workingDir + "Cache/";
 
     //
-    // Logger Outputs
+    // Logger
     //
 
     // Set logger instance as global.
@@ -128,9 +128,6 @@ bool Main::Initialize()
         return false;
 
     logger.AddOutput(&loggerOutputFile);
-
-    // Add a logger console output.
-    logger.AddOutput(&loggerOutputConsole);
 
     //
     // Console System
@@ -150,6 +147,9 @@ bool Main::Initialize()
 
     // Write a welcoming message.
     consoleHistory.Write("Welcome to developer's console!");
+
+    // Add a logger console output that writes to history.
+    logger.AddOutput(&loggerOutputConsole);
 
     //
     // Print system info after logger systems are up.
