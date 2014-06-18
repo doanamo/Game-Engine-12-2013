@@ -8,16 +8,6 @@
 // Console Frame
 //
 
-enum class InputCursor
-{
-    Invalid,
-
-    Begin,
-    End,
-    Left,
-    Right,
-};
-
 class ConsoleFrame
 {
 public:
@@ -40,7 +30,6 @@ public:
 
 private:
     void ClearInput();
-    void MoveInputCursor(InputCursor move);
 
 private:
     std::string m_input;
