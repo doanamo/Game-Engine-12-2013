@@ -30,6 +30,9 @@ namespace Console
 
 int main(int argc, char* argv[])
 {
+    // Finalize static instances.
+    ConsoleDefinition::FinalizeStatic();
+
     //
     // Configuration
     //

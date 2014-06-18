@@ -33,15 +33,21 @@ public:
         return m_description;
     }
 
-    static void RegisterStatic();
-
 private:
     std::string m_name;
     std::string m_description;
 
+public:
+    // Call at the very beginning of main() to finalize
+    // static instances of this class, so static and normal
+    // instanced can be distinguished.
+    static void FinalizeStatic();
+
 private:
-    // List of static definitions that will be registered 
-    // after the console system has been initialized.
+    friend class ConsoleSystem;
+
+    // List of static definitions that were created
+    // before the console system has been initialized.
     ConsoleDefinition*          m_staticNext;
     static ConsoleDefinition*   m_staticHead;
     static bool                 m_staticDone;

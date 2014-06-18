@@ -19,6 +19,14 @@ bool ConsoleSystem::Initialize()
 
     m_initialized = true;
 
+    // Register static definitions.
+    assert(ConsoleDefinition::m_staticDone);
+
+    for(auto definition = ConsoleDefinition::m_staticHead; definition != nullptr; definition = definition->m_staticNext)
+    {
+        this->RegisterDefinition(definition);
+    }
+
     return true;
 }
 

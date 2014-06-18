@@ -140,9 +140,6 @@ bool Main::Initialize()
     if(!consoleSystem.Initialize())
         return false;
 
-    // Register definitions created before the console system was initialized.
-    ConsoleDefinition::RegisterStatic();
-
     //
     // Console History
     //

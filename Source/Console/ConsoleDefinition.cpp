@@ -11,9 +11,9 @@ bool               ConsoleDefinition::m_staticDone = false;
 ConsoleDefinition::ConsoleDefinition(std::string name, std::string description) :
     m_name(name), m_description(description), m_staticNext(nullptr)
 {
-    // Add static definition to the list.
     if(!m_staticDone)
     {
+        // Add static definition to the list.
         m_staticNext = m_staticHead;
         m_staticHead = this;
     }
@@ -28,22 +28,11 @@ ConsoleDefinition::~ConsoleDefinition()
 {
     // Unregister the definition.
     // If the definition is static, it could have already
-    // been unregistered on console system shutdown.
+    // been unregistered on console system shutdown, which is fine.
     Main::ConsoleSystem().UnregisterDefinition(this);
 }
 
-void ConsoleDefinition::RegisterStatic()
+void ConsoleDefinition::FinalizeStatic()
 {
-    if(m_staticDone)
-        return;
-
-    // Register all definitions that were created before the console system initialization.
-    for(auto definition = m_staticHead; definition != nullptr; definition = definition->m_staticNext)
-    {
-        assert(Main::ConsoleSystem().IsValid());
-        Main::ConsoleSystem().RegisterDefinition(definition);
-    }
-
-    // Static definitions initialized.
     m_staticDone = true;
 }
