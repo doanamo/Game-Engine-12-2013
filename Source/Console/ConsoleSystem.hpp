@@ -7,6 +7,7 @@ class ConsoleDefinition;
 
 //
 // Console System
+//  - Resposible for managing console definitions and executing commands on them.
 //
 
 class ConsoleSystem : public NonCopyable

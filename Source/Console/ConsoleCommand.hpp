@@ -5,11 +5,13 @@
 
 //
 // Console Command
+//  - Definition that calls a function when executed in console.
 //
 
 class ConsoleCommand : public ConsoleDefinition
 {
 public:
+    // Type of function that can be used.
     typedef void (*FunctionPointer)(std::string);
 
 public:
