@@ -136,6 +136,10 @@ int main(int argc, char* argv[])
         // Reset console system intermediate state.
         Main::ConsoleSystem().ResetIntermediateState();
 
+        //
+        // Timer
+        //
+
         // Update frame time.
         timePrevious = timeCurrent;
         timeCurrent = SDL_GetTicks();
@@ -149,6 +153,10 @@ int main(int argc, char* argv[])
 
         // Limit maximum frame step.
         dt = std::min(dt, 1.0f / 20.0f);
+
+        //
+        // Events
+        //
 
         // Handle window events.
         SDL_Event event;
@@ -193,16 +201,9 @@ int main(int argc, char* argv[])
             HandleWindowSizeChange(windowWidth, windowHeight, Console::windowWidth, Console::windowHeight);
         }
 
-        // Get current window size.
-        const int windowWidth = Console::windowWidth;
-        const int windowHeight = Console::windowHeight;
-
-        const int horizontalAspectRatio = Console::horizontalAspectRatio;
-        const int verticalAspectRatio = Console::verticalAspectRatio;
-
-        // Setup screen space.
-        Main::ScreenSpace().SetSourceSize((float)windowWidth, (float)windowHeight);
-        Main::ScreenSpace().SetTargetAspect((float)horizontalAspectRatio / verticalAspectRatio);
+        //
+        // Update
+        //
 
         // Update frame counter.
         Main::FrameCounter().Update(dt);
@@ -213,27 +214,34 @@ int main(int argc, char* argv[])
         // Update main frame.
         Main::MainFrame().Update(dt);
 
+        //
+        // Draw
+        //
+
+        // Setup screen space.
+        Main::ScreenSpace().SetSourceSize(Console::windowWidth, Console::windowHeight);
+        Main::ScreenSpace().SetTargetAspect((float)Console::horizontalAspectRatio / (float)Console::verticalAspectRatio);
+
         // Setup the viewport.
-        glm::ivec4 viewport(0, 0, windowWidth, windowHeight);
+        glm::ivec4 viewport(0, 0, Console::windowWidth, Console::windowHeight);
         glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
 
         // Clear the screen.
         Main::CoreRenderer().SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
         Main::CoreRenderer().Clear(ClearFlags::Color);
 
-        // Calculate projection.
+        // Get screen space transform matrices.
         glm::mat4x4 projection = Main::ScreenSpace().GetProjection();
         glm::mat4x4 view = Main::ScreenSpace().GetView();
         glm::mat4x4 transform = Main::ScreenSpace().GetTransform();
 
-        // Calculate scissor area.
+        // Enable scissor area where drawing will be limited.
+        glEnable(GL_SCISSOR_TEST);
+
         glm::vec3 position = glm::project(glm::vec3(0.0f, 0.0f, 0.0f), view, projection, viewport);
         glm::vec3 size = glm::project(glm::vec3(Main::ScreenSpace().GetTargetSize(), 0.0f), view, projection, viewport) - position;
 
         glScissor((int)(position.x + 0.5f), (int)(position.y + 0.5f), (int)(size.x + 0.5f), (int)(size.y + 0.5f));
-
-        // Toggle scissor test.
-        glEnable(GL_SCISSOR_TEST);
     
         SCOPE_GUARD(glDisable(GL_SCISSOR_TEST));
 
@@ -251,8 +259,6 @@ int main(int argc, char* argv[])
             info.font = &Main::DefaultFont();
             info.size = 22;
             info.bodyColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-            //info.outlineColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-            //info.outlineRange = glm::vec2(0.3f, 0.5f);
             info.glowColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
             info.glowRange = glm::vec2(0.2f, 0.5f);
             info.position.x = 10.0f;
@@ -272,7 +278,7 @@ int main(int argc, char* argv[])
             Main::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
         }
 
-        // Draw console frame.
+        // Draw console frame on top of everything else.
         Main::ConsoleFrame().Draw(transform, Main::ScreenSpace().GetTargetSize());
 
         // Present the window content.
@@ -281,5 +287,6 @@ int main(int argc, char* argv[])
         SDL_GL_SwapWindow(Main::SystemWindow());
     }
 
+    // Everything will get cleaned up automatically.
     return 0;
 }
