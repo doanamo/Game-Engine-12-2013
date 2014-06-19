@@ -18,6 +18,11 @@ public:
 
     void Write(const LoggerMessage& message);
 
+    bool IsOpen() const
+    {
+        return m_file.is_open();
+    }
+
 private:
     std::ofstream m_file;
 };

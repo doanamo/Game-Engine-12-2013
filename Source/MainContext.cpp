@@ -96,12 +96,12 @@ bool Main::Initialize()
     // Config
     //
 
-    // Set the current directory.
+    // Get the current directory.
     boost::filesystem::path currentDirPath = boost::filesystem::current_path();
 
     currentDir = currentDirPath.generic_string() + '/';
 
-    // Set the working directory.
+    // Get the working directory.
     boost::filesystem::path workingDirPath = GetTextFileContent("WorkingDir.txt");
 
     if(!workingDirPath.empty())
@@ -113,7 +113,7 @@ bool Main::Initialize()
         workingDir = currentDir;
     }
 
-    // Set the cache directory.
+    // Get the cache directory.
     cacheDir = workingDir + "Cache/";
 
     //
@@ -123,11 +123,11 @@ bool Main::Initialize()
     // Set logger instance as global.
     Logger::SetGlobal(&logger);
 
-    // Add a logger file output.
-    if(!loggerOutputFile.Open("Log.txt"))
-        return false;
-
-    logger.AddOutput(&loggerOutputFile);
+    // Add default logger file output.
+    if(loggerOutputFile.Open("Log.txt"))
+    {
+        logger.AddOutput(&loggerOutputFile);
+    }
 
     //
     // Console System
@@ -150,6 +150,12 @@ bool Main::Initialize()
 
     // Add a logger console output that writes to history.
     logger.AddOutput(&loggerOutputConsole);
+
+    // Write to console output if for some reason logger file output failed to open.
+    if(!loggerOutputFile.IsOpen())
+    {
+        consoleHistory.WriteOutput("Failed to open logger file output!");
+    }
 
     //
     // Print system info after logger systems are up.
