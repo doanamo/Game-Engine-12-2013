@@ -34,6 +34,10 @@ void HandleWindowSizeChange(int oldWidth, int oldHeight, int newWidth, int newHe
     if(oldWidth == newWidth && oldHeight == newHeight)
         return;
 
+    // Enforce minimum size.
+    newWidth = std::max(1024, newWidth);
+    newHeight = std::max(576, newHeight);
+
     // Get aspect ratio settings.
     const int horizontalAspectRatio = Console::horizontalAspectRatio;
     const int verticalAspectRatio = Console::verticalAspectRatio;
@@ -77,14 +81,13 @@ void HandleWindowSizeChange(int oldWidth, int oldHeight, int newWidth, int newHe
     int windowWidth, windowHeight;
     SDL_GetWindowSize(Main::SystemWindow(), &windowWidth, &windowHeight);
 
-    // Check if window size actually changed.
+    // Update the console variables.
+    Console::windowWidth = windowWidth;
+    Console::windowHeight = windowHeight;
+
+    // Print a log message if window size actually changed.
     if(windowWidth != oldWidth || windowHeight != oldHeight)
     {
-        // Update the console variables.
-        Console::windowWidth = windowWidth;
-        Console::windowHeight = windowHeight;
-
-        // Print a log message.
         Log() << "Resolution changed to " << windowWidth << "x" << windowHeight << ".";
     }
 }
