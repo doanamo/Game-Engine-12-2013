@@ -20,8 +20,7 @@ Type Clamp(const Type& value, const Type& lower, const Type& upper)
 template<typename Type>
 void ClearContainer(Type& container)
 {
-    Type empty;
-    container.swap(empty);
+    container.swap(Type());
 }
 
 // Upper multiple of a number.
