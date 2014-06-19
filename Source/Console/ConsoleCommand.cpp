@@ -1,9 +1,9 @@
 #include "Precompiled.hpp"
 #include "ConsoleCommand.hpp"
-#include "ConsoleSystem.hpp"
-#include "ConsoleHistory.hpp"
 
 #include "MainContext.hpp"
+#include "Console/ConsoleSystem.hpp"
+#include "Console/ConsoleHistory.hpp"
 
 ConsoleCommand::ConsoleCommand(std::string name, FunctionPointer function, std::string description) :
     ConsoleDefinition(name, description), m_function(function)

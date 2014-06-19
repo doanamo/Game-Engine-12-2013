@@ -1,9 +1,9 @@
 #include "Precompiled.hpp"
 #include "ConsoleFrame.hpp"
-#include "ConsoleSystem.hpp"
-#include "ConsoleHistory.hpp"
 
 #include "MainContext.hpp"
+#include "Console/ConsoleSystem.hpp"
+#include "Console/ConsoleHistory.hpp"
 #include "Graphics/ShapeRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
 

@@ -1,8 +1,8 @@
 #include "Precompiled.hpp"
-#include "ConsoleSystem.hpp"
-#include "ConsoleHistory.hpp"
 
 #include "MainContext.hpp"
+#include "Console/ConsoleSystem.hpp"
+#include "Console/ConsoleHistory.hpp"
 
 //
 // Command Functions

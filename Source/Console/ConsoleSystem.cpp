@@ -1,6 +1,7 @@
 #include "Precompiled.hpp"
 #include "ConsoleSystem.hpp"
-#include "ConsoleDefinition.hpp"
+
+#include "Console/ConsoleDefinition.hpp"
 
 ConsoleSystem::ConsoleSystem() :
     m_initialized(false)
