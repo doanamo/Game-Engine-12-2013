@@ -18,6 +18,7 @@ public:
     ConsoleCommand(std::string name, FunctionPointer function, std::string description = "");
     ~ConsoleCommand();
 
+    // Execute command.
     void Execute(std::string arguments);
 
     // Call operator.

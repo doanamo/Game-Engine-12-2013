@@ -23,13 +23,13 @@ public:
     // Assign operators.
     ConsoleVariable& operator=(const std::string& right)
     {
-        m_value = right;
+        this->SetString(right);
         return *this;
     }
 
     ConsoleVariable& operator=(const char* right)
     {
-        m_value = right;
+        this->SetString(right);
         return *this;
     }
 
@@ -77,28 +77,31 @@ public:
         return this->GetFloat();
     }
 
-    // Setter methods.
+    // Accessor methods.
     void SetString(std::string value)
     {
         m_value = value;
+        this->Changed();
     }
 
     void SetBool(bool value)
     {
         m_value = value ? "true" : "false";
+        this->Changed();
     }
 
     void SetInteger(int value)
     {
         m_value = std::to_string(value);
+        this->Changed();
     }
 
     void SetFloat(float value)
     {
         m_value = std::to_string(value);
+        this->Changed();
     }
 
-    // Getter methods.
     std::string GetString() const
     {
         return m_value;
@@ -109,37 +112,8 @@ public:
         return m_value == "true" || this->GetFloat() != 0.0;
     }
 
-    int GetInteger() const
-    {
-        int value;
-
-        try
-        {
-            value = std::stoi(m_value);
-        }
-        catch(const std::exception&)
-        {
-            value = 0;
-        }
-
-        return value;
-    }
-
-    float GetFloat() const
-    {
-        float value;
-
-        try
-        {
-            value = std::stof(m_value);
-        }
-        catch(const std::exception&)
-        {
-            value = 0.0f;
-        }
-
-        return value;
-    }
+    int GetInteger() const;
+    float GetFloat() const;
 
 private:
     std::string m_value;

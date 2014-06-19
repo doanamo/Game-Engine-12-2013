@@ -26,6 +26,9 @@ public:
 
     ConsoleDefinition* FindDefinition(std::string name);
 
+    void ResetIntermediateState();
+
+    // Accessor methods.
     bool IsValid() const
     {
         return m_initialized;

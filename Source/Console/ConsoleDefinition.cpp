@@ -9,7 +9,11 @@ ConsoleDefinition* ConsoleDefinition::m_staticHead = nullptr;
 bool               ConsoleDefinition::m_staticDone = false;
 
 ConsoleDefinition::ConsoleDefinition(std::string name, std::string description) :
-    m_name(name), m_description(description), m_staticNext(nullptr)
+    m_name(name),
+    m_description(description),
+    m_executed(false),
+    m_changed(false),
+    m_staticNext(nullptr)
 {
     if(!m_staticDone)
     {
@@ -30,6 +34,22 @@ ConsoleDefinition::~ConsoleDefinition()
     // If the definition is static, it could have already been
     // unregistered on console system shutdown, which is fine.
     Main::ConsoleSystem().UnregisterDefinition(this);
+}
+
+void ConsoleDefinition::Executed()
+{
+    m_executed = true;
+}
+
+void ConsoleDefinition::Changed()
+{
+    m_changed = true;
+}
+
+void ConsoleDefinition::ResetIntermediateState()
+{
+    m_executed = false;
+    m_changed = false;
 }
 
 void ConsoleDefinition::FinalizeStatic()

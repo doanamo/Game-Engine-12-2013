@@ -29,9 +29,30 @@ public:
         return m_description;
     }
 
+    bool HasExecuted() const
+    {
+        return m_executed;
+    }
+
+    bool HasChanged() const
+    {
+        return m_changed;
+    }
+
+protected:
+    // Sets intermediate states.
+    void Executed();
+    void Changed();
+
+    // Resets intermediate states.
+    void ResetIntermediateState();
+
 private:
     std::string m_name;
     std::string m_description;
+
+    bool m_executed;
+    bool m_changed;
 
 public:
     // Use this string as a name to mark definition as internal.

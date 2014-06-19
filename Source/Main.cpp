@@ -130,6 +130,9 @@ int main(int argc, char* argv[])
 
     while(!Main::IsQuitting())
     {
+        // Reset console system intermediate state.
+        Main::ConsoleSystem().ResetIntermediateState();
+
         // Update frame time.
         timePrevious = timeCurrent;
         timeCurrent = SDL_GetTicks();
@@ -179,6 +182,7 @@ int main(int argc, char* argv[])
         }
 
         // Handle console variable change for window size.
+        if(Console::windowWidth.HasChanged() || Console::windowHeight.HasChanged())
         {
             int windowWidth, windowHeight;
             SDL_GetWindowSize(Main::SystemWindow(), &windowWidth, &windowHeight);

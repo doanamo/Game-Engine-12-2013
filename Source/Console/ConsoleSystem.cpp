@@ -31,6 +31,9 @@ bool ConsoleSystem::Initialize()
 
 void ConsoleSystem::Cleanup()
 {
+    // Reset intermediate state.
+    this->ResetIntermediateState();
+
     // Clear all definitions.
     ClearContainer(m_definitions);
 
@@ -126,4 +129,14 @@ ConsoleDefinition* ConsoleSystem::FindDefinition(std::string name)
         return nullptr;
 
     return it->second;
+}
+
+void ConsoleSystem::ResetIntermediateState()
+{
+    // Reset intermediate states of all definitions.
+    for(auto it : m_definitions)
+    {
+        assert(it.second != nullptr);
+        it.second->ResetIntermediateState();
+    }
 }
