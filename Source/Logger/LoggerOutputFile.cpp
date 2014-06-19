@@ -87,17 +87,17 @@ void LoggerOutputFile::Write(const LoggerMessage& message)
     // Message text.
     m_file << message.GetText();
 
-#ifdef _DEBUG
     // Message source.
-    if(message.GetFilename() != nullptr && message.GetLine() != 0)
-    {
-        m_file << " (";
-        m_file << message.GetFilename();
-        m_file << ":";
-        m_file << message.GetLine();
-        m_file << ")";
-    }
-#endif
+    #ifdef _DEBUG
+        if(!message.GetSource().empty() && message.GetLine() != 0)
+        {
+            m_file << " (";
+            m_file << message.GetSource();
+            m_file << ":";
+            m_file << message.GetLine();
+            m_file << ")";
+        }
+    #endif
 
     // Message suffix.
     m_file << "\n";

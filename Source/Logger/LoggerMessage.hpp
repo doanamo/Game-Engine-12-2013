@@ -13,7 +13,7 @@ public:
     LoggerMessage(LoggerMessage&& other);
     virtual ~LoggerMessage();
 
-    LoggerMessage& Source(const char* filename, unsigned int line);
+    LoggerMessage& Source(const char* source, unsigned int line);
     LoggerMessage& Text(const char* text);
 
     bool IsEmpty() const
@@ -26,9 +26,9 @@ public:
         return m_buffer.str();
     }
 
-    const char* GetFilename() const
+    std::string GetSource() const
     {
-        return m_filename;
+        return m_source;
     }
 
     unsigned int GetLine() const
@@ -38,6 +38,6 @@ public:
 
 private:
     std::stringbuf m_buffer;
-    const char*    m_filename;
+    std::string    m_source;
     unsigned int   m_line;
 };

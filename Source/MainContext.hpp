@@ -51,6 +51,7 @@ namespace Main
     bool            IsQuitting();
 
     std::string     CurrentDir();
+    std::string     SourceDir();
     std::string     WorkingDir();
     std::string     CacheDir();
 

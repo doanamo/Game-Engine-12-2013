@@ -1,9 +1,11 @@
 #include "Precompiled.hpp"
 #include "LoggerMessage.hpp"
 
+#include "MainContext.hpp"
+
 LoggerMessage::LoggerMessage() :
     std::ostream(&m_buffer),
-    m_filename(nullptr),
+    m_source(),
     m_line(0)
 {
 }
@@ -13,8 +15,8 @@ LoggerMessage::LoggerMessage(LoggerMessage&& other) :
 {
     m_buffer = std::move(other.m_buffer);
 
-    m_filename = other.m_filename;
-    other.m_filename = nullptr;
+    m_source = other.m_source;
+    other.m_source = nullptr;
 
     m_line = other.m_line;
     other.m_line = 0;
@@ -24,10 +26,20 @@ LoggerMessage::~LoggerMessage()
 {
 }
 
-LoggerMessage& LoggerMessage::Source(const char* filename, unsigned int line)
+LoggerMessage& LoggerMessage::Source(const char* source, unsigned int line)
 {
-    m_filename = filename;
+    if(source == nullptr)
+        return *this;
+
+    // Set message source.
+    m_source = source;
     m_line = line;
+
+    // Replace source path separators.
+    std::replace(m_source.begin(), m_source.end(), '\\', '/');
+
+    // Remove base path to source directory.
+    m_source.erase(m_source.find(Main::SourceDir()), Main::SourceDir().size());
 
     return *this;
 }

@@ -44,6 +44,7 @@ namespace
     bool                isQuitting = false;
 
     std::string         currentDir;
+    std::string         sourceDir;
     std::string         workingDir;
     std::string         cacheDir;
 
@@ -100,6 +101,14 @@ bool Main::Initialize()
     boost::filesystem::path currentDirPath = boost::filesystem::current_path();
 
     currentDir = currentDirPath.generic_string() + '/';
+
+    // Get the source directory.
+    boost::filesystem::path sourceDirPath = GetTextFileContent("SourceDir.txt");
+
+    if(!sourceDirPath.empty())
+    {
+        sourceDir = sourceDirPath.generic_string() + '/';
+    }
 
     // Get the working directory.
     boost::filesystem::path workingDirPath = GetTextFileContent("WorkingDir.txt");
@@ -448,6 +457,7 @@ void Main::Cleanup()
     //
 
     currentDir = "";
+    sourceDir = "";
     workingDir = "";
     cacheDir = "";
 
@@ -480,6 +490,11 @@ bool Main::IsQuitting()
 std::string Main::CurrentDir()
 {
     return currentDir;
+}
+
+std::string Main::SourceDir()
+{
+    return sourceDir;
 }
 
 std::string Main::WorkingDir()

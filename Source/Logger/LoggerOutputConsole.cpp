@@ -22,5 +22,21 @@ void LoggerOutputConsole::Write(const LoggerMessage& message)
     if(message.IsEmpty())
         return;
 
-    Main::ConsoleHistory().WriteOutput(message.GetText().c_str());
+    // Message text.
+    std::string output = message.GetText();
+
+    // Message source.
+    #ifdef _DEBUG
+        if(!message.GetSource().empty() && message.GetLine() != 0)
+        {
+            output += " (";
+            output += message.GetSource();
+            output += ":";
+            output += std::to_string(message.GetLine());
+            output += ")";
+        }
+    #endif
+
+    // Write to console history.
+    Main::ConsoleHistory().WriteOutput(output.c_str());
 }
