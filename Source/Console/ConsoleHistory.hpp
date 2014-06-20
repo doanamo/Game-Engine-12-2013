@@ -4,7 +4,7 @@
 
 //
 // Console History
-//  - Tracks history of recent console output and input.
+//  Tracks history of recent console output and input.
 //
 
 class ConsoleHistory

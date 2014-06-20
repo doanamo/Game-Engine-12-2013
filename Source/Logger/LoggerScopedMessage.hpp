@@ -8,8 +8,8 @@ class Logger;
 
 //
 // Logger Scoped Message
-//  - Log message wrapper that sends itself to the 
-//    logger after it reaches the end of it's scope.
+//  Log message wrapper that sends itself to the 
+//  logger after it reaches the end of it's scope.
 //
 
 class LoggerScopedMessage : public LoggerMessage

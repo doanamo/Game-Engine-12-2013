@@ -6,7 +6,7 @@
 
 //
 // Console Frame
-//  - Displays and lets user interact with the console system.
+//  Displays and lets user interact with the console system.
 //
 
 class ConsoleFrame

@@ -5,7 +5,7 @@
 
 //
 // Console Command
-//  - Definition that calls a function when executed in console.
+//  Definition that calls a function when executed in console.
 //
 
 class ConsoleCommand : public ConsoleDefinition

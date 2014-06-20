@@ -4,7 +4,7 @@
 
 //
 // Console Definition
-//  - Base class used by console variable/command classes.
+//  Base class used by console variable/command classes.
 //
 
 class ConsoleDefinition : public NonCopyable

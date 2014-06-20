@@ -5,7 +5,7 @@
 
 //
 // Logger Output File
-//  - Writes log messages to a file.
+//  Writes log messages to a file.
 //
 
 class LoggerOutputFile : public LoggerOutput

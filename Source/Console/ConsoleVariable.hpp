@@ -5,8 +5,8 @@
 
 //
 // Console Variable
-//  - Definition that stores a variable that can be read
-//    or written to directly or from the console system.
+//  Definition that stores a variable that can be read
+//  or written to directly or from the console system.
 //
 
 class ConsoleVariable : public ConsoleDefinition
