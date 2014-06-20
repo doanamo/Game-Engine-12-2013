@@ -4,6 +4,8 @@
 
 //
 // Cache Manager
+//  Manages a registry of cached files, so resources can be loaded much faster directly
+//  from the cache after they have been processed once and saved to the cache.
 //
 
 class CacheManager
@@ -19,6 +21,7 @@ public:
     bool Initialize();
     void Cleanup();
 
+    // Lookups a cache entry. It creates a new entry if it doesn't exist.
     std::string Lookup(std::string filename);
 
 private:

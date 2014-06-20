@@ -15,7 +15,7 @@ namespace
     // Cache registry format type (also the header's magic word).
     const char* FormatType = "CacheRegistry";
 
-    // Cache registry version. Increasing it will cause conversion, if not available the cache will recreate.
+    // Cache registry version. Increasing it will cause upgrade of the cache, if not available it will be recreated.
     unsigned int RegistryVersion = 1;
 
     // Cache integrity version. Increasing it will force the whole cache to recreate.
@@ -152,7 +152,7 @@ bool CacheManager::LoadCache()
     // Move to next line after reading the header.
     registryFile >> std::ws;
 
-    // Setup scope guard to clear registry entires we could've added past this point.
+    // Setup scope guard to clear registry entries we could've added past this point.
     auto clearRegistryEntires = MakeScopeGuard([&]()
     {
         ClearContainer(m_registry);
