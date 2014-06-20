@@ -1,6 +1,7 @@
 #include "Precompiled.hpp"
 #include "LoggerScopedMessage.hpp"
-#include "Logger.hpp"
+
+#include "Logger/Logger.hpp"
 
 LoggerScopedMessage::LoggerScopedMessage(Logger* logger) :
     m_logger(logger)

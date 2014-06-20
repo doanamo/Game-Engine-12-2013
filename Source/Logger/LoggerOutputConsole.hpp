@@ -5,6 +5,7 @@
 
 //
 // Logger Output Console
+//  - Writes log messages to console history output.
 //
 
 class LoggerOutputConsole : public LoggerOutput

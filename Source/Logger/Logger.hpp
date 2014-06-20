@@ -19,6 +19,7 @@ class LoggerMessage;
 
 //
 // Logger
+//  - Entry point for log messages that will be redirected to registered outputs.
 //
 
 class Logger : public NonCopyable
@@ -39,6 +40,7 @@ public:
     static Logger* GetGlobal();
 
 private:
+    // List of logger outputs.
     std::vector<LoggerOutput*> m_outputs;
 
     // Global logger instance.
