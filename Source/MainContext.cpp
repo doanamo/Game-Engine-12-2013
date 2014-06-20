@@ -298,10 +298,10 @@ bool Main::Initialize()
     //
 
     // Create blank white texture.
-    unsigned char* textureBlankData[2 * 2 * 4];
-    memset(&textureBlankData[0], 255, sizeof(unsigned char) * 4 * 2 * 2);
+    unsigned char textureBlankData[2 * 2 * 4];
+    memset(&textureBlankData[0], 255, sizeof(unsigned char) * 2 * 2 * 4);
 
-    if(!blankTexture.Initialize(2, 2, GL_RGBA, textureBlankData))
+    if(!blankTexture.Initialize(2, 2, GL_RGBA, &textureBlankData[0]))
     {
         Log() << "Failed to initialize a blank texture!";
         return false;
