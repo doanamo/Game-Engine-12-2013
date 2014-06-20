@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <ctime>
+#include <cstring>
 #include <memory>
 #include <algorithm>
 #include <random>
@@ -21,11 +22,18 @@
 #include <unordered_map>
 #include <queue>
 
+// Functions that have different names on different platforms.
+// Some of them are not included in C++ Standard, but are part of UNIX.
+#if defined(_WIN32) || defined(_WIN64) 
+    #define strcasecmp _stricmp
+#endif
+
 //
 // Dependencies
 //
 
 // Boost
+#include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/uuid/uuid.hpp> 

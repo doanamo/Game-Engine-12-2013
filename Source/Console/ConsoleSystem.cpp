@@ -97,7 +97,7 @@ void ConsoleSystem::RegisterDefinition(ConsoleDefinition* definition)
     if(definition->GetName() == ConsoleDefinition::Internal)
         return;
 
-    // White spaces (and special character) may cause problems.
+    // White spaces (and special character) will cause problems.
     assert(definition->GetName().find(' ') == std::string::npos);
 
     // Register a definition.

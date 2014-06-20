@@ -34,9 +34,19 @@ public:
         return m_initialized;
     }
 
+public:
+    // Ignore letter case when comparing two keys.
+    struct CaseInsensitive : public std::binary_function<std::string, std::string, bool>
+    {
+        bool operator()(const std::string& left, const std::string& right) const
+        {
+            return strcasecmp(left.c_str(), right.c_str()) < 0;
+        }
+    };
+
 private:
     // List of registered definitions.
-    std::map<std::string, ConsoleDefinition*> m_definitions;
+    std::map<std::string, ConsoleDefinition*, CaseInsensitive> m_definitions;
 
     bool m_initialized;
 };
