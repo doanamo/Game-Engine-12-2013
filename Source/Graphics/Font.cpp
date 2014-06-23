@@ -6,8 +6,8 @@
 
 namespace
 {
-    // Debug defines.
-    #define DEBUG_DUMP_SURFACES FALSE
+    // Debug dump of glyph surfaces after they are processed.
+    #define DebugDumpGlyphSurfaces 0
 
     // Log error messages.
     #define LogLoadError(filename) "Failed to load a font from \"" << filename << "\" file! "
@@ -38,11 +38,10 @@ namespace
 
     const int DistanceFieldSpreadScaled = DistanceFieldSpread * DistanceFieldDownscale;
 
-    // Inverted constant values.
     const float DistanceFieldDownscaleInverted = 1.0f / DistanceFieldDownscale;
     const float DistanceFieldSpreadScaledInverted = 1.0f / DistanceFieldSpreadScaled;
 
-    // Default glyph code if caching fails.
+    // Default glyph used when caching fails.
     FT_ULong DefaultGlyph = '?';
 }
 
@@ -56,7 +55,7 @@ Font::Font() :
     m_atlasTexture(),
     m_atlasUpload(false),
     m_atlasOverflow(false),
-    m_packer(),
+    m_atlasPacker(),
     m_initialized(false)
 {
 }
@@ -64,6 +63,36 @@ Font::Font() :
 Font::~Font()
 {
     Cleanup();
+}
+
+void Font::Cleanup()
+{
+    // Save cache to a file.
+    SaveCache();
+
+    // Cleanup texture atlas.
+    SDL_FreeSurface(m_atlasSurface);
+    m_atlasSurface = nullptr;
+
+    m_atlasTexture.Cleanup();
+    m_atlasPacker.Cleanup();
+
+    m_atlasUpload = false;
+    m_atlasOverflow = false;
+
+    // Cleanup glyph registry.
+    ClearContainer(m_glyphCache);
+
+    m_glyphDefault = nullptr;
+    m_cacheUpdate = false;
+
+    // Cleanup loaded font.
+    FT_Done_Face(m_fontFace);
+    m_fontFace = nullptr;
+
+    m_fontFilename = "";
+
+    m_initialized = false;
 }
 
 bool Font::Load(std::string filename)
@@ -123,8 +152,8 @@ bool Font::Load(std::string filename)
         return false;
     }
 
-    // Create a shelf packer.
-    m_packer.Create(
+    // Create an atlas packer.
+    m_atlasPacker.Create(
         glm::ivec2(AtlasWidth, AtlasHeight),
         glm::ivec2(AtlasGlyphSpacing, AtlasGlyphSpacing)
     );
@@ -148,207 +177,6 @@ bool Font::Load(std::string filename)
 
     // Success!
     Log() << "Loaded a font from \"" << filename << "\" file.";
-
-    return true;
-}
-
-void Font::Cleanup()
-{
-    // Save cache to a file.
-    SaveCache();
-
-    // Cleanup glyph packer.
-    m_packer.Cleanup();
-
-    // Cleanup font atlas.
-    SDL_FreeSurface(m_atlasSurface);
-    m_atlasSurface = nullptr;
-
-    m_atlasTexture.Cleanup();
-
-    m_atlasUpload = false;
-    m_atlasOverflow = false;
-
-    // Cleanup glyph registry.
-    ClearContainer(m_glyphCache);
-
-    m_glyphDefault = nullptr;
-    m_cacheUpdate = true;
-
-    // Cleanup loaded font.
-    FT_Done_Face(m_fontFace);
-    m_fontFace = nullptr;
-
-    m_fontFilename = "";
-
-    m_initialized = false;
-}
-
-bool Font::LoadCache()
-{
-    if(!m_initialized)
-        return false;
-
-    // Get the cache identifier.
-    std::string identifier = Main::CacheManager().Lookup(m_fontFilename);
-
-    // Open the cache file for reading.
-    std::ifstream file(Main::CacheDir() + identifier, std::ios::binary);
-
-    if(!file.is_open())
-    {
-        return false;
-    }
-
-    // Calculate font file CRC.
-    boost::crc_32_type crc;
-
-    if(!CalculateFileCRC(Main::WorkingDir() + m_fontFilename, &crc))
-        return false;
-
-    // Read the header.
-    CacheHeader header;
-
-    file.read((char*)&header, sizeof(header));
-
-    if(!file.good())
-        return false;
-
-    // Validate the header.
-    if(header.magic != boost::uuids::string_generator()(CacheMagic))
-        return false;
-
-    if(header.version != CacheVersion)
-        return false;
-
-    if(header.checksum != crc.checksum())
-        return false;
-
-    // Read glyph entries.
-    auto clearReadGlyphs = MakeScopeGuard([&]()
-    {
-        // Clear read glyphs in case of failure.
-        ClearContainer(m_glyphCache);
-    });
-
-    for(int i = 0; i < header.glyphs; ++i)
-    {
-        // Read the glyph entry.
-        FT_ULong character;
-        Glyph glyph;
-
-        file.read((char*)&character, sizeof(FT_ULong));
-        file.read((char*)&glyph, sizeof(Glyph));
-
-        if(!file.good())
-            return false;
-
-        // Add glyph to the list.
-        m_glyphCache.insert(std::make_pair(character, glyph));
-    }
-
-    // Read the font atlas.
-    char* surfacePixels = reinterpret_cast<char*>(m_atlasSurface->pixels);
-    unsigned long surfaceSize = m_atlasSurface->h * m_atlasSurface->pitch;
-
-    auto clearReadPixels = MakeScopeGuard([&]()
-    {
-        // Clear read pixels in case of failure.
-        SDL_LockSurface(m_atlasSurface);
-        memset(surfacePixels, 0, surfaceSize);
-        SDL_UnlockSurface(m_atlasSurface);
-    });
-
-    SDL_LockSurface(m_atlasSurface);
-    file.read((char*)surfacePixels, surfaceSize);
-    SDL_UnlockSurface(m_atlasSurface);
-
-    if(!file.good())
-        return false;
-
-    // Read the packer.
-    auto clearReadPacker = MakeScopeGuard([&]()
-    {
-        // Clear read packer in case of failure.
-        m_packer.Cleanup();
-    });
-
-    file.read((char*)&m_packer, sizeof(ShelfPacker));
-
-    if(!file.good())
-        return false;
-
-    // Update the atlas texture.
-    m_atlasUpload = true;
-
-    // Don't update cache unless new glyph is cached.
-    m_cacheUpdate = false;
-
-    // Disable the scope guard.
-    clearReadGlyphs.Disable();
-    clearReadPixels.Disable();
-    clearReadPacker.Disable();
-
-    return true;
-}
-
-bool Font::SaveCache()
-{
-    if(!m_initialized)
-        return false;
-
-    // Don;t update the cache if no new glyphs has been added.
-    if(!m_cacheUpdate)
-        return true;
-
-    // Get the cache identifier.
-    std::string identifier = Main::CacheManager().Lookup(m_fontFilename);
-
-    // Open the cache file for writing.
-    std::ofstream file(Main::CacheDir() + identifier, std::ios::binary);
-
-    if(!file.is_open())
-    {
-        return false;
-    }
-
-    // Calculate font file CRC.
-    boost::crc_32_type crc;
-
-    if(!CalculateFileCRC(Main::WorkingDir() + m_fontFilename, &crc))
-        return false;
-
-    // Write the hader.
-    CacheHeader header;
-    header.magic = boost::uuids::string_generator()(CacheMagic);
-    header.version = CacheVersion;
-    header.checksum = crc.checksum();
-    header.glyphs = m_glyphCache.size();
-
-    file.write((char*)&header, sizeof(CacheHeader));
-
-    // Write glyph entries.
-    for(auto it = m_glyphCache.begin(); it != m_glyphCache.end(); ++it)
-    {
-        file.write((char*)&it->first, sizeof(FT_ULong));
-        file.write((char*)&it->second, sizeof(Glyph));
-    }
-
-    // Write the font atlas.
-    SDL_LockSurface(m_atlasSurface);
-
-    char* surfacePixels = reinterpret_cast<char*>(m_atlasSurface->pixels);
-    unsigned long surfaceSize = m_atlasSurface->h * m_atlasSurface->pitch;
-
-    file.write((char*)surfacePixels, surfaceSize);
-
-    SDL_UnlockSurface(m_atlasSurface);
-
-    // Write the packer.
-    file.write((char*)&m_packer, sizeof(ShelfPacker));
-
-    // Don't update the cache until a new glyph is added.
-    m_cacheUpdate = false;
 
     return true;
 }
@@ -396,7 +224,7 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
         return &it->second;
     }
 
-    // Don't waste time rendering glyphs if the atlas if full.
+    // Don't waste time rendering glyphsagain if the atlas if full.
     if(m_atlasOverflow)
         return nullptr;
 
@@ -423,8 +251,8 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
 
     uint8_t* glyphBitmapBytes = glyphSlot->bitmap.buffer;
 
-    // Get a pixel from the gylph surface.
-    // Each pixel is stored in one bit, so every byte contains 8 pixels.
+    // Define function that gets a pixel from the glyph surface.
+    // Each pixel is stored in one bit (black/white), so every byte contains 8 pixels.
     auto GetGlyphBitmapPixel = [&](int x, int y) -> uint8_t
     {
         if(x < 0 || x > glyphBitmapWidth - 1)
@@ -444,16 +272,19 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
         // Get the glyph bitmap byte.
         uint8_t byte = glyphBitmapBytes[y * glyphBitmapPitch + byteIndex];
 
-        // Extract the bit pixel.
+        // Extract the pixel.
         return (byte >> bitOffset) & 0x1;
     };
 
     //
     // Calculate Distance Field
-    // - Uses Dead Reckoning algorithm to calculate the distance field.
-    // - Some artifacts are present that arent visible on the technical paper,
-    //   but I were unable to eliminate them. They arent that big, so they will
-    //   be lost after downscaling.
+    //  Use Dead Reckoning algorithm to calculate the distance field.
+    //  Some artifacts are present that arent visible on the technical paper,
+    //  but I were unable to eliminate them. They arent that big, so they will
+    //  be lost after downscaling, but only because high quality parameters are
+    //  used, which make these calculations bit slower than desired.
+    //  Mentioned artifacts are sometimes visible two sews/scars, one directed
+    //  to the left and second to the top right corner.
     //
 
     // Algorithm variables.
@@ -530,6 +361,18 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
         }
     }
 
+    // Performs a single step of a pass.
+    auto DistancePassStep = [&](const unsigned index, const glm::ivec2& position, const glm::ivec2& offset, const float distance)
+    {
+        if(GetFieldBitmapDistance(position.x + offset.x, position.y + offset.y) + distance < GetFieldBitmapDistance(position.x, position.y))
+        {
+            glm::ivec2 border = GetFieldBitmapBorder(position.x + offset.x, position.y + offset.y);
+
+            fieldBitmapBorders[index] = border;
+            fieldBitmapDistances[index] = glm::distance(glm::vec2(position.x, position.y), glm::vec2((float)border.x, (float)border.y));
+        }
+    };
+
     // Perform the first forward pass.
     for(int y = 0; y < fieldBitmapHeight; ++y)
     for(int x = 0; x < fieldBitmapWidth; ++x)
@@ -540,49 +383,25 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
         // -c-
         // ---
 
-        if(GetFieldBitmapDistance(x - 1, y - 1) + d2 < GetFieldBitmapDistance(x, y))
-        {
-            glm::ivec2 border = GetFieldBitmapBorder(x - 1, y - 1);
-
-            fieldBitmapBorders[index] = border;
-            fieldBitmapDistances[index] = glm::distance(glm::vec2(x, y), glm::vec2((float)border.x, (float)border.y));
-        }
+        DistancePassStep(index, glm::ivec2(x, y), glm::ivec2(-1, -1), d2);
 
         // -x-
         // -c-
         // ---
 
-        if(GetFieldBitmapDistance(x, y - 1) + d1 < GetFieldBitmapDistance(x, y))
-        {
-            glm::ivec2 border = GetFieldBitmapBorder(x, y - 1);
-
-            fieldBitmapBorders[index] = border;
-            fieldBitmapDistances[index] = glm::distance(glm::vec2(x, y), glm::vec2((float)border.x, (float)border.y));
-        }
+        DistancePassStep(index, glm::ivec2(x, y), glm::ivec2(0, -1), d1);
 
         // --x
         // -c-
         // ---
 
-        if(GetFieldBitmapDistance(x + 1, y - 1) + d2 < GetFieldBitmapDistance(x, y))
-        {
-            glm::ivec2 border = GetFieldBitmapBorder(x + 1, y - 1);
-
-            fieldBitmapBorders[index] = border;
-            fieldBitmapDistances[index] = glm::distance(glm::vec2(x, y), glm::vec2((float)border.x, (float)border.y));
-        }
+        DistancePassStep(index, glm::ivec2(x, y), glm::ivec2(1, -1), d2);
 
         // ---
         // xc-
         // ---
 
-        if(GetFieldBitmapDistance(x - 1, y) + d1 < GetFieldBitmapDistance(x, y))
-        {
-            glm::ivec2 border = GetFieldBitmapBorder(x - 1, y);
-
-            fieldBitmapBorders[index] = border;
-            fieldBitmapDistances[index] = glm::distance(glm::vec2(x, y), glm::vec2((float)border.x, (float)border.y));
-        }
+        DistancePassStep(index, glm::ivec2(x, y), glm::ivec2(-1, 0), d1);
     }
 
     // Perform the second backward pass.
@@ -595,49 +414,25 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
         // -cx
         // ---
 
-        if(GetFieldBitmapDistance(x + 1, y) + d1 < GetFieldBitmapDistance(x, y))
-        {
-            glm::ivec2 border = GetFieldBitmapBorder(x + 1, y);
-
-            fieldBitmapBorders[index] = border;
-            fieldBitmapDistances[index] = glm::distance(glm::vec2(x, y), glm::vec2((float)border.x, (float)border.y));
-        }
+        DistancePassStep(index, glm::ivec2(x, y), glm::ivec2(1, 0), d1);
 
         // ---
         // -c-
         // x--
 
-        if(GetFieldBitmapDistance(x - 1, y + 1) + d2 < GetFieldBitmapDistance(x, y))
-        {
-            glm::ivec2 border = GetFieldBitmapBorder(x - 1, y + 1);
-
-            fieldBitmapBorders[index] = border;
-            fieldBitmapDistances[index] = glm::distance(glm::vec2(x, y), glm::vec2((float)border.x, (float)border.y));
-        }
+        DistancePassStep(index, glm::ivec2(x, y), glm::ivec2(-1, 1), d2);
 
         // ---
         // -c-
         // -x-
 
-        if(GetFieldBitmapDistance(x, y + 1) + d1 < GetFieldBitmapDistance(x, y))
-        {
-            glm::ivec2 border = GetFieldBitmapBorder(x, y + 1);
-
-            fieldBitmapBorders[index] = border;
-            fieldBitmapDistances[index] = glm::distance(glm::vec2(x, y), glm::vec2((float)border.x, (float)border.y));
-        }
+        DistancePassStep(index, glm::ivec2(x, y), glm::ivec2(0, 1), d1);
 
         // ---
         // -c-
         // --x
 
-        if(GetFieldBitmapDistance(x + 1, y + 1) + d2 < GetFieldBitmapDistance(x, y))
-        {
-            glm::ivec2 border = GetFieldBitmapBorder(x + 1, y + 1);
-
-            fieldBitmapBorders[index] = border;
-            fieldBitmapDistances[index] = glm::distance(glm::vec2(x, y), glm::vec2((float)border.x, (float)border.y));
-        }
+        DistancePassStep(index, glm::ivec2(x, y), glm::ivec2(1, 1), d2);
     }
 
     // Denote distance field signs.
@@ -658,8 +453,6 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
 
     //
     // Create Scaled Surface
-    // - Scaling using SDL_SoftStretch() isn't ideal.
-    //   Replace with high quality downscaling.
     //
 
     // Create the distance surface.
@@ -689,7 +482,7 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
         // Map the value spread values to 0 - 255 range.
         float alpha = 0.5f + 0.5f * (GetFieldBitmapDistance(x, y) * DistanceFieldSpreadScaledInverted);
         alpha = std::min(1.0f, std::max(0.0f, alpha));
-        uint8_t byte = (uint8_t)(alpha * 0xFF);
+        uint8_t byte = (uint8_t)(alpha * 255);
 
         // Save the pixel value.
         *fieldBitmapPixel = byte;
@@ -698,7 +491,7 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     SDL_UnlockSurface(distanceSurface);
 
     // Debug surface dump.
-    #if DEBUG_DUMP_SURFACES
+    #if DebugDumpGlyphSurfaces
     {
         std::string filename;
         filename += "df_";
@@ -729,6 +522,7 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     int scaledSurfacePitch = scaledSurface->pitch;
 
     // Scale the distance surface.
+    // Todo: Replace with higher quality downscaling.
     SDL_Rect scaleRect;
     scaleRect.x = 0;
     scaleRect.y = 0;
@@ -738,7 +532,7 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     SDL_SoftStretch(distanceSurface, nullptr, scaledSurface, &scaleRect);
 
     // Debug surface dump.
-    #if DEBUG_DUMP_SURFACES
+    #if DebugDumpGlyphSurfaces
     {
         std::string filename;
         filename += "dfs_";
@@ -757,7 +551,7 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     //
 
     // Add element to the packer.
-    if(!m_packer.AddElement(glm::ivec2(scaledSurfaceWidth, scaledSurfaceHeight)))
+    if(!m_atlasPacker.AddElement(glm::ivec2(scaledSurfaceWidth, scaledSurfaceHeight)))
     {
         // Not enough space on the atlas for this glyph.
         m_atlasOverflow = true;
@@ -773,8 +567,8 @@ const Glyph* Font::CacheGlyph(FT_ULong character)
     sourceRect.h = scaledSurfaceHeight - 1;
 
     SDL_Rect drawRect;
-    drawRect.x = m_packer.GetPosition().x;
-    drawRect.y = m_packer.GetPosition().y;
+    drawRect.x = m_atlasPacker.GetPosition().x;
+    drawRect.y = m_atlasPacker.GetPosition().y;
     drawRect.w = scaledSurfaceWidth;
     drawRect.h = scaledSurfaceHeight;
 
@@ -823,6 +617,183 @@ void Font::UpdateAtlasTexture()
         m_atlasTexture.Update(m_atlasSurface->pixels);
         m_atlasUpload = false;
     }
+}
+
+bool Font::LoadCache()
+{
+    if(!m_initialized)
+        return false;
+
+    // Don't load a cache if we want to debug glyph surfaces.
+    if(DebugDumpGlyphSurfaces)
+        return false;
+
+    // Get the cache identifier.
+    std::string identifier = Main::CacheManager().Lookup(m_fontFilename);
+
+    // Open the cache file for reading.
+    std::ifstream file(Main::CacheDir() + identifier, std::ios::binary);
+
+    if(!file.is_open())
+    {
+        return false;
+    }
+
+    // Calculate font file CRC.
+    boost::crc_32_type crc;
+
+    if(!CalculateFileCRC(Main::WorkingDir() + m_fontFilename, &crc))
+        return false;
+
+    // Read the header.
+    CacheHeader header;
+
+    file.read((char*)&header, sizeof(header));
+
+    if(!file.good())
+        return false;
+
+    // Validate the header.
+    if(header.magic != boost::uuids::string_generator()(CacheMagic))
+        return false;
+
+    if(header.version != CacheVersion)
+        return false;
+
+    if(header.checksum != crc.checksum())
+        return false;
+
+    // Read glyph entries.
+    auto clearReadGlyphs = MakeScopeGuard([&]()
+    {
+        // Clear read glyphs in case of failure.
+        ClearContainer(m_glyphCache);
+    });
+
+    for(int i = 0; i < header.glyphs; ++i)
+    {
+        // Read the glyph entry.
+        FT_ULong character;
+        Glyph glyph;
+
+        file.read((char*)&character, sizeof(FT_ULong));
+        file.read((char*)&glyph, sizeof(Glyph));
+
+        if(!file.good())
+            return false;
+
+        // Add glyph to the list.
+        m_glyphCache.insert(std::make_pair(character, glyph));
+    }
+
+    // Read the font atlas.
+    SDL_LockSurface(m_atlasSurface);
+
+    char* surfacePixels = reinterpret_cast<char*>(m_atlasSurface->pixels);
+    unsigned long surfaceSize = m_atlasSurface->h * m_atlasSurface->pitch;
+
+    auto clearReadPixels = MakeScopeGuard([&]()
+    {
+        // Clear read pixels in case of failure.
+        SDL_LockSurface(m_atlasSurface);
+        memset(surfacePixels, 0, surfaceSize);
+        SDL_UnlockSurface(m_atlasSurface);
+    });
+
+    file.read((char*)surfacePixels, surfaceSize);
+
+    SDL_UnlockSurface(m_atlasSurface);
+
+    if(!file.good())
+        return false;
+
+    // Read the packer state.
+    // Todo: This will be a trouble if packer class changes size. Implement proper serializing.
+    auto clearReadPacker = MakeScopeGuard([&]()
+    {
+        // Clear read packer in case of failure.
+        m_atlasPacker.Cleanup();
+    });
+
+    file.read((char*)&m_atlasPacker, sizeof(ShelfPacker));
+
+    if(!file.good())
+        return false;
+
+    // Update the atlas texture.
+    m_atlasUpload = true;
+
+    // Don't update cache unless new glyph is cached.
+    m_cacheUpdate = false;
+
+    // Disable the scope guard.
+    clearReadGlyphs.Disable();
+    clearReadPixels.Disable();
+    clearReadPacker.Disable();
+
+    return true;
+}
+
+bool Font::SaveCache()
+{
+    if(!m_initialized)
+        return false;
+
+    // Don't update the cache if no new glyphs has been added.
+    if(!m_cacheUpdate)
+        return true;
+
+    // Get the cache identifier.
+    std::string identifier = Main::CacheManager().Lookup(m_fontFilename);
+
+    // Open the cache file for writing.
+    std::ofstream file(Main::CacheDir() + identifier, std::ios::binary);
+
+    if(!file.is_open())
+    {
+        return false;
+    }
+
+    // Calculate font file CRC.
+    boost::crc_32_type crc;
+
+    if(!CalculateFileCRC(Main::WorkingDir() + m_fontFilename, &crc))
+        return false;
+
+    // Write the hader.
+    CacheHeader header;
+    header.magic = boost::uuids::string_generator()(CacheMagic);
+    header.version = CacheVersion;
+    header.checksum = crc.checksum();
+    header.glyphs = m_glyphCache.size();
+
+    file.write((char*)&header, sizeof(CacheHeader));
+
+    // Write glyph entries.
+    for(auto it = m_glyphCache.begin(); it != m_glyphCache.end(); ++it)
+    {
+        file.write((char*)&it->first, sizeof(FT_ULong));
+        file.write((char*)&it->second, sizeof(Glyph));
+    }
+
+    // Write the font atlas.
+    SDL_LockSurface(m_atlasSurface);
+
+    char* surfacePixels = reinterpret_cast<char*>(m_atlasSurface->pixels);
+    unsigned long surfaceSize = m_atlasSurface->h * m_atlasSurface->pitch;
+
+    file.write((char*)surfacePixels, surfaceSize);
+
+    SDL_UnlockSurface(m_atlasSurface);
+
+    // Write the packer.
+    // Todo: This will be a trouble if packer class changes size. Implement proper serializing.
+    file.write((char*)&m_atlasPacker, sizeof(ShelfPacker));
+
+    // Don't update the cache until a new glyph is added.
+    m_cacheUpdate = false;
+
+    return true;
 }
 
 const Glyph* Font::GetGlyph(FT_ULong character)

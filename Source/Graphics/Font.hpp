@@ -31,9 +31,6 @@ struct Glyph
 class Font
 {
 public:
-    typedef std::map<FT_ULong, Glyph> GlyphCache;
-
-public:
     Font();
     ~Font();
 
@@ -75,23 +72,24 @@ private:
     bool SaveCache();
 
 private:
+    // Glyph cache type.
+    typedef std::map<FT_ULong, Glyph> GlyphCache;
+
     // Font face.
-    std::string m_fontFilename;
-    FT_Face     m_fontFace;
+    std::string  m_fontFilename;
+    FT_Face      m_fontFace;
 
     // Glyph registry.
     GlyphCache   m_glyphCache;
     const Glyph* m_glyphDefault;
     bool         m_cacheUpdate;
 
-    // Font atlas where glyphs are stores.
+    // Atlas texture.
     SDL_Surface* m_atlasSurface;
     Texture      m_atlasTexture;
     bool         m_atlasUpload;
+    ShelfPacker  m_atlasPacker;
     bool         m_atlasOverflow;
-
-    // Glyph texture packer.
-    ShelfPacker m_packer;
 
     bool m_initialized;
 };
