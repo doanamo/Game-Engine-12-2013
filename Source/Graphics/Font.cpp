@@ -619,6 +619,68 @@ void Font::UpdateAtlasTexture()
     }
 }
 
+bool Font::SaveCache()
+{
+    if(!m_initialized)
+        return false;
+
+    // Don't update the cache if no new glyphs has been added.
+    if(!m_cacheUpdate)
+        return true;
+
+    // Get the cache identifier.
+    std::string identifier = Main::CacheManager().Lookup(m_fontFilename);
+
+    // Open the cache file for writing.
+    std::ofstream file(Main::CacheDir() + identifier, std::ios::binary);
+
+    if(!file.is_open())
+    {
+        return false;
+    }
+
+    // Calculate font file CRC.
+    boost::crc_32_type crc;
+
+    if(!CalculateFileCRC(Main::WorkingDir() + m_fontFilename, &crc))
+        return false;
+
+    // Write the hader.
+    CacheHeader header;
+    header.magic = boost::uuids::string_generator()(CacheMagic);
+    header.version = CacheVersion;
+    header.checksum = crc.checksum();
+    header.glyphs = m_glyphCache.size();
+
+    file.write((char*)&header, sizeof(CacheHeader));
+
+    // Write glyph entries.
+    for(auto it = m_glyphCache.begin(); it != m_glyphCache.end(); ++it)
+    {
+        file.write((char*)&it->first, sizeof(FT_ULong));
+        file.write((char*)&it->second, sizeof(Glyph));
+    }
+
+    // Write the font atlas.
+    SDL_LockSurface(m_atlasSurface);
+
+    char* surfacePixels = reinterpret_cast<char*>(m_atlasSurface->pixels);
+    unsigned long surfaceSize = m_atlasSurface->h * m_atlasSurface->pitch;
+
+    file.write((char*)surfacePixels, surfaceSize);
+
+    SDL_UnlockSurface(m_atlasSurface);
+
+    // Write the packer.
+    // Todo: This will be a trouble if packer class changes size. Implement proper serializing.
+    file.write((char*)&m_atlasPacker, sizeof(ShelfPacker));
+
+    // Don't update the cache until a new glyph is added.
+    m_cacheUpdate = false;
+
+    return true;
+}
+
 bool Font::LoadCache()
 {
     if(!m_initialized)
@@ -730,68 +792,6 @@ bool Font::LoadCache()
     clearReadGlyphs.Disable();
     clearReadPixels.Disable();
     clearReadPacker.Disable();
-
-    return true;
-}
-
-bool Font::SaveCache()
-{
-    if(!m_initialized)
-        return false;
-
-    // Don't update the cache if no new glyphs has been added.
-    if(!m_cacheUpdate)
-        return true;
-
-    // Get the cache identifier.
-    std::string identifier = Main::CacheManager().Lookup(m_fontFilename);
-
-    // Open the cache file for writing.
-    std::ofstream file(Main::CacheDir() + identifier, std::ios::binary);
-
-    if(!file.is_open())
-    {
-        return false;
-    }
-
-    // Calculate font file CRC.
-    boost::crc_32_type crc;
-
-    if(!CalculateFileCRC(Main::WorkingDir() + m_fontFilename, &crc))
-        return false;
-
-    // Write the hader.
-    CacheHeader header;
-    header.magic = boost::uuids::string_generator()(CacheMagic);
-    header.version = CacheVersion;
-    header.checksum = crc.checksum();
-    header.glyphs = m_glyphCache.size();
-
-    file.write((char*)&header, sizeof(CacheHeader));
-
-    // Write glyph entries.
-    for(auto it = m_glyphCache.begin(); it != m_glyphCache.end(); ++it)
-    {
-        file.write((char*)&it->first, sizeof(FT_ULong));
-        file.write((char*)&it->second, sizeof(Glyph));
-    }
-
-    // Write the font atlas.
-    SDL_LockSurface(m_atlasSurface);
-
-    char* surfacePixels = reinterpret_cast<char*>(m_atlasSurface->pixels);
-    unsigned long surfaceSize = m_atlasSurface->h * m_atlasSurface->pitch;
-
-    file.write((char*)surfacePixels, surfaceSize);
-
-    SDL_UnlockSurface(m_atlasSurface);
-
-    // Write the packer.
-    // Todo: This will be a trouble if packer class changes size. Implement proper serializing.
-    file.write((char*)&m_atlasPacker, sizeof(ShelfPacker));
-
-    // Don't update the cache until a new glyph is added.
-    m_cacheUpdate = false;
 
     return true;
 }

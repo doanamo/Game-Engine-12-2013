@@ -68,8 +68,8 @@ public:
 private:
     const Glyph* CacheGlyph(FT_ULong character);
 
-    bool LoadCache();
     bool SaveCache();
+    bool LoadCache();
 
 private:
     // Glyph cache type.
