@@ -11,18 +11,20 @@ namespace
 
     // Log error messages.
     #define LogLoadError(filename) "Failed to load a font from \"" << filename << "\" file! "
+    #define LogSaveCacheError(filename) "Failed to save a cache for \"" << filename << "\" font file! "
+    #define LogLoadCacheError(filename) "Failed to load a cache for \"" << filename << "\" font file! "
 
     // Cache file header.
     struct CacheHeader
     {
-        boost::uuids::uuid magic;
+        boost::uuids::uuid identifier;
         int version;
         boost::crc_32_type::value_type checksum;
         int glyphs;
     };
 
-    const char* CacheMagic = "bbc33929-f3b8-45e8-aaeb-5e7820c54f6e";
-    const int CacheVersion = 4;
+    const boost::uuids::uuid ClassIdentifier = boost::uuids::string_generator()("cd1f3240-fbab-11e3-a3ac-0800200c9a66");
+    const unsigned int ClassVersion = 5;
 
     // Size of the atlas texture.
     const int AtlasWidth = 2048;
@@ -152,18 +154,18 @@ bool Font::Load(std::string filename)
         return false;
     }
 
-    // Create an atlas packer.
-    m_atlasPacker.Create(
-        glm::ivec2(AtlasWidth, AtlasHeight),
-        glm::ivec2(AtlasGlyphSpacing, AtlasGlyphSpacing)
-    );
-
     // Set initialized state.
     m_initialized = true;
 
     // Load font data from the cache.
     if(!LoadCache())
     {
+        // Create an atlas packer.
+        m_atlasPacker.Create(
+            glm::ivec2(AtlasWidth, AtlasHeight),
+            glm::ivec2(AtlasGlyphSpacing, AtlasGlyphSpacing)
+        );
+
         // Cache the default glyph.
         m_glyphDefault = CacheGlyph(DefaultGlyph);
 
@@ -636,6 +638,7 @@ bool Font::SaveCache()
 
     if(!file.is_open())
     {
+        Log() << LogSaveCacheError(m_fontFilename) << "Couldn't create the cache file.";
         return false;
     }
 
@@ -643,22 +646,25 @@ bool Font::SaveCache()
     boost::crc_32_type crc;
 
     if(!CalculateFileCRC(Main::WorkingDir() + m_fontFilename, &crc))
+    {
+        Log() << LogSaveCacheError(m_fontFilename) << "Couldn't calculate file CRC.";
         return false;
+    }
 
     // Write the hader.
     CacheHeader header;
-    header.magic = boost::uuids::string_generator()(CacheMagic);
-    header.version = CacheVersion;
+    header.identifier = ClassIdentifier;
+    header.version = ClassVersion;
     header.checksum = crc.checksum();
     header.glyphs = m_glyphCache.size();
 
-    file.write((char*)&header, sizeof(CacheHeader));
+    StreamWrite(file, header);
 
     // Write glyph entries.
     for(auto it = m_glyphCache.begin(); it != m_glyphCache.end(); ++it)
     {
-        file.write((char*)&it->first, sizeof(FT_ULong));
-        file.write((char*)&it->second, sizeof(Glyph));
+        StreamWrite(file, it->first);
+        StreamWrite(file, it->second);
     }
 
     // Write the font atlas.
@@ -672,8 +678,14 @@ bool Font::SaveCache()
     SDL_UnlockSurface(m_atlasSurface);
 
     // Write the packer.
-    // Todo: This will be a trouble if packer class changes size. Implement proper serializing.
-    file.write((char*)&m_atlasPacker, sizeof(ShelfPacker));
+    m_atlasPacker.Serialize(file);
+
+    // Check if any stream errors occured.
+    if(!file.good())
+    {
+        Log() << LogSaveCacheError(m_fontFilename) << "There was an error while writting to the stream.";
+        return false;
+    }
 
     // Don't update the cache until a new glyph is added.
     m_cacheUpdate = false;
@@ -686,7 +698,7 @@ bool Font::LoadCache()
     if(!m_initialized)
         return false;
 
-    // Don't load a cache if we want to debug glyph surfaces.
+    // Don't load the cache if we want to debug glyph surfaces.
     if(DebugDumpGlyphSurfaces)
         return false;
 
@@ -698,6 +710,7 @@ bool Font::LoadCache()
 
     if(!file.is_open())
     {
+        // No cache to load.
         return false;
     }
 
@@ -705,48 +718,78 @@ bool Font::LoadCache()
     boost::crc_32_type crc;
 
     if(!CalculateFileCRC(Main::WorkingDir() + m_fontFilename, &crc))
+    {
+        Log() << LogLoadCacheError(m_fontFilename) << "Couldn't calculate file CRC.";
         return false;
+    }
 
     // Read the header.
     CacheHeader header;
-
-    file.read((char*)&header, sizeof(header));
+    StreamRead(file, &header);
 
     if(!file.good())
+    {
+        Log() << LogLoadCacheError(m_fontFilename) << "Couldn't read the header.";
         return false;
+    }
 
     // Validate the header.
-    if(header.magic != boost::uuids::string_generator()(CacheMagic))
+    if(header.identifier != ClassIdentifier)
+    {
+        Log() << LogLoadCacheError(m_fontFilename) << "Invalid class identifier.";
         return false;
+    }
 
-    if(header.version != CacheVersion)
+    if(header.version != ClassVersion)
+    {
+        Log() << LogLoadCacheError(m_fontFilename) << "Invalid class version.";
         return false;
+    }
 
     if(header.checksum != crc.checksum())
+    {
+        Log() << LogLoadCacheError(m_fontFilename) << "Invalid file checksum.";
         return false;
+    }
 
-    // Read glyph entries.
+    // Clear read glyphs in case of failure.
     auto clearReadGlyphs = MakeScopeGuard([&]()
     {
-        // Clear read glyphs in case of failure.
         ClearContainer(m_glyphCache);
     });
 
+    // Read glyph entries.
     for(int i = 0; i < header.glyphs; ++i)
     {
         // Read the glyph entry.
         FT_ULong character;
         Glyph glyph;
 
-        file.read((char*)&character, sizeof(FT_ULong));
-        file.read((char*)&glyph, sizeof(Glyph));
+        StreamRead(file, &character);
+        StreamRead(file, &glyph);
 
         if(!file.good())
+        {
+            Log() << LogLoadCacheError(m_fontFilename) << "Couldn't read a glyph entry.";
             return false;
+        }
 
         // Add glyph to the list.
         m_glyphCache.insert(std::make_pair(character, glyph));
     }
+
+    // Clear surface in case of failure.
+    auto clearReadPixels = MakeScopeGuard([&]()
+    {
+        SDL_LockSurface(m_atlasSurface);
+
+        char* surfacePixels = reinterpret_cast<char*>(m_atlasSurface->pixels);
+        unsigned long surfaceSize = m_atlasSurface->h * m_atlasSurface->pitch;
+
+        memset(surfacePixels, 0, surfaceSize);
+
+        SDL_UnlockSurface(m_atlasSurface);
+    });
 
     // Read the font atlas.
     SDL_LockSurface(m_atlasSurface);
@@ -754,33 +797,30 @@ bool Font::LoadCache()
     char* surfacePixels = reinterpret_cast<char*>(m_atlasSurface->pixels);
     unsigned long surfaceSize = m_atlasSurface->h * m_atlasSurface->pitch;
 
-    auto clearReadPixels = MakeScopeGuard([&]()
-    {
-        // Clear read pixels in case of failure.
-        SDL_LockSurface(m_atlasSurface);
-        memset(surfacePixels, 0, surfaceSize);
-        SDL_UnlockSurface(m_atlasSurface);
-    });
-
     file.read((char*)surfacePixels, surfaceSize);
 
     SDL_UnlockSurface(m_atlasSurface);
 
     if(!file.good())
+    {
+        Log() << LogLoadCacheError(m_fontFilename) << "Couldn't read the font atlas.";
         return false;
+    }
 
-    // Read the packer state.
-    // Todo: This will be a trouble if packer class changes size. Implement proper serializing.
+    // Clear read packer in case of failure.
     auto clearReadPacker = MakeScopeGuard([&]()
     {
-        // Clear read packer in case of failure.
         m_atlasPacker.Cleanup();
     });
 
-    file.read((char*)&m_atlasPacker, sizeof(ShelfPacker));
+    // Read the packer state.
+    m_atlasPacker.Deserialize(file);
 
     if(!file.good())
+    {
+        Log() << LogLoadCacheError(m_fontFilename) << "Couldn't read the atlas packer.";
         return false;
+    } 
 
     // Update the atlas texture.
     m_atlasUpload = true;

@@ -4,7 +4,8 @@
 
 //
 // Shelf Packer
-//  - Simplest implemenation that packs rectangles.
+//  Packs rectangles together to save as muhc space as possible.
+//  It's not the most optimal algorithm, but it's very straight forward.
 //
 
 class ShelfPacker
@@ -18,6 +19,10 @@ public:
 
     bool AddElement(glm::ivec2 size);
     const glm::ivec2& GetPosition();
+
+public:
+    void Serialize(std::ofstream& stream);
+    void Deserialize(std::ifstream& stream);
 
 private:
     glm::ivec2 m_storeSize;

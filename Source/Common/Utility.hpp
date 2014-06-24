@@ -43,3 +43,17 @@ void FlipSurface(SDL_Surface* surface);
 
 // Saves SDL surface to a file.
 void SaveSurface(SDL_Surface* surface, std::string filename);
+
+// Writes an obejct to a stream.
+template<typename Type>
+void StreamWrite(std::ofstream& stream, const Type& object)
+{
+    stream.write((char*)&object, sizeof(Type));
+}
+
+// Reads an object from a stream.
+template<typename Type>
+void StreamRead(std::istream& stream, Type* object)
+{
+    stream.read((char*)object, sizeof(Type));
+}
