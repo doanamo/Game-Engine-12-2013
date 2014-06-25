@@ -10,7 +10,7 @@ class ConsoleHistory;
 class ConsoleFrame;
 class ScreenSpace;
 class CoreRenderer;
-class ShapeRenderer;
+class BasicRenderer;
 class TextRenderer;
 class FrameCounter;
 
@@ -62,7 +62,7 @@ namespace Main
     ConsoleFrame&   ConsoleFrame();
     ScreenSpace&    ScreenSpace();
     CoreRenderer&   CoreRenderer();
-    ShapeRenderer&  ShapeRenderer();
+    BasicRenderer&  BasicRenderer();
     TextRenderer&   TextRenderer();
     FrameCounter&   FrameCounter();
 

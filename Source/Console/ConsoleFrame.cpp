@@ -4,7 +4,7 @@
 #include "MainContext.hpp"
 #include "Console/ConsoleSystem.hpp"
 #include "Console/ConsoleHistory.hpp"
-#include "Graphics/ShapeRenderer.hpp"
+#include "Graphics/BasicRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
 
 namespace
@@ -370,15 +370,18 @@ void ConsoleFrame::Draw(const glm::mat4& transform, glm::vec2 targetSize)
         float consolePosition = targetSize.y - consoleSize;
 
         // Draw console background.
-        ShapeRenderer::Quad quad;
-        quad.position.x = 0.0f;
-        quad.position.y = consolePosition - consoleExtra;
-        quad.size.x = targetSize.x;
-        quad.size.y = consoleSize + consoleExtra;
-        quad.color = glm::vec4(0.0f, 0.0f, 0.0f, 0.85f);
-        quad.texture = nullptr;
+        {
+            BasicRenderer::RectangleStyle style;
+            style.drawMode = BasicRenderer::DrawMode::Fill;
+            style.alphaBlend = true;
 
-        Main::ShapeRenderer().DrawQuads(&quad, 1, transform);
+            BasicRenderer::Rectangle rectangle;
+            rectangle.bottomleft = glm::vec2(0.0f, consolePosition - consoleExtra);
+            rectangle.topright = targetSize;
+            rectangle.color = glm::vec4(0.0f, 0.0f, 0.0f, 0.85f);
+
+            Main::BasicRenderer().DrawRectangles(style, &rectangle, 1, transform);
+        }
 
         // Draw console output.
         for(int i = 0; i < ConsoleSize - 1; ++i)

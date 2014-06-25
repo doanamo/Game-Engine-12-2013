@@ -8,8 +8,8 @@
 #include "Graphics/Font.hpp"
 #include "Graphics/ScreenSpace.hpp"
 #include "Graphics/CoreRenderer.hpp"
+#include "Graphics/BasicRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
-#include "Graphics/ShapeRenderer.hpp"
 
 //
 // Console Variables
@@ -270,12 +270,17 @@ int main(int argc, char* argv[])
         // Draw debug screen target borders.
         if(Console::debugScreenBorders)
         {
-            ShapeRenderer::Rectangle rectangle;
-            rectangle.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-            rectangle.position = glm::vec2(0.0f, 0.0f);
-            rectangle.size = Main::ScreenSpace().GetTargetSize();
+            BasicRenderer::RectangleStyle style;
+            style.drawMode = BasicRenderer::DrawMode::Line;
+            style.lineType = BasicRenderer::LineType::Adjusted;
+            style.alphaBlend = false;
 
-            Main::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
+            BasicRenderer::Rectangle rectangle;
+            rectangle.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+            rectangle.bottomleft = glm::vec2(0.0f, 0.0f);
+            rectangle.topright = Main::ScreenSpace().GetTargetSize() - glm::vec2(1.0f, 1.0f);
+
+            Main::BasicRenderer().DrawRectangles(style, &rectangle, 1, transform);
         }
 
         // Draw console frame on top of everything else.

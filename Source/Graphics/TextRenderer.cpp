@@ -2,7 +2,7 @@
 #include "TextRenderer.hpp"
 
 #include "MainContext.hpp"
-#include "Graphics/ShapeRenderer.hpp"
+#include "Graphics/BasicRenderer.hpp"
 #include "Graphics/Font.hpp"
 
 namespace Console
@@ -190,8 +190,8 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
     glm::vec2 baselineBegin(m_drawState.GetDrawPosition() + m_drawState.GetAlignOffset());
     glm::vec2 baselineEnd(m_drawState.GetDrawPosition() + m_drawState.GetAlignOffset());
 
-    std::vector<ShapeRenderer::Line> debugLines;
-    std::vector<ShapeRenderer::Rectangle> debugRectangles;
+    std::vector<BasicRenderer::Line> debugLines;
+    std::vector<BasicRenderer::Rectangle> debugRectangles;
 
     auto AddDebugBaseline = [&]() -> void
     {
@@ -201,7 +201,7 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
         baselineMaxWidth = std::max(baselineMaxWidth, baselineEnd.x);
 
         // Add line shape.
-        ShapeRenderer::Line line;
+        BasicRenderer::Line line;
         line.begin = baselineBegin;
         line.end = baselineEnd;
         line.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
@@ -213,9 +213,9 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
     {
         assert(debugDraw);
 
-        ShapeRenderer::Rectangle rectangle;
-        rectangle.position = position;
-        rectangle.size = size;
+        BasicRenderer::Rectangle rectangle;
+        rectangle.bottomleft = position;
+        rectangle.topright = position + size - glm::vec2(1.0f, 1.0f);
         rectangle.color = glm::vec4(1.0f, 0.0f, 1.0f, 1.0f);
 
         debugRectangles.push_back(rectangle);
@@ -349,14 +349,18 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
     // Draw text cursor.
     if(m_drawState.IsCursorPresent() && m_cursorBlinkTime < CursorBlinkTime * 0.5f)
     {
-        ShapeRenderer::Line cursorLine;
+        BasicRenderer::LineStyle style;
+        style.lineType = BasicRenderer::LineType::Adjusted;
+        style.alphaBlend = false;
+
+        BasicRenderer::Line cursorLine;
         cursorLine.color = info.bodyColor;
         cursorLine.begin.x = m_drawState.GetCursorPosition().x + m_drawState.GetAlignOffset().x;
         cursorLine.begin.y = m_drawState.GetCursorPosition().y + m_drawState.GetAlignOffset().y + info.font->GetAscender() * m_drawState.GetFontScale();
         cursorLine.end.x = m_drawState.GetCursorPosition().x + m_drawState.GetAlignOffset().x;
         cursorLine.end.y = m_drawState.GetCursorPosition().y + m_drawState.GetAlignOffset().y + info.font->GetDescender() * m_drawState.GetFontScale();
 
-        Main::ShapeRenderer().DrawLines(&cursorLine, 1, transform);
+        Main::BasicRenderer().DrawLines(style, &cursorLine, 1, transform);
     }
 
     // Flush debug draw.
@@ -365,7 +369,12 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
         // Draw glyph rectangles.
         if(!debugRectangles.empty())
         {
-            Main::ShapeRenderer().DrawRectangles(&debugRectangles[0], debugRectangles.size(), transform);
+            BasicRenderer::RectangleStyle style;
+            style.drawMode = BasicRenderer::DrawMode::Line;
+            style.lineType = BasicRenderer::LineType::Adjusted;
+            style.alphaBlend = false;
+
+            Main::BasicRenderer().DrawRectangles(style, &debugRectangles[0], debugRectangles.size(), transform);
         }
 
         // Add last base line.
@@ -374,45 +383,63 @@ void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, co
         // Draw all base lines.
         if(!debugLines.empty())
         {
-            Main::ShapeRenderer().DrawLines(&debugLines[0], debugLines.size(), transform);
+            BasicRenderer::LineStyle style;
+            style.lineType = BasicRenderer::LineType::Adjusted;
+            style.alphaBlend = false;
+
+            Main::BasicRenderer().DrawLines(style, &debugLines[0], debugLines.size(), transform);
         }
 
         // Draw bounding box.
         {
-            ShapeRenderer::Rectangle rectangle;
-            rectangle.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
-            rectangle.position.x = m_drawState.GetBoundingBox().x + m_drawState.GetAlignOffset().x;
-            rectangle.position.y = m_drawState.GetBoundingBox().y + m_drawState.GetAlignOffset().y;
-            rectangle.size.x = m_drawState.GetBoundingBox().z - m_drawState.GetBoundingBox().x;
-            rectangle.size.y = m_drawState.GetBoundingBox().w - m_drawState.GetBoundingBox().y;
+            BasicRenderer::RectangleStyle style;
+            style.drawMode = BasicRenderer::DrawMode::Line;
+            style.lineType = BasicRenderer::LineType::Adjusted;
+            style.alphaBlend = false;
 
-            Main::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
+            BasicRenderer::Rectangle rectangle;
+            rectangle.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+            rectangle.bottomleft.x = m_drawState.GetBoundingBox().x + m_drawState.GetAlignOffset().x;
+            rectangle.bottomleft.y = m_drawState.GetBoundingBox().y + m_drawState.GetAlignOffset().y;
+            rectangle.topright.x = m_drawState.GetBoundingBox().z + m_drawState.GetAlignOffset().x - 1.0f;
+            rectangle.topright.y = m_drawState.GetBoundingBox().w + m_drawState.GetAlignOffset().y - 1.0f;
+
+            Main::BasicRenderer().DrawRectangles(style, &rectangle, 1, transform);
         }
 
         // Draw text area.
         {
-            ShapeRenderer::Rectangle rectangle;
-            rectangle.color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
-            rectangle.position.x = m_drawState.GetTextArea().x + m_drawState.GetAlignOffset().x;
-            rectangle.position.y = m_drawState.GetTextArea().y + m_drawState.GetAlignOffset().y;
-            rectangle.size.x = m_drawState.GetTextArea().z - m_drawState.GetTextArea().x + 1.0f;
-            rectangle.size.y = m_drawState.GetTextArea().w - m_drawState.GetTextArea().y + 1.0f;
+            BasicRenderer::RectangleStyle style;
+            style.drawMode = BasicRenderer::DrawMode::Line;
+            style.lineType = BasicRenderer::LineType::Adjusted;
+            style.alphaBlend = false;
 
-            Main::ShapeRenderer().DrawRectangles(&rectangle, 1, transform);
+            BasicRenderer::Rectangle rectangle;
+            rectangle.color = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f);
+            rectangle.bottomleft.x = m_drawState.GetTextArea().x + m_drawState.GetAlignOffset().x;
+            rectangle.bottomleft.y = m_drawState.GetTextArea().y + m_drawState.GetAlignOffset().y;
+            rectangle.topright.x = m_drawState.GetTextArea().z + m_drawState.GetAlignOffset().x - 1.0f;
+            rectangle.topright.y = m_drawState.GetTextArea().w + m_drawState.GetAlignOffset().y - 1.0f;
+
+            Main::BasicRenderer().DrawRectangles(style, &rectangle, 1, transform);
         }
 
         // Draw origin.
         {
-            ShapeRenderer::Line lines[2];
+            BasicRenderer::LineStyle style;
+            style.lineType = BasicRenderer::LineType::Adjusted;
+            style.alphaBlend = false;
+
+            BasicRenderer::Line lines[2];
             lines[0].color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-            lines[0].begin = info.position + glm::vec2(-100.0f, 0.0f);
-            lines[0].end   = info.position + glm::vec2( 100.0f, 0.0f);
+            lines[0].begin = info.position + glm::vec2(-50.0f, 0.0f);
+            lines[0].end   = info.position + glm::vec2( 50.0f, 0.0f);
 
             lines[1].color = glm::vec4(0.0f, 0.0f, 1.0f, 1.0f);
-            lines[1].begin = info.position + glm::vec2(0.0f, -100.0f);
-            lines[1].end   = info.position + glm::vec2(0.0f,  100.0f);
+            lines[1].begin = info.position + glm::vec2(0.0f, -50.0f);
+            lines[1].end   = info.position + glm::vec2(0.0f,  50.0f);
 
-            Main::ShapeRenderer().DrawLines(&lines[0], 2, transform);
+            Main::BasicRenderer().DrawLines(style, &lines[0], 2, transform);
         }
     }
 }

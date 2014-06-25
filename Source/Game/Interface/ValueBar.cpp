@@ -2,7 +2,7 @@
 #include "ValueBar.hpp"
 
 #include "MainContext.hpp"
-#include "Graphics/ShapeRenderer.hpp"
+#include "Graphics/BasicRenderer.hpp"
 
 ValueBar::ValueBar() :
     m_drawingRectangle(0.0f, 0.0f, 100.0f, 10.0f),
@@ -83,30 +83,31 @@ void ValueBar::Update(float timeDelta)
 
 void ValueBar::Draw(const glm::vec2& position, const glm::mat4& transform)
 {
-    ShapeRenderer::Quad quads[3];
+    BasicRenderer::Rectangle rectangles[3];
 
-    // Define the background quad.
-    quads[0].color = m_backgroundColor;
-    quads[0].position = glm::vec2(m_drawingRectangle.x, m_drawingRectangle.y) + position;
-    quads[0].size = glm::vec2(m_drawingRectangle.z, m_drawingRectangle.w);
-    quads[0].texture = nullptr;
+    // Scaling values for rectangles.
+    float decayRectangleWidth = m_drawingRectangle.z / m_maximumValue * m_decayingValue;
+    float currentRectangleWidth = m_drawingRectangle.z / m_maximumValue * m_currentValue;
 
-    // Define the decaying value quad.
-    quads[1].color = m_decayColor;
-    quads[1].position = glm::vec2(m_drawingRectangle.x, m_drawingRectangle.y) + position;
-    quads[1].size = glm::vec2(m_drawingRectangle.z, m_drawingRectangle.w);
-    quads[1].texture = nullptr;
+    // Define the background rectangle.
+    rectangles[0].color = m_backgroundColor;
+    rectangles[0].bottomleft = position + glm::vec2(m_drawingRectangle.x, m_drawingRectangle.y);
+    rectangles[0].topright = position + glm::vec2(m_drawingRectangle.z, m_drawingRectangle.w);
 
-    // Define the current value quad.
-    quads[2].color = m_foregroundColor;
-    quads[2].position = glm::vec2(m_drawingRectangle.x, m_drawingRectangle.y) + position;
-    quads[2].size = glm::vec2(m_drawingRectangle.z, m_drawingRectangle.w);
-    quads[2].texture = nullptr;
+    // Define the decaying value rectangle.
+    rectangles[1].color = m_decayColor;
+    rectangles[1].bottomleft = position + glm::vec2(m_drawingRectangle.x, m_drawingRectangle.y);
+    rectangles[1].topright = position + glm::vec2(decayRectangleWidth, m_drawingRectangle.w);
 
-    // Scale quads for the current values.
-    quads[1].size.x = quads[1].size.x / m_maximumValue * m_decayingValue;
-    quads[2].size.x = quads[2].size.x / m_maximumValue * m_currentValue;
+    // Define the current value rectangle.
+    rectangles[2].color = m_foregroundColor;
+    rectangles[2].bottomleft = position + glm::vec2(m_drawingRectangle.x, m_drawingRectangle.y);
+    rectangles[2].topright = position + glm::vec2(currentRectangleWidth, m_drawingRectangle.w);
 
     // Draw the health bar.
-    Main::ShapeRenderer().DrawQuads(&quads[0], StaticArraySize(quads), transform);
+    BasicRenderer::RectangleStyle style;
+    style.drawMode = BasicRenderer::DrawMode::Fill;
+    style.alphaBlend = false;
+
+    Main::BasicRenderer().DrawRectangles(style, &rectangles[0], StaticArraySize(rectangles), transform);
 }

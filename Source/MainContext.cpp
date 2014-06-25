@@ -14,7 +14,7 @@
 #include "Graphics/Font.hpp"
 #include "Graphics/ScreenSpace.hpp"
 #include "Graphics/CoreRenderer.hpp"
-#include "Graphics/ShapeRenderer.hpp"
+#include "Graphics/BasicRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
 #include "Game/MainFrame.hpp"
 
@@ -57,7 +57,7 @@ namespace
     ConsoleFrame        consoleFrame;
     ScreenSpace         screenSpace;
     CoreRenderer        coreRenderer;
-    ShapeRenderer       shapeRenderer;
+    BasicRenderer       basicRenderer;
     TextRenderer        textRenderer;
     FrameCounter        frameCounter;
 
@@ -327,11 +327,11 @@ bool Main::Initialize()
         return false;
 
     //
-    // Shape Renderer
+    // Basic Renderer
     //
 
-    // Initialize the shape renderer.
-    if(!shapeRenderer.Initialize(128))
+    // Initialize the basic renderer.
+    if(!basicRenderer.Initialize(128))
         return false;
 
     //
@@ -404,7 +404,7 @@ void Main::Cleanup()
     screenSpace.Cleanup();
 
     textRenderer.Cleanup();
-    shapeRenderer.Cleanup();
+    basicRenderer.Cleanup();
     coreRenderer.Cleanup();
 
     blankTexture.Cleanup();
@@ -542,9 +542,9 @@ CoreRenderer& Main::CoreRenderer()
     return coreRenderer;
 }
 
-ShapeRenderer& Main::ShapeRenderer()
+BasicRenderer& Main::BasicRenderer()
 {
-    return shapeRenderer;
+    return basicRenderer;
 }
 
 TextRenderer& Main::TextRenderer()
