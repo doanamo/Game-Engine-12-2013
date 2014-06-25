@@ -69,7 +69,7 @@ bool TextDrawState::Initialize(const TextDrawInfo& info, const char* text)
         // Workaround for UTF8 library bug.
         // Function utf8::replace_invalid() sometimes throws this exception if
         // the last UTF8 character is invalid, instead of just replacing it.
-        // Example string that triggers it: "Helloæ" (not UTF8)
+        // Example string that triggers it: "Helloæ" (encoded in ANSI, not UTF8)
         m_textBuffer.push_back(InvalidCharacter);
     }
 
