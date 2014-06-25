@@ -234,27 +234,25 @@ void TextRenderer::Draw(const TextDrawInfo& info, const char* text, const glm::m
     // Use premultiplied alpha.
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Bind render states.
+    glBindVertexArray(m_vertexInput.GetHandle());
+
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, info.font->GetAtlasTexture()->GetHandle());
-
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     glUseProgram(m_shader.GetHandle());
-    glBindVertexArray(m_vertexInput.GetHandle());
-
     glUniformMatrix4fv(m_shader.GetUniform("vertexTransform"), 1, GL_FALSE, glm::value_ptr(transform));
-    glUniform1i(m_shader.GetUniform("fontTexture"), 0);
     glUniform2fv(m_shader.GetUniform("texturePixelSize"), 1, glm::value_ptr(pixelSize));
+    glUniform1i(m_shader.GetUniform("fontTexture"), 0);
 
     auto ResetRenderState = []()
     {
-        glBindVertexArray(0);
         glUseProgram(0);
         glBindTexture(GL_TEXTURE_2D, 0);
+        glBindVertexArray(0);
         glDisable(GL_BLEND);
     };
 
@@ -323,7 +321,7 @@ void TextRenderer::Draw(const TextDrawInfo& info, const char* text, const glm::m
 
             ++glyphsBatched;
 
-            // Draw if we reached the buffer size.
+            // Draw if we reached the buffer size or there is nothing more to process.
             if(glyphsBatched == m_bufferSize)
             {
                 DrawBatchedGlyphs();
