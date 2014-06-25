@@ -133,7 +133,7 @@ public:
     void ResetCursorBlink();
 
     TextDrawMetrics Measure(const TextDrawInfo& info, const char* text);
-    void Draw(const TextDrawInfo& info, const glm::mat4& transform, const char* text);
+    void Draw(const TextDrawInfo& info, const char* text, const glm::mat4& transform);
 
 private:
     // Text draw state.
@@ -156,13 +156,13 @@ private:
     GlyphData* m_bufferData;
     int        m_bufferSize;
 
-    // Render objects.
+    // Graphics objects.
     Shader         m_shader;
     VertexBuffer   m_vertexBuffer;
     InstanceBuffer m_instanceBuffer;
     VertexInput    m_vertexInput;
 
-    // Current text cursor blink.
+    // Current text cursor blink time.
     float m_cursorBlinkTime;
 
     bool m_initialized;

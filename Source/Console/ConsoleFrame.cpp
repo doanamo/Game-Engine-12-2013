@@ -401,7 +401,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform, glm::vec2 targetSize)
             info.area.x = 0.0f; // Text wrap doesn't work in console.
             info.area.y = 0.0f;
 
-            Main::TextRenderer().Draw(info, transform, text);
+            Main::TextRenderer().Draw(info, text, transform);
         }
 
         // Draw console input.
@@ -420,7 +420,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform, glm::vec2 targetSize)
             info.area.y = 0.0f;
             info.cursorIndex = 2 + m_cursorPosition;
 
-            Main::TextRenderer().Draw(info, transform, inputText.c_str());
+            Main::TextRenderer().Draw(info, inputText.c_str(), transform);
         }
     }
 }

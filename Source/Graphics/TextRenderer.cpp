@@ -36,6 +36,25 @@ TextRenderer::~TextRenderer()
     Cleanup();
 }
 
+void TextRenderer::Cleanup()
+{
+    m_drawState.Cleanup();
+
+    delete[] m_bufferData;
+    m_bufferData = nullptr;
+
+    m_bufferSize = 0;
+
+    m_shader.Cleanup();
+    m_vertexBuffer.Cleanup();
+    m_instanceBuffer.Cleanup();
+    m_vertexInput.Cleanup();
+
+    m_cursorBlinkTime = 0.0f;
+
+    m_initialized = false;
+}
+
 bool TextRenderer::Initialize(int bufferSize)
 {
     Cleanup();
@@ -115,26 +134,10 @@ bool TextRenderer::Initialize(int bufferSize)
         return false;
     }
 
-    return m_initialized = true;
-}
+    // Success!
+    m_initialized = true;
 
-void TextRenderer::Cleanup()
-{
-    m_drawState.Cleanup();
-
-    delete[] m_bufferData;
-    m_bufferData = nullptr;
-
-    m_bufferSize = 0;
-
-    m_shader.Cleanup();
-    m_vertexBuffer.Cleanup();
-    m_instanceBuffer.Cleanup();
-    m_vertexInput.Cleanup();
-
-    m_cursorBlinkTime = 0.0f;
-
-    m_initialized = false;
+    return true;
 }
 
 void TextRenderer::UpdateCursorBlink(float dt)
@@ -173,7 +176,7 @@ TextDrawMetrics TextRenderer::Measure(const TextDrawInfo& info, const char* text
     return output;
 }
 
-void TextRenderer::Draw(const TextDrawInfo& info, const glm::mat4& transform, const char* text)
+void TextRenderer::Draw(const TextDrawInfo& info, const char* text, const glm::mat4& transform)
 {
     if(!m_initialized)
         return;

@@ -294,7 +294,7 @@ void MenuFrame::Draw()
         info.position.x = 50.0f;
         info.position.y = viewHeight + 10.0f;
 
-        Main::TextRenderer().Draw(info, m_screenSpace.GetTransform(), "Gunstar");
+        Main::TextRenderer().Draw(info, "Gunstar", m_screenSpace.GetTransform());
     }
 
     // Define button drawing routine.
@@ -326,7 +326,7 @@ void MenuFrame::Draw()
             }
         }
 
-        Main::TextRenderer().Draw(info, m_screenSpace.GetTransform(), button.GetText().c_str());
+        Main::TextRenderer().Draw(info, button.GetText().c_str(), m_screenSpace.GetTransform());
     };
 
     // Draw buttons.

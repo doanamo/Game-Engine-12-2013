@@ -264,7 +264,7 @@ int main(int argc, char* argv[])
             info.position.x = 10.0f;
             info.position.y = 5.0f + Main::DefaultFont().GetLineSpacing() * Main::DefaultFont().GetScaling(info.size);
 
-            Main::TextRenderer().Draw(info, transform, frameCounterText.str().c_str());
+            Main::TextRenderer().Draw(info, frameCounterText.str().c_str(), transform);
         }
 
         // Draw debug screen target borders.

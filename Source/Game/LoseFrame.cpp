@@ -112,7 +112,7 @@ void LoseFrame::Draw()
         info.position.x = FrameWidth * 0.5f;
         info.position.y = FrameHeight * 0.7f;
 
-        Main::TextRenderer().Draw(info, m_screenSpace.GetTransform(), "Game Over");
+        Main::TextRenderer().Draw(info, "Game Over", m_screenSpace.GetTransform());
     }
 
     {
@@ -124,6 +124,6 @@ void LoseFrame::Draw()
         info.position.x = FrameWidth * 0.5f;
         info.position.y = FrameHeight * 0.5f;
 
-        Main::TextRenderer().Draw(info, m_screenSpace.GetTransform(), "Press any key to continue...");
+        Main::TextRenderer().Draw(info, "Press any key to continue...", m_screenSpace.GetTransform());
     }
 }

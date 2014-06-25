@@ -169,7 +169,7 @@ void InterfaceSystem::Draw()
         info.glowColor = glm::vec4(0.0f, 0.0f, 0.0f, element.interface->CalculateTransparency(element.lifetime));
         info.glowRange = glm::vec2(0.2f, 0.5f);
         
-        Main::TextRenderer().Draw(info, m_screenSpace.GetTransform(), element.text.c_str());
+        Main::TextRenderer().Draw(info, element.text.c_str(), m_screenSpace.GetTransform());
     }
 
     //
@@ -193,7 +193,7 @@ void InterfaceSystem::Draw()
         info.position.x = 10.0f;
         info.position.y = m_screenSpace.GetTargetSize().y - 5.0f;
 
-        Main::TextRenderer().Draw(info, m_screenSpace.GetTransform(), text.str().c_str());
+        Main::TextRenderer().Draw(info, text.str().c_str(), m_screenSpace.GetTransform());
     }
 }
 
