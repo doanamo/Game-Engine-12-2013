@@ -339,7 +339,7 @@ bool Main::Initialize()
     //
 
     // Initialize the text renderer.
-    if(!textRenderer.Initialize(64))
+    if(!textRenderer.Initialize(128))
         return false;
 
     //

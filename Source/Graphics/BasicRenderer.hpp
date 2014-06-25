@@ -129,7 +129,7 @@ public:
     BasicRenderer();
     ~BasicRenderer();
 
-    bool Initialize(int bufferSize);
+    bool Initialize(int bufferSize = 128);
     void Cleanup();
 
     void DrawLines(const LineStyle& style, const Line* data, int count, const glm::mat4& transform);

@@ -126,7 +126,7 @@ public:
     TextRenderer();
     ~TextRenderer();
 
-    bool Initialize(int bufferSize);
+    bool Initialize(int bufferSize = 128);
     void Cleanup();
 
     void UpdateCursorBlink(float dt);
