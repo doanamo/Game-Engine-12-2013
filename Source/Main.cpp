@@ -215,7 +215,7 @@ int main(int argc, char* argv[])
         Main::MainFrame().Update(dt);
 
         //
-        // Draw
+        // Setup View
         //
 
         // Setup screen space.
@@ -244,6 +244,10 @@ int main(int argc, char* argv[])
         glScissor((int)(position.x + 0.5f), (int)(position.y + 0.5f), (int)(size.x + 0.5f), (int)(size.y + 0.5f));
     
         SCOPE_GUARD(glDisable(GL_SCISSOR_TEST));
+
+        //
+        // Draw
+        //
 
         // Draw the main frame.
         Main::MainFrame().Draw();

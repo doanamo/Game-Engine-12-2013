@@ -4,6 +4,7 @@
 
 //
 // Frame Counter
+//  Counts frames per second.
 //
 
 class FrameCounter
