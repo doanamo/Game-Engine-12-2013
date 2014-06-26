@@ -32,6 +32,41 @@ TextDrawState::~TextDrawState()
     Cleanup();
 }
 
+void TextDrawState::Cleanup()
+{
+    if(!m_initialized)
+        return;
+
+    m_drawInfo = nullptr;
+    m_fontScale = 0.0f;
+    m_textWrap = false;
+
+    m_textBuffer.clear();
+    m_textLength = 0;
+    m_textLine = 0;
+
+    m_textIterator = m_textBuffer.end();
+
+    m_characterIndex = -1;
+    m_characterCurrent = '\0';
+    m_characterPrevious = '\0';
+
+    m_wordProcessed = true;
+
+    m_glyph = nullptr;
+
+    m_drawPosition = glm::vec2(0.0f, 0.0f);
+
+    m_cursorPosition = glm::vec2(0.0f, 0.0f);
+    m_cursorPresent = false;
+
+    m_textArea = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+    m_boundingBox = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+    m_alignOffset = glm::vec2(0.0f, 0.0f);
+
+    m_initialized = false;
+}
+
 bool TextDrawState::Initialize(const TextDrawInfo& info, const char* text)
 {
     Cleanup();
@@ -103,44 +138,9 @@ bool TextDrawState::Initialize(const TextDrawInfo& info, const char* text)
     return true;
 }
 
-void TextDrawState::Cleanup()
-{
-    if(!m_initialized)
-        return;
-
-    m_drawInfo = nullptr;
-    m_fontScale = 0.0f;
-    m_textWrap = false;
-
-    m_textBuffer.clear();
-    m_textLength = 0;
-    m_textLine = 0;
-
-    m_textIterator = m_textBuffer.end();
-
-    m_characterIndex = -1;
-    m_characterCurrent = '\0';
-    m_characterPrevious = '\0';
-
-    m_wordProcessed = true;
-
-    m_glyph = nullptr;
-
-    m_drawPosition = glm::vec2(0.0f, 0.0f);
-
-    m_cursorPosition = glm::vec2(0.0f, 0.0f);
-    m_cursorPresent = false;
-
-    m_textArea = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-    m_boundingBox = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-    m_alignOffset = glm::vec2(0.0f, 0.0f);
-
-    m_initialized = false;
-}
-
 // Processes the next character.
 // Returns true if processed character should be drawn.
-// Returns false if processed character should be skipped.
+// Returns false if processed character shouldn't be drawn (in case of whitespaces).
 bool TextDrawState::ProcessNext()
 {
     if(!m_initialized)
@@ -150,7 +150,7 @@ bool TextDrawState::ProcessNext()
     if(this->IsDone())
         return false;
 
-    // Advance position of previously drawn glyph.
+    // Advance position from previously drawn glyph.
     if(m_characterIndex >= 0 && m_glyph != nullptr)
     {
         AdvancePosition(m_glyph);
@@ -169,7 +169,7 @@ bool TextDrawState::ProcessNext()
     // Increment the character index.
     ++m_characterIndex;
 
-    // Handle special characters.
+    // Handle special tokens.
     if(m_characterCurrent == '\n')
     {
         // Move to the next line.
@@ -189,7 +189,7 @@ bool TextDrawState::ProcessNext()
     }
         
     // Process next word.
-    if(m_characterCurrent != ' ' && m_wordProcessed == false)
+    if(m_characterCurrent != ' ' && !m_wordProcessed)
     {
         // Check if a word will fit in the current line.
         if(m_textWrap)
@@ -204,7 +204,7 @@ bool TextDrawState::ProcessNext()
                 // Get the next word character.
                 FT_ULong wordCharacterCurrent = utf8::next(wordCharacterIterator, m_textBuffer.end());
 
-                // Check if we reached an end of a word.
+                // Check if we reached the end of a word.
                 if(wordCharacterCurrent == ' ')
                     break;
 
@@ -393,7 +393,7 @@ void TextDrawState::AdvancePosition(const Glyph* glyph)
     if(glyph == nullptr)
         return;
 
-    // Advance position for next glyph.
+    // Advance position for the next glyph.
     m_drawPosition.x += glyph->advance.x * m_fontScale;
     m_drawPosition.y += glyph->advance.y * m_fontScale;
 }

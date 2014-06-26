@@ -8,6 +8,7 @@ struct Glyph;
 
 //
 // Text Draw State
+//  Processes text for rendering.
 //
 
 class TextDrawState

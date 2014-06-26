@@ -94,6 +94,7 @@ struct TextDrawInfo
 
 //
 // Text Draw Metrics
+//  Draws text.
 //
 
 struct TextDrawMetrics
