@@ -345,6 +345,10 @@ bool ConsoleFrame::Process(const SDL_Event& event)
             Main::TextRenderer().ResetCursorBlink();
         }
         return m_open;
+
+    case SDL_MOUSEBUTTONDOWN:
+        // Block mouse button presses.
+        return m_open;
     }
 
     return false;
