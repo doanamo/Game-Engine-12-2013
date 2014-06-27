@@ -89,6 +89,7 @@ Set(SourceFiles
     "Graphics/BasicRenderer.cpp"
     "Graphics/Font.hpp"
     "Graphics/Font.cpp"
+    "Graphics/FontCache.cpp"
     "Graphics/TextRenderer.hpp"
     "Graphics/TextRenderer.cpp"
     "Graphics/TextDrawState.hpp"
