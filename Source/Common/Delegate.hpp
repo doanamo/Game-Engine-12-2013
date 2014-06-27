@@ -4,7 +4,20 @@
 
 //
 // Delegate
-//  - Implementation based on: http://molecularmusings.wordpress.com/2011/09/19/generic-type-safe-delegates-and-events-in-c/
+//  Implementation based on: http://molecularmusings.wordpress.com/2011/09/19/generic-type-safe-delegates-and-events-in-c/
+//
+//  Binding and invoking a function:
+//      bool Function(const char* c, int i) { /*...*/ }
+//      Delegate<bool, (const char*, int)> delegate;
+//      delegate.Bind<&Function>();
+//      delegate.Invoke("hello", 5);
+//
+//  Binding and invoking a method:
+//      bool Class::Function(const char* c, int i) { /*...*/ }
+//      Class instance;
+//      Delegate<bool, (const char*, int)> delegate;
+//      delegate.Bind<Class, &Class::Function>(&instance);
+//      delegate.Invoke("hello", 5);
 //
 
 template<typename ReturnType, typename... Arguments>

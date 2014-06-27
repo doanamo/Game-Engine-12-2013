@@ -12,9 +12,9 @@ namespace
 
 Texture::Texture() :
     m_handle(InvalidHandle),
+    m_format(GL_INVALID_ENUM),
     m_width(0),
-    m_height(0),
-    m_format(GL_INVALID_ENUM)
+    m_height(0)
 {
 }
 
@@ -89,10 +89,10 @@ void Texture::Cleanup()
         m_handle = InvalidHandle;
     }
 
+    m_format = GL_INVALID_ENUM;
+
     m_width = 0;
     m_height = 0;
-
-    m_format = GL_INVALID_ENUM;
 }
 
 void Texture::Update(const void* data)
@@ -105,8 +105,11 @@ void Texture::Update(const void* data)
 
     // Upload new texture data.
     glBindTexture(GL_TEXTURE_2D, m_handle);
-
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, m_width, m_height, m_format, GL_UNSIGNED_BYTE, data);
-
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+bool Texture::IsValid() const
+{
+    return m_handle != InvalidHandle;
 }

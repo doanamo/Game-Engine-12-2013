@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Precompiled.hpp"
-
 #include "Common/StateMachine.hpp"
 
 //

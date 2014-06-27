@@ -4,6 +4,7 @@
 
 //
 // Buffer
+//  Base class implementation for vertex, index and instance buffers.
 //
 
 class Buffer

@@ -4,6 +4,18 @@
 
 //
 // Scope Guard
+//  Executes a function when the scope guard goes out of it's scope, at it's destruction.
+//
+//  Creating a scope guard:
+//      int* array = new int[10];
+//      auto Cleanup = MakeScopeGuard([&]()
+//      {
+//          delete[] array;
+//      });
+//
+//  Using a cope guard macro:
+//      int* array = new int[10];
+//      SCOPE_GUARD(delete[] array);
 //
 
 // Scope guard class.
