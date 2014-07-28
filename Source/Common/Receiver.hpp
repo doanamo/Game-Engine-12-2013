@@ -12,27 +12,10 @@ template<typename Type>
 class Receiver;
 
 //
-// Receiver Signature
-//
-
-template<typename Type>
-class ReceiverSignature
-{
-public:
-    friend Dispatcher<Type>;
-
-public:
-    ReceiverSignature(Receiver<Type>& receiver) :
-        m_receiver(&receiver)
-    {
-    }
-
-private:
-    Receiver<Type>* m_receiver;
-};
-
-//
 // Receiver
+//  Invokes a function/method after receiving a signal from a dispatcher.
+//  A single receiver instance can be subscribed to only one dispatcher.
+//  See dispatcher header for more information.
 //
 
 template<typename Type>
@@ -67,10 +50,32 @@ private:
     void Receive(const Type& event)
     {
         // Call the bound delegate function.
-        Invoke(event);
+        this->Invoke(event);
     }
 
 private:
     Dispatcher<Type>* m_subject;
     Receiver<Type>* m_next;
+};
+
+//
+// Receiver Signature
+//  Object wrapping a receiver that can be safely passed without
+//  being worried that it could possibly be modified on the way.
+//
+
+template<typename Type>
+class ReceiverSignature
+{
+public:
+    friend Dispatcher<Type>;
+
+public:
+    ReceiverSignature(Receiver<Type>& receiver) :
+        m_receiver(&receiver)
+    {
+    }
+
+private:
+    Receiver<Type>* m_receiver;
 };

@@ -12,6 +12,28 @@ class ReceiverSignature;
 
 //
 // Dispatcher
+//  Holds a list of subscribed receivers that can be invoked all at once. 
+//  More safe than using raw delegates, as unsubscribing is automated at 
+//  receiver's destruction. No dangling pointers are left.
+//  A single dispatcher instance can have multiple receivers subscribed.
+//
+//  Example usage:
+//      struct EventData { /* ... */ };
+//      
+//      void Class::FunctionA(const EventData& event) { /*...*/ }
+//      void Class::FunctionB(const EventData& event) { /*...*/ }
+//      Class instance;
+//      
+//      Receiver<EventData> receiverA;
+//      receiverA.Bind<Class, &Class::FunctionA>(&instance);
+//      
+//      Receiver<EventData> receiverB;
+//      receiverB.Bind<Class, &Class::FunctionB>(&instance);
+//      
+//      Dispatcher<EventData> dispatcher;
+//      dispatcher.Subscribe(receiverA);
+//      dispatcher.Subscribe(ReceiverSignature(receiverB));
+//      dispatcher.Dispatch(EventData(/* ... */));
 //
 
 template<typename Type>
