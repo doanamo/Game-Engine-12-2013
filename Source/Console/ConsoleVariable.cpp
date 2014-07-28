@@ -54,32 +54,10 @@ void ConsoleVariable::Execute(std::string arguments)
 
 int ConsoleVariable::GetInteger() const
 {
-    int value;
-
-    try
-    {
-        value = std::stoi(m_value);
-    }
-    catch(const std::exception&)
-    {
-        value = 0;
-    }
-
-    return value;
+    return std::strtol(m_value.c_str(), nullptr, 10);
 }
 
 float ConsoleVariable::GetFloat() const
 {
-    float value;
-
-    try
-    {
-        value = std::stof(m_value);
-    }
-    catch(const std::exception&)
-    {
-        value = 0.0f;
-    }
-
-    return value;
+    return std::strtof(m_value.c_str(), nullptr);
 }
