@@ -65,7 +65,7 @@ bool MenuFrame::Initialize()
     // Set interface screen space.
     m_interfaceRoot.SetScreenSpace(&m_screenSpace);
 
-    // Setup interface elements.
+    // Define interface elements.
     glm::vec2 currentPosition(175.0f, viewHeight - 260.0f);
 
     {
@@ -200,6 +200,7 @@ bool MenuFrame::Initialize()
     m_actionNewGame.Bind<MenuFrame, &MenuFrame::ButtonNewGame>(this);
     m_actionQuit.Bind<MenuFrame, &MenuFrame::ButtonQuit>(this);
 
+    // Subscribe button events.
     m_buttonContinue.OnEventAction(m_actionContinue);
     m_buttonNewGame.OnEventAction(m_actionNewGame);
     m_buttonQuit.OnEventAction(m_actionQuit);
@@ -213,26 +214,23 @@ bool MenuFrame::Initialize()
 void MenuFrame::ButtonContinue(const Button::EventAction& event)
 {
     assert(m_initialized);
-    assert(GameContext::GameFrame().IsInitialized());
 
     // Switch back to the game frame.
-    GameContext::FrameState().ChangeState(&GameContext::GameFrame());
+    if(GameContext::GameFrame().IsInitialized())
+    {
+        GameContext::FrameState().ChangeState(&GameContext::GameFrame());
+    }
 }
 
 void MenuFrame::ButtonNewGame(const Button::EventAction& event)
 {
     assert(m_initialized);
 
-    // Initialize the game frame.
-    Log() << "Starting a new game...";
-
-    GameContext::GameFrame().Initialize();
-
-    // Enable the continue button.
-    m_buttonContinue.Enable();
-                    
-    // Switch to the game frame.
-    GameContext::FrameState().ChangeState(&GameContext::GameFrame());
+    // Initialize and switch to the game frame.
+    if(GameContext::GameFrame().Initialize())
+    {
+        GameContext::FrameState().ChangeState(&GameContext::GameFrame());
+    }
 }
 
 void MenuFrame::ButtonQuit(const Button::EventAction& event)
