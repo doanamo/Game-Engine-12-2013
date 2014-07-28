@@ -260,6 +260,10 @@ bool MenuFrame::Process(const SDL_Event& event)
 
 void MenuFrame::Update(float timeDelta)
 {
+}
+
+void MenuFrame::Draw()
+{
     //
     // Setup View
     //
@@ -271,10 +275,11 @@ void MenuFrame::Update(float timeDelta)
     // Setup screen space.
     m_screenSpace.SetSourceSize(windowWidth, windowHeight);
     m_screenSpace.SetTargetSize(1024.0f, 576.0f);
-}
 
-void MenuFrame::Draw()
-{
+    //
+    // Draw Elements
+    //
+
     // Clear the depth.
     Main::CoreRenderer().SetClearDepth(1.0f);
     Main::CoreRenderer().Clear(ClearFlags::Depth);
