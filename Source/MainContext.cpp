@@ -10,7 +10,8 @@
 #include "Console/ConsoleSystem.hpp"
 #include "Console/ConsoleHistory.hpp"
 #include "Console/ConsoleFrame.hpp"
-#include "Scripting/LuaScript.hpp"
+#include "Scripting/LuaState.hpp"
+#include "Scripting/LuaLogger.hpp"
 #include "Graphics/Texture.hpp"
 #include "Graphics/Font.hpp"
 #include "Graphics/ScreenSpace.hpp"
@@ -85,14 +86,7 @@ bool Main::Initialize()
     //
 
     // Emergency cleanup call on failure.
-    auto emergenyCleanup = MakeScopeGuard([&]()
-    {
-        // Cleanup if initialization failed.
-        if(!isInitialized)
-        {
-            Cleanup();
-        }
-    });
+    SCOPE_GUARD_IF(!isInitialized, Cleanup());
 
     //
     // Environment
@@ -125,18 +119,6 @@ bool Main::Initialize()
 
     // Get the cache directory.
     cacheDir = workingDir + "Cache/";
-
-    //
-    // Config
-    //
-
-    // Load the config file.
-    LuaScript config(workingDir + "Game.cfg");
-
-    // Read config settings.
-    Console::windowWidth = config.GetInteger("Config.Graphics.Width", Console::windowWidth);
-    Console::windowHeight = config.GetInteger("Config.Graphics.Height", Console::windowHeight);
-    Console::renderVsync = config.GetBool("Config.Graphics.Vsync", Console::renderVsync);
 
     //
     // Logger
@@ -187,6 +169,29 @@ bool Main::Initialize()
     Log() << "Current directory: \"" << currentDir << "\"";
     Log() << "Working directory: \"" << workingDir << "\"";
     Log() << "Cache directory: \"" << cacheDir << "\"";
+
+    //
+    // Config
+    //
+
+    // Create a new script state.
+    LuaState config;
+    if(!config.Initialize())
+        return false;
+
+    // Setup config environment.
+    BindLuaLogger(config.GetState());
+
+    // Read config settings.
+    if(config.Load(workingDir + "Game.cfg"))
+    {
+        Console::windowWidth = config.GetInteger("Config.Graphics.Width", Console::windowWidth);
+        Console::windowHeight = config.GetInteger("Config.Graphics.Height", Console::windowHeight);
+        Console::renderVsync = config.GetBool("Config.Graphics.Vsync", Console::renderVsync);
+    }
+
+    // It's no longer needed.
+    config.Cleanup();
 
     //
     // System

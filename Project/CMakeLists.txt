@@ -73,8 +73,10 @@ Set(SourceFiles
     "System/CacheManager.hpp"
     "System/CacheManager.cpp"
 
-    "Scripting/LuaScript.hpp"
-    "Scripting/LuaScript.cpp"
+    "Scripting/LuaState.hpp"
+    "Scripting/LuaState.cpp"
+    "Scripting/LuaLogger.hpp"
+    "Scripting/LuaLogger.cpp"
 
     "Graphics/ScreenSpace.hpp"
     "Graphics/ScreenSpace.cpp"

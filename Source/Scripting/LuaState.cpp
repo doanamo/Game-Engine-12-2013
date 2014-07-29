@@ -1,38 +1,50 @@
 #include "Precompiled.hpp"
-#include "LuaScript.hpp"
+#include "LuaState.hpp"
 
 namespace
 {
     // Log error messages.
+    #define LogInitializeError() "Failed to initialize Lua state! "
     #define LogLoadError(filename) "Failed to load \"" << filename << "\" file! "
 }
 
-LuaScript::LuaScript() :
+LuaState::LuaState() :
     m_state(nullptr)
 {
 }
 
-LuaScript::LuaScript(std::string filename) :
-    LuaScript()
-{
-    Load(filename);
-}
-
-LuaScript::~LuaScript()
+LuaState::~LuaState()
 {
     Cleanup();
 }
 
-bool LuaScript::Load(std::string filename)
+bool LuaState::Initialize()
 {
     Cleanup();
 
     // Initialization state.
     bool initialized = false;
 
-    // Create new Lua state.
-    m_state = luaL_newstate();
+    // Setup a scope guard.
     SCOPE_GUARD_IF(!initialized, Cleanup());
+
+    // Create Lua state.
+    m_state = luaL_newstate();
+
+    if(m_state == nullptr)
+    {
+        Log() << LogInitializeError() << "Call returned a null.";
+        return false;
+    }
+
+    // Success!
+    return initialized = true;
+}
+
+bool LuaState::Load(std::string filename)
+{
+    if(m_state == nullptr)
+        return false;
 
     // Load Lua file.
     if(luaL_loadfile(m_state, filename.c_str()) != 0)
@@ -48,11 +60,10 @@ bool LuaScript::Load(std::string filename)
         return false;
     }
 
-    // Success!
-    return initialized = true;
+    return true;
 }
 
-void LuaScript::Cleanup()
+void LuaState::Cleanup()
 {
     if(m_state)
     {
@@ -61,7 +72,7 @@ void LuaScript::Cleanup()
     }
 }
 
-std::string LuaScript::DetachStem(std::string& compoundVariable)
+std::string LuaState::DetachStem(std::string& compoundVariable)
 {
     // Find the separator.
     std::size_t separator = compoundVariable.find_first_of('.');
@@ -82,7 +93,7 @@ std::string LuaScript::DetachStem(std::string& compoundVariable)
     return detached;
 }
 
-Lua::LuaRef LuaScript::GetVariable(std::string compoundVariable)
+Lua::LuaRef LuaState::GetVariable(std::string compoundVariable)
 {
     assert(m_state);
 
@@ -115,7 +126,7 @@ Lua::LuaRef LuaScript::GetVariable(std::string compoundVariable)
     return variable;
 }
 
-std::string LuaScript::GetString(std::string compoundVariable, std::string defaultValue)
+std::string LuaState::GetString(std::string compoundVariable, std::string defaultValue)
 {
     std::string value = defaultValue;
 
@@ -132,7 +143,7 @@ std::string LuaScript::GetString(std::string compoundVariable, std::string defau
     return value;
 }
 
-bool LuaScript::GetBool(std::string compoundVariable, bool defaultValue)
+bool LuaState::GetBool(std::string compoundVariable, bool defaultValue)
 {
     bool value = defaultValue;
 
@@ -149,7 +160,7 @@ bool LuaScript::GetBool(std::string compoundVariable, bool defaultValue)
     return value;
 }
 
-int LuaScript::GetInteger(std::string compoundVariable, int defaultValue)
+int LuaState::GetInteger(std::string compoundVariable, int defaultValue)
 {
     int value = defaultValue;
 
@@ -166,7 +177,7 @@ int LuaScript::GetInteger(std::string compoundVariable, int defaultValue)
     return value;
 }
 
-float LuaScript::GetFloat(std::string compoundVariable, float defaultValue)
+float LuaState::GetFloat(std::string compoundVariable, float defaultValue)
 {
     float value = defaultValue;
 
@@ -183,7 +194,12 @@ float LuaScript::GetFloat(std::string compoundVariable, float defaultValue)
     return value;
 }
 
-bool LuaScript::IsValid() const
+lua_State* LuaState::GetState()
+{
+    return m_state;
+}
+
+bool LuaState::IsValid() const
 {
     return m_state != nullptr;
 }

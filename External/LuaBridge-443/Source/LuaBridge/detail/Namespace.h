@@ -870,7 +870,13 @@ private:
     : L (L_)
     , m_stackSize (0)
   {
-    lua_getglobal (L, "_G");
+    // User patch:
+    // Getting the global table via lua_getglobal() with "_G" returns nil.
+    // Use a different way of accessing the global table.
+
+    //lua_getglobal (L, "_G");
+    lua_pushvalue(L, LUA_GLOBALSINDEX);
+
     ++m_stackSize;
   }
 

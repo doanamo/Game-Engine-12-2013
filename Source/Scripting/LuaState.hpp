@@ -3,16 +3,16 @@
 #include "Precompiled.hpp"
 
 //
-// Lua Script
+// Lua State
 //
 
-class LuaScript
+class LuaState
 {
 public:
-    LuaScript();
-    LuaScript(std::string filename);
-    ~LuaScript();
+    LuaState();
+    ~LuaState();
 
+    bool Initialize();
     bool Load(std::string filename);
     void Cleanup();
 
@@ -21,6 +21,8 @@ public:
     bool GetBool(std::string compoundVariable, bool defaultValue = false);
     int GetInteger(std::string compoundVariable, int defaultValue = 0);
     float GetFloat(std::string compoundVariable, float defaultValue = 0.0f);
+
+    lua_State* GetState();
 
     bool IsValid() const;
 
