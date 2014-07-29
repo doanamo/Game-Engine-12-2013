@@ -125,7 +125,7 @@ include_directories("src/raster")
 include_directories("src/psaux")
 include_directories("src/psnames")
 
-add_library(freetype ${BASE_SRCS})
+add_library(freetype STATIC ${BASE_SRCS})
 
 # Installations
 # Note the trailing slash in the argument to the `DIRECTORY' directive
