@@ -30,5 +30,4 @@ private:
 
 private:
     lua_State* m_state;
-    int m_level;
 };

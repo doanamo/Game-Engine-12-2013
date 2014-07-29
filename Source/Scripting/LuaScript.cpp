@@ -8,8 +8,7 @@ namespace
 }
 
 LuaScript::LuaScript() :
-    m_state(nullptr),
-    m_level(0)
+    m_state(nullptr)
 {
 }
 
@@ -60,8 +59,6 @@ void LuaScript::Cleanup()
         lua_close(m_state);
         m_state = nullptr;
     }
-
-    m_level = 0;
 }
 
 std::string LuaScript::DetachStem(std::string& compound)
@@ -101,7 +98,7 @@ bool LuaScript::PushVariable(std::string compound)
             break;
 
         // Push variable on the stack.
-        if(m_level == 0)
+        if(lua_gettop(m_state) == 0)
         {
             lua_getglobal(m_state, element.c_str());
         }
@@ -109,8 +106,6 @@ bool LuaScript::PushVariable(std::string compound)
         {
             lua_getfield(m_state, -1, element.c_str());
         }
-
-        m_level++;
 
         // Check if we pushed nil.
         if(lua_isnil(m_state, -1))
@@ -125,8 +120,8 @@ void LuaScript::PopStack()
     assert(m_state);
 
     // Pop the entire stack.
-    lua_pop(m_state, m_level);
-    m_level = 0;
+    int size = lua_gettop(m_state);
+    lua_pop(m_state, size);
 }
 
 std::string LuaScript::GetString(std::string compound, std::string unavailable)
