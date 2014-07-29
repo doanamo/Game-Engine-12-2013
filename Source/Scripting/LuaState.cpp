@@ -1,6 +1,8 @@
 #include "Precompiled.hpp"
 #include "LuaState.hpp"
 
+#include "MainContext.hpp"
+
 namespace
 {
     // Log error messages.
@@ -47,7 +49,7 @@ bool LuaState::Load(std::string filename)
         return false;
 
     // Load Lua file.
-    if(luaL_loadfile(m_state, filename.c_str()) != 0)
+    if(luaL_loadfile(m_state, (Main::GetWorkingDir() + filename).c_str()) != 0)
     {
         Log() << LogLoadError(filename) << "Couldn't parse the file.";
         return false;
@@ -56,7 +58,23 @@ bool LuaState::Load(std::string filename)
     // Execute Lua state once.
     if(lua_pcall(m_state, 0, 0, 0) != 0)
     {
-        Log() << LogLoadError(filename) << "Couldn't execute the state.";
+        std::string error = "Unknown error";
+
+        if(lua_isstring(m_state, -1))
+        {
+            error = lua_tostring(m_state, -1);
+
+            // Remove base path to working directory.
+            std::size_t position = error.find(Main::GetWorkingDir());
+
+            if(position != std::string::npos)
+            {
+                error.erase(position, Main::GetWorkingDir().size());
+            }
+        }
+
+        Log() << "Lua error - " << error << ".";
+        lua_pop(m_state, lua_gettop(m_state));
         return false;
     }
 

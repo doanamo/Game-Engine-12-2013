@@ -184,7 +184,7 @@ bool Main::Initialize()
     BindLuaLogger(config);
 
     // Read config settings.
-    if(config.Load(workingDir + "Game.cfg"))
+    if(config.Load("Game.cfg"))
     {
         Console::windowWidth = config.GetInteger("Config.Graphics.Width", Console::windowWidth);
         Console::windowHeight = config.GetInteger("Config.Graphics.Height", Console::windowHeight);
