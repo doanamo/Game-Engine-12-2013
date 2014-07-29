@@ -1,6 +1,8 @@
 #include "Precompiled.hpp"
 #include "LuaLogger.hpp"
 
+#include "LuaState.hpp"
+
 namespace
 {
     // Proxy log function.
@@ -14,11 +16,11 @@ namespace
     }
 }
 
-void BindLuaLogger(lua_State* state)
+void BindLuaLogger(LuaState& state)
 {
-    assert(state != nullptr);
+    assert(state.IsValid());
 
     // Bind log function.
-    Lua::getGlobalNamespace(state)
+    Lua::getGlobalNamespace(state.GetState())
         .addFunction("Log", LuaLog);
 }

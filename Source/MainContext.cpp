@@ -66,6 +66,7 @@ namespace
     Texture             blankTexture;
     Font                defaultFont;
 
+    LuaState            luaState;
     SDL_Window*         systemWindow = nullptr;
     SDL_GLContext       graphicsContext = nullptr;
     FT_Library          fontLibrary = nullptr;
@@ -180,7 +181,7 @@ bool Main::Initialize()
         return false;
 
     // Setup config environment.
-    BindLuaLogger(config.GetState());
+    BindLuaLogger(config);
 
     // Read config settings.
     if(config.Load(workingDir + "Game.cfg"))
@@ -200,6 +201,20 @@ bool Main::Initialize()
     // Initialize the cache manager.
     if(!cacheManager.Initialize())
         return false;
+
+    //
+    // Scripting
+    //
+
+    // Initialize the main Lua state.
+    if(!luaState.Initialize())
+    {
+        Log() << "Failed to initialize Lua state!";
+        return false;
+    }
+    
+    // Setup scripting environment.
+    BindLuaLogger(luaState);
 
     //
     // SDL
@@ -448,6 +463,12 @@ void Main::Cleanup()
     SDL_Quit();
 
     //
+    // Scripting
+    //
+
+    luaState.Cleanup();
+
+    //
     // System
     //
 
@@ -583,6 +604,11 @@ Texture& Main::GetBlankTexture()
 Font& Main::GetDefaultFont()
 {
     return defaultFont;
+}
+
+LuaState& Main::GetLuaState()
+{
+    return luaState;
 }
 
 SDL_Window* Main::GetSystemWindow()

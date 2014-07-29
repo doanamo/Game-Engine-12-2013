@@ -2,8 +2,11 @@
 
 #include "Precompiled.hpp"
 
+// Forward declarations.
+class LuaState;
+
 //
 // Lua Logger
 //
 
-void BindLuaLogger(lua_State* state);
+void BindLuaLogger(LuaState& state);
