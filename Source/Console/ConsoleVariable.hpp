@@ -13,6 +13,7 @@ class ConsoleVariable : public ConsoleDefinition
 {
 public:
     ConsoleVariable(std::string name, std::string value, std::string description = "");
+    ConsoleVariable(std::string name, const char* value, std::string description = "");
     ConsoleVariable(std::string name, bool        value, std::string description = "");
     ConsoleVariable(std::string name, int         value, std::string description = "");
     ConsoleVariable(std::string name, float       value, std::string description = "");
