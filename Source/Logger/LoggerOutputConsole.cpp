@@ -27,12 +27,17 @@ void LoggerOutputConsole::Write(const LoggerMessage& message)
 
     // Message source.
     #ifdef _DEBUG
-        if(!message.GetSource().empty() && message.GetLine() != 0)
+        if(!message.GetSource().empty())
         {
             output += " (";
             output += message.GetSource();
-            output += ":";
-            output += std::to_string(message.GetLine());
+
+            if(message.GetLine() != 0)
+            {
+                output += ":";
+                output += std::to_string(message.GetLine());
+            }
+
             output += ")";
         }
     #endif
