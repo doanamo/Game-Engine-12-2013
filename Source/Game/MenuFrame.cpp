@@ -52,15 +52,8 @@ bool MenuFrame::Initialize()
 {
     Cleanup();
 
-    // Setup emergency cleanup.
-    auto EmergenyCleanup = MakeScopeGuard([&]()
-    {
-        // Cleanup if initialization failed.
-        if(!m_initialized)
-        {
-            Cleanup();
-        }
-    });
+    // Setup scope guard.
+    SCOPE_GUARD_IF(!m_initialized, Cleanup());
 
     // Set interface screen space.
     m_interfaceRoot.SetScreenSpace(&m_screenSpace);
