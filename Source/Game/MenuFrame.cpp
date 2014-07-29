@@ -72,13 +72,13 @@ bool MenuFrame::Initialize()
         const char* buttonText = "Continue";
 
         TextDrawInfo textDrawInfo;
-        textDrawInfo.font = &Main::DefaultFont();
+        textDrawInfo.font = &Main::GetDefaultFont();
         textDrawInfo.size = ButtonFontSize;
         textDrawInfo.position = currentPosition;
         textDrawInfo.align = TextDrawAlign::BottomLeft;
 
         TextDrawMetrics textDrawMetrics;
-        textDrawMetrics = Main::TextRenderer().Measure(textDrawInfo, buttonText);
+        textDrawMetrics = Main::GetTextRenderer().Measure(textDrawInfo, buttonText);
 
         glm::vec2 size;
         size.x = textDrawMetrics.textArea.z - textDrawMetrics.textArea.x;
@@ -96,13 +96,13 @@ bool MenuFrame::Initialize()
         const char* buttonText = "New Game";
 
         TextDrawInfo textDrawInfo;
-        textDrawInfo.font = &Main::DefaultFont();
+        textDrawInfo.font = &Main::GetDefaultFont();
         textDrawInfo.size = ButtonFontSize;
         textDrawInfo.position = currentPosition;
         textDrawInfo.align = TextDrawAlign::BottomLeft;
 
         TextDrawMetrics textDrawMetrics;
-        textDrawMetrics = Main::TextRenderer().Measure(textDrawInfo, buttonText);
+        textDrawMetrics = Main::GetTextRenderer().Measure(textDrawInfo, buttonText);
 
         glm::vec2 size;
         size.x = textDrawMetrics.textArea.z - textDrawMetrics.textArea.x;
@@ -120,13 +120,13 @@ bool MenuFrame::Initialize()
         const char* buttonText = "Options";
 
         TextDrawInfo textDrawInfo;
-        textDrawInfo.font = &Main::DefaultFont();
+        textDrawInfo.font = &Main::GetDefaultFont();
         textDrawInfo.size = ButtonFontSize;
         textDrawInfo.position = currentPosition;
         textDrawInfo.align = TextDrawAlign::BottomLeft;
 
         TextDrawMetrics textDrawMetrics;
-        textDrawMetrics = Main::TextRenderer().Measure(textDrawInfo, buttonText);
+        textDrawMetrics = Main::GetTextRenderer().Measure(textDrawInfo, buttonText);
 
         glm::vec2 size;
         size.x = textDrawMetrics.textArea.z - textDrawMetrics.textArea.x;
@@ -144,13 +144,13 @@ bool MenuFrame::Initialize()
         const char* buttonText = "Credits";
 
         TextDrawInfo textDrawInfo;
-        textDrawInfo.font = &Main::DefaultFont();
+        textDrawInfo.font = &Main::GetDefaultFont();
         textDrawInfo.size = ButtonFontSize;
         textDrawInfo.position = currentPosition;
         textDrawInfo.align = TextDrawAlign::BottomLeft;
 
         TextDrawMetrics textDrawMetrics;
-        textDrawMetrics = Main::TextRenderer().Measure(textDrawInfo, buttonText);
+        textDrawMetrics = Main::GetTextRenderer().Measure(textDrawInfo, buttonText);
 
         glm::vec2 size;
         size.x = textDrawMetrics.textArea.z - textDrawMetrics.textArea.x;
@@ -168,13 +168,13 @@ bool MenuFrame::Initialize()
         const char* buttonText = "Quit";
 
         TextDrawInfo textDrawInfo;
-        textDrawInfo.font = &Main::DefaultFont();
+        textDrawInfo.font = &Main::GetDefaultFont();
         textDrawInfo.size = ButtonFontSize;
         textDrawInfo.position = currentPosition;
         textDrawInfo.align = TextDrawAlign::BottomLeft;
 
         TextDrawMetrics textDrawMetrics;
-        textDrawMetrics = Main::TextRenderer().Measure(textDrawInfo, buttonText);
+        textDrawMetrics = Main::GetTextRenderer().Measure(textDrawInfo, buttonText);
 
         glm::vec2 size;
         size.x = textDrawMetrics.textArea.z - textDrawMetrics.textArea.x;
@@ -216,9 +216,9 @@ void MenuFrame::ButtonContinue(const Button::EventAction& event)
     assert(m_initialized);
 
     // Switch back to the game frame.
-    if(GameContext::GameFrame().IsInitialized())
+    if(GameContext::GetGameFrame().IsInitialized())
     {
-        GameContext::FrameState().ChangeState(&GameContext::GameFrame());
+        GameContext::GetFrameState().ChangeState(&GameContext::GetGameFrame());
     }
 }
 
@@ -227,9 +227,9 @@ void MenuFrame::ButtonNewGame(const Button::EventAction& event)
     assert(m_initialized);
 
     // Initialize and switch to the game frame.
-    if(GameContext::GameFrame().Initialize())
+    if(GameContext::GetGameFrame().Initialize())
     {
-        GameContext::FrameState().ChangeState(&GameContext::GameFrame());
+        GameContext::GetFrameState().ChangeState(&GameContext::GetGameFrame());
     }
 }
 
@@ -244,7 +244,7 @@ void MenuFrame::ButtonQuit(const Button::EventAction& event)
 void MenuFrame::OnEnter()
 {
     // Enable the continue button if the game is active.
-    bool isGameRunning = GameContext::GameFrame().IsInitialized();
+    bool isGameRunning = GameContext::GetGameFrame().IsInitialized();
     m_buttonContinue.SetEnabled(isGameRunning);
 }
 
@@ -279,17 +279,17 @@ void MenuFrame::Draw()
     //
 
     // Clear the depth.
-    Main::CoreRenderer().SetClearDepth(1.0f);
-    Main::CoreRenderer().Clear(ClearFlags::Depth);
+    Main::GetCoreRenderer().SetClearDepth(1.0f);
+    Main::GetCoreRenderer().Clear(ClearFlags::Depth);
 
     // Clear the screen.
-    Main::CoreRenderer().SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    Main::CoreRenderer().Clear(ClearFlags::Color);
+    Main::GetCoreRenderer().SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    Main::GetCoreRenderer().Clear(ClearFlags::Color);
 
     // Draw menu title.
     {
         TextDrawInfo info;
-        info.font = &Main::DefaultFont();
+        info.font = &Main::GetDefaultFont();
         info.size = TitleFontSize;
         info.bodyColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
         info.outlineColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -297,14 +297,14 @@ void MenuFrame::Draw()
         info.position.x = 50.0f;
         info.position.y = viewHeight + 10.0f;
 
-        Main::TextRenderer().Draw(info, "Gunstar", m_screenSpace.GetTransform());
+        Main::GetTextRenderer().Draw(info, "Gunstar", m_screenSpace.GetTransform());
     }
 
     // Define button drawing routine.
     auto DrawButton = [&](const Button& button)
     {
         TextDrawInfo info;
-        info.font = &Main::DefaultFont();
+        info.font = &Main::GetDefaultFont();
         
         info.position = button.GetPosition();
         info.size = ButtonFontSize;
@@ -329,7 +329,7 @@ void MenuFrame::Draw()
             }
         }
 
-        Main::TextRenderer().Draw(info, button.GetText().c_str(), m_screenSpace.GetTransform());
+        Main::GetTextRenderer().Draw(info, button.GetText().c_str(), m_screenSpace.GetTransform());
     };
 
     // Draw buttons.

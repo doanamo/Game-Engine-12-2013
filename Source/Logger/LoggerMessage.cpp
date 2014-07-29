@@ -26,30 +26,7 @@ LoggerMessage::~LoggerMessage()
 {
 }
 
-LoggerMessage& LoggerMessage::Source(const char* source, unsigned int line)
-{
-    if(source == nullptr)
-        return *this;
-
-    // Set message source.
-    m_source = source;
-    m_line = line;
-
-    // Replace source path separators.
-    std::replace(m_source.begin(), m_source.end(), '\\', '/');
-
-    // Remove base path to source directory.
-    std::size_t position = m_source.find(Main::SourceDir());
-
-    if(position != std::string::npos)
-    {
-        m_source.erase(position, Main::SourceDir().size());
-    }
-
-    return *this;
-}
-
-LoggerMessage& LoggerMessage::Text(const char* text)
+LoggerMessage& LoggerMessage::SetText(const char* text)
 {
     m_buffer.str("");
 
@@ -57,6 +34,36 @@ LoggerMessage& LoggerMessage::Text(const char* text)
     {
         m_buffer.sputn(text, strlen(text));
     }
+
+    return *this;
+}
+
+LoggerMessage& LoggerMessage::SetSource(const char* source)
+{
+    if(source == nullptr)
+        return *this;
+
+    // Set message source.
+    m_source = source;
+
+    // Replace source path separators.
+    std::replace(m_source.begin(), m_source.end(), '\\', '/');
+
+    // Remove base path to source directory.
+    std::size_t position = m_source.find(Main::GetSourceDir());
+
+    if(position != std::string::npos)
+    {
+        m_source.erase(position, Main::GetSourceDir().size());
+    }
+
+    return *this;
+}
+
+LoggerMessage& LoggerMessage::SetLine(unsigned int line)
+{
+    // Set message line.
+    m_line = line;
 
     return *this;
 }

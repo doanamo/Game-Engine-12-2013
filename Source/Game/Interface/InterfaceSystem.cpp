@@ -75,8 +75,8 @@ void InterfaceSystem::Update(float timeDelta)
         return;
 
     // Update the health bar element.
-    EntityHandle playerEntity = GameState::IdentitySystem().GetEntityByName("Player");
-    HealthComponent* playerHealth = GameState::HealthComponents().Lookup(playerEntity);
+    EntityHandle playerEntity = GameState::GetIdentitySystem().GetEntityByName("Player");
+    HealthComponent* playerHealth = GameState::GetHealthComponents().Lookup(playerEntity);
 
     if(playerHealth != nullptr)
     {
@@ -161,7 +161,7 @@ void InterfaceSystem::Draw()
 
         // Draw text.
         TextDrawInfo info;
-        info.font = &Main::DefaultFont();
+        info.font = &Main::GetDefaultFont();
         info.align = TextDrawAlign::Centered;
         info.size = 22 * element.interface->CalculateScale(element.lifetime);
         info.position = element.origin + element.interface->CalculateOffset(element.lifetime);
@@ -169,7 +169,7 @@ void InterfaceSystem::Draw()
         info.glowColor = glm::vec4(0.0f, 0.0f, 0.0f, element.interface->CalculateTransparency(element.lifetime));
         info.glowRange = glm::vec2(0.2f, 0.5f);
         
-        Main::TextRenderer().Draw(info, element.text.c_str(), m_screenSpace.GetTransform());
+        Main::GetTextRenderer().Draw(info, element.text.c_str(), m_screenSpace.GetTransform());
     }
 
     //
@@ -182,10 +182,10 @@ void InterfaceSystem::Draw()
     // Draw debug game info.
     {
         std::stringstream text;
-        text << "Entities: " << GameState::EntitySystem().GetEntityCount();
+        text << "Entities: " << GameState::GetEntitySystem().GetEntityCount();
 
         TextDrawInfo info;
-        info.font = &Main::DefaultFont();
+        info.font = &Main::GetDefaultFont();
         info.size = 22;
         info.bodyColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
         info.glowColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -193,7 +193,7 @@ void InterfaceSystem::Draw()
         info.position.x = 10.0f;
         info.position.y = m_screenSpace.GetTargetSize().y - 5.0f;
 
-        Main::TextRenderer().Draw(info, text.str().c_str(), m_screenSpace.GetTransform());
+        Main::GetTextRenderer().Draw(info, text.str().c_str(), m_screenSpace.GetTransform());
     }
 }
 
@@ -219,7 +219,7 @@ void InterfaceSystem::AddFloatingText(std::string text, const glm::vec2& positio
     if(InterfaceSpaceFloatingText)
     {
         // Get the source transform along with current viewport.
-        const ScreenSpace& gameScreenSpace = GameState::RenderSystem().GetScreenSpace();
+        const ScreenSpace& gameScreenSpace = GameState::GetRenderSystem().GetScreenSpace();
         glm::ivec4 viewport(0, 0, Console::windowWidth, Console::windowHeight);
 
         // Project position from the world to window space.
@@ -246,7 +246,7 @@ ReceiverSignature<GameEvent::EntityHealed> InterfaceSystem::GetEntityHealedRecei
 void InterfaceSystem::OnEntityDamagedEvent(const GameEvent::EntityDamaged& event)
 {
     // Get the transform component.
-    TransformComponent* transform = GameState::TransformComponents().Lookup(event.entity);
+    TransformComponent* transform = GameState::GetTransformComponents().Lookup(event.entity);
     if(transform == nullptr) return;
 
     // Add a floating text element.
@@ -256,7 +256,7 @@ void InterfaceSystem::OnEntityDamagedEvent(const GameEvent::EntityDamaged& event
 void InterfaceSystem::OnEntityHealedEvent(const GameEvent::EntityHealed& event)
 {
     // Get the transform component.
-    TransformComponent* transform = GameState::TransformComponents().Lookup(event.entity);
+    TransformComponent* transform = GameState::GetTransformComponents().Lookup(event.entity);
     if(transform == nullptr) return;
 
     // Add a floating text element.

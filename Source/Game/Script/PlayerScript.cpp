@@ -19,13 +19,13 @@ PlayerScript::PlayerScript() :
 void PlayerScript::OnUpdate(EntityHandle self, float timeDelta)
 {
     // Check if entity has needed components.
-    TransformComponent* transform = GameState::TransformComponents().Lookup(self);
+    TransformComponent* transform = GameState::GetTransformComponents().Lookup(self);
     if(transform == nullptr) return;
 
-    CollisionComponent* collision = GameState::CollisionComponents().Lookup(self);
+    CollisionComponent* collision = GameState::GetCollisionComponents().Lookup(self);
     if(collision == nullptr) return;
 
-    InputComponent* input = GameState::InputComponents().Lookup(self);
+    InputComponent* input = GameState::GetInputComponents().Lookup(self);
     if(input == nullptr) return;
 
     // Shoot a projectile.
@@ -88,6 +88,6 @@ void PlayerScript::OnDamage(EntityHandle self, int value, bool alive)
     // Destroy the entity on fatal damage.
     if(!alive)
     {
-        GameState::EntitySystem().DestroyEntity(self);
+        GameState::GetEntitySystem().DestroyEntity(self);
     }
 }

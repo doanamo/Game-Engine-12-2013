@@ -38,5 +38,5 @@ void LoggerOutputConsole::Write(const LoggerMessage& message)
     #endif
 
     // Write to console history.
-    Main::ConsoleHistory().WriteOutput(output.c_str());
+    Main::GetConsoleHistory().WriteOutput(output.c_str());
 }

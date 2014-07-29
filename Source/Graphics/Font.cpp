@@ -86,7 +86,7 @@ bool Font::Load(std::string filename)
 {
     Cleanup();
 
-    assert(Main::FontLibrary() != nullptr);
+    assert(Main::GetFontLibrary() != nullptr);
 
     // Validate arguments.
     if(filename.empty())
@@ -98,7 +98,7 @@ bool Font::Load(std::string filename)
     m_fontFilename = filename;
 
     // Load font face.
-    if(FT_New_Face(Main::FontLibrary(), (Main::WorkingDir() + m_fontFilename).c_str(), 0, &m_fontFace) != 0)
+    if(FT_New_Face(Main::GetFontLibrary(), (Main::GetWorkingDir() + m_fontFilename).c_str(), 0, &m_fontFace) != 0)
     {
         Log() << LogLoadError(m_fontFilename) << "Couldn't load the font.";
         Cleanup();

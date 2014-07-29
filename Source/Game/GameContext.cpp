@@ -86,22 +86,22 @@ bool GameContext::IsInitialized()
     return isInitialized;
 }
 
-StateMachine<BaseFrame*>& GameContext::FrameState()
+StateMachine<BaseFrame*>& GameContext::GetFrameState()
 {
     return frameState;
 }
 
-MenuFrame& GameContext::MenuFrame()
+MenuFrame& GameContext::GetMenuFrame()
 {
     return menuFrame;
 }
 
-GameFrame& GameContext::GameFrame()
+GameFrame& GameContext::GetGameFrame()
 {
     return gameFrame;
 }
 
-LoseFrame& GameContext::LoseFrame()
+LoseFrame& GameContext::GetLoseFrame()
 {
     return loseFrame;
 }

@@ -22,9 +22,9 @@ void HealthPickupScript::OnCollision(const CollisionObject& self, const Collisio
     // Heal the collided entity.
     if(m_healValue > 0)
     {
-        GameState::HealthSystem().Heal(other.entity, m_healValue);
+        GameState::GetHealthSystem().Heal(other.entity, m_healValue);
     }
     
     // Destroy itself.
-    GameState::EntitySystem().DestroyEntity(self.entity);
+    GameState::GetEntitySystem().DestroyEntity(self.entity);
 }

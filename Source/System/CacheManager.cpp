@@ -96,7 +96,7 @@ std::string CacheManager::Lookup(std::string filename)
         uuid = boost::uuids::random_generator()();
         identifier = boost::uuids::to_string(uuid);
     }
-    while(boost::filesystem::exists(Main::CacheDir() + identifier));
+    while(boost::filesystem::exists(Main::GetCacheDir() + identifier));
 
     // Add a new cache entry.
     m_registry.insert(std::make_pair(filename, uuid));
@@ -107,7 +107,7 @@ std::string CacheManager::Lookup(std::string filename)
 bool CacheManager::LoadCache()
 {
     // Open the cache registry.
-    std::ifstream registryFile(Main::CacheDir() + CacheRegistryFile);
+    std::ifstream registryFile(Main::GetCacheDir() + CacheRegistryFile);
 
     if(!registryFile.is_open())
     {
@@ -222,7 +222,7 @@ bool CacheManager::RecreateCache()
     boost::system::error_code error;
 
     // Remove the cache directory and it's content.
-    boost::filesystem::remove_all(Main::CacheDir(), error);
+    boost::filesystem::remove_all(Main::GetCacheDir(), error);
 
     if(error)
     {
@@ -231,7 +231,7 @@ bool CacheManager::RecreateCache()
     }
 
     // Create an empty cache directory.
-    boost::filesystem::create_directory(Main::CacheDir(), error);
+    boost::filesystem::create_directory(Main::GetCacheDir(), error);
 
     if(error)
     {
@@ -240,7 +240,7 @@ bool CacheManager::RecreateCache()
     }
 
     // Create the cache registry.
-    std::ofstream registryFile(Main::CacheDir() + CacheRegistryFile);
+    std::ofstream registryFile(Main::GetCacheDir() + CacheRegistryFile);
 
     if(!registryFile.is_open())
     {
@@ -260,7 +260,7 @@ bool CacheManager::SaveCache()
         return false;
 
     // Open the cache registry.
-    std::ofstream registryFile(Main::CacheDir() + CacheRegistryFile);
+    std::ofstream registryFile(Main::GetCacheDir() + CacheRegistryFile);
 
     if(!registryFile.is_open())
     {
@@ -295,7 +295,7 @@ bool CacheManager::SaveCache()
 
 bool CacheManager::ValidateCache(std::string identifier)
 {
-    std::string file = Main::CacheDir() + identifier;
+    std::string file = Main::GetCacheDir() + identifier;
 
     // Make sure the cache exists.
     if(!boost::filesystem::exists(file))

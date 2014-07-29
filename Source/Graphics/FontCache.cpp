@@ -33,10 +33,10 @@ bool Font::SaveCache()
         return true;
 
     // Get the cache file.
-    std::string cacheFilename = Main::CacheManager().Lookup(m_fontFilename);
+    std::string cacheFilename = Main::GetCacheManager().Lookup(m_fontFilename);
 
     // Open the cache file for writing.
-    std::ofstream file(Main::CacheDir() + cacheFilename, std::ios::binary);
+    std::ofstream file(Main::GetCacheDir() + cacheFilename, std::ios::binary);
 
     if(!file.is_open())
     {
@@ -47,7 +47,7 @@ bool Font::SaveCache()
     // Calculate font file CRC.
     boost::crc_32_type crc;
 
-    if(!CalculateFileCRC(Main::WorkingDir() + m_fontFilename, &crc))
+    if(!CalculateFileCRC(Main::GetWorkingDir() + m_fontFilename, &crc))
     {
         Log() << LogSaveCacheError(m_fontFilename) << "Couldn't calculate file CRC.";
         return false;
@@ -101,10 +101,10 @@ bool Font::LoadCache()
         return false;
 
     // Get the cache identifier.
-    std::string identifier = Main::CacheManager().Lookup(m_fontFilename);
+    std::string identifier = Main::GetCacheManager().Lookup(m_fontFilename);
 
     // Open the cache file for reading.
-    std::ifstream file(Main::CacheDir() + identifier, std::ios::binary);
+    std::ifstream file(Main::GetCacheDir() + identifier, std::ios::binary);
 
     if(!file.is_open())
     {
@@ -115,7 +115,7 @@ bool Font::LoadCache()
     // Calculate font file CRC.
     boost::crc_32_type crc;
 
-    if(!CalculateFileCRC(Main::WorkingDir() + m_fontFilename, &crc))
+    if(!CalculateFileCRC(Main::GetWorkingDir() + m_fontFilename, &crc))
     {
         Log() << LogLoadCacheError(m_fontFilename) << "Couldn't calculate file CRC.";
         return false;

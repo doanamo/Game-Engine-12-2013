@@ -38,10 +38,10 @@ void ScriptSystem::Cleanup()
 void ScriptSystem::Update(float timeDelta)
 {
     // Process script components.
-    for(auto it = GameState::ScriptComponents().Begin(); it != GameState::ScriptComponents().End(); ++it)
+    for(auto it = GameState::GetScriptComponents().Begin(); it != GameState::GetScriptComponents().End(); ++it)
     {
         // Check if entity is active.
-        if(!GameState::EntitySystem().IsHandleValid(it->first))
+        if(!GameState::GetEntitySystem().IsHandleValid(it->first))
             continue;
 
         // Get the script component.
@@ -77,7 +77,7 @@ ReceiverSignature<GameEvent::EntityCollision> ScriptSystem::GetEntityCollisionRe
 void ScriptSystem::OnEntityDamagedEvent(const GameEvent::EntityDamaged& event)
 {
     // Execute the event script.
-    ScriptComponent* script = GameState::ScriptComponents().Lookup(event.entity);
+    ScriptComponent* script = GameState::GetScriptComponents().Lookup(event.entity);
 
     if(script != nullptr)
     {
@@ -88,7 +88,7 @@ void ScriptSystem::OnEntityDamagedEvent(const GameEvent::EntityDamaged& event)
 void ScriptSystem::OnEntityHealedEvent(const GameEvent::EntityHealed& event)
 {
     // Execute the event script.
-    ScriptComponent* script = GameState::ScriptComponents().Lookup(event.entity);
+    ScriptComponent* script = GameState::GetScriptComponents().Lookup(event.entity);
 
     if(script != nullptr)
     {
@@ -99,7 +99,7 @@ void ScriptSystem::OnEntityHealedEvent(const GameEvent::EntityHealed& event)
 void ScriptSystem::OnEntityCollisionEvent(const GameEvent::EntityCollision& event)
 {
     // Execute the event script.
-    ScriptComponent* script = GameState::ScriptComponents().Lookup(event.self.entity);
+    ScriptComponent* script = GameState::GetScriptComponents().Lookup(event.self.entity);
 
     if(script != nullptr)
     {

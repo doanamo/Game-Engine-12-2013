@@ -24,7 +24,7 @@ ConsoleDefinition::ConsoleDefinition(std::string name, std::string description) 
     else
     {
         // Register a definition.
-        Main::ConsoleSystem().RegisterDefinition(this);
+        Main::GetConsoleSystem().RegisterDefinition(this);
     }
 }
 
@@ -33,7 +33,7 @@ ConsoleDefinition::~ConsoleDefinition()
     // Unregister the definition.
     // If the definition is static, it could have already been
     // unregistered on console system shutdown, which is fine.
-    Main::ConsoleSystem().UnregisterDefinition(this);
+    Main::GetConsoleSystem().UnregisterDefinition(this);
 }
 
 void ConsoleDefinition::Executed()

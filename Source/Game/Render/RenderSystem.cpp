@@ -142,17 +142,17 @@ void RenderSystem::Update()
     m_sprites.clear();
 
     // Process render components.
-    for(auto it = GameState::RenderComponents().Begin(); it != GameState::RenderComponents().End(); ++it)
+    for(auto it = GameState::GetRenderComponents().Begin(); it != GameState::GetRenderComponents().End(); ++it)
     {
         // Check if entity is active.
-        if(!GameState::EntitySystem().IsHandleValid(it->first))
+        if(!GameState::GetEntitySystem().IsHandleValid(it->first))
             continue;
 
         // Get the render component.
         RenderComponent& render = it->second;
     
         // Get other components.
-        TransformComponent* transform = GameState::TransformComponents().Lookup(it->first);
+        TransformComponent* transform = GameState::GetTransformComponents().Lookup(it->first);
 
         if(transform == nullptr)
             continue;
@@ -177,12 +177,12 @@ void RenderSystem::Draw()
     //
 
     // Clear the depth.
-    Main::CoreRenderer().SetClearDepth(1.0f);
-    Main::CoreRenderer().Clear(ClearFlags::Depth);
+    Main::GetCoreRenderer().SetClearDepth(1.0f);
+    Main::GetCoreRenderer().Clear(ClearFlags::Depth);
 
     // Clear the screen.
-    Main::CoreRenderer().SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    Main::CoreRenderer().Clear(ClearFlags::Color);
+    Main::GetCoreRenderer().SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    Main::GetCoreRenderer().Clear(ClearFlags::Color);
 
     //
     // Draw Sprites
@@ -244,7 +244,7 @@ void RenderSystem::Draw()
 
             // Bind a texture.
             glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, Main::BlankTexture().GetHandle());
+            glBindTexture(GL_TEXTURE_2D, Main::GetBlankTexture().GetHandle());
 
             // Draw instanced quads.
             glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, m_vertexBuffer.GetElementCount(), instancesBatched);

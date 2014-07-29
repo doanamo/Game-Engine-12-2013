@@ -10,7 +10,7 @@
 
 void CommandHelp(std::string arguments)
 {
-    assert(Main::ConsoleSystem().IsValid());
+    assert(Main::GetConsoleSystem().IsValid());
 
     // Get some more help here.
     if(arguments.empty())
@@ -31,7 +31,7 @@ void CommandHelp(std::string arguments)
     }
 
     // Get the definition.
-    ConsoleDefinition* definition = Main::ConsoleSystem().FindDefinition(name);
+    ConsoleDefinition* definition = Main::GetConsoleSystem().FindDefinition(name);
 
     if(definition == nullptr)
     {
@@ -50,9 +50,9 @@ void CommandEcho(std::string arguments)
 
 void CommandClear(std::string arguments)
 {
-    assert(Main::ConsoleHistory().IsValid());
+    assert(Main::GetConsoleHistory().IsValid());
 
-    Main::ConsoleHistory().ClearOutput();
+    Main::GetConsoleHistory().ClearOutput();
 }
 
 void CommandQuit(std::string arguments)

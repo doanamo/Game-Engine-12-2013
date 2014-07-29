@@ -23,7 +23,7 @@ SpawnerScript::SpawnerScript() :
 void SpawnerScript::OnUpdate(EntityHandle self, float timeDelta)
 {
     // Check if entity has needed components.
-    TransformComponent* transform = GameState::TransformComponents().Lookup(self);
+    TransformComponent* transform = GameState::GetTransformComponents().Lookup(self);
     if(transform == nullptr) return;
 
     // Create an enitity after a delay.

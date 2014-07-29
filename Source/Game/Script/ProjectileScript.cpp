@@ -20,8 +20,8 @@ void ProjectileScript::OnCollision(const CollisionObject& self, const CollisionO
     assert(other.collision != nullptr);
 
     // Apply damage to target entity.
-    GameState::HealthSystem().Damage(other.entity, 10);
+    GameState::GetHealthSystem().Damage(other.entity, 10);
 
     // Destroy itself.
-    GameState::EntitySystem().DestroyEntity(self.entity);
+    GameState::GetEntitySystem().DestroyEntity(self.entity);
 }

@@ -24,11 +24,11 @@ bool MainFrame::Initialize()
         return false;
 
     // Initialize the menu frame.
-    if(!GameContext::MenuFrame().Initialize())
+    if(!GameContext::GetMenuFrame().Initialize())
         return false;
 
     // Set the frame state.
-    GameContext::FrameState().ChangeState(&GameContext::MenuFrame());
+    GameContext::GetFrameState().ChangeState(&GameContext::GetMenuFrame());
 
     return true;
 }
@@ -41,9 +41,9 @@ void MainFrame::Cleanup()
 
 bool MainFrame::Process(const SDL_Event& event)
 {
-    if(GameContext::FrameState().IsValid())
+    if(GameContext::GetFrameState().IsValid())
     {
-        if(GameContext::FrameState().GetState()->Process(event))
+        if(GameContext::GetFrameState().GetState()->Process(event))
             return true;
     }
 
@@ -52,9 +52,9 @@ bool MainFrame::Process(const SDL_Event& event)
 
 void MainFrame::Update(float timeDelta)
 {
-    if(GameContext::FrameState().IsValid())
+    if(GameContext::GetFrameState().IsValid())
     {
-        GameContext::FrameState().GetState()->Update(timeDelta);
+        GameContext::GetFrameState().GetState()->Update(timeDelta);
     }
     else
     {
@@ -64,8 +64,8 @@ void MainFrame::Update(float timeDelta)
 
 void MainFrame::Draw()
 {
-    if(GameContext::FrameState().IsValid())
+    if(GameContext::GetFrameState().IsValid())
     {
-        GameContext::FrameState().GetState()->Draw();
+        GameContext::GetFrameState().GetState()->Draw();
     }
 }

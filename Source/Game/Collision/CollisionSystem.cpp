@@ -65,7 +65,7 @@ void CollisionSystem::Update(float timeDelta)
         auto eraseIt = it++;
 
         // Check if entities are still valid.
-        if(!GameState::EntitySystem().IsHandleValid(sourceEntity) || !GameState::EntitySystem().IsHandleValid(targetEntity))
+        if(!GameState::GetEntitySystem().IsHandleValid(sourceEntity) || !GameState::GetEntitySystem().IsHandleValid(targetEntity))
         {
             m_disabled.erase(eraseIt);
             continue;
@@ -87,10 +87,10 @@ void CollisionSystem::Update(float timeDelta)
     }
 
     // Create a list of collision objects.
-    for(auto it = GameState::CollisionComponents().Begin(); it != GameState::CollisionComponents().End(); ++it)
+    for(auto it = GameState::GetCollisionComponents().Begin(); it != GameState::GetCollisionComponents().End(); ++it)
     {
         // Check if entity is active.
-        if(!GameState::EntitySystem().IsHandleValid(it->first))
+        if(!GameState::GetEntitySystem().IsHandleValid(it->first))
             continue;
 
         // Get the collision component.
@@ -102,7 +102,7 @@ void CollisionSystem::Update(float timeDelta)
             continue;
 
         // Get the transform component.
-        TransformComponent* transform = GameState::TransformComponents().Lookup(it->first);
+        TransformComponent* transform = GameState::GetTransformComponents().Lookup(it->first);
 
         if(transform == nullptr)
             continue;
@@ -163,13 +163,13 @@ void CollisionSystem::Update(float timeDelta)
                     }
 
                     // Check if other collision object is still valid.
-                    if(!GameState::EntitySystem().IsHandleValid(other->entity) || !other->collision->IsEnabled())
+                    if(!GameState::GetEntitySystem().IsHandleValid(other->entity) || !other->collision->IsEnabled())
                     {
                         other->enabled = false;
                     }
 
                     // Check if this collision object is still valid.
-                    if(!GameState::EntitySystem().IsHandleValid(it->entity) || !it->collision->IsEnabled())
+                    if(!GameState::GetEntitySystem().IsHandleValid(it->entity) || !it->collision->IsEnabled())
                     {
                         it->enabled = false;
                         break;

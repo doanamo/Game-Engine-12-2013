@@ -9,7 +9,7 @@
 
 // Log macro.
 #ifdef _DEBUG
-    #define Log() LoggerScopedMessage(Logger::GetGlobal()).Source(__FILE__, __LINE__)
+    #define Log() LoggerScopedMessage(Logger::GetGlobal()).SetSource(__FILE__).SetLine(__LINE__)
 #else
     #define Log() LoggerScopedMessage(Logger::GetGlobal())
 #endif

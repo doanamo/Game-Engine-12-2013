@@ -500,102 +500,102 @@ bool Main::IsQuitting()
     return isQuitting;
 }
 
-std::string Main::CurrentDir()
+std::string Main::GetCurrentDir()
 {
     return currentDir;
 }
 
-std::string Main::SourceDir()
+std::string Main::GetSourceDir()
 {
     return sourceDir;
 }
 
-std::string Main::WorkingDir()
+std::string Main::GetWorkingDir()
 {
     return workingDir;
 }
 
-std::string Main::CacheDir()
+std::string Main::GetCacheDir()
 {
     return cacheDir;
 }
 
-Logger& Main::Logger()
+Logger& Main::GetLogger()
 {
     return logger;
 }
 
-CacheManager& Main::CacheManager()
+CacheManager& Main::GetCacheManager()
 {
     return cacheManager;
 }
 
-ConsoleSystem& Main::ConsoleSystem()
+ConsoleSystem& Main::GetConsoleSystem()
 {
     return consoleSystem;
 }
 
-ConsoleHistory& Main::ConsoleHistory()
+ConsoleHistory& Main::GetConsoleHistory()
 {
     return consoleHistory;
 }
 
-ConsoleFrame& Main::ConsoleFrame()
+ConsoleFrame& Main::GetConsoleFrame()
 {
     return consoleFrame;
 }
 
-ScreenSpace& Main::ScreenSpace()
+ScreenSpace& Main::GetScreenSpace()
 {
     return screenSpace;
 }
 
-CoreRenderer& Main::CoreRenderer()
+CoreRenderer& Main::GetCoreRenderer()
 {
     return coreRenderer;
 }
 
-BasicRenderer& Main::BasicRenderer()
+BasicRenderer& Main::GetBasicRenderer()
 {
     return basicRenderer;
 }
 
-TextRenderer& Main::TextRenderer()
+TextRenderer& Main::GetTextRenderer()
 {
     return textRenderer;
 }
 
-FrameCounter& Main::FrameCounter()
+FrameCounter& Main::GetFrameCounter()
 {
     return frameCounter;
 }
 
-Texture& Main::BlankTexture()
+Texture& Main::GetBlankTexture()
 {
     return blankTexture;
 }
 
-Font& Main::DefaultFont()
+Font& Main::GetDefaultFont()
 {
     return defaultFont;
 }
 
-SDL_Window* Main::SystemWindow()
+SDL_Window* Main::GetSystemWindow()
 {
     return systemWindow;
 }
 
-SDL_GLContext Main::GraphicsContext()
+SDL_GLContext Main::GetGraphicsContext()
 {
     return graphicsContext;
 }
 
-FT_Library Main::FontLibrary()
+FT_Library Main::GetFontLibrary()
 {
     return fontLibrary;
 }
 
-BaseFrame& Main::MainFrame()
+BaseFrame& Main::GetMainFrame()
 {
     return mainFrame;
 }

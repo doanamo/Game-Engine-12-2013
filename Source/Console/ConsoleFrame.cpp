@@ -91,7 +91,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                 SDL_StartTextInput();
 
                 // Reset cursor blink.
-                Main::TextRenderer().ResetCursorBlink();
+                Main::GetTextRenderer().ResetCursorBlink();
             }
             else
             {
@@ -115,7 +115,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                 m_cursorPosition = std::max(0, m_cursorPosition - 1);
 
                 // Reset cursor blink.
-                Main::TextRenderer().ResetCursorBlink();
+                Main::GetTextRenderer().ResetCursorBlink();
             }
         }
         else
@@ -128,7 +128,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                 m_cursorPosition = std::min(m_cursorPosition + 1, inputLength);
 
                 // Reset cursor blink.
-                Main::TextRenderer().ResetCursorBlink();
+                Main::GetTextRenderer().ResetCursorBlink();
             }
         }
         else
@@ -137,10 +137,10 @@ bool ConsoleFrame::Process(const SDL_Event& event)
             if(m_open)
             {
                 // Move to next history input entry.
-                m_historyInput = std::min(m_historyInput + 1, Main::ConsoleHistory().GetInputSize());
+                m_historyInput = std::min(m_historyInput + 1, Main::GetConsoleHistory().GetInputSize());
 
                 // Read history input.
-                const char* input = Main::ConsoleHistory().GetInput(m_historyInput - 1);
+                const char* input = Main::GetConsoleHistory().GetInput(m_historyInput - 1);
 
                 if(input != nullptr)
                 {
@@ -158,7 +158,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                 m_cursorPosition = inputLength;
 
                 // Reset cursor blink.
-                Main::TextRenderer().ResetCursorBlink();
+                Main::GetTextRenderer().ResetCursorBlink();
             }
         }
         else
@@ -170,7 +170,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                 m_historyInput = std::max(0, m_historyInput - 1);
 
                 // Read history input.
-                const char* input = Main::ConsoleHistory().GetInput(m_historyInput - 1);
+                const char* input = Main::GetConsoleHistory().GetInput(m_historyInput - 1);
 
                 if(input != nullptr)
                 {
@@ -188,7 +188,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                 m_cursorPosition = inputLength;
 
                 // Reset cursor blink.
-                Main::TextRenderer().ResetCursorBlink();
+                Main::GetTextRenderer().ResetCursorBlink();
             }
         }
         else
@@ -197,7 +197,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
             if(m_open)
             {
                 // Move output history up.
-                m_historyOutput = std::min(m_historyOutput + 1, std::max(0, Main::ConsoleHistory().GetOutputSize() - ConsoleSize + 1));
+                m_historyOutput = std::min(m_historyOutput + 1, std::max(0, Main::GetConsoleHistory().GetOutputSize() - ConsoleSize + 1));
             }
         }
         else
@@ -218,7 +218,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                 m_cursorPosition = 0;
 
                 // Reset cursor blink.
-                Main::TextRenderer().ResetCursorBlink();
+                Main::GetTextRenderer().ResetCursorBlink();
             }
         }
         else
@@ -231,7 +231,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                 m_cursorPosition = inputLength;
 
                 // Reset cursor blink.
-                Main::TextRenderer().ResetCursorBlink();
+                Main::GetTextRenderer().ResetCursorBlink();
             }
         }
         else
@@ -240,10 +240,10 @@ bool ConsoleFrame::Process(const SDL_Event& event)
             if(m_open)
             {
                 // Execute input.
-                Main::ConsoleSystem().Execute(m_input);
+                Main::GetConsoleSystem().Execute(m_input);
 
                 // Add to input history.
-                Main::ConsoleHistory().WriteInput(m_input.c_str());
+                Main::GetConsoleHistory().WriteInput(m_input.c_str());
 
                 // Reset input history position.
                 m_historyInput = 0;
@@ -255,7 +255,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                 this->ClearInput();
 
                 // Reset cursor blink.
-                Main::TextRenderer().ResetCursorBlink();
+                Main::GetTextRenderer().ResetCursorBlink();
             }
         }
         else
@@ -280,7 +280,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                     m_cursorPosition -= 1;
 
                     // Reset cursor blink.
-                    Main::TextRenderer().ResetCursorBlink();
+                    Main::GetTextRenderer().ResetCursorBlink();
                 }
             }
         }
@@ -305,7 +305,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                     m_input.erase(eraseBegin, eraseEnd);
 
                     // Reset cursor blink.
-                    Main::TextRenderer().ResetCursorBlink();
+                    Main::GetTextRenderer().ResetCursorBlink();
                 }
             }
         }
@@ -321,7 +321,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
                 this->ClearInput();
 
                 // Reset cursor blink.
-                Main::TextRenderer().ResetCursorBlink();
+                Main::GetTextRenderer().ResetCursorBlink();
             }
         }
         return m_open;
@@ -342,7 +342,7 @@ bool ConsoleFrame::Process(const SDL_Event& event)
             m_cursorPosition += 1;
 
             // Reset cursor blink.
-            Main::TextRenderer().ResetCursorBlink();
+            Main::GetTextRenderer().ResetCursorBlink();
         }
         return m_open;
 
@@ -362,11 +362,11 @@ void ConsoleFrame::Draw(const glm::mat4& transform, glm::vec2 targetSize)
     if(m_open)
     {
         // Make sure output history is within range in case it gets cleared.
-        m_historyOutput = std::min(m_historyOutput, std::max(0, Main::ConsoleHistory().GetOutputSize() - ConsoleSize + 1));
+        m_historyOutput = std::min(m_historyOutput, std::max(0, Main::GetConsoleHistory().GetOutputSize() - ConsoleSize + 1));
 
         // Calculate font sizes.
         const float fontSize = 16;
-        const float fontSpacing = Main::DefaultFont().GetLineSpacing() * Main::DefaultFont().GetScaling(fontSize);
+        const float fontSpacing = Main::GetDefaultFont().GetLineSpacing() * Main::GetDefaultFont().GetScaling(fontSize);
 
         // Calculate console metrics.
         float consoleExtra = 1.0f;
@@ -384,19 +384,19 @@ void ConsoleFrame::Draw(const glm::mat4& transform, glm::vec2 targetSize)
             rectangle.topright = targetSize;
             rectangle.color = glm::vec4(0.0f, 0.0f, 0.0f, 0.85f);
 
-            Main::BasicRenderer().DrawRectangles(style, &rectangle, 1, transform);
+            Main::GetBasicRenderer().DrawRectangles(style, &rectangle, 1, transform);
         }
 
         // Draw console output.
         for(int i = 0; i < ConsoleSize - 1; ++i)
         {
-            const char* text = Main::ConsoleHistory().GetOutput(i + m_historyOutput);
+            const char* text = Main::GetConsoleHistory().GetOutput(i + m_historyOutput);
 
             if(text == nullptr)
                 break;
 
             TextDrawInfo info;
-            info.font = &Main::DefaultFont();
+            info.font = &Main::GetDefaultFont();
             info.size = fontSize;
             info.bodyColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
             info.position.x = 5.0f;
@@ -405,7 +405,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform, glm::vec2 targetSize)
             info.area.x = 0.0f; // Text wrap doesn't work in console.
             info.area.y = 0.0f;
 
-            Main::TextRenderer().Draw(info, text, transform);
+            Main::GetTextRenderer().Draw(info, text, transform);
         }
 
         // Draw console input.
@@ -414,7 +414,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform, glm::vec2 targetSize)
             inputText += m_input;
 
             TextDrawInfo info;
-            info.font = &Main::DefaultFont();
+            info.font = &Main::GetDefaultFont();
             info.size = fontSize;
             info.bodyColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
             info.position.x = 5.0f;
@@ -424,7 +424,7 @@ void ConsoleFrame::Draw(const glm::mat4& transform, glm::vec2 targetSize)
             info.area.y = 0.0f;
             info.cursorIndex = 2 + m_cursorPosition;
 
-            Main::TextRenderer().Draw(info, inputText.c_str(), transform);
+            Main::GetTextRenderer().Draw(info, inputText.c_str(), transform);
         }
     }
 }

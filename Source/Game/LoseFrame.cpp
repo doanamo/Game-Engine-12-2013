@@ -58,8 +58,8 @@ bool LoseFrame::Process(const SDL_Event& event)
             if(m_cooldownTimer > FrameTransitionCooldown)
             {
                 // Change to the menu frame.
-                GameContext::LoseFrame().Cleanup();
-                GameContext::FrameState().ChangeState(&GameContext::MenuFrame());
+                GameContext::GetLoseFrame().Cleanup();
+                GameContext::GetFrameState().ChangeState(&GameContext::GetMenuFrame());
             }
         }
         return true;
@@ -93,17 +93,17 @@ void LoseFrame::Update(float timeDelta)
 void LoseFrame::Draw()
 {
     // Clear the depth.
-    Main::CoreRenderer().SetClearDepth(1.0f);
-    Main::CoreRenderer().Clear(ClearFlags::Depth);
+    Main::GetCoreRenderer().SetClearDepth(1.0f);
+    Main::GetCoreRenderer().Clear(ClearFlags::Depth);
 
     // Clear the screen.
-    Main::CoreRenderer().SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    Main::CoreRenderer().Clear(ClearFlags::Color);
+    Main::GetCoreRenderer().SetClearColor(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    Main::GetCoreRenderer().Clear(ClearFlags::Color);
 
     // Draw the game over text.
     {
         TextDrawInfo info;
-        info.font = &Main::DefaultFont();
+        info.font = &Main::GetDefaultFont();
         info.size = 128;
         info.align = TextDrawAlign::Centered;
         info.bodyColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -112,18 +112,18 @@ void LoseFrame::Draw()
         info.position.x = FrameWidth * 0.5f;
         info.position.y = FrameHeight * 0.7f;
 
-        Main::TextRenderer().Draw(info, "Game Over", m_screenSpace.GetTransform());
+        Main::GetTextRenderer().Draw(info, "Game Over", m_screenSpace.GetTransform());
     }
 
     {
         TextDrawInfo info;
-        info.font = &Main::DefaultFont();
+        info.font = &Main::GetDefaultFont();
         info.size = 48;
         info.align = TextDrawAlign::Centered;
         info.bodyColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
         info.position.x = FrameWidth * 0.5f;
         info.position.y = FrameHeight * 0.5f;
 
-        Main::TextRenderer().Draw(info, "Press any key to continue...", m_screenSpace.GetTransform());
+        Main::GetTextRenderer().Draw(info, "Press any key to continue...", m_screenSpace.GetTransform());
     }
 }

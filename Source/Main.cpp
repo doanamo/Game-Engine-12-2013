@@ -74,12 +74,12 @@ void HandleWindowSizeChange(int oldWidth, int oldHeight, int newWidth, int newHe
     // Change window size.
     // This event is only triggered on user system resize.
     // Function below triggers another, regular size change event.
-    SDL_SetWindowSize(Main::SystemWindow(), newWidth, newHeight);
+    SDL_SetWindowSize(Main::GetSystemWindow(), newWidth, newHeight);
 
     // Get the current window size.
     // The requested window size can't always be set.
     int windowWidth, windowHeight;
-    SDL_GetWindowSize(Main::SystemWindow(), &windowWidth, &windowHeight);
+    SDL_GetWindowSize(Main::GetSystemWindow(), &windowWidth, &windowHeight);
 
     // Update the console variables.
     Console::windowWidth = windowWidth;
@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
     while(!Main::IsQuitting())
     {
         // Reset console system intermediate state.
-        Main::ConsoleSystem().ResetIntermediateState();
+        Main::GetConsoleSystem().ResetIntermediateState();
 
         //
         // Timer
@@ -171,11 +171,11 @@ int main(int argc, char* argv[])
             }
 
             // Process an event by console frame.
-            if(Main::ConsoleFrame().Process(event))
+            if(Main::GetConsoleFrame().Process(event))
                 continue;
 
             // Process an event by main frame.
-            if(Main::MainFrame().Process(event))
+            if(Main::GetMainFrame().Process(event))
                 continue;
         }
 
@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
         if(Console::windowWidth.HasChanged() || Console::windowHeight.HasChanged())
         {
             int windowWidth, windowHeight;
-            SDL_GetWindowSize(Main::SystemWindow(), &windowWidth, &windowHeight);
+            SDL_GetWindowSize(Main::GetSystemWindow(), &windowWidth, &windowHeight);
 
             HandleWindowSizeChange(windowWidth, windowHeight, Console::windowWidth, Console::windowHeight);
         }
@@ -193,40 +193,40 @@ int main(int argc, char* argv[])
         //
 
         // Update frame counter.
-        Main::FrameCounter().Update(dt);
+        Main::GetFrameCounter().Update(dt);
 
         // Update cursor blink time.
-        Main::TextRenderer().UpdateCursorBlink(dt);
+        Main::GetTextRenderer().UpdateCursorBlink(dt);
 
         // Update main frame.
-        Main::MainFrame().Update(dt);
+        Main::GetMainFrame().Update(dt);
 
         //
         // Setup View
         //
 
         // Setup screen space.
-        Main::ScreenSpace().SetSourceSize(Console::windowWidth, Console::windowHeight);
-        Main::ScreenSpace().SetTargetAspect((float)Console::horizontalAspectRatio / (float)Console::verticalAspectRatio);
+        Main::GetScreenSpace().SetSourceSize(Console::windowWidth, Console::windowHeight);
+        Main::GetScreenSpace().SetTargetAspect((float)Console::horizontalAspectRatio / (float)Console::verticalAspectRatio);
 
         // Setup the viewport.
         glm::ivec4 viewport(0, 0, Console::windowWidth, Console::windowHeight);
         glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
 
         // Clear the screen.
-        Main::CoreRenderer().SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-        Main::CoreRenderer().Clear(ClearFlags::Color);
+        Main::GetCoreRenderer().SetClearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        Main::GetCoreRenderer().Clear(ClearFlags::Color);
 
         // Get screen space transform matrices.
-        glm::mat4x4 projection = Main::ScreenSpace().GetProjection();
-        glm::mat4x4 view = Main::ScreenSpace().GetView();
-        glm::mat4x4 transform = Main::ScreenSpace().GetTransform();
+        glm::mat4x4 projection = Main::GetScreenSpace().GetProjection();
+        glm::mat4x4 view = Main::GetScreenSpace().GetView();
+        glm::mat4x4 transform = Main::GetScreenSpace().GetTransform();
 
         // Enable scissor area where drawing will be limited.
         glEnable(GL_SCISSOR_TEST);
 
         glm::vec3 position = glm::project(glm::vec3(0.0f, 0.0f, 0.0f), view, projection, viewport);
-        glm::vec3 size = glm::project(glm::vec3(Main::ScreenSpace().GetTargetSize(), 0.0f), view, projection, viewport) - position;
+        glm::vec3 size = glm::project(glm::vec3(Main::GetScreenSpace().GetTargetSize(), 0.0f), view, projection, viewport) - position;
 
         glScissor((int)(position.x + 0.5f), (int)(position.y + 0.5f), (int)(size.x + 0.5f), (int)(size.y + 0.5f));
     
@@ -237,25 +237,25 @@ int main(int argc, char* argv[])
         //
 
         // Draw the main frame.
-        Main::MainFrame().Draw();
+        Main::GetMainFrame().Draw();
 
         // Draw frame rate.
         if(Console::drawFrameRate)
         {
             std::stringstream frameCounterText;
-            frameCounterText << "FPS: " << std::fixed << std::setprecision(0) << Main::FrameCounter().GetFrameRate() 
-                << " (" << std::setprecision(4) << Main::FrameCounter().GetFrameTime() << "s)";
+            frameCounterText << "FPS: " << std::fixed << std::setprecision(0) << Main::GetFrameCounter().GetFrameRate() 
+                << " (" << std::setprecision(4) << Main::GetFrameCounter().GetFrameTime() << "s)";
 
             TextDrawInfo info;
-            info.font = &Main::DefaultFont();
+            info.font = &Main::GetDefaultFont();
             info.size = 22;
             info.bodyColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
             info.glowColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
             info.glowRange = glm::vec2(0.2f, 0.5f);
             info.position.x = 10.0f;
-            info.position.y = 5.0f + Main::DefaultFont().GetLineSpacing() * Main::DefaultFont().GetScaling(info.size);
+            info.position.y = 5.0f + Main::GetDefaultFont().GetLineSpacing() * Main::GetDefaultFont().GetScaling(info.size);
 
-            Main::TextRenderer().Draw(info, frameCounterText.str().c_str(), transform);
+            Main::GetTextRenderer().Draw(info, frameCounterText.str().c_str(), transform);
         }
 
         // Draw debug screen target borders.
@@ -269,18 +269,18 @@ int main(int argc, char* argv[])
             BasicRenderer::Rectangle rectangle;
             rectangle.color = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
             rectangle.bottomleft = glm::vec2(0.0f, 0.0f);
-            rectangle.topright = Main::ScreenSpace().GetTargetSize() - glm::vec2(1.0f, 1.0f);
+            rectangle.topright = Main::GetScreenSpace().GetTargetSize() - glm::vec2(1.0f, 1.0f);
 
-            Main::BasicRenderer().DrawRectangles(style, &rectangle, 1, transform);
+            Main::GetBasicRenderer().DrawRectangles(style, &rectangle, 1, transform);
         }
 
         // Draw console frame on top of everything else.
-        Main::ConsoleFrame().Draw(transform, Main::ScreenSpace().GetTargetSize());
+        Main::GetConsoleFrame().Draw(transform, Main::GetScreenSpace().GetTargetSize());
 
         // Present the window content.
         bool verticalSync = Console::renderVsync;
         SDL_GL_SetSwapInterval((int)verticalSync);
-        SDL_GL_SwapWindow(Main::SystemWindow());
+        SDL_GL_SwapWindow(Main::GetSystemWindow());
     }
 
     // Everything will get cleaned up automatically.

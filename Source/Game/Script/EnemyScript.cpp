@@ -24,7 +24,7 @@ EnemyScript::EnemyScript() :
 void EnemyScript::OnUpdate(EntityHandle self, float timeDelta)
 {
     // Check if entity has needed components.
-    TransformComponent* transform = GameState::TransformComponents().Lookup(self);
+    TransformComponent* transform = GameState::GetTransformComponents().Lookup(self);
     if(transform == nullptr) return;
 
     // Move to the left side of the screen.
@@ -56,7 +56,7 @@ void EnemyScript::OnDamage(EntityHandle self, int value, bool alive)
         if(roll <= 0.1f)
         {
             // Get the transform component.
-            TransformComponent* transform = GameState::TransformComponents().Lookup(self);
+            TransformComponent* transform = GameState::GetTransformComponents().Lookup(self);
 
             // Create a health pickup entity.
             if(transform != nullptr)
@@ -66,6 +66,6 @@ void EnemyScript::OnDamage(EntityHandle self, int value, bool alive)
         }
 
         // Destroy the entity.
-        GameState::EntitySystem().DestroyEntity(self);
+        GameState::GetEntitySystem().DestroyEntity(self);
     }
 }

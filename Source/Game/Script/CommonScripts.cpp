@@ -36,7 +36,7 @@ TransformComponent* ConstantVelocityScript::GetTransformComponent(EntityHandle s
     // Cache the transform component.
     if(m_transform == nullptr)
     {
-        m_transform = GameState::TransformComponents().Lookup(self);
+        m_transform = GameState::GetTransformComponents().Lookup(self);
     }
 
     return m_transform;
@@ -58,10 +58,10 @@ void DamageOnCollision::OnCollision(const CollisionObject& self, const Collision
     assert(other.collision != nullptr);
 
     // Apply damage to target entity.
-    GameState::HealthSystem().Damage(other.entity, m_damage);
+    GameState::GetHealthSystem().Damage(other.entity, m_damage);
 
     // Temporarily disable collision response with this entity.
-    GameState::CollisionSystem().DisableCollisionResponse(self.entity, other.entity, m_interval);
+    GameState::GetCollisionSystem().DisableCollisionResponse(self.entity, other.entity, m_interval);
 }
 
 //
@@ -73,7 +73,7 @@ void DestroyOnCollision::OnCollision(const CollisionObject& self, const Collisio
     assert(other.collision != nullptr);
 
     // Destroy entity.
-    GameState::EntitySystem().DestroyEntity(other.entity);
+    GameState::GetEntitySystem().DestroyEntity(other.entity);
 }
 
 //
@@ -85,7 +85,7 @@ void DestroyOnDeathScript::OnDamage(EntityHandle self, int value, bool alive)
     // Destroy the entity on fatal damage.
     if(!alive)
     {
-        GameState::EntitySystem().DestroyEntity(self);
+        GameState::GetEntitySystem().DestroyEntity(self);
     }
 }
 
@@ -133,7 +133,7 @@ RenderComponent* FlashOnDamageScript::GetRenderComponent(EntityHandle self)
     // Cache the render component.
     if(m_render == nullptr)
     {
-        m_render = GameState::RenderComponents().Lookup(self);
+        m_render = GameState::GetRenderComponents().Lookup(self);
     }
 
     return m_render;

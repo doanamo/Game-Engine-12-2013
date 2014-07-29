@@ -361,7 +361,7 @@ void TextRenderer::Draw(const TextDrawInfo& info, const char* text, const glm::m
         cursorLine.end.x = m_drawState.GetCursorPosition().x + m_drawState.GetAlignOffset().x;
         cursorLine.end.y = m_drawState.GetCursorPosition().y + m_drawState.GetAlignOffset().y + info.font->GetDescender() * m_drawState.GetFontScale();
 
-        Main::BasicRenderer().DrawLines(style, &cursorLine, 1, transform);
+        Main::GetBasicRenderer().DrawLines(style, &cursorLine, 1, transform);
     }
 
     // Flush debug draw.
@@ -375,7 +375,7 @@ void TextRenderer::Draw(const TextDrawInfo& info, const char* text, const glm::m
             style.lineType = BasicRenderer::LineType::Adjusted;
             style.alphaBlend = false;
 
-            Main::BasicRenderer().DrawRectangles(style, &debugRectangles[0], debugRectangles.size(), transform);
+            Main::GetBasicRenderer().DrawRectangles(style, &debugRectangles[0], debugRectangles.size(), transform);
         }
 
         // Add last base line.
@@ -388,7 +388,7 @@ void TextRenderer::Draw(const TextDrawInfo& info, const char* text, const glm::m
             style.lineType = BasicRenderer::LineType::Adjusted;
             style.alphaBlend = false;
 
-            Main::BasicRenderer().DrawLines(style, &debugLines[0], debugLines.size(), transform);
+            Main::GetBasicRenderer().DrawLines(style, &debugLines[0], debugLines.size(), transform);
         }
 
         // Draw bounding box.
@@ -405,7 +405,7 @@ void TextRenderer::Draw(const TextDrawInfo& info, const char* text, const glm::m
             rectangle.topright.x = m_drawState.GetBoundingBox().z + m_drawState.GetAlignOffset().x - 1.0f;
             rectangle.topright.y = m_drawState.GetBoundingBox().w + m_drawState.GetAlignOffset().y - 1.0f;
 
-            Main::BasicRenderer().DrawRectangles(style, &rectangle, 1, transform);
+            Main::GetBasicRenderer().DrawRectangles(style, &rectangle, 1, transform);
         }
 
         // Draw text area.
@@ -422,7 +422,7 @@ void TextRenderer::Draw(const TextDrawInfo& info, const char* text, const glm::m
             rectangle.topright.x = m_drawState.GetTextArea().z + m_drawState.GetAlignOffset().x - 1.0f;
             rectangle.topright.y = m_drawState.GetTextArea().w + m_drawState.GetAlignOffset().y - 1.0f;
 
-            Main::BasicRenderer().DrawRectangles(style, &rectangle, 1, transform);
+            Main::GetBasicRenderer().DrawRectangles(style, &rectangle, 1, transform);
         }
 
         // Draw origin.
@@ -440,7 +440,7 @@ void TextRenderer::Draw(const TextDrawInfo& info, const char* text, const glm::m
             lines[1].begin = info.position + glm::vec2(0.0f, -50.0f);
             lines[1].end   = info.position + glm::vec2(0.0f,  50.0f);
 
-            Main::BasicRenderer().DrawLines(style, &lines[0], 2, transform);
+            Main::GetBasicRenderer().DrawLines(style, &lines[0], 2, transform);
         }
     }
 }

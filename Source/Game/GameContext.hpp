@@ -23,9 +23,9 @@ namespace GameContext
     // Context accessors.
     bool IsInitialized();
 
-    StateMachine<BaseFrame*>& FrameState();
+    StateMachine<BaseFrame*>& GetFrameState();
 
-    MenuFrame& MenuFrame();
-    GameFrame& GameFrame();
-    LoseFrame& LoseFrame();
+    MenuFrame& GetMenuFrame();
+    GameFrame& GetGameFrame();
+    LoseFrame& GetLoseFrame();
 }

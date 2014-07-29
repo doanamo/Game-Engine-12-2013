@@ -50,28 +50,28 @@ namespace Main
     bool            IsInitialized();
     bool            IsQuitting();
 
-    std::string     CurrentDir();
-    std::string     SourceDir();
-    std::string     WorkingDir();
-    std::string     CacheDir();
+    std::string     GetCurrentDir();
+    std::string     GetSourceDir();
+    std::string     GetWorkingDir();
+    std::string     GetCacheDir();
 
-    Logger&         Logger();
-    CacheManager&   CacheManager();
-    ConsoleSystem&  ConsoleSystem();
-    ConsoleHistory& ConsoleHistory();
-    ConsoleFrame&   ConsoleFrame();
-    ScreenSpace&    ScreenSpace();
-    CoreRenderer&   CoreRenderer();
-    BasicRenderer&  BasicRenderer();
-    TextRenderer&   TextRenderer();
-    FrameCounter&   FrameCounter();
+    Logger&         GetLogger();
+    CacheManager&   GetCacheManager();
+    ConsoleSystem&  GetConsoleSystem();
+    ConsoleHistory& GetConsoleHistory();
+    ConsoleFrame&   GetConsoleFrame();
+    ScreenSpace&    GetScreenSpace();
+    CoreRenderer&   GetCoreRenderer();
+    BasicRenderer&  GetBasicRenderer();
+    TextRenderer&   GetTextRenderer();
+    FrameCounter&   GetFrameCounter();
 
-    Texture&        BlankTexture();
-    Font&           DefaultFont();
+    Texture&        GetBlankTexture();
+    Font&           GetDefaultFont();
 
-    SDL_Window*     SystemWindow();
-    SDL_GLContext   GraphicsContext();
-    FT_Library      FontLibrary();
+    SDL_Window*     GetSystemWindow();
+    SDL_GLContext   GetGraphicsContext();
+    FT_Library      GetFontLibrary();
 
-    BaseFrame&      MainFrame();
+    BaseFrame&      GetMainFrame();
 }

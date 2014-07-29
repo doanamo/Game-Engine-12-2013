@@ -109,5 +109,5 @@ void ValueBar::Draw(const glm::vec2& position, const glm::mat4& transform)
     style.drawMode = BasicRenderer::DrawMode::Fill;
     style.alphaBlend = false;
 
-    Main::BasicRenderer().DrawRectangles(style, &rectangles[0], StaticArraySize(rectangles), transform);
+    Main::GetBasicRenderer().DrawRectangles(style, &rectangles[0], StaticArraySize(rectangles), transform);
 }

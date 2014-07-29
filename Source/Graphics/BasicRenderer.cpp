@@ -137,7 +137,7 @@ void BasicRenderer::DrawLinesRough(const LineStyle& style, const Line* data, int
     SCOPE_GUARD(glDisable(GL_BLEND));
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, Main::BlankTexture().GetHandle());
+    glBindTexture(GL_TEXTURE_2D, Main::GetBlankTexture().GetHandle());
     SCOPE_GUARD(glBindTexture(GL_TEXTURE_2D, 0));
 
     glBindVertexArray(m_vertexInput.GetHandle());
@@ -263,7 +263,7 @@ void BasicRenderer::DrawRectanglesLine(const RectangleStyle& style, const Rectan
     SCOPE_GUARD(glDisable(GL_BLEND));
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, Main::BlankTexture().GetHandle());
+    glBindTexture(GL_TEXTURE_2D, Main::GetBlankTexture().GetHandle());
     SCOPE_GUARD(glBindTexture(GL_TEXTURE_2D, 0));
 
     glBindVertexArray(m_vertexInput.GetHandle());
@@ -367,7 +367,7 @@ void BasicRenderer::DrawRectanglesFill(const RectangleStyle& style, const Rectan
     SCOPE_GUARD(glDisable(GL_BLEND));
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, Main::BlankTexture().GetHandle());
+    glBindTexture(GL_TEXTURE_2D, Main::GetBlankTexture().GetHandle());
     SCOPE_GUARD(glBindTexture(GL_TEXTURE_2D, 0));
 
     glBindVertexArray(m_vertexInput.GetHandle());
@@ -571,7 +571,7 @@ void BasicRenderer::DrawSprites(const SpriteStyle& style, const Sprite* data, in
             }
             else
             {
-                glBindTexture(GL_TEXTURE_2D, Main::BlankTexture().GetHandle());
+                glBindTexture(GL_TEXTURE_2D, Main::GetBlankTexture().GetHandle());
             }
 
             // Draw shapes.

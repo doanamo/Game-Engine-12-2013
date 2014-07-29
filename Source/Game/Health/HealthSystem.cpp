@@ -36,11 +36,11 @@ void HealthSystem::Cleanup()
 void HealthSystem::Damage(EntityHandle entity, int value)
 {
     // Check if handle is valid.
-    if(!GameState::EntitySystem().IsHandleValid(entity))
+    if(!GameState::GetEntitySystem().IsHandleValid(entity))
         return;
 
     // Get the health component.
-    HealthComponent* health = GameState::HealthComponents().Lookup(entity);
+    HealthComponent* health = GameState::GetHealthComponents().Lookup(entity);
     if(health == nullptr) return;
 
     // Don't damage if dead.
@@ -52,7 +52,7 @@ void HealthSystem::Damage(EntityHandle entity, int value)
 
     if(Console::cheatGodMode)
     {
-        EntityHandle player = GameState::IdentitySystem().GetEntityByName("Player");
+        EntityHandle player = GameState::GetIdentitySystem().GetEntityByName("Player");
 
         if(entity == player)
         {
@@ -92,11 +92,11 @@ void HealthSystem::Damage(EntityHandle entity, int value)
 void HealthSystem::Heal(EntityHandle entity, int value)
 {
     // Check if handle is valid.
-    if(!GameState::EntitySystem().IsHandleValid(entity))
+    if(!GameState::GetEntitySystem().IsHandleValid(entity))
         return;
 
     // Get the health component.
-    HealthComponent* health = GameState::HealthComponents().Lookup(entity);
+    HealthComponent* health = GameState::GetHealthComponents().Lookup(entity);
     if(health == nullptr) return;
 
     // Don't heal if dead.

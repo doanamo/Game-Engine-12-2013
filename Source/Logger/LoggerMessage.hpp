@@ -14,8 +14,9 @@ public:
     LoggerMessage(LoggerMessage&& other);
     virtual ~LoggerMessage();
 
-    LoggerMessage& Source(const char* source, unsigned int line);
-    LoggerMessage& Text(const char* text);
+    LoggerMessage& SetText(const char* text);
+    LoggerMessage& SetSource(const char* source);
+    LoggerMessage& SetLine(unsigned int line);
 
     bool IsEmpty() const
     {

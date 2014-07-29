@@ -37,23 +37,23 @@ namespace GameState
     // State accessors.
     bool IsInitialized();
 
-    ComponentPool<TransformComponent>& TransformComponents();
-    ComponentPool<InputComponent>&     InputComponents();
-    ComponentPool<HealthComponent>&    HealthComponents();
-    ComponentPool<CollisionComponent>& CollisionComponents();
-    ComponentPool<ScriptComponent>&    ScriptComponents();
-    ComponentPool<RenderComponent>&    RenderComponents();
+    ComponentPool<TransformComponent>& GetTransformComponents();
+    ComponentPool<InputComponent>&     GetInputComponents();
+    ComponentPool<HealthComponent>&    GetHealthComponents();
+    ComponentPool<CollisionComponent>& GetCollisionComponents();
+    ComponentPool<ScriptComponent>&    GetScriptComponents();
+    ComponentPool<RenderComponent>&    GetRenderComponents();
 
-    InputState& InputState();
+    InputState& GetInputState();
 
-    EntitySystem&    EntitySystem();
-    IdentitySystem&  IdentitySystem();
-    HealthSystem&    HealthSystem();
-    CollisionSystem& CollisionSystem();
-    ScriptSystem&    ScriptSystem();
-    RenderSystem&    RenderSystem();
-    InterfaceSystem& InterfaceSystem();
+    EntitySystem&    GetEntitySystem();
+    IdentitySystem&  GetIdentitySystem();
+    HealthSystem&    GetHealthSystem();
+    CollisionSystem& GetCollisionSystem();
+    ScriptSystem&    GetScriptSystem();
+    RenderSystem&    GetRenderSystem();
+    InterfaceSystem& GetInterfaceSystem();
 
-    SpawnSystem&     SpawnSystem();
-    ProgressSystem&  ProgressSystem();
+    SpawnSystem&     GetSpawnSystem();
+    ProgressSystem&  GetProgressSystem();
 };

@@ -55,7 +55,7 @@ bool Shader::Load(std::string filename)
     );
 
     // Load the shader code from a file.
-    std::string shaderCode = GetTextFileContent(Main::WorkingDir() + filename);
+    std::string shaderCode = GetTextFileContent(Main::GetWorkingDir() + filename);
 
     if(shaderCode.empty())
     {

@@ -189,77 +189,77 @@ bool GameState::IsInitialized()
     return isInitialized;
 }
 
-ComponentPool<TransformComponent>& GameState::TransformComponents()
+ComponentPool<TransformComponent>& GameState::GetTransformComponents()
 {
     return transformComponents;
 }
 
-ComponentPool<InputComponent>& GameState::InputComponents()
+ComponentPool<InputComponent>& GameState::GetInputComponents()
 {
     return inputComponents;
 }
 
-ComponentPool<CollisionComponent>& GameState::CollisionComponents()
+ComponentPool<CollisionComponent>& GameState::GetCollisionComponents()
 {
     return collisionComponents;
 }
 
-ComponentPool<HealthComponent>& GameState::HealthComponents()
+ComponentPool<HealthComponent>& GameState::GetHealthComponents()
 {
     return healthComponents;
 }
 
-ComponentPool<ScriptComponent>& GameState::ScriptComponents()
+ComponentPool<ScriptComponent>& GameState::GetScriptComponents()
 {
     return scriptComponents;
 }
 
-ComponentPool<RenderComponent>& GameState::RenderComponents()
+ComponentPool<RenderComponent>& GameState::GetRenderComponents()
 {
     return renderComponents;
 }
 
-InputState& GameState::InputState()
+InputState& GameState::GetInputState()
 {
     return inputState;
 }
 
-EntitySystem& GameState::EntitySystem()
+EntitySystem& GameState::GetEntitySystem()
 {
     return entitySystem;
 }
 
-IdentitySystem& GameState::IdentitySystem()
+IdentitySystem& GameState::GetIdentitySystem()
 {
     return identitySystem;
 }
 
-HealthSystem& GameState::HealthSystem()
+HealthSystem& GameState::GetHealthSystem()
 {
     return healthSystem;
 }
 
-CollisionSystem& GameState::CollisionSystem()
+CollisionSystem& GameState::GetCollisionSystem()
 {
     return collisionSystem;
 }
 
-ScriptSystem& GameState::ScriptSystem()
+ScriptSystem& GameState::GetScriptSystem()
 {
     return scriptSystem;
 }
 
-RenderSystem& GameState::RenderSystem()
+RenderSystem& GameState::GetRenderSystem()
 {
     return renderSystem;
 }
 
-InterfaceSystem& GameState::InterfaceSystem()
+InterfaceSystem& GameState::GetInterfaceSystem()
 {
     return interfaceSystem;
 }
 
-SpawnSystem& GameState::SpawnSystem()
+SpawnSystem& GameState::GetSpawnSystem()
 {
     return spawnSystem;
 }
