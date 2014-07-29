@@ -61,28 +61,28 @@ void LuaScript::Cleanup()
     }
 }
 
-std::string LuaScript::DetachStem(std::string& compound)
+std::string LuaScript::DetachStem(std::string& compoundVariable)
 {
     // Find the separator.
-    std::size_t separator = compound.find_first_of('.');
+    std::size_t separator = compoundVariable.find_first_of('.');
 
     // Copy the stem.
-    std::string detached(compound, 0, separator);
+    std::string detached(compoundVariable, 0, separator);
 
     // Erase detached stem.
     if(separator != std::string::npos)
     {
-        compound.erase(0, separator + 1);
+        compoundVariable.erase(0, separator + 1);
     }
     else
     {
-        compound.erase();
+        compoundVariable.erase();
     }
 
     return detached;
 }
 
-bool LuaScript::PushVariable(std::string compound)
+bool LuaScript::PushVariable(std::string compoundVariable)
 {
     assert(m_state);
 
@@ -92,7 +92,7 @@ bool LuaScript::PushVariable(std::string compound)
     while(true)
     {
         // Detach element name from variable compound.
-        element = DetachStem(compound);
+        element = DetachStem(compoundVariable);
 
         if(element.empty())
             break;
@@ -124,13 +124,13 @@ void LuaScript::PopStack()
     lua_pop(m_state, size);
 }
 
-std::string LuaScript::GetString(std::string compound, std::string unavailable)
+std::string LuaScript::GetString(std::string compoundVariable, std::string defaultValue)
 {
-    std::string value = unavailable;
+    std::string value = defaultValue;
 
     if(m_state)
     {
-        if(PushVariable(compound))
+        if(PushVariable(compoundVariable))
         {
             if(lua_isstring(m_state, -1))
             {
@@ -144,13 +144,13 @@ std::string LuaScript::GetString(std::string compound, std::string unavailable)
     return value;
 }
 
-bool LuaScript::GetBool(std::string compound, bool unavailable)
+bool LuaScript::GetBool(std::string compoundVariable, bool defaultValue)
 {
-    bool value = unavailable;
+    bool value = defaultValue;
 
     if(m_state)
     {
-        if(PushVariable(compound))
+        if(PushVariable(compoundVariable))
         {
             if(lua_isboolean(m_state, -1))
             {
@@ -164,13 +164,13 @@ bool LuaScript::GetBool(std::string compound, bool unavailable)
     return value;
 }
 
-int LuaScript::GetInteger(std::string compound, int unavailable)
+int LuaScript::GetInteger(std::string compoundVariable, int defaultValue)
 {
-    int value = unavailable;
+    int value = defaultValue;
 
     if(m_state)
     {
-        if(PushVariable(compound))
+        if(PushVariable(compoundVariable))
         {
             if(lua_isnumber(m_state, -1))
             {
@@ -184,13 +184,13 @@ int LuaScript::GetInteger(std::string compound, int unavailable)
     return value;
 }
 
-float LuaScript::GetFloat(std::string compound, float unavailable)
+float LuaScript::GetFloat(std::string compoundVariable, float defaultValue)
 {
-    float value = unavailable;
+    float value = defaultValue;
 
     if(m_state)
     {
-        if(PushVariable(compound))
+        if(PushVariable(compoundVariable))
         {
             if(lua_isnumber(m_state, -1))
             {
