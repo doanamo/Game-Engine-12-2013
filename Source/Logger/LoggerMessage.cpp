@@ -39,7 +39,12 @@ LoggerMessage& LoggerMessage::Source(const char* source, unsigned int line)
     std::replace(m_source.begin(), m_source.end(), '\\', '/');
 
     // Remove base path to source directory.
-    m_source.erase(m_source.find(Main::SourceDir()), Main::SourceDir().size());
+    std::size_t position = m_source.find(Main::SourceDir());
+
+    if(position != std::string::npos)
+    {
+        m_source.erase(position, Main::SourceDir().size());
+    }
 
     return *this;
 }
