@@ -73,6 +73,9 @@ Set(SourceFiles
     "System/CacheManager.hpp"
     "System/CacheManager.cpp"
 
+    "Scripting/LuaScript.hpp"
+    "Scripting/LuaScript.cpp"
+
     "Graphics/ScreenSpace.hpp"
     "Graphics/ScreenSpace.cpp"
     "Graphics/CoreRenderer.hpp"
@@ -325,6 +328,26 @@ EndIf()
 Include_Directories("../External/UTF8-2.3.4/source")
 
 #
+# LuaJIT
+#
+
+# We don't need these.
+Set(LUA_BUILD_EXE OFF CACHE BOOL "")
+Set(LUA_BUILD_WLUA OFF CACHE BOOL "")
+
+# Add library directory.
+Add_SubDirectory("../External/LuaJIT-2.0.3" "LuaJIT")
+
+# Move library target to dependencies.
+Set_Property(TARGET "minilua" PROPERTY FOLDER "Dependencies")
+Set_Property(TARGET "buildvm" PROPERTY FOLDER "Dependencies")
+Set_Property(TARGET "liblua" PROPERTY FOLDER "Dependencies")
+
+# Add include directory.
+Include_Directories("../External/LuaJIT-2.0.3/src")
+Include_Directories("${CMAKE_CURRENT_BINARY_DIR}/LuaJIT")
+
+#
 # Target
 #
 
@@ -349,6 +372,10 @@ Target_Link_Libraries(${TargetName} "glew32s")
 # Link FreeType library.
 Add_Dependencies(${TargetName} "freetype")
 Target_Link_Libraries(${TargetName} "freetype")
+
+# Link LuaJIT library.
+Add_Dependencies(${TargetName} "liblua")
+Target_Link_Libraries(${TargetName} "liblua")
 
 #
 # Debugging

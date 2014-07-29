@@ -60,6 +60,9 @@
 #include FT_FREETYPE_H
 #include FT_BITMAP_H
 
+// Lua
+#include <lua.hpp>
+
 // UTF8
 #include <utf8.h>
 
