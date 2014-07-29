@@ -82,46 +82,37 @@ std::string LuaScript::DetachStem(std::string& compoundVariable)
     return detached;
 }
 
-bool LuaScript::PushVariable(std::string compoundVariable)
+Lua::LuaRef LuaScript::GetVariable(std::string compoundVariable)
 {
     assert(m_state);
 
-    // Push compound on the stack.
-    std::string element;
+    // Get the lua variable.
+    Lua::LuaRef variable(m_state);
 
     while(true)
     {
-        // Detach element name from variable compound.
-        element = DetachStem(compoundVariable);
+        // Detach variable name from variable compound.
+        std::string name = DetachStem(compoundVariable);
 
-        if(element.empty())
+        if(name.empty())
             break;
 
-        // Push variable on the stack.
-        if(lua_gettop(m_state) == 0)
+        // Get variable reference.
+        if(variable.isNil())
         {
-            lua_getglobal(m_state, element.c_str());
+            variable = Lua::getGlobal(m_state, name.c_str());
         }
         else
         {
-            lua_getfield(m_state, -1, element.c_str());
+            variable = Lua::LuaRef(variable[name.c_str()]);
         }
 
-        // Check if we pushed nil.
-        if(lua_isnil(m_state, -1))
-            return false;
+        // Check if we got nil.
+        if(variable.isNil())
+            break;
     }
 
-    return true;
-}
-
-void LuaScript::PopStack()
-{
-    assert(m_state);
-
-    // Pop the entire stack.
-    int size = lua_gettop(m_state);
-    lua_pop(m_state, size);
+    return variable;
 }
 
 std::string LuaScript::GetString(std::string compoundVariable, std::string defaultValue)
@@ -130,14 +121,11 @@ std::string LuaScript::GetString(std::string compoundVariable, std::string defau
 
     if(m_state)
     {
-        if(PushVariable(compoundVariable))
+        Lua::LuaRef variable = GetVariable(compoundVariable);
+
+        if(variable.isString())
         {
-            if(lua_isstring(m_state, -1))
-            {
-                value = lua_tostring(m_state, -1);
-            }
-            
-            PopStack();
+            value = variable.cast<std::string>();
         }
     }
 
@@ -150,14 +138,11 @@ bool LuaScript::GetBool(std::string compoundVariable, bool defaultValue)
 
     if(m_state)
     {
-        if(PushVariable(compoundVariable))
+        Lua::LuaRef variable = GetVariable(compoundVariable);
+
+        if(variable.isBoolean())
         {
-            if(lua_isboolean(m_state, -1))
-            {
-                value = lua_toboolean(m_state, -1) != 0;
-            }
-            
-            PopStack();
+            value = variable.cast<bool>();
         }
     }
 
@@ -170,14 +155,11 @@ int LuaScript::GetInteger(std::string compoundVariable, int defaultValue)
 
     if(m_state)
     {
-        if(PushVariable(compoundVariable))
+        Lua::LuaRef variable = GetVariable(compoundVariable);
+
+        if(variable.isNumber())
         {
-            if(lua_isnumber(m_state, -1))
-            {
-                value = (int)lua_tonumber(m_state, -1);
-            }
-            
-            PopStack();
+            value = variable.cast<int>();
         }
     }
 
@@ -190,14 +172,11 @@ float LuaScript::GetFloat(std::string compoundVariable, float defaultValue)
 
     if(m_state)
     {
-        if(PushVariable(compoundVariable))
+        Lua::LuaRef variable = GetVariable(compoundVariable);
+
+        if(variable.isNumber())
         {
-            if(lua_isnumber(m_state, -1))
-            {
-                value = (float)lua_tonumber(m_state, -1);
-            }
-            
-            PopStack();
+            value = variable.cast<float>();
         }
     }
 

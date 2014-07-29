@@ -348,6 +348,13 @@ Include_Directories("../External/LuaJIT-2.0.3/src")
 Include_Directories("${CMAKE_CURRENT_BINARY_DIR}/LuaJIT")
 
 #
+# LuaBridge
+#
+
+# Add include directory.
+Include_Directories("../External/LuaBridge-443/Source")
+
+#
 # Target
 #
 

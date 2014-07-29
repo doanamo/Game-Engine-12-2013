@@ -16,6 +16,7 @@ public:
     bool Load(std::string filename);
     void Cleanup();
 
+    Lua::LuaRef GetVariable(std::string compoundVariable);
     std::string GetString(std::string compoundVariable, std::string defaultValue = "nil");
     bool GetBool(std::string compoundVariable, bool defaultValue = false);
     int GetInteger(std::string compoundVariable, int defaultValue = 0);
@@ -25,8 +26,6 @@ public:
 
 private:
     std::string DetachStem(std::string& compoundVariable);
-    bool PushVariable(std::string compoundVariable);
-    void PopStack();
 
 private:
     lua_State* m_state;

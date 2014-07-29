@@ -63,6 +63,10 @@
 // Lua
 #include <lua.hpp>
 
+// LuaBridge
+#include <LuaBridge/LuaBridge.h>
+namespace Lua = luabridge;
+
 // UTF8
 #include <utf8.h>
 
