@@ -13,6 +13,12 @@ LuaScript::LuaScript() :
 {
 }
 
+LuaScript::LuaScript(std::string filename) :
+    LuaScript()
+{
+    Load(filename);
+}
+
 LuaScript::~LuaScript()
 {
     Cleanup();

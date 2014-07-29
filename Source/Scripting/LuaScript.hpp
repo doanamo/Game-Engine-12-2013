@@ -10,6 +10,7 @@ class LuaScript
 {
 public:
     LuaScript();
+    LuaScript(std::string filename);
     ~LuaScript();
 
     bool Load(std::string filename);

@@ -1,10 +1,10 @@
 #include "Precompiled.hpp"
 
 #include "MainContext.hpp"
-#include "System/BaseFrame.hpp"
-#include "System/FrameCounter.hpp"
 #include "Console/ConsoleSystem.hpp"
 #include "Console/ConsoleFrame.hpp"
+#include "System/BaseFrame.hpp"
+#include "System/FrameCounter.hpp"
 #include "Graphics/Font.hpp"
 #include "Graphics/ScreenSpace.hpp"
 #include "Graphics/CoreRenderer.hpp"
@@ -100,19 +100,6 @@ int main(int argc, char* argv[])
 {
     // Finalize static instances.
     ConsoleDefinition::FinalizeStatic();
-
-    //
-    // Configuration
-    //
-
-    // Window settings.
-    Console::windowName = "Game";
-    Console::windowWidth = 1024;
-    Console::windowHeight = 576;
-    Console::windowResize = true;
-
-    // Render settings.
-    Console::renderVsync = true;
 
     //
     // Context

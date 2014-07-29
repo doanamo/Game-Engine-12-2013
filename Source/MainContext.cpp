@@ -10,6 +10,7 @@
 #include "Console/ConsoleSystem.hpp"
 #include "Console/ConsoleHistory.hpp"
 #include "Console/ConsoleFrame.hpp"
+#include "Scripting/LuaScript.hpp"
 #include "Graphics/Texture.hpp"
 #include "Graphics/Font.hpp"
 #include "Graphics/ScreenSpace.hpp"
@@ -25,7 +26,7 @@
 namespace Console
 {
     // Window settings.
-    ConsoleVariable windowName(ConsoleDefinition::Internal, "");
+    ConsoleVariable windowName(ConsoleDefinition::Internal, "Game");
     ConsoleVariable windowWidth("r_width", 1024, "Current screen width.");
     ConsoleVariable windowHeight("r_height", 576, "Current screen height.");
     ConsoleVariable windowResize(ConsoleDefinition::Internal, false);
@@ -94,7 +95,7 @@ bool Main::Initialize()
     });
 
     //
-    // Config
+    // Environment
     //
 
     // Get the current directory.
@@ -124,6 +125,18 @@ bool Main::Initialize()
 
     // Get the cache directory.
     cacheDir = workingDir + "Cache/";
+
+    //
+    // Config
+    //
+
+    // Load the config file.
+    LuaScript config(workingDir + "Game.cfg");
+
+    // Read config settings.
+    Console::windowWidth = config.GetInteger("Config.Graphics.Width", Console::windowWidth);
+    Console::windowHeight = config.GetInteger("Config.Graphics.Height", Console::windowHeight);
+    Console::renderVsync = config.GetBool("Config.Graphics.Vsync", Console::renderVsync);
 
     //
     // Logger
