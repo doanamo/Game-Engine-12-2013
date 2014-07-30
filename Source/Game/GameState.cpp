@@ -1,6 +1,7 @@
 #include "Precompiled.hpp"
 #include "GameState.hpp"
 
+#include "Game/Component/ComponentCollection.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
 #include "Game/Input/InputState.hpp"
@@ -32,6 +33,9 @@ namespace
     ComponentPool<CollisionComponent> collisionComponents;
     ComponentPool<ScriptComponent>    scriptComponents;
     ComponentPool<RenderComponent>    renderComponents;
+
+    // Component collection.
+    ComponentCollection componentCollection;
 
     // Input state.
     InputState inputState;
@@ -114,6 +118,14 @@ bool GameState::Initialize()
     entitySystem.RegisterSubscriber(&scriptComponents);
     entitySystem.RegisterSubscriber(&renderComponents);
 
+    // Add pools to the component collection.
+    componentCollection.Register(&transformComponents);
+    componentCollection.Register(&inputComponents);
+    componentCollection.Register(&healthComponents);
+    componentCollection.Register(&collisionComponents);
+    componentCollection.Register(&scriptComponents);
+    componentCollection.Register(&renderComponents);
+
     //
     // Game Systems
     //
@@ -166,6 +178,8 @@ void GameState::Cleanup()
     // Component Pools
     //
 
+    componentCollection.Cleanup();
+
     transformComponents.Cleanup();
     inputComponents.Cleanup();
     healthComponents.Cleanup();
@@ -217,6 +231,11 @@ ComponentPool<ScriptComponent>& GameState::GetScriptComponents()
 ComponentPool<RenderComponent>& GameState::GetRenderComponents()
 {
     return renderComponents;
+}
+
+ComponentCollection& GameState::GetComponentCollection()
+{
+    return componentCollection;
 }
 
 InputState& GameState::GetInputState()

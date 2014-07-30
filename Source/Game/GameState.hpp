@@ -12,6 +12,8 @@ class CollisionComponent;
 class ScriptComponent;
 class RenderComponent;
 
+class ComponentCollection;
+
 class InputState;
 
 class EntitySystem;
@@ -43,6 +45,8 @@ namespace GameState
     ComponentPool<CollisionComponent>& GetCollisionComponents();
     ComponentPool<ScriptComponent>&    GetScriptComponents();
     ComponentPool<RenderComponent>&    GetRenderComponents();
+
+    ComponentCollection& GetComponentCollection();
 
     InputState& GetInputState();
 
