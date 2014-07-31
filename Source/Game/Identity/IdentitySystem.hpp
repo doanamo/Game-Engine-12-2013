@@ -32,6 +32,7 @@ private:
     void OnDestroyEntity(const EntityHandle& entity);
 
 private:
+    // System state.
     bool m_initialized;
 
     // List of named entities.

@@ -3,14 +3,16 @@
 #include "ScriptComponent.hpp"
 #include "Script.hpp"
 
-#include "Game/GameContext.hpp"
-#include "Game/GameState.hpp"
 #include "Game/Event/EventDefinitions.hpp"
 #include "Game/Event/EventSystem.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Component/ComponentSystem.hpp"
 
-ScriptSystem::ScriptSystem()
+ScriptSystem::ScriptSystem() :
+    m_initialized(false),
+    m_eventSystem(nullptr),
+    m_entitySystem(nullptr),
+    m_componentSystem(nullptr)
 {
 }
 
@@ -21,18 +23,36 @@ ScriptSystem::~ScriptSystem()
 
 void ScriptSystem::Cleanup()
 {
+    m_initialized = false;
+
+    // Game systems.
+    m_eventSystem = nullptr;
+    m_entitySystem = nullptr;
+    m_componentSystem = nullptr;
+
+    // Event receivers.
     m_receiverEntityDamaged.Cleanup();
     m_receiverEntityHealed.Cleanup();
     m_receiverEntityCollsion.Cleanup();
 }
 
-bool ScriptSystem::Initialize(EventSystem* eventSystem)
+bool ScriptSystem::Initialize(EventSystem* eventSystem, EntitySystem* entitySystem, ComponentSystem* componentSystem)
 {
     Cleanup();
 
     // Validate arguments.
     if(eventSystem == nullptr)
         return false;
+
+    if(entitySystem == nullptr)
+        return false;
+
+    if(componentSystem == nullptr)
+        return false;
+
+    m_eventSystem = eventSystem;
+    m_entitySystem = entitySystem;
+    m_componentSystem = componentSystem;
 
     // Bind event receivers.
     m_receiverEntityDamaged.Bind<ScriptSystem, &ScriptSystem::OnEntityDamagedEvent>(this);
@@ -44,16 +64,25 @@ bool ScriptSystem::Initialize(EventSystem* eventSystem)
     eventSystem->Subscribe(&m_receiverEntityHealed);
     eventSystem->Subscribe(&m_receiverEntityCollsion);
 
-    return true;
+    // Declare required components.
+    m_componentSystem->Declare<ScriptComponent>();
+
+    // Success!
+    return m_initialized = true;
 }
 
 void ScriptSystem::Update(float timeDelta)
 {
+    assert(m_initialized);
+
     // Process script components.
-    for(auto it = GameState::GetComponentSystem().Begin<ScriptComponent>(); it != GameState::GetComponentSystem().End<ScriptComponent>(); ++it)
+    auto componentsBegin = m_componentSystem->Begin<ScriptComponent>();
+    auto componentsEnd = m_componentSystem->End<ScriptComponent>();
+
+    for(auto it = componentsBegin; it != componentsEnd; ++it)
     {
         // Check if entity is active.
-        if(!GameState::GetEntitySystem().IsHandleValid(it->first))
+        if(!m_entitySystem->IsHandleValid(it->first))
             continue;
 
         // Get the script component.
@@ -73,8 +102,10 @@ void ScriptSystem::Update(float timeDelta)
 
 void ScriptSystem::OnEntityDamagedEvent(const GameEvent::EntityDamaged& event)
 {
+    assert(m_initialized);
+
     // Execute the event script.
-    ScriptComponent* script = GameState::GetComponentSystem().Lookup<ScriptComponent>(event.entity);
+    ScriptComponent* script = m_componentSystem->Lookup<ScriptComponent>(event.entity);
 
     if(script != nullptr)
     {
@@ -84,8 +115,10 @@ void ScriptSystem::OnEntityDamagedEvent(const GameEvent::EntityDamaged& event)
 
 void ScriptSystem::OnEntityHealedEvent(const GameEvent::EntityHealed& event)
 {
+    assert(m_initialized);
+
     // Execute the event script.
-    ScriptComponent* script = GameState::GetComponentSystem().Lookup<ScriptComponent>(event.entity);
+    ScriptComponent* script = m_componentSystem->Lookup<ScriptComponent>(event.entity);
 
     if(script != nullptr)
     {
@@ -95,8 +128,10 @@ void ScriptSystem::OnEntityHealedEvent(const GameEvent::EntityHealed& event)
 
 void ScriptSystem::OnEntityCollisionEvent(const GameEvent::EntityCollision& event)
 {
+    assert(m_initialized);
+
     // Execute the event script.
-    ScriptComponent* script = GameState::GetComponentSystem().Lookup<ScriptComponent>(event.self.entity);
+    ScriptComponent* script = m_componentSystem->Lookup<ScriptComponent>(event.self.entity);
 
     if(script != nullptr)
     {

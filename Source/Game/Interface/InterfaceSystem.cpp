@@ -3,12 +3,10 @@
 
 #include "MainContext.hpp"
 #include "Graphics/TextRenderer.hpp"
-#include "Game/GameContext.hpp"
-#include "Game/GameState.hpp"
 #include "Game/Event/EventSystem.hpp"
 #include "Game/Entity/EntitySystem.hpp"
-#include "Game/Component/ComponentSystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
+#include "Game/Component/ComponentSystem.hpp"
 #include "Game/Transform/TransformComponent.hpp"
 #include "Game/Health/HealthComponent.hpp"
 #include "Game/Render/RenderSystem.hpp"
@@ -24,7 +22,12 @@ namespace
 }
 
 InterfaceSystem::InterfaceSystem() :
-    m_initialized(false)
+    m_initialized(false),
+    m_eventSystem(nullptr),
+    m_entitySystem(nullptr),
+    m_identitySystem(nullptr),
+    m_componentSystem(nullptr),
+    m_renderSystem(nullptr)
 {
 }
 
@@ -33,37 +36,16 @@ InterfaceSystem::~InterfaceSystem()
     Cleanup();
 }
 
-bool InterfaceSystem::Initialize(EventSystem* eventSystem)
-{
-    Cleanup();
-
-    // Validate arguments.
-    if(eventSystem == nullptr)
-        return false;
-
-    // Initialize the health bar.
-    m_playerHealthBar.SetDrawingRectangle(glm::vec4(0.0f, 0.0f, 624.0f, 15.0f));
-    m_playerHealthBar.SetForegroundColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-    m_playerHealthBar.SetBackgroundColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-    m_playerHealthBar.SetDecayColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
-
-    // Bind event receivers.
-    m_receiverEntityDamaged.Bind<InterfaceSystem, &InterfaceSystem::OnEntityDamagedEvent>(this);
-    m_receiverEntityHealed.Bind<InterfaceSystem, &InterfaceSystem::OnEntityHealedEvent>(this);
-
-    // Subscribe event receivers.
-    eventSystem->Subscribe(&m_receiverEntityDamaged);
-    eventSystem->Subscribe(&m_receiverEntityHealed);
-
-    // Success!
-    m_initialized = true;
-
-    return true;
-}
-
 void InterfaceSystem::Cleanup()
 {
     m_initialized = false;
+
+    // Game systems.
+    m_eventSystem = nullptr;
+    m_entitySystem = nullptr;
+    m_identitySystem = nullptr;
+    m_componentSystem = nullptr;
+    m_renderSystem = nullptr;
 
     // Screen space.
     m_screenSpace.Cleanup();
@@ -79,14 +61,61 @@ void InterfaceSystem::Cleanup()
     m_receiverEntityHealed.Cleanup();
 }
 
+bool InterfaceSystem::Initialize(EventSystem* eventSystem, EntitySystem* entitySystem, IdentitySystem* identitySystem, ComponentSystem* componentSystem, RenderSystem* renderSystem)
+{
+    Cleanup();
+
+    // Validate arguments.
+    if(eventSystem == nullptr)
+        return false;
+
+    if(entitySystem == nullptr)
+        return false;
+
+    if(identitySystem == nullptr)
+        return false;
+
+    if(componentSystem == nullptr)
+        return false;
+
+    if(renderSystem == nullptr)
+        return false;
+
+    m_eventSystem = eventSystem;
+    m_entitySystem = entitySystem;
+    m_identitySystem = identitySystem;
+    m_componentSystem = componentSystem;
+    m_renderSystem = renderSystem;
+
+    // Bind event receivers.
+    m_receiverEntityDamaged.Bind<InterfaceSystem, &InterfaceSystem::OnEntityDamagedEvent>(this);
+    m_receiverEntityHealed.Bind<InterfaceSystem, &InterfaceSystem::OnEntityHealedEvent>(this);
+
+    // Subscribe event receivers.
+    eventSystem->Subscribe(&m_receiverEntityDamaged);
+    eventSystem->Subscribe(&m_receiverEntityHealed);
+
+    // Declare required components.
+    componentSystem->Declare<TransformComponent>();
+    componentSystem->Declare<HealthComponent>();
+
+    // Initialize the health bar.
+    m_playerHealthBar.SetDrawingRectangle(glm::vec4(0.0f, 0.0f, 624.0f, 15.0f));
+    m_playerHealthBar.SetForegroundColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    m_playerHealthBar.SetBackgroundColor(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    m_playerHealthBar.SetDecayColor(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+
+    // Success!
+    return m_initialized = true;
+}
+
 void InterfaceSystem::Update(float timeDelta)
 {
-    if(!m_initialized)
-        return;
+    assert(m_initialized);
 
     // Update the health bar element.
-    EntityHandle playerEntity = GameState::GetIdentitySystem().GetEntityByName("Player");
-    HealthComponent* playerHealth = GameState::GetComponentSystem().Lookup<HealthComponent>(playerEntity);
+    EntityHandle playerEntity = m_identitySystem->GetEntityByName("Player");
+    HealthComponent* playerHealth = m_componentSystem->Lookup<HealthComponent>(playerEntity);
 
     if(playerHealth != nullptr)
     {
@@ -133,8 +162,7 @@ void InterfaceSystem::Update(float timeDelta)
 
 void InterfaceSystem::Draw()
 {
-    if(!m_initialized)
-        return;
+    assert(m_initialized);
 
     // Set screen space source size.
     float windowWidth = Console::windowWidth;
@@ -192,7 +220,7 @@ void InterfaceSystem::Draw()
     // Draw debug game info.
     {
         std::stringstream text;
-        text << "Entities: " << GameState::GetEntitySystem().GetEntityCount();
+        text << "Entities: " << m_entitySystem->GetEntityCount();
 
         TextDrawInfo info;
         info.font = &Main::GetDefaultFont();
@@ -209,8 +237,7 @@ void InterfaceSystem::Draw()
 
 void InterfaceSystem::AddFloatingText(std::string text, const glm::vec2& position, const FloatingTextInterface* interface)
 {
-    if(!m_initialized)
-        return;
+    assert(m_initialized);
 
     if(text.empty())
         return;
@@ -229,7 +256,7 @@ void InterfaceSystem::AddFloatingText(std::string text, const glm::vec2& positio
     if(InterfaceSpaceFloatingText)
     {
         // Get the source transform along with current viewport.
-        const ScreenSpace& gameScreenSpace = GameState::GetRenderSystem().GetScreenSpace();
+        const ScreenSpace& gameScreenSpace = m_renderSystem->GetScreenSpace();
         glm::ivec4 viewport(0, 0, Console::windowWidth, Console::windowHeight);
 
         // Project position from the world to window space.
@@ -245,8 +272,10 @@ void InterfaceSystem::AddFloatingText(std::string text, const glm::vec2& positio
 
 void InterfaceSystem::OnEntityDamagedEvent(const GameEvent::EntityDamaged& event)
 {
+    assert(m_initialized);
+
     // Get the transform component.
-    TransformComponent* transform = GameState::GetComponentSystem().Lookup<TransformComponent>(event.entity);
+    TransformComponent* transform = m_componentSystem->Lookup<TransformComponent>(event.entity);
     if(transform == nullptr) return;
 
     // Add a floating text element.
@@ -255,8 +284,10 @@ void InterfaceSystem::OnEntityDamagedEvent(const GameEvent::EntityDamaged& event
 
 void InterfaceSystem::OnEntityHealedEvent(const GameEvent::EntityHealed& event)
 {
+    assert(m_initialized);
+
     // Get the transform component.
-    TransformComponent* transform = GameState::GetComponentSystem().Lookup<TransformComponent>(event.entity);
+    TransformComponent* transform = m_componentSystem->Lookup<TransformComponent>(event.entity);
     if(transform == nullptr) return;
 
     // Add a floating text element.

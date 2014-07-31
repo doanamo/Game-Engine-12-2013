@@ -78,12 +78,7 @@ bool GameState::Initialize()
         return false;
 
     // Declare component types.
-    componentSystem.Declare<TransformComponent>();
     componentSystem.Declare<InputComponent>();
-    componentSystem.Declare<HealthComponent>();
-    componentSystem.Declare<CollisionComponent>();
-    componentSystem.Declare<ScriptComponent>();
-    componentSystem.Declare<RenderComponent>();
 
     // Initialize the identity system.
     if(!identitySystem.Initialize())
@@ -92,23 +87,23 @@ bool GameState::Initialize()
     entitySystem.RegisterSubscriber(&identitySystem);
 
     // Initialize the health system.
-    if(!healthSystem.Initialize(&eventSystem))
+    if(!healthSystem.Initialize(&eventSystem, &entitySystem, &identitySystem, &componentSystem))
         return false;
 
     // Initialize the collision system.
-    if(!collisionSystem.Initialize(&eventSystem))
+    if(!collisionSystem.Initialize(&eventSystem, &entitySystem, &componentSystem))
         return false;
 
     // Initialize the script system.
-    if(!scriptSystem.Initialize(&eventSystem))
+    if(!scriptSystem.Initialize(&eventSystem, &entitySystem, &componentSystem))
         return false;
 
     // Initialize the render system.
-    if(!renderSystem.Initialize(64))
+    if(!renderSystem.Initialize(&entitySystem, &componentSystem, 64))
         return false;
 
     // Initialize the interface system.
-    if(!interfaceSystem.Initialize(&eventSystem))
+    if(!interfaceSystem.Initialize(&eventSystem, &entitySystem, &identitySystem, &componentSystem, &renderSystem))
         return false;
 
     // Initialize the spawn system.

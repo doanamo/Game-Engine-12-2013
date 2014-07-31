@@ -10,6 +10,10 @@
 
 // Forward declarations
 class EventSystem;
+class EntitySystem;
+class IdentitySystem;
+class ComponentSystem;
+class RenderSystem;
 
 //
 // Interface System
@@ -21,7 +25,7 @@ public:
     InterfaceSystem();
     ~InterfaceSystem();
 
-    bool Initialize(EventSystem* eventSystem);
+    bool Initialize(EventSystem* eventSystem, EntitySystem* entitySystem, IdentitySystem* identitySystem, ComponentSystem* componentSystem, RenderSystem* renderSystem);
     void Cleanup();
 
     void Update(float timeDelta);
@@ -34,7 +38,15 @@ public:
     void OnEntityHealedEvent(const GameEvent::EntityHealed& event);
 
 private:
+    // System state.
     bool m_initialized;
+
+    // Game systems;
+    EventSystem*     m_eventSystem;
+    EntitySystem*    m_entitySystem;
+    IdentitySystem*  m_identitySystem;
+    ComponentSystem* m_componentSystem;
+    RenderSystem*    m_renderSystem;
 
     // Screen space.
     ScreenSpace m_screenSpace;

@@ -2,8 +2,6 @@
 #include "CollisionSystem.hpp"
 #include "CollisionComponent.hpp"
 
-#include "Game/GameContext.hpp"
-#include "Game/GameState.hpp"
 #include "Game/Event/EventDefinitions.hpp"
 #include "Game/Event/EventSystem.hpp"
 #include "Game/Entity/EntitySystem.hpp"
@@ -31,7 +29,10 @@ namespace
 const float CollisionSystem::Permanent = -1.0f;
 
 CollisionSystem::CollisionSystem() :
-    m_eventSystem(nullptr)
+    m_initialized(false),
+    m_eventSystem(nullptr),
+    m_entitySystem(nullptr),
+    m_componentSystem(nullptr)
 {
 }
 
@@ -40,7 +41,19 @@ CollisionSystem::~CollisionSystem()
     Cleanup();
 }
 
-bool CollisionSystem::Initialize(EventSystem* eventSystem)
+void CollisionSystem::Cleanup()
+{
+    m_initialized = false;
+
+    m_eventSystem = nullptr;
+    m_entitySystem = nullptr;
+    m_componentSystem = nullptr;
+
+    ClearContainer(m_objects);
+    ClearContainer(m_disabled);
+}
+
+bool CollisionSystem::Initialize(EventSystem* eventSystem, EntitySystem* entitySystem, ComponentSystem* componentSystem)
 {
     Cleanup();
 
@@ -48,21 +61,28 @@ bool CollisionSystem::Initialize(EventSystem* eventSystem)
     if(eventSystem == nullptr)
         return false;
 
+    if(entitySystem == nullptr)
+        return false;
+
+    if(componentSystem == nullptr)
+        return false;
+
     m_eventSystem = eventSystem;
+    m_entitySystem = entitySystem;
+    m_componentSystem = componentSystem;
 
-    return true;
-}
+    // Declare required components.
+    m_componentSystem->Declare<TransformComponent>();
+    m_componentSystem->Declare<CollisionComponent>();
 
-void CollisionSystem::Cleanup()
-{
-    m_eventSystem = nullptr;
-
-    ClearContainer(m_objects);
-    ClearContainer(m_disabled);
+    // Success!
+    return m_initialized = true;
 }
 
 void CollisionSystem::Update(float timeDelta)
 {
+    assert(m_initialized);
+
     // Update timers of disabled collision response pairs.
     for(auto it = m_disabled.begin(); it != m_disabled.end();)
     {
@@ -75,7 +95,10 @@ void CollisionSystem::Update(float timeDelta)
         auto eraseIt = it++;
 
         // Check if entities are still valid.
-        if(!GameState::GetEntitySystem().IsHandleValid(sourceEntity) || !GameState::GetEntitySystem().IsHandleValid(targetEntity))
+        bool sourceEntityValid = m_entitySystem->IsHandleValid(sourceEntity);
+        bool targetEntityValid = m_entitySystem->IsHandleValid(targetEntity);
+
+        if(!sourceEntityValid || !targetEntityValid)
         {
             m_disabled.erase(eraseIt);
             continue;
@@ -97,22 +120,24 @@ void CollisionSystem::Update(float timeDelta)
     }
 
     // Create a list of collision objects.
-    for(auto it = GameState::GetComponentSystem().Begin<CollisionComponent>(); it != GameState::GetComponentSystem().End<CollisionComponent>(); ++it)
+    auto componentsBegin = m_componentSystem->Begin<CollisionComponent>();
+    auto componentsEnd = m_componentSystem->End<CollisionComponent>();
+
+    for(auto it = componentsBegin; it != componentsEnd; ++it)
     {
         // Check if entity is active.
-        if(!GameState::GetEntitySystem().IsHandleValid(it->first))
+        if(!m_entitySystem->IsHandleValid(it->first))
             continue;
 
         // Get the collision component.
         CollisionComponent* collision = &it->second;
-
         assert(collision != nullptr);
 
         if(!collision->IsEnabled())
             continue;
 
         // Get the transform component.
-        TransformComponent* transform = GameState::GetComponentSystem().Lookup<TransformComponent>(it->first);
+        TransformComponent* transform = m_componentSystem->Lookup<TransformComponent>(it->first);
 
         if(transform == nullptr)
             continue;
@@ -173,13 +198,13 @@ void CollisionSystem::Update(float timeDelta)
                     }
 
                     // Check if other collision object is still valid.
-                    if(!GameState::GetEntitySystem().IsHandleValid(other->entity) || !other->collision->IsEnabled())
+                    if(!m_entitySystem->IsHandleValid(other->entity) || !other->collision->IsEnabled())
                     {
                         other->enabled = false;
                     }
 
                     // Check if this collision object is still valid.
-                    if(!GameState::GetEntitySystem().IsHandleValid(it->entity) || !it->collision->IsEnabled())
+                    if(!m_entitySystem->IsHandleValid(it->entity) || !it->collision->IsEnabled())
                     {
                         it->enabled = false;
                         break;
@@ -195,6 +220,9 @@ void CollisionSystem::Update(float timeDelta)
 
 void CollisionSystem::DisableCollisionResponse(EntityHandle sourceEntity, EntityHandle targetEntity, float duration)
 {
+    assert(m_initialized);
+
+    // Check if this pair is already disabled.
     EntityPair pair = { sourceEntity, targetEntity };
     auto it = m_disabled.find(pair);
 

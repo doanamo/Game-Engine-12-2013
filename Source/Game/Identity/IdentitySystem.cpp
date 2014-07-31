@@ -21,9 +21,8 @@ bool IdentitySystem::Initialize()
 {
     Cleanup();
 
-    m_initialized = true;
-
-    return true;
+    // Success!
+    return m_initialized = true;
 }
 
 void IdentitySystem::Cleanup()

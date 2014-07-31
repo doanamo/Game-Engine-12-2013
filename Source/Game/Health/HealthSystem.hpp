@@ -5,6 +5,9 @@
 
 // Forward declarations.
 class EventSystem;
+class EntitySystem;
+class IdentitySystem;
+class ComponentSystem;
 
 //
 // Health System
@@ -16,13 +19,19 @@ public:
     HealthSystem();
     ~HealthSystem();
 
-    bool Initialize(EventSystem* eventSystem);
+    bool Initialize(EventSystem* eventSystem, EntitySystem* entitySystem, IdentitySystem* identitySystem, ComponentSystem* componentSystem);
     void Cleanup();
 
     void Damage(EntityHandle entity, int value);
     void Heal(EntityHandle entity, int value);
 
 private:
-    // Event system.
-    EventSystem* m_eventSystem;
+    // System state.
+    bool m_initialized;
+
+    // Game systems.
+    EventSystem*     m_eventSystem;
+    EntitySystem*    m_entitySystem;
+    IdentitySystem*  m_identitySystem;
+    ComponentSystem* m_componentSystem;
 };

@@ -1,11 +1,14 @@
 #pragma once
 
 #include "Precompiled.hpp"
-
 #include "Graphics/Shader.hpp"
 #include "Graphics/Buffer.hpp"
 #include "Graphics/VertexInput.hpp"
 #include "Graphics/ScreenSpace.hpp"
+
+// Forward declarations.
+class EntitySystem;
+class ComponentSystem;
 
 //
 // Render System
@@ -27,7 +30,7 @@ public:
     RenderSystem();
     ~RenderSystem();
 
-    bool Initialize(int bufferSize);
+    bool Initialize(EntitySystem* entitySystem, ComponentSystem* componentSystem, int bufferSize);
     void Cleanup();
 
     void Update();
@@ -39,19 +42,23 @@ public:
     }
 
 private:
+    // System state.
+    bool m_initialized;
+    int m_bufferSize;
+
+    // Game systems.
+    EntitySystem*    m_entitySystem;
+    ComponentSystem* m_componentSystem;
+
     // Render objects
     Shader         m_shader;
     VertexBuffer   m_vertexBuffer;
     InstanceBuffer m_instanceBuffer;
     VertexInput    m_vertexInput;
 
-    int m_bufferSize;
-
     // Screen space.
     ScreenSpace m_screenSpace;
 
     // Processed render components.
     std::vector<Sprite> m_sprites;
-
-    bool m_initialized;
 };

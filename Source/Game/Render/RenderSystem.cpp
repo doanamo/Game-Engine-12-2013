@@ -4,8 +4,6 @@
 #include "MainContext.hpp"
 #include "Graphics/Texture.hpp"
 #include "Graphics/CoreRenderer.hpp"
-#include "Game/GameContext.hpp"
-#include "Game/GameState.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Component/ComponentSystem.hpp"
 #include "Game/Transform/TransformComponent.hpp"
@@ -19,8 +17,10 @@ namespace
 }
 
 RenderSystem::RenderSystem() :
+    m_initialized(false),
     m_bufferSize(0),
-    m_initialized(false)
+    m_entitySystem(nullptr),
+    m_componentSystem(nullptr)
 {
 }
 
@@ -31,32 +31,44 @@ RenderSystem::~RenderSystem()
 
 void RenderSystem::Cleanup()
 {
+    m_initialized = false;
+    m_bufferSize = 0;
+
+    m_entitySystem = nullptr;
+    m_componentSystem = nullptr;
+
     m_shader.Cleanup();
     m_vertexBuffer.Cleanup();
     m_instanceBuffer.Cleanup();
     m_vertexInput.Cleanup();
 
-    m_bufferSize = 0;
-
     m_screenSpace.Cleanup();
 
+    // Processed render components.
     ClearContainer(m_sprites);
-
-    m_initialized = false;
 }
 
-bool RenderSystem::Initialize(int bufferSize)
+bool RenderSystem::Initialize(EntitySystem* entitySystem, ComponentSystem* componentSystem, int bufferSize)
 {
     Cleanup();
 
     // Validate arguments.
-    if(bufferSize <= 0)
-    {
-        Cleanup();
+    if(entitySystem == nullptr)
         return false;
-    }
 
+    if(componentSystem == nullptr)
+        return false;
+
+    if(bufferSize <= 0)
+        return false;
+
+    m_entitySystem = entitySystem;
+    m_componentSystem = componentSystem;
     m_bufferSize = bufferSize;
+
+    // Declare required components.
+    m_componentSystem->Declare<TransformComponent>();
+    m_componentSystem->Declare<RenderComponent>();
 
     // Load shader.
     if(!m_shader.Load("Data/Shaders/Sprite.glsl"))
@@ -113,15 +125,12 @@ bool RenderSystem::Initialize(int bufferSize)
     }
 
     // Success!
-    m_initialized = true;
-
-    return true;
+    return m_initialized = true;
 }
 
 void RenderSystem::Update()
 {
-    if(!m_initialized)
-        return;
+    assert(m_initialized);
 
     //
     // Setup Screen Space
@@ -143,17 +152,20 @@ void RenderSystem::Update()
     m_sprites.clear();
 
     // Process render components.
-    for(auto it = GameState::GetComponentSystem().Begin<RenderComponent>(); it != GameState::GetComponentSystem().End<RenderComponent>(); ++it)
+    auto componentsBegin = m_componentSystem->Begin<RenderComponent>();
+    auto componentsEnd = m_componentSystem->End<RenderComponent>();
+
+    for(auto it = componentsBegin; it != componentsEnd; ++it)
     {
         // Check if entity is active.
-        if(!GameState::GetEntitySystem().IsHandleValid(it->first))
+        if(!m_entitySystem->IsHandleValid(it->first))
             continue;
 
         // Get the render component.
         RenderComponent& render = it->second;
     
         // Get other components.
-        TransformComponent* transform = GameState::GetComponentSystem().Lookup<TransformComponent>(it->first);
+        TransformComponent* transform = m_componentSystem->Lookup<TransformComponent>(it->first);
 
         if(transform == nullptr)
             continue;
@@ -170,8 +182,7 @@ void RenderSystem::Update()
 
 void RenderSystem::Draw()
 {
-    if(!m_initialized)
-        return;
+    assert(m_initialized);
 
     //
     // Prepare Drawing
