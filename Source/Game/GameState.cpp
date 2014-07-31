@@ -73,13 +73,13 @@ bool GameState::Initialize()
     if(!componentSystem.Initialize(&entitySystem))
         return false;
 
-    // Create component pools.
-    componentSystem.CreatePool<TransformComponent>();
-    componentSystem.CreatePool<InputComponent>();
-    componentSystem.CreatePool<HealthComponent>();
-    componentSystem.CreatePool<CollisionComponent>();
-    componentSystem.CreatePool<ScriptComponent>();
-    componentSystem.CreatePool<RenderComponent>();
+    // Declare component types.
+    componentSystem.Declare<TransformComponent>();
+    componentSystem.Declare<InputComponent>();
+    componentSystem.Declare<HealthComponent>();
+    componentSystem.Declare<CollisionComponent>();
+    componentSystem.Declare<ScriptComponent>();
+    componentSystem.Declare<RenderComponent>();
 
     //
     // Component Systems

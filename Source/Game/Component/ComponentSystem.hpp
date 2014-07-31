@@ -49,12 +49,18 @@ public:
     }
 
     template<typename Type>
-    void CreatePool()
+    void Declare()
     {
         assert(m_entitySystem != nullptr);
 
         // Validate component type.
         static_assert(std::is_base_of<Component, Type>::value, "Not a component type.");
+
+        // Check if component type was already declared.
+        auto it = m_pools.find(typeid(Type));
+
+        if(it != m_pools.end())
+            return;
 
         // Create a component pool instance.
         auto pool = std::make_unique<ComponentPool<Type>>();
@@ -65,6 +71,7 @@ public:
         // Add pool to the collection.
         auto pair = ComponentPoolPair(typeid(Type), std::move(pool));
         auto result = m_pools.insert(std::move(pair));
+
         assert(result.second == true);
     }
 
