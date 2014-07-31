@@ -120,7 +120,7 @@ public:
             return;
 
         // Remove a component.
-        pool.Remove(handle);
+        pool->Remove(handle);
     }
 
     template<typename Type>
