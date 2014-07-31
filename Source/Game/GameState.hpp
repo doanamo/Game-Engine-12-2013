@@ -34,14 +34,11 @@ namespace GameState
 
     EntitySystem&    GetEntitySystem();
     ComponentSystem& GetComponentSystem();
-    
     IdentitySystem&  GetIdentitySystem();
     HealthSystem&    GetHealthSystem();
     CollisionSystem& GetCollisionSystem();
     ScriptSystem&    GetScriptSystem();
     RenderSystem&    GetRenderSystem();
     InterfaceSystem& GetInterfaceSystem();
-
     SpawnSystem&     GetSpawnSystem();
-    ProgressSystem&  GetProgressSystem();
 };

@@ -29,19 +29,15 @@ namespace
     // Input state.
     InputState inputState;
 
-    // Core systems.
+    // Game systems.
     EntitySystem    entitySystem;
     ComponentSystem componentSystem; 
-
-    // Component systems.
     IdentitySystem  identitySystem;
     HealthSystem    healthSystem;
     CollisionSystem collisionSystem;
     ScriptSystem    scriptSystem;
     RenderSystem    renderSystem;
     InterfaceSystem interfaceSystem;
-
-    // Game systems.
     SpawnSystem     spawnSystem;
 }
 
@@ -62,7 +58,7 @@ bool GameState::Initialize()
         return false;
 
     //
-    // Core Systems
+    // Systems
     //
 
     // Initialize the entity system.
@@ -80,10 +76,6 @@ bool GameState::Initialize()
     componentSystem.Declare<CollisionComponent>();
     componentSystem.Declare<ScriptComponent>();
     componentSystem.Declare<RenderComponent>();
-
-    //
-    // Component Systems
-    //
 
     // Initialize the identity system.
     if(!identitySystem.Initialize())
@@ -118,10 +110,6 @@ bool GameState::Initialize()
     healthSystem.SubscribeReceiver(interfaceSystem.GetEntityDamagedReceiver());
     healthSystem.SubscribeReceiver(interfaceSystem.GetEntityHealedReceiver());
 
-    //
-    // Game Systems
-    //
-
     // Initialize the spawn system.
     if(!spawnSystem.Initialize())
         return false;
@@ -140,33 +128,23 @@ void GameState::Cleanup()
 
     Log() << "Cleaning up the game state...";
 
-    // Entities must be destroyed first, then other
-    // systems can be destroyed in a regular order.
+    // Entities must be destroyed first, then other systems
+    // can be destroyed in a regular reversed order.
     entitySystem.DestroyAllEntities();
 
     //
-    // Game System
+    // Systems
     //
 
     spawnSystem.Cleanup();
-
-    //
-    // Component Systems
-    //
-
     interfaceSystem.Cleanup();
     renderSystem.Cleanup();
     scriptSystem.Cleanup();
     collisionSystem.Cleanup();
     healthSystem.Cleanup();
     identitySystem.Cleanup();
-
-    //
-    // Core Systems
-    //
-
-    entitySystem.Cleanup();
     componentSystem.Cleanup();
+    entitySystem.Cleanup();
 
     //
     // Input State
