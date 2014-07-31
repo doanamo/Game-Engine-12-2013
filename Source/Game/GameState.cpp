@@ -40,8 +40,10 @@ namespace
     // Input state.
     InputState inputState;
 
-    // Entity systems.
+    // Core systems.
     EntitySystem    entitySystem;
+
+    // Component systems.
     IdentitySystem  identitySystem;
     HealthSystem    healthSystem;
     CollisionSystem collisionSystem;
@@ -70,7 +72,15 @@ bool GameState::Initialize()
         return false;
 
     //
-    // Entity Systems
+    // Core Systems
+    //
+
+    // Initialize the entity system.
+    if(!entitySystem.Initialize())
+        return false;
+
+    //
+    // Component Systems
     //
 
     // Initialize the identity system.
@@ -163,7 +173,7 @@ void GameState::Cleanup()
     spawnSystem.Cleanup();
 
     //
-    // Entity Systems
+    // Component Systems
     //
     
     interfaceSystem.Cleanup();
@@ -172,7 +182,6 @@ void GameState::Cleanup()
     collisionSystem.Cleanup();
     healthSystem.Cleanup();
     identitySystem.Cleanup();
-    entitySystem.Cleanup();
 
     //
     // Component Pools
@@ -186,6 +195,12 @@ void GameState::Cleanup()
     collisionComponents.Cleanup();
     scriptComponents.Cleanup();
     renderComponents.Cleanup();
+
+    //
+    // Core Systems
+    //
+
+    entitySystem.Cleanup();
 
     //
     // Game

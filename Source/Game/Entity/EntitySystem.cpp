@@ -23,6 +23,13 @@ EntitySystem::~EntitySystem()
     Cleanup();
 }
 
+bool EntitySystem::Initialize()
+{
+    Cleanup();
+
+    return true;
+}
+
 void EntitySystem::Cleanup()
 {
     // Process remaining commands.

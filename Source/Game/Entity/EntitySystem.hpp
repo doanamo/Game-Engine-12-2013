@@ -60,6 +60,9 @@ public:
     EntitySystem();
     ~EntitySystem();
 
+    // Initializes the entity system.
+    bool Initialize();
+
     // Restores class instance to it's original state.
     void Cleanup();
 
