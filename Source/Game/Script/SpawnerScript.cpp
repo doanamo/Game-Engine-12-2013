@@ -5,6 +5,7 @@
 #include "Game/GameState.hpp"
 #include "Game/GameFactory.hpp"
 #include "Game/Entity/EntitySystem.hpp"
+#include "Game/Component/ComponentSystem.hpp"
 #include "Game/Transform/TransformComponent.hpp"
 
 namespace
@@ -23,7 +24,7 @@ SpawnerScript::SpawnerScript() :
 void SpawnerScript::OnUpdate(EntityHandle self, float timeDelta)
 {
     // Check if entity has needed components.
-    TransformComponent* transform = GameState::GetTransformComponents().Lookup(self);
+    TransformComponent* transform = GameState::GetComponentSystem().Lookup<TransformComponent>(self);
     if(transform == nullptr) return;
 
     // Create an enitity after a delay.

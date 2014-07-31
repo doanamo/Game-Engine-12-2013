@@ -2,21 +2,12 @@
 
 #include "Precompiled.hpp"
 
-#include "Game/Component/ComponentPool.hpp"
-
 // Forward declarations.
-class TransformComponent;
-class InputComponent;
-class HealthComponent;
-class CollisionComponent;
-class ScriptComponent;
-class RenderComponent;
-
-class ComponentCollection;
-
 class InputState;
 
 class EntitySystem;
+class ComponentSystem;
+
 class IdentitySystem;
 class HealthSystem;
 class CollisionSystem;
@@ -39,18 +30,11 @@ namespace GameState
     // State accessors.
     bool IsInitialized();
 
-    ComponentPool<TransformComponent>& GetTransformComponents();
-    ComponentPool<InputComponent>&     GetInputComponents();
-    ComponentPool<HealthComponent>&    GetHealthComponents();
-    ComponentPool<CollisionComponent>& GetCollisionComponents();
-    ComponentPool<ScriptComponent>&    GetScriptComponents();
-    ComponentPool<RenderComponent>&    GetRenderComponents();
-
-    ComponentCollection& GetComponentCollection();
-
     InputState& GetInputState();
 
     EntitySystem&    GetEntitySystem();
+    ComponentSystem& GetComponentSystem();
+    
     IdentitySystem&  GetIdentitySystem();
     HealthSystem&    GetHealthSystem();
     CollisionSystem& GetCollisionSystem();

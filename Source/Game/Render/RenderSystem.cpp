@@ -7,6 +7,7 @@
 #include "Game/GameContext.hpp"
 #include "Game/GameState.hpp"
 #include "Game/Entity/EntitySystem.hpp"
+#include "Game/Component/ComponentSystem.hpp"
 #include "Game/Transform/TransformComponent.hpp"
 #include "Game/Render/RenderComponent.hpp"
 
@@ -142,7 +143,7 @@ void RenderSystem::Update()
     m_sprites.clear();
 
     // Process render components.
-    for(auto it = GameState::GetRenderComponents().Begin(); it != GameState::GetRenderComponents().End(); ++it)
+    for(auto it = GameState::GetComponentSystem().Begin<RenderComponent>(); it != GameState::GetComponentSystem().End<RenderComponent>(); ++it)
     {
         // Check if entity is active.
         if(!GameState::GetEntitySystem().IsHandleValid(it->first))
@@ -152,7 +153,7 @@ void RenderSystem::Update()
         RenderComponent& render = it->second;
     
         // Get other components.
-        TransformComponent* transform = GameState::GetTransformComponents().Lookup(it->first);
+        TransformComponent* transform = GameState::GetComponentSystem().Lookup<TransformComponent>(it->first);
 
         if(transform == nullptr)
             continue;

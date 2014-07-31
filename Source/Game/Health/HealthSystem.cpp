@@ -5,6 +5,7 @@
 #include "Game/GameContext.hpp"
 #include "Game/GameState.hpp"
 #include "Game/Entity/EntitySystem.hpp"
+#include "Game/Component/ComponentSystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
 
 namespace Console
@@ -40,7 +41,7 @@ void HealthSystem::Damage(EntityHandle entity, int value)
         return;
 
     // Get the health component.
-    HealthComponent* health = GameState::GetHealthComponents().Lookup(entity);
+    HealthComponent* health = GameState::GetComponentSystem().Lookup<HealthComponent>(entity);
     if(health == nullptr) return;
 
     // Don't damage if dead.
@@ -96,7 +97,7 @@ void HealthSystem::Heal(EntityHandle entity, int value)
         return;
 
     // Get the health component.
-    HealthComponent* health = GameState::GetHealthComponents().Lookup(entity);
+    HealthComponent* health = GameState::GetComponentSystem().Lookup<HealthComponent>(entity);
     if(health == nullptr) return;
 
     // Don't heal if dead.

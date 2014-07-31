@@ -4,6 +4,7 @@
 #include "Game/GameContext.hpp"
 #include "Game/GameState.hpp"
 #include "Game/Entity/EntitySystem.hpp"
+#include "Game/Component/ComponentSystem.hpp"
 #include "Game/Transform/TransformComponent.hpp"
 #include "Game/Collision/CollisionSystem.hpp"
 #include "Game/Health/HealthSystem.hpp"
@@ -36,7 +37,7 @@ TransformComponent* ConstantVelocityScript::GetTransformComponent(EntityHandle s
     // Cache the transform component.
     if(m_transform == nullptr)
     {
-        m_transform = GameState::GetTransformComponents().Lookup(self);
+        m_transform = GameState::GetComponentSystem().Lookup<TransformComponent>(self);
     }
 
     return m_transform;
@@ -133,7 +134,7 @@ RenderComponent* FlashOnDamageScript::GetRenderComponent(EntityHandle self)
     // Cache the render component.
     if(m_render == nullptr)
     {
-        m_render = GameState::GetRenderComponents().Lookup(self);
+        m_render = GameState::GetComponentSystem().Lookup<RenderComponent>(self);
     }
 
     return m_render;

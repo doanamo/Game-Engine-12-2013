@@ -5,6 +5,7 @@
 #include "Game/GameState.hpp"
 #include "Game/GameFactory.hpp"
 #include "Game/Entity/EntitySystem.hpp"
+#include "Game/Component/ComponentSystem.hpp"
 #include "Game/Input/InputState.hpp"
 #include "Game/Input/InputComponent.hpp"
 #include "Game/Transform/TransformComponent.hpp"
@@ -19,13 +20,13 @@ PlayerScript::PlayerScript() :
 void PlayerScript::OnUpdate(EntityHandle self, float timeDelta)
 {
     // Check if entity has needed components.
-    TransformComponent* transform = GameState::GetTransformComponents().Lookup(self);
+    TransformComponent* transform = GameState::GetComponentSystem().Lookup<TransformComponent>(self);
     if(transform == nullptr) return;
 
-    CollisionComponent* collision = GameState::GetCollisionComponents().Lookup(self);
+    CollisionComponent* collision = GameState::GetComponentSystem().Lookup<CollisionComponent>(self);
     if(collision == nullptr) return;
 
-    InputComponent* input = GameState::GetInputComponents().Lookup(self);
+    InputComponent* input = GameState::GetComponentSystem().Lookup<InputComponent>(self);
     if(input == nullptr) return;
 
     // Shoot a projectile.

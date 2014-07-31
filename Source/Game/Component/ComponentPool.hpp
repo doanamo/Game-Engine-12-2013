@@ -7,11 +7,28 @@
 #include "Game/Entity/EntitySubscriber.hpp"
 
 //
+// Component Pool Interface
+//
+
+class ComponentPoolInterface
+{
+protected:
+    ComponentPoolInterface()
+    {
+    }
+
+public:
+    virtual ~ComponentPoolInterface()
+    {
+    }
+};
+
+//
 // Component Pool
 //
 
 template<typename Type>
-class ComponentPool : public EntitySubscriber
+class ComponentPool : public ComponentPoolInterface, public EntitySubscriber
 {
 public:
     // Check template type.

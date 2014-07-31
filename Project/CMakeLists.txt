@@ -133,7 +133,7 @@ Set(SourceFiles
 
     "Game/Component/Component.hpp"
     "Game/Component/ComponentPool.hpp"
-    "Game/Component/ComponentCollection.hpp"
+    "Game/Component/ComponentSystem.hpp"
 
     "Game/Input/InputComponent.hpp"
     "Game/Input/InputComponent.cpp"

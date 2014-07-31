@@ -5,6 +5,7 @@
 #include "Game/GameState.hpp"
 #include "Game/GameFactory.hpp"
 #include "Game/Entity/EntitySystem.hpp"
+#include "Game/Component/ComponentSystem.hpp"
 #include "Game/Transform/TransformComponent.hpp"
 #include "Game/Collision/CollisionDefinitions.hpp"
 
@@ -24,7 +25,7 @@ EnemyScript::EnemyScript() :
 void EnemyScript::OnUpdate(EntityHandle self, float timeDelta)
 {
     // Check if entity has needed components.
-    TransformComponent* transform = GameState::GetTransformComponents().Lookup(self);
+    TransformComponent* transform = GameState::GetComponentSystem().Lookup<TransformComponent>(self);
     if(transform == nullptr) return;
 
     // Move to the left side of the screen.
@@ -56,7 +57,7 @@ void EnemyScript::OnDamage(EntityHandle self, int value, bool alive)
         if(roll <= 0.1f)
         {
             // Get the transform component.
-            TransformComponent* transform = GameState::GetTransformComponents().Lookup(self);
+            TransformComponent* transform = GameState::GetComponentSystem().Lookup<TransformComponent>(self);
 
             // Create a health pickup entity.
             if(transform != nullptr)

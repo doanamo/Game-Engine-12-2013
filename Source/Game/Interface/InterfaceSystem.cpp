@@ -6,6 +6,7 @@
 #include "Game/GameContext.hpp"
 #include "Game/GameState.hpp"
 #include "Game/Entity/EntitySystem.hpp"
+#include "Game/Component/ComponentSystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
 #include "Game/Transform/TransformComponent.hpp"
 #include "Game/Health/HealthComponent.hpp"
@@ -76,7 +77,7 @@ void InterfaceSystem::Update(float timeDelta)
 
     // Update the health bar element.
     EntityHandle playerEntity = GameState::GetIdentitySystem().GetEntityByName("Player");
-    HealthComponent* playerHealth = GameState::GetHealthComponents().Lookup(playerEntity);
+    HealthComponent* playerHealth = GameState::GetComponentSystem().Lookup<HealthComponent>(playerEntity);
 
     if(playerHealth != nullptr)
     {
@@ -246,7 +247,7 @@ ReceiverSignature<GameEvent::EntityHealed> InterfaceSystem::GetEntityHealedRecei
 void InterfaceSystem::OnEntityDamagedEvent(const GameEvent::EntityDamaged& event)
 {
     // Get the transform component.
-    TransformComponent* transform = GameState::GetTransformComponents().Lookup(event.entity);
+    TransformComponent* transform = GameState::GetComponentSystem().Lookup<TransformComponent>(event.entity);
     if(transform == nullptr) return;
 
     // Add a floating text element.
@@ -256,7 +257,7 @@ void InterfaceSystem::OnEntityDamagedEvent(const GameEvent::EntityDamaged& event
 void InterfaceSystem::OnEntityHealedEvent(const GameEvent::EntityHealed& event)
 {
     // Get the transform component.
-    TransformComponent* transform = GameState::GetTransformComponents().Lookup(event.entity);
+    TransformComponent* transform = GameState::GetComponentSystem().Lookup<TransformComponent>(event.entity);
     if(transform == nullptr) return;
 
     // Add a floating text element.

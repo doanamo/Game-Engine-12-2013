@@ -1,8 +1,8 @@
 #include "Precompiled.hpp"
 #include "GameState.hpp"
 
-#include "Game/Component/ComponentCollection.hpp"
 #include "Game/Entity/EntitySystem.hpp"
+#include "Game/Component/ComponentSystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
 #include "Game/Input/InputState.hpp"
 #include "Game/Input/InputComponent.hpp"
@@ -26,22 +26,12 @@ namespace
 {
     bool isInitialized = false;
 
-    // Component pools.
-    ComponentPool<TransformComponent> transformComponents;
-    ComponentPool<InputComponent>     inputComponents;
-    ComponentPool<HealthComponent>    healthComponents;
-    ComponentPool<CollisionComponent> collisionComponents;
-    ComponentPool<ScriptComponent>    scriptComponents;
-    ComponentPool<RenderComponent>    renderComponents;
-
-    // Component collection.
-    ComponentCollection componentCollection;
-
     // Input state.
     InputState inputState;
 
     // Core systems.
     EntitySystem    entitySystem;
+    ComponentSystem componentSystem; 
 
     // Component systems.
     IdentitySystem  identitySystem;
@@ -78,6 +68,18 @@ bool GameState::Initialize()
     // Initialize the entity system.
     if(!entitySystem.Initialize())
         return false;
+
+    // Initialize the component system.
+    if(!componentSystem.Initialize(&entitySystem))
+        return false;
+
+    // Create component pools.
+    componentSystem.CreatePool<TransformComponent>();
+    componentSystem.CreatePool<InputComponent>();
+    componentSystem.CreatePool<HealthComponent>();
+    componentSystem.CreatePool<CollisionComponent>();
+    componentSystem.CreatePool<ScriptComponent>();
+    componentSystem.CreatePool<RenderComponent>();
 
     //
     // Component Systems
@@ -117,26 +119,6 @@ bool GameState::Initialize()
     healthSystem.SubscribeReceiver(interfaceSystem.GetEntityHealedReceiver());
 
     //
-    // Component Pools
-    //
-
-    // Subscribe component pools to the entity system.
-    entitySystem.RegisterSubscriber(&transformComponents);
-    entitySystem.RegisterSubscriber(&inputComponents);
-    entitySystem.RegisterSubscriber(&healthComponents);
-    entitySystem.RegisterSubscriber(&collisionComponents);
-    entitySystem.RegisterSubscriber(&scriptComponents);
-    entitySystem.RegisterSubscriber(&renderComponents);
-
-    // Add pools to the component collection.
-    componentCollection.Register(&transformComponents);
-    componentCollection.Register(&inputComponents);
-    componentCollection.Register(&healthComponents);
-    componentCollection.Register(&collisionComponents);
-    componentCollection.Register(&scriptComponents);
-    componentCollection.Register(&renderComponents);
-
-    //
     // Game Systems
     //
 
@@ -148,9 +130,7 @@ bool GameState::Initialize()
     // Success
     //
 
-    isInitialized = true;
-
-    return true;
+    return isInitialized = true;
 }
 
 void GameState::Cleanup()
@@ -160,22 +140,20 @@ void GameState::Cleanup()
 
     Log() << "Cleaning up the game state...";
 
-    //
-    // Input State
-    //
-
-    inputState.Cleanup();
+    // Entities must be destroyed first, then other
+    // systems can be destroyed in a regular order.
+    entitySystem.DestroyAllEntities();
 
     //
-    // Game Systems
+    // Game System
     //
-    
+
     spawnSystem.Cleanup();
 
     //
     // Component Systems
     //
-    
+
     interfaceSystem.Cleanup();
     renderSystem.Cleanup();
     scriptSystem.Cleanup();
@@ -184,27 +162,17 @@ void GameState::Cleanup()
     identitySystem.Cleanup();
 
     //
-    // Component Pools
-    //
-
-    componentCollection.Cleanup();
-
-    transformComponents.Cleanup();
-    inputComponents.Cleanup();
-    healthComponents.Cleanup();
-    collisionComponents.Cleanup();
-    scriptComponents.Cleanup();
-    renderComponents.Cleanup();
-
-    //
     // Core Systems
     //
 
     entitySystem.Cleanup();
+    componentSystem.Cleanup();
 
     //
-    // Game
+    // Input State
     //
+
+    inputState.Cleanup();
 
     isInitialized = false;
 }
@@ -218,41 +186,6 @@ bool GameState::IsInitialized()
     return isInitialized;
 }
 
-ComponentPool<TransformComponent>& GameState::GetTransformComponents()
-{
-    return transformComponents;
-}
-
-ComponentPool<InputComponent>& GameState::GetInputComponents()
-{
-    return inputComponents;
-}
-
-ComponentPool<CollisionComponent>& GameState::GetCollisionComponents()
-{
-    return collisionComponents;
-}
-
-ComponentPool<HealthComponent>& GameState::GetHealthComponents()
-{
-    return healthComponents;
-}
-
-ComponentPool<ScriptComponent>& GameState::GetScriptComponents()
-{
-    return scriptComponents;
-}
-
-ComponentPool<RenderComponent>& GameState::GetRenderComponents()
-{
-    return renderComponents;
-}
-
-ComponentCollection& GameState::GetComponentCollection()
-{
-    return componentCollection;
-}
-
 InputState& GameState::GetInputState()
 {
     return inputState;
@@ -261,6 +194,11 @@ InputState& GameState::GetInputState()
 EntitySystem& GameState::GetEntitySystem()
 {
     return entitySystem;
+}
+
+ComponentSystem& GameState::GetComponentSystem()
+{
+    return componentSystem;
 }
 
 IdentitySystem& GameState::GetIdentitySystem()

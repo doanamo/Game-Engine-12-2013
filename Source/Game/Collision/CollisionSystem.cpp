@@ -5,6 +5,7 @@
 #include "Game/GameContext.hpp"
 #include "Game/GameState.hpp"
 #include "Game/Entity/EntitySystem.hpp"
+#include "Game/Component/ComponentSystem.hpp"
 #include "Game/Transform/TransformComponent.hpp"
 
 namespace
@@ -87,7 +88,7 @@ void CollisionSystem::Update(float timeDelta)
     }
 
     // Create a list of collision objects.
-    for(auto it = GameState::GetCollisionComponents().Begin(); it != GameState::GetCollisionComponents().End(); ++it)
+    for(auto it = GameState::GetComponentSystem().Begin<CollisionComponent>(); it != GameState::GetComponentSystem().End<CollisionComponent>(); ++it)
     {
         // Check if entity is active.
         if(!GameState::GetEntitySystem().IsHandleValid(it->first))
@@ -102,7 +103,7 @@ void CollisionSystem::Update(float timeDelta)
             continue;
 
         // Get the transform component.
-        TransformComponent* transform = GameState::GetTransformComponents().Lookup(it->first);
+        TransformComponent* transform = GameState::GetComponentSystem().Lookup<TransformComponent>(it->first);
 
         if(transform == nullptr)
             continue;

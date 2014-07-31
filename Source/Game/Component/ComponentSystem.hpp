@@ -3,47 +3,77 @@
 #include "Precompiled.hpp"
 
 #include "Game/Component/ComponentPool.hpp"
-#include "Game/Entity/EntityHandle.hpp"
+#include "Game/Entity/EntitySystem.hpp"
 
 //
-// Component Collection
+// Component System
 //
 
-class ComponentCollection
+class ComponentSystem
 {
 public:
     // Type declarations.
-    typedef std::unordered_map<std::type_index, void*> ComponentPoolList;
+    typedef std::unique_ptr<ComponentPoolInterface> ComponentPoolPtr;
+    typedef std::unordered_map<std::type_index, ComponentPoolPtr> ComponentPoolList;
+    typedef ComponentPoolList::value_type ComponentPoolPair;
 
 public:
-    ComponentCollection()
+    ComponentSystem() :
+        m_entitySystem(nullptr)
     {
     }
 
-    ~ComponentCollection()
+    ~ComponentSystem()
     {
         Cleanup();
     }
 
     void Cleanup()
     {
+        m_entitySystem = nullptr;
         ClearContainer(m_pools);
     }
 
-    template<typename Type>
-    void Register(ComponentPool<Type>* pool)
+    bool Initialize(EntitySystem* entitySystem)
     {
-        assert(pool != nullptr);
+        Cleanup();
+
+        // Validate arguments.
+        if(entitySystem == nullptr)
+            return false;
+
+        m_entitySystem = entitySystem;
+
+        // Success!
+        return true;
+    }
+
+    template<typename Type>
+    void CreatePool()
+    {
+        assert(m_entitySystem != nullptr);
+
+        // Validate component type.
+        static_assert(std::is_base_of<Component, Type>::value, "Not a component type.");
+
+        // Create a component pool instance.
+        auto pool = std::make_unique<ComponentPool<Type>>();
+
+        // Register the pool as entity system subscriber.
+        m_entitySystem->RegisterSubscriber(pool.get());
 
         // Add pool to the collection.
-        auto pair = std::pair<std::type_index, void*>(typeid(Type), pool);
-        auto result = m_pools.insert(pair);
+        auto pair = ComponentPoolPair(typeid(Type), std::move(pool));
+        auto result = m_pools.insert(std::move(pair));
         assert(result.second == true);
     }
 
     template<typename Type>
     Type* Create(EntityHandle handle)
     {
+        // Validate component type.
+        static_assert(std::is_base_of<Component, Type>::value, "Not a component type.");
+
         // Get the component pool.
         ComponentPool<Type>* pool = GetComponentPool<Type>();
 
@@ -51,12 +81,15 @@ public:
             return nullptr;
 
         // Create and return the component.
-        return pool->Create();
+        return pool->Create(handle);
     }
 
     template<typename Type>
     Type* Lookup(EntityHandle handle)
     {
+        // Validate component type.
+        static_assert(std::is_base_of<Component, Type>::value, "Not a component type.");
+
         // Get the component pool.
         ComponentPool<Type>* pool = GetComponentPool<Type>();
 
@@ -70,6 +103,9 @@ public:
     template<typename Type>
     void Remove(EntityHandle handle)
     {
+        // Validate component type.
+        static_assert(std::is_base_of<Component, Type>::value, "Not a component type.");
+
         // Get the component pool.
         ComponentPool<Type>* pool = GetComponentPool<Type>();
 
@@ -83,6 +119,9 @@ public:
     template<typename Type>
     typename ComponentPool<Type>::ComponentIterator Begin()
     {
+        // Validate component type.
+        static_assert(std::is_base_of<Component, Type>::value, "Not a component type.");
+
         // Get the component pool.
         ComponentPool<Type>* pool = GetComponentPool<Type>();
 
@@ -96,6 +135,9 @@ public:
     template<typename Type>
     typename ComponentPool<Type>::ComponentIterator End()
     {
+        // Validate component type.
+        static_assert(std::is_base_of<Component, Type>::value, "Not a component type.");
+
         // Get the component pool.
         ComponentPool<Type>* pool = GetComponentPool<Type>();
 
@@ -109,6 +151,9 @@ public:
     template<typename Type>
     ComponentPool<Type>* GetComponentPool()
     {
+        // Validate component type.
+        static_assert(std::is_base_of<Component, Type>::value, "Not a component type.");
+
         // Find pool by component type.
         auto it = m_pools.find(typeid(Type));
 
@@ -116,12 +161,13 @@ public:
             return nullptr;
 
         // Cast the pointer that we already know is a component pool.
-        ComponentPool<Type>* pool = reinterpret_cast<ComponentPool<Type>*>(it->second);
+        ComponentPool<Type>* pool = reinterpret_cast<ComponentPool<Type>*>(it->second.get());
 
         // Return the pool.
         return pool;
     }
 
 private:
+    EntitySystem* m_entitySystem;
     ComponentPoolList m_pools;
 };
