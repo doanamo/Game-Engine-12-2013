@@ -4,6 +4,8 @@
 
 #include "Game/GameContext.hpp"
 #include "Game/GameState.hpp"
+#include "Game/Event/EventDefinitions.hpp"
+#include "Game/Event/EventSystem.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Component/ComponentSystem.hpp"
 #include "Game/Transform/TransformComponent.hpp"
@@ -28,7 +30,8 @@ namespace
 
 const float CollisionSystem::Permanent = -1.0f;
 
-CollisionSystem::CollisionSystem()
+CollisionSystem::CollisionSystem() :
+    m_eventSystem(nullptr)
 {
 }
 
@@ -37,19 +40,25 @@ CollisionSystem::~CollisionSystem()
     Cleanup();
 }
 
-bool CollisionSystem::Initialize()
+bool CollisionSystem::Initialize(EventSystem* eventSystem)
 {
     Cleanup();
+
+    // Validate arguments.
+    if(eventSystem == nullptr)
+        return false;
+
+    m_eventSystem = eventSystem;
 
     return true;
 }
 
 void CollisionSystem::Cleanup()
 {
+    m_eventSystem = nullptr;
+
     ClearContainer(m_objects);
     ClearContainer(m_disabled);
-
-    m_dispatcherEntityCollision.Cleanup();
 }
 
 void CollisionSystem::Update(float timeDelta)
@@ -160,7 +169,7 @@ void CollisionSystem::Update(float timeDelta)
                     // Dispatch an entity collision event.
                     {
                         GameEvent::EntityCollision event(*it, *other);
-                        m_dispatcherEntityCollision.Dispatch(event);
+                        m_eventSystem->Dispatch(event);
                     }
 
                     // Check if other collision object is still valid.
@@ -204,9 +213,4 @@ void CollisionSystem::DisableCollisionResponse(EntityHandle sourceEntity, Entity
         // Insert a new pair.
         m_disabled.emplace(std::make_pair(pair, duration));
     }
-}
-
-void CollisionSystem::SubscribeReceiver(const ReceiverSignature<GameEvent::EntityCollision>& signature)
-{
-    m_dispatcherEntityCollision.Subscribe(signature);
 }

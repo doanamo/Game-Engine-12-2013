@@ -1,6 +1,9 @@
 #include "Precompiled.hpp"
 #include "GameState.hpp"
 
+#include "Game/Event/EventDefinitions.hpp"
+
+#include "Game/Event/EventSystem.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Component/ComponentSystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
@@ -30,6 +33,7 @@ namespace
     InputState inputState;
 
     // Game systems.
+    EventSystem     eventSystem;
     EntitySystem    entitySystem;
     ComponentSystem componentSystem; 
     IdentitySystem  identitySystem;
@@ -61,6 +65,10 @@ bool GameState::Initialize()
     // Systems
     //
 
+    // Initialize the event system.
+    if(!eventSystem.Initialize())
+        return false;
+
     // Initialize the entity system.
     if(!entitySystem.Initialize())
         return false;
@@ -84,31 +92,24 @@ bool GameState::Initialize()
     entitySystem.RegisterSubscriber(&identitySystem);
 
     // Initialize the health system.
-    if(!healthSystem.Initialize())
+    if(!healthSystem.Initialize(&eventSystem))
         return false;
 
     // Initialize the collision system.
-    if(!collisionSystem.Initialize())
+    if(!collisionSystem.Initialize(&eventSystem))
         return false;
 
     // Initialize the script system.
-    if(!scriptSystem.Initialize())
+    if(!scriptSystem.Initialize(&eventSystem))
         return false;
-
-    healthSystem.SubscribeReceiver(scriptSystem.GetEntityDamagedReceiver());
-    healthSystem.SubscribeReceiver(scriptSystem.GetEntityHealedReceiver());
-    collisionSystem.SubscribeReceiver(scriptSystem.GetEntityCollisionReceiver());
 
     // Initialize the render system.
     if(!renderSystem.Initialize(64))
         return false;
 
     // Initialize the interface system.
-    if(!interfaceSystem.Initialize())
+    if(!interfaceSystem.Initialize(&eventSystem))
         return false;
-
-    healthSystem.SubscribeReceiver(interfaceSystem.GetEntityDamagedReceiver());
-    healthSystem.SubscribeReceiver(interfaceSystem.GetEntityHealedReceiver());
 
     // Initialize the spawn system.
     if(!spawnSystem.Initialize())
@@ -145,6 +146,7 @@ void GameState::Cleanup()
     identitySystem.Cleanup();
     componentSystem.Cleanup();
     entitySystem.Cleanup();
+    eventSystem.Cleanup();
 
     //
     // Input State
@@ -167,6 +169,11 @@ bool GameState::IsInitialized()
 InputState& GameState::GetInputState()
 {
     return inputState;
+}
+
+EventSystem& GameState::GetEventSystem()
+{
+    return eventSystem;
 }
 
 EntitySystem& GameState::GetEntitySystem()

@@ -5,9 +5,9 @@
 // Forward declarations.
 class InputState;
 
+class EventSystem;
 class EntitySystem;
 class ComponentSystem;
-
 class IdentitySystem;
 class HealthSystem;
 class CollisionSystem;
@@ -32,6 +32,7 @@ namespace GameState
 
     InputState& GetInputState();
 
+    EventSystem&     GetEventSystem();
     EntitySystem&    GetEntitySystem();
     ComponentSystem& GetComponentSystem();
     IdentitySystem&  GetIdentitySystem();

@@ -5,6 +5,7 @@
 #include "Graphics/TextRenderer.hpp"
 #include "Game/GameContext.hpp"
 #include "Game/GameState.hpp"
+#include "Game/Event/EventSystem.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Component/ComponentSystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
@@ -32,9 +33,13 @@ InterfaceSystem::~InterfaceSystem()
     Cleanup();
 }
 
-bool InterfaceSystem::Initialize()
+bool InterfaceSystem::Initialize(EventSystem* eventSystem)
 {
     Cleanup();
+
+    // Validate arguments.
+    if(eventSystem == nullptr)
+        return false;
 
     // Initialize the health bar.
     m_playerHealthBar.SetDrawingRectangle(glm::vec4(0.0f, 0.0f, 624.0f, 15.0f));
@@ -45,6 +50,10 @@ bool InterfaceSystem::Initialize()
     // Bind event receivers.
     m_receiverEntityDamaged.Bind<InterfaceSystem, &InterfaceSystem::OnEntityDamagedEvent>(this);
     m_receiverEntityHealed.Bind<InterfaceSystem, &InterfaceSystem::OnEntityHealedEvent>(this);
+
+    // Subscribe event receivers.
+    eventSystem->Subscribe(&m_receiverEntityDamaged);
+    eventSystem->Subscribe(&m_receiverEntityHealed);
 
     // Success!
     m_initialized = true;
@@ -232,16 +241,6 @@ void InterfaceSystem::AddFloatingText(std::string text, const glm::vec2& positio
 
     // Add floating text element to the list.
     m_floatingTextList.push_back(element);
-}
-
-ReceiverSignature<GameEvent::EntityDamaged> InterfaceSystem::GetEntityDamagedReceiver()
-{
-    return m_receiverEntityDamaged;
-}
-
-ReceiverSignature<GameEvent::EntityHealed> InterfaceSystem::GetEntityHealedReceiver()
-{
-    return m_receiverEntityHealed;
 }
 
 void InterfaceSystem::OnEntityDamagedEvent(const GameEvent::EntityDamaged& event)

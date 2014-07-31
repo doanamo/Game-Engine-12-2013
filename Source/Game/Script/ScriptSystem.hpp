@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Precompiled.hpp"
-
 #include "Common/Receiver.hpp"
-#include "Game/GameEvents.hpp"
+#include "Game/Event/EventDefinitions.hpp"
+
+// Forward declarations.
+class EventSystem;
 
 //
 // Script System
@@ -15,16 +17,12 @@ public:
     ScriptSystem();
     ~ScriptSystem();
 
-    bool Initialize();
+    bool Initialize(EventSystem* eventSystem);
     void Cleanup();
 
     void Update(float timeDelta);
 
 public:
-    ReceiverSignature<GameEvent::EntityDamaged> GetEntityDamagedReceiver();
-    ReceiverSignature<GameEvent::EntityHealed> GetEntityHealedReceiver();
-    ReceiverSignature<GameEvent::EntityCollision> GetEntityCollisionReceiver();
-
     void OnEntityDamagedEvent(const GameEvent::EntityDamaged& event);
     void OnEntityHealedEvent(const GameEvent::EntityHealed& event);
     void OnEntityCollisionEvent(const GameEvent::EntityCollision& event);

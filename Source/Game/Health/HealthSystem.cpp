@@ -4,6 +4,8 @@
 
 #include "Game/GameContext.hpp"
 #include "Game/GameState.hpp"
+#include "Game/Event/EventDefinitions.hpp"
+#include "Game/Event/EventSystem.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Component/ComponentSystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
@@ -13,7 +15,8 @@ namespace Console
     ConsoleVariable cheatGodMode("godmode", false, "Toggles player invulnerability.");
 }
 
-HealthSystem::HealthSystem()
+HealthSystem::HealthSystem() :
+    m_eventSystem(nullptr)
 {
 }
 
@@ -22,16 +25,22 @@ HealthSystem::~HealthSystem()
     Cleanup();
 }
 
-bool HealthSystem::Initialize()
-{
-    return true;
-}
-
 void HealthSystem::Cleanup()
 {
-    m_dispatcherEntityHealth.Cleanup();
-    m_dispatcherEntityDamaged.Cleanup();
-    m_dispatcherEntityHealed.Cleanup();
+    m_eventSystem = nullptr;
+}
+
+bool HealthSystem::Initialize(EventSystem* eventSystem)
+{
+    Cleanup();
+
+    // Validate arguments.
+    if(eventSystem == nullptr)
+        return false;
+
+    m_eventSystem = eventSystem;
+
+    return true;
 }
 
 void HealthSystem::Damage(EntityHandle entity, int value)
@@ -75,7 +84,7 @@ void HealthSystem::Damage(EntityHandle entity, int value)
             event.entity = entity;
             event.component = health;
 
-            m_dispatcherEntityHealth.Dispatch(event);
+            m_eventSystem->Dispatch(event);
         }
 
         // Dispatch an entity damaged event.
@@ -85,7 +94,7 @@ void HealthSystem::Damage(EntityHandle entity, int value)
             event.component = health;
             event.value = value;
 
-            m_dispatcherEntityDamaged.Dispatch(event);
+            m_eventSystem->Dispatch(event);
         }
     }
 }
@@ -118,7 +127,7 @@ void HealthSystem::Heal(EntityHandle entity, int value)
             event.entity = entity;
             event.component = health;
 
-            m_dispatcherEntityHealth.Dispatch(event);
+            m_eventSystem->Dispatch(event);
         }
 
         // Dispatch an entity healed event.
@@ -128,22 +137,7 @@ void HealthSystem::Heal(EntityHandle entity, int value)
             event.component = health;
             event.value = value;
 
-            m_dispatcherEntityHealed.Dispatch(event);
+            m_eventSystem->Dispatch(event);
         }
     }
-}
-
-void HealthSystem::SubscribeReceiver(const ReceiverSignature<GameEvent::EntityHealth>& signature)
-{
-    m_dispatcherEntityHealth.Subscribe(signature);
-}
-
-void HealthSystem::SubscribeReceiver(const ReceiverSignature<GameEvent::EntityDamaged>& signature)
-{
-    m_dispatcherEntityDamaged.Subscribe(signature);
-}
-
-void HealthSystem::SubscribeReceiver(const ReceiverSignature<GameEvent::EntityHealed>& signature)
-{
-    m_dispatcherEntityHealed.Subscribe(signature);
 }

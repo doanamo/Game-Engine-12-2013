@@ -159,3 +159,9 @@ Receiver<Type>* Dispatcher<Type>::Previous(Receiver<Type>* receiver)
     // Return the previous receiver.
     return previous;
 }
+
+template<typename Type>
+bool Dispatcher<Type>::HasSubscribers() const
+{
+    return m_begin != nullptr;
+}

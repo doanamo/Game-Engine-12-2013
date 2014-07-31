@@ -121,12 +121,14 @@ Set(SourceFiles
     "Game/GameState.cpp"
     "Game/GameFactory.hpp"
     "Game/GameFactory.cpp"
-    "Game/GameEvents.hpp"
 
     "Game/Entity/EntityHandle.hpp"
     "Game/Entity/EntitySubscriber.hpp"
     "Game/Entity/EntitySystem.hpp"
     "Game/Entity/EntitySystem.cpp"
+
+    "Game/Event/EventDefinitions.hpp"
+    "Game/Event/EventSystem.hpp"
 
     "Game/Identity/IdentitySystem.hpp"
     "Game/Identity/IdentitySystem.cpp"

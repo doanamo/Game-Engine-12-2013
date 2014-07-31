@@ -5,6 +5,8 @@
 
 #include "Game/GameContext.hpp"
 #include "Game/GameState.hpp"
+#include "Game/Event/EventDefinitions.hpp"
+#include "Game/Event/EventSystem.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Component/ComponentSystem.hpp"
 
@@ -17,23 +19,32 @@ ScriptSystem::~ScriptSystem()
     Cleanup();
 }
 
-bool ScriptSystem::Initialize()
+void ScriptSystem::Cleanup()
+{
+    m_receiverEntityDamaged.Cleanup();
+    m_receiverEntityHealed.Cleanup();
+    m_receiverEntityCollsion.Cleanup();
+}
+
+bool ScriptSystem::Initialize(EventSystem* eventSystem)
 {
     Cleanup();
+
+    // Validate arguments.
+    if(eventSystem == nullptr)
+        return false;
 
     // Bind event receivers.
     m_receiverEntityDamaged.Bind<ScriptSystem, &ScriptSystem::OnEntityDamagedEvent>(this);
     m_receiverEntityHealed.Bind<ScriptSystem, &ScriptSystem::OnEntityHealedEvent>(this);
     m_receiverEntityCollsion.Bind<ScriptSystem, &ScriptSystem::OnEntityCollisionEvent>(this);
 
-    return true;
-}
+    // Subscribe event receivers.
+    eventSystem->Subscribe(&m_receiverEntityDamaged);
+    eventSystem->Subscribe(&m_receiverEntityHealed);
+    eventSystem->Subscribe(&m_receiverEntityCollsion);
 
-void ScriptSystem::Cleanup()
-{
-    m_receiverEntityDamaged.Cleanup();
-    m_receiverEntityHealed.Cleanup();
-    m_receiverEntityCollsion.Cleanup();
+    return true;
 }
 
 void ScriptSystem::Update(float timeDelta)
@@ -58,21 +69,6 @@ void ScriptSystem::Update(float timeDelta)
         // Call OnUpdate() method.
         script.OnUpdate(it->first, timeDelta);
     }
-}
-
-ReceiverSignature<GameEvent::EntityDamaged> ScriptSystem::GetEntityDamagedReceiver()
-{
-    return m_receiverEntityDamaged;
-}
-
-ReceiverSignature<GameEvent::EntityHealed> ScriptSystem::GetEntityHealedReceiver()
-{
-    return m_receiverEntityHealed;
-}
-
-ReceiverSignature<GameEvent::EntityCollision> ScriptSystem::GetEntityCollisionReceiver()
-{
-    return m_receiverEntityCollsion;
 }
 
 void ScriptSystem::OnEntityDamagedEvent(const GameEvent::EntityDamaged& event)

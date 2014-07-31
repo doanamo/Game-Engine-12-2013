@@ -11,6 +11,23 @@ template<typename Type>
 class ReceiverSignature;
 
 //
+// Dispatcher Interface
+//
+
+class DispatcherInterface
+{
+protected:
+    DispatcherInterface()
+    {
+    }
+
+public:
+    ~DispatcherInterface()
+    {
+    }
+};
+
+//
 // Dispatcher
 //  Holds a list of subscribed receivers that can be invoked all at once. 
 //  More safe than using raw delegates, as unsubscribing is automated at 
@@ -37,7 +54,7 @@ class ReceiverSignature;
 //
 
 template<typename Type>
-class Dispatcher
+class Dispatcher : public DispatcherInterface
 {
 public:
     Dispatcher();
@@ -52,6 +69,8 @@ public:
     void Unsubscribe(Receiver<Type>* receiver);
 
     void Dispatch(const Type& event);
+
+    bool HasSubscribers() const;
 
 private:
     Receiver<Type>* Previous(Receiver<Type>* receiver);

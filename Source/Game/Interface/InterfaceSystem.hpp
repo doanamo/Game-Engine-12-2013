@@ -6,7 +6,10 @@
 
 #include "Common/Receiver.hpp"
 #include "Graphics/ScreenSpace.hpp"
-#include "Game/GameEvents.hpp"
+#include "Game/Event/EventDefinitions.hpp"
+
+// Forward declarations
+class EventSystem;
 
 //
 // Interface System
@@ -18,7 +21,7 @@ public:
     InterfaceSystem();
     ~InterfaceSystem();
 
-    bool Initialize();
+    bool Initialize(EventSystem* eventSystem);
     void Cleanup();
 
     void Update(float timeDelta);
@@ -27,9 +30,6 @@ public:
     void AddFloatingText(std::string text, const glm::vec2& position, const FloatingTextInterface* interface);
 
 public:
-    ReceiverSignature<GameEvent::EntityDamaged> GetEntityDamagedReceiver();
-    ReceiverSignature<GameEvent::EntityHealed> GetEntityHealedReceiver();
-
     void OnEntityDamagedEvent(const GameEvent::EntityDamaged& event);
     void OnEntityHealedEvent(const GameEvent::EntityHealed& event);
 

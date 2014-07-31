@@ -3,9 +3,10 @@
 #include "Precompiled.hpp"
 #include "CollisionObject.hpp"
 
-#include "Common/Dispatcher.hpp"
-#include "Game/GameEvents.hpp"
 #include "Game/Entity/EntityHandle.hpp"
+
+// Forward declarations.
+class EventSystem;
 
 //
 // Collision System
@@ -20,17 +21,17 @@ public:
     CollisionSystem();
     ~CollisionSystem();
 
-    bool Initialize();
+    bool Initialize(EventSystem* eventSystem);
     void Cleanup();
 
     void Update(float timeDelta);
 
     void DisableCollisionResponse(EntityHandle sourceEntity, EntityHandle targetEntity, float duration = Permanent);
 
-public:
-    void SubscribeReceiver(const ReceiverSignature<GameEvent::EntityCollision>& signature);
-
 private:
+    // Event system.
+    EventSystem* m_eventSystem;
+
     // Intermediate collision objects.
     std::vector<CollisionObject> m_objects;
 
@@ -39,7 +40,4 @@ private:
     typedef std::unordered_multimap<EntityPair, float> DisabledList;
 
     DisabledList m_disabled;
-
-    // Event dispatchers.
-    Dispatcher<GameEvent::EntityCollision> m_dispatcherEntityCollision;
 };
