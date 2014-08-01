@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "TextRenderer.hpp"
 
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 #include "Graphics/BasicRenderer.hpp"
 #include "Graphics/Font.hpp"
 

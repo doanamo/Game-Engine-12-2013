@@ -38,17 +38,17 @@ namespace Console
 }
 
 //
-// Main Context
+// Main Global
 //
 
 namespace Main
 {
-    // Context methods.
+    // Global methods.
     bool Initialize();
     void Cleanup();
     void Quit();
 
-    // Context accessors.
+    // Global accessors.
     bool            IsInitialized();
     bool            IsQuitting();
 

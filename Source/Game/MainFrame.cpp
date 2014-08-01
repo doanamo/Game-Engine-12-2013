@@ -1,9 +1,9 @@
 #include "Precompiled.hpp"
 #include "MainFrame.hpp"
 
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 #include "Graphics/CoreRenderer.hpp"
-#include "Game/GameContext.hpp"
+#include "Game/GameGlobal.hpp"
 #include "Game/MenuFrame.hpp"
 
 MainFrame::MainFrame()

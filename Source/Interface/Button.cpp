@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "Button.hpp"
 
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 #include "Interface/InterfaceRoot.hpp"
 
 Button::Button() :

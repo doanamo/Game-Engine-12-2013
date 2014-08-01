@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "BasicRenderer.hpp"
 
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 #include "Graphics/Texture.hpp"
 
 namespace

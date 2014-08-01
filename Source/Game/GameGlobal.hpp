@@ -11,16 +11,16 @@ class GameFrame;
 class LoseFrame;
 
 //
-// Game Context
+// Game Global
 //
 
 namespace GameContext
 {
-    // Context methods.
+    // Global methods.
     bool Initialize();
     void Cleanup();
 
-    // Context accessors.
+    // Global accessors.
     bool IsInitialized();
 
     StateMachine<BaseFrame*>& GetFrameState();

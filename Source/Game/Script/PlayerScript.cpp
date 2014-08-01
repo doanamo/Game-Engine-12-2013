@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "PlayerScript.hpp"
 
-#include "Game/GameContext.hpp"
+#include "Game/GameGlobal.hpp"
 #include "Game/GameState.hpp"
 #include "Game/GameFactory.hpp"
 #include "Game/Entity/EntitySystem.hpp"

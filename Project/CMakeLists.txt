@@ -26,8 +26,8 @@ Set(SourceFiles
     "${PrecompiledSource}"
 
     "Main.cpp"
-    "MainContext.hpp"
-    "MainContext.cpp"
+    "MainGlobal.hpp"
+    "MainGlobal.cpp"
 
     "Common/NonCopyable.hpp"
     "Common/ScopeGuard.hpp"
@@ -109,8 +109,8 @@ Set(SourceFiles
 
     "Game/MainFrame.hpp"
     "Game/MainFrame.cpp"
-    "Game/GameContext.hpp"
-    "Game/GameContext.cpp"
+    "Game/GameGlobal.hpp"
+    "Game/GameGlobal.cpp"
     "Game/MenuFrame.hpp"
     "Game/MenuFrame.cpp"
     "Game/GameFrame.hpp"

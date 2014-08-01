@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "Shader.hpp"
 
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 
 namespace
 {

@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "ConsoleDefinition.hpp"
 
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 #include "Console/ConsoleSystem.hpp"
 
 const char*        ConsoleDefinition::Internal = "";

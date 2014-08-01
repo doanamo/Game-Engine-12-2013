@@ -1,14 +1,14 @@
 #include "Precompiled.hpp"
-#include "GameContext.hpp"
+#include "GameGlobal.hpp"
 
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 #include "System/BaseFrame.hpp"
 #include "Game/MenuFrame.hpp"
 #include "Game/GameFrame.hpp"
 #include "Game/LoseFrame.hpp"
 
 //
-// Context Data
+// Global Data
 //
 
 namespace
@@ -23,7 +23,7 @@ namespace
 }
 
 //
-// Context Methods
+// Global Methods
 //
 
 bool GameContext::Initialize()
@@ -78,7 +78,7 @@ void GameContext::Cleanup()
 }
 
 //
-// Context Accessors
+// Global Accessors
 //
 
 bool GameContext::IsInitialized()

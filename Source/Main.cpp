@@ -1,6 +1,6 @@
 #include "Precompiled.hpp"
 
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 #include "Console/ConsoleSystem.hpp"
 #include "Console/ConsoleFrame.hpp"
 #include "System/BaseFrame.hpp"

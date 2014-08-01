@@ -1,11 +1,11 @@
 #include "Precompiled.hpp"
 #include "MenuFrame.hpp"
 
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 #include "Graphics/Font.hpp"
 #include "Graphics/CoreRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
-#include "Game/GameContext.hpp"
+#include "Game/GameGlobal.hpp"
 #include "Game/GameFrame.hpp"
 
 namespace

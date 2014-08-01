@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "ValueBar.hpp"
 
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 #include "Graphics/BasicRenderer.hpp"
 
 ValueBar::ValueBar() :

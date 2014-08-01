@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "ConsoleFrame.hpp"
 
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 #include "Console/ConsoleSystem.hpp"
 #include "Console/ConsoleHistory.hpp"
 #include "Graphics/BasicRenderer.hpp"

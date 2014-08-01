@@ -1,5 +1,5 @@
 #include "Precompiled.hpp"
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 
 #include "Logger/Logger.hpp"
 #include "Logger/LoggerOutputFile.hpp"
@@ -37,7 +37,7 @@ namespace Console
 }
 
 //
-// Context Data
+// Global Data
 //
 
 namespace
@@ -75,7 +75,7 @@ namespace
 }
 
 //
-// Context Methods
+// Global Methods
 //
 
 bool Main::Initialize()
@@ -513,7 +513,7 @@ void Main::Quit()
 }
 
 //
-// Context Accessors
+// Global Accessors
 //
 
 bool Main::IsInitialized()

@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "InterfaceRoot.hpp"
 
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 #include "Graphics/ScreenSpace.hpp"
 
 InterfaceRoot::InterfaceRoot() :

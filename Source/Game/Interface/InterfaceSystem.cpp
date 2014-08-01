@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "InterfaceSystem.hpp"
 
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 #include "Graphics/TextRenderer.hpp"
 #include "Game/Event/EventSystem.hpp"
 #include "Game/Entity/EntitySystem.hpp"

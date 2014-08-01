@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "CacheManager.hpp"
 
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 
 namespace
 {

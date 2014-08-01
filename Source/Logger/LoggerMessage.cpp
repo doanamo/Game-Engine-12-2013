@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "LoggerMessage.hpp"
 
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 
 LoggerMessage::LoggerMessage() :
     std::ostream(&m_buffer),

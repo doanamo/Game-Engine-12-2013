@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "RenderSystem.hpp"
 
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 #include "Graphics/Texture.hpp"
 #include "Graphics/CoreRenderer.hpp"
 #include "Game/Entity/EntitySystem.hpp"

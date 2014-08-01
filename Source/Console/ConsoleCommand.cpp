@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "ConsoleCommand.hpp"
 
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 #include "Console/ConsoleSystem.hpp"
 #include "Console/ConsoleHistory.hpp"
 

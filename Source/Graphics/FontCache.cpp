@@ -1,7 +1,7 @@
 #include "Precompiled.hpp"
 #include "Font.hpp"
 
-#include "MainContext.hpp"
+#include "MainGlobal.hpp"
 #include "System/CacheManager.hpp"
 
 namespace
