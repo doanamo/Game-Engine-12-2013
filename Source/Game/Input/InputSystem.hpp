@@ -4,7 +4,7 @@
 #include "InputState.hpp"
 
 // Forward declarations.
-class ComponentSystem;
+class Services;
 
 //
 // Input System
@@ -16,7 +16,7 @@ public:
     InputSystem();
     ~InputSystem();
 
-    bool Initialize(ComponentSystem* componentSystem);
+    bool Initialize(const Services& services);
     void Cleanup();
 
     void Process(const SDL_Event& event);

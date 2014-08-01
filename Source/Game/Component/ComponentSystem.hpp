@@ -2,6 +2,7 @@
 
 #include "Precompiled.hpp"
 
+#include "Common/Services.hpp"
 #include "Game/Component/ComponentPool.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 
@@ -34,18 +35,20 @@ public:
         ClearContainer(m_pools);
     }
 
-    bool Initialize(EntitySystem* entitySystem)
+    bool Initialize(const Services& services)
     {
         Cleanup();
 
-        // Validate arguments.
-        if(entitySystem == nullptr)
-            return false;
+        // Initialization state.
+        bool initialized = false;
+        SCOPE_GUARD_IF(!initialized, Cleanup());
 
-        m_entitySystem = entitySystem;
+        // Get required services.
+        m_entitySystem = services.Get<EntitySystem>();
+        if(m_entitySystem == nullptr) return false;
 
         // Success!
-        return true;
+        return initialized = true;
     }
 
     template<typename Type>

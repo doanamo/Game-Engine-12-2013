@@ -9,6 +9,7 @@
 #include "Game/Event/EventDefinitions.hpp"
 
 // Forward declarations
+class Services;
 class EventSystem;
 class EntitySystem;
 class IdentitySystem;
@@ -25,7 +26,7 @@ public:
     InterfaceSystem();
     ~InterfaceSystem();
 
-    bool Initialize(EventSystem* eventSystem, EntitySystem* entitySystem, IdentitySystem* identitySystem, ComponentSystem* componentSystem, RenderSystem* renderSystem);
+    bool Initialize(const Services& services);
     void Cleanup();
 
     void Update(float timeDelta);

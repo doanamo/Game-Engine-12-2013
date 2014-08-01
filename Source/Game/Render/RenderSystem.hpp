@@ -7,6 +7,7 @@
 #include "Graphics/ScreenSpace.hpp"
 
 // Forward declarations.
+class Services;
 class EntitySystem;
 class ComponentSystem;
 
@@ -30,7 +31,7 @@ public:
     RenderSystem();
     ~RenderSystem();
 
-    bool Initialize(EntitySystem* entitySystem, ComponentSystem* componentSystem, int bufferSize);
+    bool Initialize(const Services& services);
     void Cleanup();
 
     void Update();
@@ -44,7 +45,6 @@ public:
 private:
     // System state.
     bool m_initialized;
-    int m_bufferSize;
 
     // Game systems.
     EntitySystem*    m_entitySystem;

@@ -3,6 +3,7 @@
 #include "ScriptComponent.hpp"
 #include "Script.hpp"
 
+#include "Common/Services.hpp"
 #include "Game/Event/EventDefinitions.hpp"
 #include "Game/Event/EventSystem.hpp"
 #include "Game/Entity/EntitySystem.hpp"
@@ -36,23 +37,22 @@ void ScriptSystem::Cleanup()
     m_receiverEntityCollsion.Cleanup();
 }
 
-bool ScriptSystem::Initialize(EventSystem* eventSystem, EntitySystem* entitySystem, ComponentSystem* componentSystem)
+bool ScriptSystem::Initialize(const Services& services)
 {
     Cleanup();
 
-    // Validate arguments.
-    if(eventSystem == nullptr)
-        return false;
+    // Setup scope guard.
+    SCOPE_GUARD_IF(!m_initialized, Cleanup());
 
-    if(entitySystem == nullptr)
-        return false;
+    // Get required services.
+    m_eventSystem = services.Get<EventSystem>();
+    if(m_eventSystem == nullptr) return false;
 
-    if(componentSystem == nullptr)
-        return false;
+    m_entitySystem = services.Get<EntitySystem>();
+    if(m_entitySystem == nullptr) return false;
 
-    m_eventSystem = eventSystem;
-    m_entitySystem = entitySystem;
-    m_componentSystem = componentSystem;
+    m_componentSystem = services.Get<ComponentSystem>();
+    if(m_componentSystem == nullptr) return false;
 
     // Bind event receivers.
     m_receiverEntityDamaged.Bind<ScriptSystem, &ScriptSystem::OnEntityDamagedEvent>(this);
@@ -60,9 +60,9 @@ bool ScriptSystem::Initialize(EventSystem* eventSystem, EntitySystem* entitySyst
     m_receiverEntityCollsion.Bind<ScriptSystem, &ScriptSystem::OnEntityCollisionEvent>(this);
 
     // Subscribe event receivers.
-    eventSystem->Subscribe(&m_receiverEntityDamaged);
-    eventSystem->Subscribe(&m_receiverEntityHealed);
-    eventSystem->Subscribe(&m_receiverEntityCollsion);
+    m_eventSystem->Subscribe(&m_receiverEntityDamaged);
+    m_eventSystem->Subscribe(&m_receiverEntityHealed);
+    m_eventSystem->Subscribe(&m_receiverEntityCollsion);
 
     // Declare required components.
     m_componentSystem->Declare<ScriptComponent>();

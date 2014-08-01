@@ -2,6 +2,7 @@
 #include "HealthSystem.hpp"
 #include "HealthComponent.hpp"
 
+#include "Common/Services.hpp"
 #include "Game/Event/EventDefinitions.hpp"
 #include "Game/Event/EventSystem.hpp"
 #include "Game/Entity/EntitySystem.hpp"
@@ -37,27 +38,25 @@ void HealthSystem::Cleanup()
     m_componentSystem = nullptr;
 }
 
-bool HealthSystem::Initialize(EventSystem* eventSystem, EntitySystem* entitySystem, IdentitySystem* identitySystem, ComponentSystem* componentSystem)
+bool HealthSystem::Initialize(const Services& services)
 {
     Cleanup();
 
-    // Validate arguments.
-    if(eventSystem == nullptr)
-        return false;
+    // Setup scope guard.
+    SCOPE_GUARD_IF(!m_initialized, Cleanup());
 
-    if(entitySystem == nullptr)
-        return false;
+    // Get requied services.
+    m_eventSystem = services.Get<EventSystem>();
+    if(m_eventSystem == nullptr) return false;
 
-    if(identitySystem == nullptr)
-        return false;
+    m_entitySystem = services.Get<EntitySystem>();
+    if(m_entitySystem == nullptr) return false;
 
-    if(componentSystem == nullptr)
-        return false;
+    m_identitySystem = services.Get<IdentitySystem>();
+    if(m_identitySystem == nullptr) return false;
 
-    m_eventSystem = eventSystem;
-    m_entitySystem = entitySystem;
-    m_identitySystem = identitySystem;
-    m_componentSystem = componentSystem;
+    m_componentSystem = services.Get<ComponentSystem>();
+    if(m_componentSystem == nullptr) return false;
 
     // Declare required components.
     m_componentSystem->Declare<HealthComponent>();

@@ -40,6 +40,7 @@ Set(SourceFiles
     "Common/Dispatcher.inl"
     "Common/Receiver.hpp"
     "Common/Delegate.hpp"
+    "Common/Services.hpp"
 
     "Logger/Logger.hpp"
     "Logger/Logger.cpp"

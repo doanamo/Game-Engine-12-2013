@@ -5,6 +5,7 @@
 #include "Game/Event/EventDefinitions.hpp"
 
 // Forward declarations.
+class Services;
 class EventSystem;
 class EntitySystem;
 class ComponentSystem;
@@ -19,7 +20,7 @@ public:
     ScriptSystem();
     ~ScriptSystem();
 
-    bool Initialize(EventSystem* eventSystem, EntitySystem* entitySystem, ComponentSystem* componentSystem);
+    bool Initialize(const Services& services);
     void Cleanup();
 
     void Update(float timeDelta);

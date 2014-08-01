@@ -2,6 +2,7 @@
 #include "InputSystem.hpp"
 #include "InputComponent.hpp"
 
+#include "Common/Services.hpp"
 #include "Game/Component/ComponentSystem.hpp"
 
 InputSystem::InputSystem() :
@@ -26,13 +27,13 @@ void InputSystem::Cleanup()
     m_keyboardStateSize = 0;
 }
 
-bool InputSystem::Initialize(ComponentSystem* componentSystem)
+bool InputSystem::Initialize(const Services& services)
 {
     Cleanup();
 
-    // Validate arguments.
-    if(componentSystem == nullptr)
-        return false;
+    // Get required services.
+    ComponentSystem* componentSystem = services.Get<ComponentSystem>();
+    if(componentSystem == nullptr) return false;
 
     // Declare required components.
     componentSystem->Declare<InputComponent>();

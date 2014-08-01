@@ -6,6 +6,7 @@
 #include "Game/Entity/EntityHandle.hpp"
 
 // Forward declarations.
+class Services;
 class EventSystem;
 class EntitySystem;
 class ComponentSystem;
@@ -29,7 +30,7 @@ public:
     CollisionSystem();
     ~CollisionSystem();
 
-    bool Initialize(EventSystem* eventSystem, EntitySystem* entitySystem, ComponentSystem* componentSystem);
+    bool Initialize(const Services& services);
     void Cleanup();
 
     void Update(float timeDelta);

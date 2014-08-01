@@ -2,6 +2,7 @@
 #include "RenderSystem.hpp"
 
 #include "MainGlobal.hpp"
+#include "Common/Services.hpp"
 #include "Graphics/Texture.hpp"
 #include "Graphics/CoreRenderer.hpp"
 #include "Game/Entity/EntitySystem.hpp"
@@ -12,13 +13,15 @@
 namespace
 {
     // Game space size.
-    float gameWidth = 1024;
-    float gameHeight = 576;
+    const float GameWidth = 1024;
+    const float GameHeight = 576;
+
+    // Buffer size.
+    const int BufferSize = 64;
 }
 
 RenderSystem::RenderSystem() :
     m_initialized(false),
-    m_bufferSize(0),
     m_entitySystem(nullptr),
     m_componentSystem(nullptr)
 {
@@ -32,7 +35,6 @@ RenderSystem::~RenderSystem()
 void RenderSystem::Cleanup()
 {
     m_initialized = false;
-    m_bufferSize = 0;
 
     m_entitySystem = nullptr;
     m_componentSystem = nullptr;
@@ -48,23 +50,19 @@ void RenderSystem::Cleanup()
     ClearContainer(m_sprites);
 }
 
-bool RenderSystem::Initialize(EntitySystem* entitySystem, ComponentSystem* componentSystem, int bufferSize)
+bool RenderSystem::Initialize(const Services& services)
 {
     Cleanup();
 
-    // Validate arguments.
-    if(entitySystem == nullptr)
-        return false;
+    // Setup scope guard.
+    SCOPE_GUARD_IF(!m_initialized, Cleanup());
 
-    if(componentSystem == nullptr)
-        return false;
+    // Get required services.
+    m_entitySystem = services.Get<EntitySystem>();
+    if(m_entitySystem == nullptr) return false;
 
-    if(bufferSize <= 0)
-        return false;
-
-    m_entitySystem = entitySystem;
-    m_componentSystem = componentSystem;
-    m_bufferSize = bufferSize;
+    m_componentSystem = services.Get<ComponentSystem>();
+    if(m_componentSystem == nullptr) return false;
 
     // Declare required components.
     m_componentSystem->Declare<TransformComponent>();
@@ -100,7 +98,7 @@ bool RenderSystem::Initialize(EntitySystem* entitySystem, ComponentSystem* compo
     }
 
     // Create an instance buffer.
-    if(!m_instanceBuffer.Initialize(sizeof(Sprite), m_bufferSize, nullptr, GL_DYNAMIC_DRAW))
+    if(!m_instanceBuffer.Initialize(sizeof(Sprite), BufferSize, nullptr, GL_DYNAMIC_DRAW))
     {
         Cleanup();
         return false;
@@ -142,7 +140,7 @@ void RenderSystem::Update()
 
     // Setup screen space.
     m_screenSpace.SetSourceSize(windowWidth, windowHeight);
-    m_screenSpace.SetTargetSize(gameWidth, gameHeight);
+    m_screenSpace.SetTargetSize(GameWidth, GameHeight);
 
     //
     // Process Components
@@ -236,7 +234,7 @@ void RenderSystem::Draw()
         // Determine if we have to draw the batch.
         bool drawBatch = false;
 
-        if(instancesBatched == m_bufferSize)
+        if(instancesBatched == BufferSize)
         {
             // We reached the buffer size.
             drawBatch = true;

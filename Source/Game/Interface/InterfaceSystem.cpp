@@ -2,6 +2,7 @@
 #include "InterfaceSystem.hpp"
 
 #include "MainGlobal.hpp"
+#include "Common/Services.hpp"
 #include "Graphics/TextRenderer.hpp"
 #include "Game/Event/EventSystem.hpp"
 #include "Game/Entity/EntitySystem.hpp"
@@ -61,43 +62,40 @@ void InterfaceSystem::Cleanup()
     m_receiverEntityHealed.Cleanup();
 }
 
-bool InterfaceSystem::Initialize(EventSystem* eventSystem, EntitySystem* entitySystem, IdentitySystem* identitySystem, ComponentSystem* componentSystem, RenderSystem* renderSystem)
+bool InterfaceSystem::Initialize(const Services& services)
 {
     Cleanup();
 
+    // Setup scope guard.
+    SCOPE_GUARD_IF(!m_initialized, Cleanup());
+
     // Validate arguments.
-    if(eventSystem == nullptr)
-        return false;
+    m_eventSystem = services.Get<EventSystem>();
+    if(m_eventSystem == nullptr) return false;
 
-    if(entitySystem == nullptr)
-        return false;
+    m_entitySystem = services.Get<EntitySystem>();
+    if(m_entitySystem == nullptr) return false;
 
-    if(identitySystem == nullptr)
-        return false;
+    m_identitySystem = services.Get<IdentitySystem>();
+    if(m_identitySystem == nullptr) return false;
 
-    if(componentSystem == nullptr)
-        return false;
+    m_componentSystem = services.Get<ComponentSystem>();
+    if(m_componentSystem == nullptr) return false;
 
-    if(renderSystem == nullptr)
-        return false;
-
-    m_eventSystem = eventSystem;
-    m_entitySystem = entitySystem;
-    m_identitySystem = identitySystem;
-    m_componentSystem = componentSystem;
-    m_renderSystem = renderSystem;
+    m_renderSystem = services.Get<RenderSystem>();
+    if(m_renderSystem == nullptr) return false;
 
     // Bind event receivers.
     m_receiverEntityDamaged.Bind<InterfaceSystem, &InterfaceSystem::OnEntityDamagedEvent>(this);
     m_receiverEntityHealed.Bind<InterfaceSystem, &InterfaceSystem::OnEntityHealedEvent>(this);
 
     // Subscribe event receivers.
-    eventSystem->Subscribe(&m_receiverEntityDamaged);
-    eventSystem->Subscribe(&m_receiverEntityHealed);
+    m_eventSystem->Subscribe(&m_receiverEntityDamaged);
+    m_eventSystem->Subscribe(&m_receiverEntityHealed);
 
     // Declare required components.
-    componentSystem->Declare<TransformComponent>();
-    componentSystem->Declare<HealthComponent>();
+    m_componentSystem->Declare<TransformComponent>();
+    m_componentSystem->Declare<HealthComponent>();
 
     // Initialize the health bar.
     m_playerHealthBar.SetDrawingRectangle(glm::vec4(0.0f, 0.0f, 624.0f, 15.0f));

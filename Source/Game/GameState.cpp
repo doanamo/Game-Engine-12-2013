@@ -22,6 +22,9 @@ namespace
 {
     bool isInitialized = false;
 
+    // Services.
+    Services services;
+
     // Game systems.
     EventSystem     eventSystem;
     EntitySystem    entitySystem;
@@ -44,9 +47,18 @@ bool GameState::Initialize()
 {
     assert(!isInitialized);
 
-    //
-    // Systems
-    //
+    // Register services.
+    services.Set(&eventSystem);
+    services.Set(&entitySystem);
+    services.Set(&componentSystem);
+    services.Set(&identitySystem);
+    services.Set(&inputSystem);
+    services.Set(&healthSystem);
+    services.Set(&collisionSystem);
+    services.Set(&scriptSystem);
+    services.Set(&renderSystem);
+    services.Set(&interfaceSystem);
+    services.Set(&spawnSystem);
 
     // Initialize the event system.
     if(!eventSystem.Initialize())
@@ -57,7 +69,7 @@ bool GameState::Initialize()
         return false;
 
     // Initialize the component system.
-    if(!componentSystem.Initialize(&entitySystem))
+    if(!componentSystem.Initialize(services))
         return false;
 
     // Initialize the identity system.
@@ -67,37 +79,34 @@ bool GameState::Initialize()
     entitySystem.RegisterSubscriber(&identitySystem);
 
     // Initialize the input system.
-    if(!inputSystem.Initialize(&componentSystem))
+    if(!inputSystem.Initialize(services))
         return false;
 
     // Initialize the health system.
-    if(!healthSystem.Initialize(&eventSystem, &entitySystem, &identitySystem, &componentSystem))
+    if(!healthSystem.Initialize(services))
         return false;
 
     // Initialize the collision system.
-    if(!collisionSystem.Initialize(&eventSystem, &entitySystem, &componentSystem))
+    if(!collisionSystem.Initialize(services))
         return false;
 
     // Initialize the script system.
-    if(!scriptSystem.Initialize(&eventSystem, &entitySystem, &componentSystem))
+    if(!scriptSystem.Initialize(services))
         return false;
 
     // Initialize the render system.
-    if(!renderSystem.Initialize(&entitySystem, &componentSystem, 64))
+    if(!renderSystem.Initialize(services))
         return false;
 
     // Initialize the interface system.
-    if(!interfaceSystem.Initialize(&eventSystem, &entitySystem, &identitySystem, &componentSystem, &renderSystem))
+    if(!interfaceSystem.Initialize(services))
         return false;
 
     // Initialize the spawn system.
     if(!spawnSystem.Initialize())
         return false;
 
-    //
-    // Success
-    //
-
+    // Success!
     return isInitialized = true;
 }
 
@@ -112,10 +121,7 @@ void GameState::Cleanup()
     // can be destroyed in a regular reversed order.
     entitySystem.DestroyAllEntities();
 
-    //
-    // Systems
-    //
-
+    // Game systems.
     spawnSystem.Cleanup();
     interfaceSystem.Cleanup();
     renderSystem.Cleanup();
@@ -128,6 +134,9 @@ void GameState::Cleanup()
     entitySystem.Cleanup();
     eventSystem.Cleanup();
 
+    // Services.
+    services.Cleanup();
+
     isInitialized = false;
 }
 
@@ -138,6 +147,11 @@ void GameState::Cleanup()
 bool GameState::IsInitialized()
 {
     return isInitialized;
+}
+
+Services& GameState::GetServices()
+{
+    return services;
 }
 
 EventSystem& GameState::GetEventSystem()

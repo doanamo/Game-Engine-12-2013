@@ -2,6 +2,7 @@
 #include "CollisionSystem.hpp"
 #include "CollisionComponent.hpp"
 
+#include "Common/Services.hpp"
 #include "Game/Event/EventDefinitions.hpp"
 #include "Game/Event/EventSystem.hpp"
 #include "Game/Entity/EntitySystem.hpp"
@@ -53,23 +54,22 @@ void CollisionSystem::Cleanup()
     ClearContainer(m_disabled);
 }
 
-bool CollisionSystem::Initialize(EventSystem* eventSystem, EntitySystem* entitySystem, ComponentSystem* componentSystem)
+bool CollisionSystem::Initialize(const Services& services)
 {
     Cleanup();
 
-    // Validate arguments.
-    if(eventSystem == nullptr)
-        return false;
+    // Setup scope guard.
+    SCOPE_GUARD_IF(!m_initialized, Cleanup());
 
-    if(entitySystem == nullptr)
-        return false;
+    // Get required services.
+    m_eventSystem = services.Get<EventSystem>();
+    if(m_eventSystem == nullptr) return false;
 
-    if(componentSystem == nullptr)
-        return false;
+    m_entitySystem = services.Get<EntitySystem>();
+    if(m_entitySystem == nullptr) return false;
 
-    m_eventSystem = eventSystem;
-    m_entitySystem = entitySystem;
-    m_componentSystem = componentSystem;
+    m_componentSystem = services.Get<ComponentSystem>();
+    if(m_componentSystem == nullptr) return false;
 
     // Declare required components.
     m_componentSystem->Declare<TransformComponent>();

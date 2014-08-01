@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Precompiled.hpp"
+#include "Common/Services.hpp"
 
 // Forward declarations.
 class EventSystem;
@@ -28,6 +29,8 @@ namespace GameState
 
     // State accessors.
     bool IsInitialized();
+
+    Services& GetServices();
 
     EventSystem&     GetEventSystem();
     EntitySystem&    GetEntitySystem();
