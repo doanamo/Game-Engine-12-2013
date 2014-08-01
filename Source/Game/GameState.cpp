@@ -7,17 +7,11 @@
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Component/ComponentSystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
-#include "Game/Input/InputState.hpp"
-#include "Game/Input/InputComponent.hpp"
-#include "Game/Transform/TransformComponent.hpp"
+#include "Game/Input/InputSystem.hpp"
 #include "Game/Collision/CollisionSystem.hpp"
-#include "Game/Collision/CollisionComponent.hpp"
 #include "Game/Health/HealthSystem.hpp"
-#include "Game/Health/HealthComponent.hpp"
 #include "Game/Script/ScriptSystem.hpp"
-#include "Game/Script/ScriptComponent.hpp"
 #include "Game/Render/RenderSystem.hpp"
-#include "Game/Render/RenderComponent.hpp"
 #include "Game/Interface/InterfaceSystem.hpp"
 #include "Game/Spawn/SpawnSystem.hpp"
 
@@ -29,14 +23,12 @@ namespace
 {
     bool isInitialized = false;
 
-    // Input state.
-    InputState inputState;
-
     // Game systems.
     EventSystem     eventSystem;
     EntitySystem    entitySystem;
     ComponentSystem componentSystem; 
     IdentitySystem  identitySystem;
+    InputSystem     inputSystem;
     HealthSystem    healthSystem;
     CollisionSystem collisionSystem;
     ScriptSystem    scriptSystem;
@@ -54,14 +46,6 @@ bool GameState::Initialize()
     assert(!isInitialized);
 
     //
-    // Input State
-    //
-
-    // Initialize the input state.
-    if(!inputState.Initialize())
-        return false;
-
-    //
     // Systems
     //
 
@@ -77,14 +61,15 @@ bool GameState::Initialize()
     if(!componentSystem.Initialize(&entitySystem))
         return false;
 
-    // Declare component types.
-    componentSystem.Declare<InputComponent>();
-
     // Initialize the identity system.
     if(!identitySystem.Initialize())
         return false;
 
     entitySystem.RegisterSubscriber(&identitySystem);
+
+    // Initialize the input system.
+    if(!inputSystem.Initialize(&componentSystem))
+        return false;
 
     // Initialize the health system.
     if(!healthSystem.Initialize(&eventSystem, &entitySystem, &identitySystem, &componentSystem))
@@ -138,16 +123,11 @@ void GameState::Cleanup()
     scriptSystem.Cleanup();
     collisionSystem.Cleanup();
     healthSystem.Cleanup();
+    inputSystem.Cleanup();
     identitySystem.Cleanup();
     componentSystem.Cleanup();
     entitySystem.Cleanup();
     eventSystem.Cleanup();
-
-    //
-    // Input State
-    //
-
-    inputState.Cleanup();
 
     isInitialized = false;
 }
@@ -159,11 +139,6 @@ void GameState::Cleanup()
 bool GameState::IsInitialized()
 {
     return isInitialized;
-}
-
-InputState& GameState::GetInputState()
-{
-    return inputState;
 }
 
 EventSystem& GameState::GetEventSystem()
@@ -184,6 +159,11 @@ ComponentSystem& GameState::GetComponentSystem()
 IdentitySystem& GameState::GetIdentitySystem()
 {
     return identitySystem;
+}
+
+InputSystem& GameState::GetInputSystem()
+{
+    return inputSystem;
 }
 
 HealthSystem& GameState::GetHealthSystem()

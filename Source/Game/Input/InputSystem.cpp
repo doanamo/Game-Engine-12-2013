@@ -1,20 +1,41 @@
 #include "Precompiled.hpp"
-#include "InputState.hpp"
+#include "InputSystem.hpp"
+#include "InputComponent.hpp"
 
-InputState::InputState() :
+#include "Game/Component/ComponentSystem.hpp"
+
+InputSystem::InputSystem() :
+    m_initialized(false),
     m_keyboardState(nullptr),
     m_keyboardStateSize(0)
 {
 }
 
-InputState::~InputState()
+InputSystem::~InputSystem()
 {
     Cleanup();
 }
 
-bool InputState::Initialize()
+void InputSystem::Cleanup()
+{
+    m_initialized = false;
+
+    // Keyboard state.
+    delete[] m_keyboardState;
+    m_keyboardState = nullptr;
+    m_keyboardStateSize = 0;
+}
+
+bool InputSystem::Initialize(ComponentSystem* componentSystem)
 {
     Cleanup();
+
+    // Validate arguments.
+    if(componentSystem == nullptr)
+        return false;
+
+    // Declare required components.
+    componentSystem->Declare<InputComponent>();
 
     // Get keyboard state array size.
     SDL_GetKeyboardState(&m_keyboardStateSize);
@@ -30,19 +51,14 @@ bool InputState::Initialize()
         m_keyboardState[i] = 0;
     }
 
-    return true;
+    // Success!
+    return m_initialized = true;
 }
 
-void InputState::Cleanup()
+void InputSystem::Process(const SDL_Event& event)
 {
-    delete[] m_keyboardState;
-    m_keyboardState = nullptr;
+    assert(m_initialized);
 
-    m_keyboardStateSize = 0;
-}
-
-void InputState::Process(const SDL_Event& event)
-{
     switch(event.type)
     {
     case SDL_KEYDOWN:
@@ -69,8 +85,10 @@ void InputState::Process(const SDL_Event& event)
     }
 }
 
-void InputState::Reset()
+void InputSystem::Reset()
 {
+    assert(m_initialized);
+
     // Reset keyboard state.
     for(int i = 0; i < m_keyboardStateSize; ++i)
     {
@@ -78,12 +96,16 @@ void InputState::Reset()
     }
 }
 
-bool InputState::IsKeyDown(SDL_Scancode key) const
+bool InputSystem::IsKeyDown(SDL_Scancode key) const
 {
+    assert(m_initialized);
+
     return m_keyboardState[key] == 1;
 }
 
-bool InputState::IsKeyUp(SDL_Scancode key) const
+bool InputSystem::IsKeyUp(SDL_Scancode key) const
 {
+    assert(m_initialized);
+
     return m_keyboardState[key] == 0;
 }

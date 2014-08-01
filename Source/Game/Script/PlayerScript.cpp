@@ -6,7 +6,7 @@
 #include "Game/GameFactory.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Component/ComponentSystem.hpp"
-#include "Game/Input/InputState.hpp"
+#include "Game/Input/InputSystem.hpp"
 #include "Game/Input/InputComponent.hpp"
 #include "Game/Transform/TransformComponent.hpp"
 #include "Game/Collision/CollisionDefinitions.hpp"

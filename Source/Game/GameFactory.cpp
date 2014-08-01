@@ -7,6 +7,7 @@
 #include "Game/Component/ComponentSystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
 #include "Game/Input/InputComponent.hpp"
+#include "Game/Input/InputSystem.hpp"
 #include "Game/Transform/TransformComponent.hpp"
 #include "Game/Collision/CollisionObject.hpp"
 #include "Game/Collision/CollisionComponent.hpp"
@@ -75,7 +76,7 @@ EntityHandle GameFactory::CreatePlayer()
     transform->SetRotation(0.0f);
 
     InputComponent* input = GameState::GetComponentSystem().Create<InputComponent>(entity);
-    input->SetStateReference(&GameState::GetInputState());
+    input->SetStateReference(&GameState::GetInputSystem());
 
     HealthComponent* health = GameState::GetComponentSystem().Create<HealthComponent>(entity);
     health->SetMaximumHealth(100);

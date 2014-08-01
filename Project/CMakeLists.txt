@@ -137,10 +137,11 @@ Set(SourceFiles
     "Game/Component/ComponentPool.hpp"
     "Game/Component/ComponentSystem.hpp"
 
+    "Game/Input/InputState.hpp"
     "Game/Input/InputComponent.hpp"
     "Game/Input/InputComponent.cpp"
-    "Game/Input/InputState.hpp"
-    "Game/Input/InputState.cpp"
+    "Game/Input/InputSystem.hpp"
+    "Game/Input/InputSystem.cpp"
 
     "Game/Transform/TransformComponent.hpp"
     "Game/Transform/TransformComponent.cpp"

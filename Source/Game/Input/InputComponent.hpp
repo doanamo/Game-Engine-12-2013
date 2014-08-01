@@ -1,12 +1,12 @@
 #pragma once
 
 #include "Precompiled.hpp"
+#include "InputState.hpp"
 
 #include "Game/Component/Component.hpp"
 
 // Forward declarations.
 class Entity;
-class InputState;
 
 //
 // Input Component

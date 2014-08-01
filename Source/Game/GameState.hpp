@@ -3,12 +3,11 @@
 #include "Precompiled.hpp"
 
 // Forward declarations.
-class InputState;
-
 class EventSystem;
 class EntitySystem;
 class ComponentSystem;
 class IdentitySystem;
+class InputSystem;
 class HealthSystem;
 class CollisionSystem;
 class ScriptSystem;
@@ -30,12 +29,11 @@ namespace GameState
     // State accessors.
     bool IsInitialized();
 
-    InputState& GetInputState();
-
     EventSystem&     GetEventSystem();
     EntitySystem&    GetEntitySystem();
     ComponentSystem& GetComponentSystem();
     IdentitySystem&  GetIdentitySystem();
+    InputSystem&     GetInputSystem();
     HealthSystem&    GetHealthSystem();
     CollisionSystem& GetCollisionSystem();
     ScriptSystem&    GetScriptSystem();

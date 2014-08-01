@@ -9,7 +9,7 @@
 #include "Game/LoseFrame.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
-#include "Game/Input/InputState.hpp"
+#include "Game/Input/InputSystem.hpp"
 #include "Game/Collision/CollisionSystem.hpp"
 #include "Game/Script/ScriptSystem.hpp"
 #include "Game/Render/RenderSystem.hpp"
@@ -98,7 +98,7 @@ bool GameFrame::Process(const SDL_Event& event)
     }
 
     // Process input events.
-    GameState::GetInputState().Process(event);
+    GameState::GetInputSystem().Process(event);
 
     return false;
 }
