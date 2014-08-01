@@ -2,7 +2,6 @@
 #include "GameState.hpp"
 
 #include "Game/Event/EventDefinitions.hpp"
-
 #include "Game/Event/EventSystem.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Component/ComponentSystem.hpp"
