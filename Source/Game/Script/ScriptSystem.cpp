@@ -60,9 +60,9 @@ bool ScriptSystem::Initialize(const Services& services)
     m_receiverEntityCollsion.Bind<ScriptSystem, &ScriptSystem::OnEntityCollisionEvent>(this);
 
     // Subscribe event receivers.
-    m_eventSystem->Subscribe(&m_receiverEntityDamaged);
-    m_eventSystem->Subscribe(&m_receiverEntityHealed);
-    m_eventSystem->Subscribe(&m_receiverEntityCollsion);
+    m_eventSystem->Subscribe(m_receiverEntityDamaged);
+    m_eventSystem->Subscribe(m_receiverEntityHealed);
+    m_eventSystem->Subscribe(m_receiverEntityCollsion);
 
     // Declare required components.
     m_componentSystem->Declare<ScriptComponent>();

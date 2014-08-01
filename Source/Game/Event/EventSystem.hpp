@@ -38,11 +38,8 @@ public:
     }
 
     template<typename Type>
-    void Subscribe(Receiver<Type>* receiver)
+    void Subscribe(Receiver<Type>& receiver)
     {
-        if(receiver == nullptr)
-            return;
-
         // Check if we already have this event type declared.
         auto it = m_dispatchers.find(typeid(Type));
 
@@ -70,16 +67,13 @@ public:
     }
 
     template<typename Type>
-    void Unsubscribe(Receiver<Type>* receiver)
+    void Unsubscribe(Receiver<Type>& receiver)
     {
         // Warning: This method won't be used. Generally, when Receiver instances are
         // destroyed, they are unsubscribing directly from a Dispatcher. Event system
         // can't know when this happens and so a declared event type along with it's
         // empty dispatcher remain in the registry. If this ever becomes a problem,
         // wrap the Receiver class (EventReceiver?).
-
-        if(receiver == nullptr)
-            return;
 
         // Find the dispatcher for this event type.
         auto it = m_dispatchers.find(typeid(Type));

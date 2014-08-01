@@ -63,17 +63,17 @@ public:
     void Cleanup();
 
     void Subscribe(const ReceiverSignature<Type>& signature);
-    void Subscribe(Receiver<Type>* receiver);
+    void Subscribe(Receiver<Type>& receiver);
 
     void Unsubscribe(const ReceiverSignature<Type>& signature);
-    void Unsubscribe(Receiver<Type>* receiver);
+    void Unsubscribe(Receiver<Type>& receiver);
 
     void Dispatch(const Type& event);
 
     bool HasSubscribers() const;
 
 private:
-    Receiver<Type>* Previous(Receiver<Type>* receiver);
+    Receiver<Type>* Previous(Receiver<Type>& receiver);
 
 private:
     Receiver<Type>* m_begin;

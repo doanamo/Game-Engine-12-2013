@@ -90,8 +90,8 @@ bool InterfaceSystem::Initialize(const Services& services)
     m_receiverEntityHealed.Bind<InterfaceSystem, &InterfaceSystem::OnEntityHealedEvent>(this);
 
     // Subscribe event receivers.
-    m_eventSystem->Subscribe(&m_receiverEntityDamaged);
-    m_eventSystem->Subscribe(&m_receiverEntityHealed);
+    m_eventSystem->Subscribe(m_receiverEntityDamaged);
+    m_eventSystem->Subscribe(m_receiverEntityHealed);
 
     // Declare required components.
     m_componentSystem->Declare<TransformComponent>();

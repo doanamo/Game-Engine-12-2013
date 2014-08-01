@@ -41,7 +41,7 @@ public:
         // Unregister from the dispatcher.
         if(m_subject != nullptr)
         {
-            m_subject->Unsubscribe(this);
+            m_subject->Unsubscribe(*this);
             assert(m_next == nullptr);
         }
     }
@@ -72,10 +72,10 @@ public:
 
 public:
     ReceiverSignature(Receiver<Type>& receiver) :
-        m_receiver(&receiver)
+        m_receiver(receiver)
     {
     }
 
 private:
-    Receiver<Type>* m_receiver;
+    Receiver<Type>& m_receiver;
 };
