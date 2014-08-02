@@ -35,6 +35,7 @@ public:
 
     void Update(float timeDelta);
 
+    // Consider using collision masks if you want to disable collisions permanently.
     void DisableCollisionResponse(EntityHandle sourceEntity, EntityHandle targetEntity, float duration = Permanent);
 
 private:

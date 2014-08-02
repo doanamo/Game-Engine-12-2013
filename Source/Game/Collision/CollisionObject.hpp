@@ -10,7 +10,7 @@ class CollisionComponent;
 
 //
 // Collision Object
-//  - An intermediate object created during collision tests.
+//  An intermediate object created during collision tests.
 //
 
 struct CollisionObject

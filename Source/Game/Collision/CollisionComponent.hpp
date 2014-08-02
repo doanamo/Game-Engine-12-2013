@@ -12,8 +12,12 @@ struct CollisionFlags
 {
     enum Type
     {
-        None     = 0,
-        Enabled  = 1 << 0,
+        None = 0,
+
+        // This object will generate collision events.
+        Enabled = 1 << 0,
+
+        // Collision events will be generated when object doesn't collide instead.
         Reversed = 1 << 1,
     };
 
@@ -39,8 +43,6 @@ public:
         m_boundingBox = boundingBox;
     }
 
-    // Gets the bounding box.
-    // Returned vector represents bottom left and top right corners of a rectangle.
     const glm::vec4& GetBoundingBox() const
     {
         return m_boundingBox;

@@ -13,16 +13,20 @@ namespace
 {
     void TransformBoundingBox(glm::vec4* boundingBox, const TransformComponent* transform)
     {
-        // Transform only by position (temp).
+        assert(boundingBox != nullptr);
+
+        // Translate by position.
         boundingBox->x += transform->GetPosition().x;
         boundingBox->y += transform->GetPosition().y;
         boundingBox->z += transform->GetPosition().x;
         boundingBox->w += transform->GetPosition().y;
+
+        // Todo: Handle rotation and scale.
     }
 
     bool IntersectBoundingBox(const glm::vec4& a, const glm::vec4& b)
     {
-        // Checks if bounding boxes collide.
+        // Check if bounding boxes collide.
         return !(a.x > b.z || a.z < b.x || a.y > b.w || a.w < b.y);
     }
 }
@@ -91,16 +95,13 @@ void CollisionSystem::Update(float timeDelta)
 
         float& time = it->second;
 
-        // Save a copy of the iterator and step forward the original.
-        auto eraseIt = it++;
-
         // Check if entities are still valid.
         bool sourceEntityValid = m_entitySystem->IsHandleValid(sourceEntity);
         bool targetEntityValid = m_entitySystem->IsHandleValid(targetEntity);
 
         if(!sourceEntityValid || !targetEntityValid)
         {
-            m_disabled.erase(eraseIt);
+            m_disabled.erase(it++);
             continue;
         }
 
@@ -114,9 +115,12 @@ void CollisionSystem::Update(float timeDelta)
         // Erase the element if outdated.
         if(time == 0.0f)
         {
-            m_disabled.erase(eraseIt);
+            m_disabled.erase(it++);
             continue;
         }
+
+        // Iterate normally if current element hasn't been removed.
+        ++it;
     }
 
     // Create a list of collision objects.
@@ -131,7 +135,6 @@ void CollisionSystem::Update(float timeDelta)
 
         // Get the collision component.
         CollisionComponent* collision = &it->second;
-        assert(collision != nullptr);
 
         if(!collision->IsEnabled())
             continue;
@@ -187,9 +190,11 @@ void CollisionSystem::Update(float timeDelta)
             // Check if an object can collide with it.
             if(it->collision->GetMask() & other->collision->GetType())
             {
-                // Check if collision shapes intersect.
-                // If they don't interset and collision is marked as reverted, still call it.
-                if(IntersectBoundingBox(it->worldAABB, other->worldAABB) == !(it->collision->GetFlags() & CollisionFlags::Reversed))
+                // Check if objects physically and logically collide.
+                bool intersects = IntersectBoundingBox(it->worldAABB, other->worldAABB);
+                bool reversed = (it->collision->GetFlags() & CollisionFlags::Reversed) != 0;
+
+                if(intersects != reversed)
                 {
                     // Dispatch an entity collision event.
                     {
@@ -207,6 +212,8 @@ void CollisionSystem::Update(float timeDelta)
                     if(!m_entitySystem->IsHandleValid(it->entity) || !it->collision->IsEnabled())
                     {
                         it->enabled = false;
+
+                        // No point in checking further collisions against this objects.
                         break;
                     }
                 }
