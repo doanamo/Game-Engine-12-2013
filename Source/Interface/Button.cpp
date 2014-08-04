@@ -120,11 +120,22 @@ void Button::Enable()
 void Button::Disable()
 {
     m_enabled = false;
+
+    // Clear related flags.
+    m_hovered = false;
+    m_pressed = false;
 }
 
 void Button::SetEnabled(bool enabled)
 {
-    m_enabled = enabled;
+    if(enabled)
+    {
+        Enable();
+    }
+    else
+    {
+        Disable();
+    }
 }
 
 void Button::SetText(std::string text)
