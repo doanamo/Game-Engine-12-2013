@@ -2,7 +2,10 @@
 
 #include "Precompiled.hpp"
 #include "EntityHandle.hpp"
-#include "EntitySubscriber.hpp"
+
+// Forward declarations.
+class Services;
+class EventSystem;
 
 //
 // Entity System
@@ -16,8 +19,13 @@ public:
     {
         enum Type
         {
-            None    = 0,
-            Active  = 1 << 0,
+            // Entity handle has been allocated but is not being used.
+            None = 0,
+
+            // Entity handle has been created and is active.
+            Active = 1 << 0,
+
+            // Entity handle has been destroyed and is no longer valid.
             Destroy = 1 << 1,
         };
 
@@ -52,7 +60,6 @@ public:
 
 private:
     // Type declarations.
-    typedef std::vector<EntitySubscriber*> SubscriberList;
     typedef std::vector<HandleEntry>       HandleList;
     typedef std::vector<EntityCommand>     CommandList;
 
@@ -61,13 +68,10 @@ public:
     ~EntitySystem();
 
     // Initializes the entity system.
-    bool Initialize();
+    bool Initialize(const Services& services);
 
     // Restores class instance to it's original state.
     void Cleanup();
-
-    // Registers an entity subscriber.
-    bool RegisterSubscriber(EntitySubscriber* subscriber);
 
     // Creates an entity.
     EntityHandle CreateEntity();
@@ -88,15 +92,11 @@ public:
     unsigned int GetEntityCount() const;
 
 private:
-    // Called on creating an entity.
-    void OnCreateEntity(const EntityHandle& entity);
+    // System state.
+    bool m_initialized;
 
-    // Called on destroying an entity.
-    void OnDestroyEntity(const EntityHandle& entity);
-
-private:
-    // List of subscribers.
-    SubscriberList m_subscribers;
+    // Event system.
+    EventSystem* m_eventSystem;
 
     // List of commands.
     CommandList m_commands;

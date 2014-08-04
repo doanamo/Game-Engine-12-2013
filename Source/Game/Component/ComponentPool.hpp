@@ -4,7 +4,6 @@
 #include "Component.hpp"
 
 #include "Game/Entity/EntityHandle.hpp"
-#include "Game/Entity/EntitySubscriber.hpp"
 
 //
 // Component Pool Interface
@@ -21,6 +20,8 @@ public:
     virtual ~ComponentPoolInterface()
     {
     }
+
+    virtual void Remove(EntityHandle handle) = 0;
 };
 
 //
@@ -28,7 +29,7 @@ public:
 //
 
 template<typename Type>
-class ComponentPool : public ComponentPoolInterface, public EntitySubscriber
+class ComponentPool : public ComponentPoolInterface
 {
 public:
     // Check template type.
@@ -45,6 +46,7 @@ public:
 
     ~ComponentPool()
     {
+        Cleanup();
     }
 
     void Cleanup()
@@ -101,13 +103,6 @@ public:
     ComponentIterator End()
     {
         return m_components.end();
-    }
-
-private:
-    // Remove component of an entity that's being destroyed.
-    void OnDestroyEntity(const EntityHandle& entity)
-    {
-        Remove(entity);
     }
 
 private:

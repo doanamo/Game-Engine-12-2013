@@ -1,6 +1,10 @@
 #include "Precompiled.hpp"
 #include "IdentitySystem.hpp"
 
+#include "Common/Services.hpp"
+#include "Game/Event/EventDefinitions.hpp"
+#include "Game/Event/EventSystem.hpp"
+
 namespace
 {
     // Invalid name constant.
@@ -8,7 +12,8 @@ namespace
 }
 
 IdentitySystem::IdentitySystem() :
-    m_initialized(false)
+    m_initialized(false),
+    m_eventSystem(nullptr)
 {
 }
 
@@ -17,19 +22,36 @@ IdentitySystem::~IdentitySystem()
     Cleanup();
 }
 
-bool IdentitySystem::Initialize()
-{
-    Cleanup();
-
-    // Success!
-    return m_initialized = true;
-}
-
 void IdentitySystem::Cleanup()
 {
     m_initialized = false;
 
+    m_eventSystem = nullptr;
+
     ClearContainer(m_names);
+
+    m_receiverEntityDestroyed.Cleanup();
+}
+
+bool IdentitySystem::Initialize(const Services& services)
+{
+    Cleanup();
+
+    // Setup scope guard.
+    SCOPE_GUARD_IF(!m_initialized, Cleanup());
+
+    // Get required system.
+    m_eventSystem = services.Get<EventSystem>();
+    if(m_eventSystem == nullptr) return false;
+
+    // Bind event receiver.
+    m_receiverEntityDestroyed.Bind<IdentitySystem, &IdentitySystem::OnEntityDestroyedEvent>(this);
+
+    // Subscribe to event receivers.
+    m_eventSystem->Subscribe<GameEvent::EntityDestroyed>(m_receiverEntityDestroyed);
+
+    // Success!
+    return m_initialized = true;
 }
 
 bool IdentitySystem::SetEntityName(const EntityHandle& entity, std::string name)
@@ -100,12 +122,12 @@ EntityHandle IdentitySystem::GetEntityByName(std::string name) const
     }
 }
 
-void IdentitySystem::OnDestroyEntity(const EntityHandle& entity)
+void IdentitySystem::OnEntityDestroyedEvent(const GameEvent::EntityDestroyed& event)
 {
     if(!m_initialized)
         return;
 
     // Remove entity from the name map.
-    auto result = m_names.right.erase(entity);
+    auto result = m_names.right.erase(event.entity);
     assert(result == 0 || result == 1);
 }

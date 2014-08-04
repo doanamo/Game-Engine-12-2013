@@ -124,7 +124,6 @@ Set(SourceFiles
     "Game/GameFactory.cpp"
 
     "Game/Entity/EntityHandle.hpp"
-    "Game/Entity/EntitySubscriber.hpp"
     "Game/Entity/EntitySystem.hpp"
     "Game/Entity/EntitySystem.cpp"
 

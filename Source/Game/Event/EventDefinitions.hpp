@@ -12,6 +12,28 @@
 
 namespace GameEvent
 {
+    // Called after entity has been just created.
+    struct EntityCreated
+    {
+        EntityCreated(EntityHandle entity) :
+            entity(entity)
+        {
+        }
+
+        EntityHandle entity;
+    };
+
+    // Called when entity is just about to be destroyed.
+    struct EntityDestroyed
+    {
+        EntityDestroyed(EntityHandle entity) :
+            entity(entity)
+        {
+        }
+
+        EntityHandle entity;
+    };
+
     // Called when entity health changes.
     struct EntityHealth
     {

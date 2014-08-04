@@ -2,14 +2,19 @@
 
 #include "Precompiled.hpp"
 
+#include "Common/Receiver.hpp"
 #include "Game/Entity/EntityHandle.hpp"
-#include "Game/Entity/EntitySubscriber.hpp"
+#include "Game/Event/EventDefinitions.hpp"
+
+// Forward declarations.
+class Services;
+class EventSystem;
 
 //
 // Identity System
 //
 
-class IdentitySystem : public EntitySubscriber
+class IdentitySystem
 {
 private:
     typedef boost::bimap<
@@ -21,7 +26,7 @@ public:
     IdentitySystem();
     ~IdentitySystem();
 
-    bool Initialize();
+    bool Initialize(const Services& services);
     void Cleanup();
 
     bool SetEntityName(const EntityHandle& entity, std::string name);
@@ -29,12 +34,18 @@ public:
     EntityHandle GetEntityByName(std::string name) const;
 
 private:
-    void OnDestroyEntity(const EntityHandle& entity);
+    void OnEntityDestroyedEvent(const GameEvent::EntityDestroyed& event);
 
 private:
     // System state.
     bool m_initialized;
 
+    // Event system.
+    EventSystem* m_eventSystem;
+
     // List of named entities.
     EntityNameMap m_names;
+
+    // Event receivers.
+    Receiver<GameEvent::EntityDestroyed> m_receiverEntityDestroyed;
 };

@@ -3,8 +3,11 @@
 #include "Precompiled.hpp"
 
 #include "Common/Services.hpp"
+#include "Common/Receiver.hpp"
 #include "Game/Component/ComponentPool.hpp"
 #include "Game/Entity/EntitySystem.hpp"
+#include "Game/Event/EventDefinitions.hpp"
+#include "Game/Event/EventSystem.hpp"
 
 //
 // Component System
@@ -20,6 +23,7 @@ public:
 
 public:
     ComponentSystem() :
+        m_eventSystem(nullptr),
         m_entitySystem(nullptr)
     {
     }
@@ -31,8 +35,12 @@ public:
 
     void Cleanup()
     {
+        m_eventSystem = nullptr;
         m_entitySystem = nullptr;
+
         ClearContainer(m_pools);
+
+        m_receiverEntityDestroyed.Cleanup();
     }
 
     bool Initialize(const Services& services)
@@ -44,8 +52,17 @@ public:
         SCOPE_GUARD_IF(!initialized, Cleanup());
 
         // Get required services.
+        m_eventSystem = services.Get<EventSystem>();
+        if(m_eventSystem == nullptr) return false;
+
         m_entitySystem = services.Get<EntitySystem>();
         if(m_entitySystem == nullptr) return false;
+
+        // Bind event receivers.
+        m_receiverEntityDestroyed.Bind<ComponentSystem, &ComponentSystem::OnEntityDestroyedEvent>(this);
+
+        // Subscribe event receivers.
+        m_eventSystem->Subscribe<GameEvent::EntityDestroyed>(m_receiverEntityDestroyed);
 
         // Success!
         return initialized = true;
@@ -67,9 +84,6 @@ public:
 
         // Create a component pool instance.
         auto pool = std::make_unique<ComponentPool<Type>>();
-
-        // Register the pool as entity system subscriber.
-        m_entitySystem->RegisterSubscriber(pool.get());
 
         // Add pool to the collection.
         auto pair = ComponentPoolPair(typeid(Type), std::move(pool));
@@ -178,6 +192,22 @@ public:
     }
 
 private:
+    void OnEntityDestroyedEvent(const GameEvent::EntityDestroyed& event)
+    {
+        for(auto& pair : m_pools)
+        {
+            pair.second->Remove(event.entity);
+        }
+    }
+
+private:
+    // Game systems.
+    EventSystem* m_eventSystem;
     EntitySystem* m_entitySystem;
+
+    // Component pools.
     ComponentPoolList m_pools;
+
+    // Event receivers.
+    Receiver<GameEvent::EntityDestroyed> m_receiverEntityDestroyed;
 };

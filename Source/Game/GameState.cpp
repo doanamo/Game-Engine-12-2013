@@ -65,7 +65,7 @@ bool GameState::Initialize()
         return false;
 
     // Initialize the entity system.
-    if(!entitySystem.Initialize())
+    if(!entitySystem.Initialize(services))
         return false;
 
     // Initialize the component system.
@@ -73,10 +73,8 @@ bool GameState::Initialize()
         return false;
 
     // Initialize the identity system.
-    if(!identitySystem.Initialize())
+    if(!identitySystem.Initialize(services))
         return false;
-
-    entitySystem.RegisterSubscriber(&identitySystem);
 
     // Initialize the input system.
     if(!inputSystem.Initialize(services))

@@ -1,6 +1,10 @@
 #include "Precompiled.hpp"
 #include "EntitySystem.hpp"
 
+#include "Common/Services.hpp"
+#include "Game/Event/EventDefinitions.hpp"
+#include "Game/Event/EventSystem.hpp"
+
 namespace
 {
     // Constant variables.
@@ -11,6 +15,8 @@ namespace
 }
 
 EntitySystem::EntitySystem() :
+    m_initialized(false),
+    m_eventSystem(nullptr),
     m_entityCount(0),
     m_freeListDequeue(InvalidQueueElement),
     m_freeListEnqueue(InvalidQueueElement),
@@ -23,13 +29,6 @@ EntitySystem::~EntitySystem()
     Cleanup();
 }
 
-bool EntitySystem::Initialize()
-{
-    Cleanup();
-
-    return true;
-}
-
 void EntitySystem::Cleanup()
 {
     // Process remaining commands.
@@ -37,15 +36,18 @@ void EntitySystem::Cleanup()
 
     ClearContainer(m_commands);
 
-    // Remove all entities.
+    // Destroy all entities.
     DestroyAllEntities();
 
     ClearContainer(m_handles);
 
-    // Remove all subscribers.
-    ClearContainer(m_subscribers);
+    // System state.
+    m_initialized = false;
 
-    // Reset the counter of active entities.
+    // Event system.
+    m_eventSystem = nullptr;
+
+    // Reset the entity counter.
     m_entityCount = 0;
 
     // Reset the free list queue.
@@ -54,26 +56,25 @@ void EntitySystem::Cleanup()
     m_freeListEmpty = true;
 }
 
-bool EntitySystem::RegisterSubscriber(EntitySubscriber* subscriber)
+bool EntitySystem::Initialize(const Services& services)
 {
-    // Check if pointer is null.
-    if(subscriber == nullptr)
-        return false;
+    Cleanup();
 
-    // Check if we already have this subscriber added.
-    auto it = std::find(m_subscribers.begin(), m_subscribers.end(), subscriber);
+    // Setup scope guard.
+    SCOPE_GUARD_IF(!m_initialized, Cleanup());
 
-    if(it != m_subscribers.end())
-        return false;
+    // Get required systems.
+    m_eventSystem = services.Get<EventSystem>();
+    if(m_eventSystem == nullptr) return false;
 
-    // Add subscriber to the list.
-    m_subscribers.push_back(subscriber);
-
-    return true;
+    // Success!
+    return m_initialized = true;
 }
 
 EntityHandle EntitySystem::CreateEntity()
 {
+    assert(m_initialized);
+
     // Check if we reached the numerical limits.
     assert(m_handles.size() != MaximumIdentifier);
 
@@ -136,6 +137,8 @@ EntityHandle EntitySystem::CreateEntity()
 
 void EntitySystem::DestroyEntity(const EntityHandle& entity)
 {
+    assert(m_initialized);
+
     // Check if the handle is valid.
     if(!IsHandleValid(entity))
         return;
@@ -157,6 +160,9 @@ void EntitySystem::DestroyEntity(const EntityHandle& entity)
 
 void EntitySystem::DestroyAllEntities()
 {
+    if(!m_initialized)
+        return;
+
     // Process entity commands.
     ProcessCommands();
 
@@ -171,8 +177,8 @@ void EntitySystem::DestroyAllEntities()
 
         if(handleEntry.flags & HandleFlags::Active)
         {
-            // Inform subscribers.
-            OnDestroyEntity(handleEntry.handle);
+            // Send event about soon to be destroyed entity.
+            m_eventSystem->Dispatch(GameEvent::EntityDestroyed(handleEntry.handle));
 
             // Set the handle free flags.
             handleEntry.flags = HandleFlags::Free;
@@ -201,6 +207,8 @@ void EntitySystem::DestroyAllEntities()
 
 bool EntitySystem::IsHandleValid(const EntityHandle& entity) const
 {
+    assert(m_initialized);
+
     // Check if the handle identifier is valid.
     if(entity.identifier <= InvalidIdentifier)
         return false;
@@ -229,6 +237,9 @@ bool EntitySystem::IsHandleValid(const EntityHandle& entity) const
 
 void EntitySystem::ProcessCommands()
 {
+    if(!m_initialized)
+        return;
+
     // Process entity commands.
     for(auto command = m_commands.begin(); command != m_commands.end(); ++command)
     {
@@ -251,8 +262,8 @@ void EntitySystem::ProcessCommands()
                 // Increment the counter of active entities.
                 m_entityCount += 1;
 
-                // Inform about the created entity.
-                OnCreateEntity(handleEntry.handle);
+                // Send event about created entity.
+                m_eventSystem->Dispatch(GameEvent::EntityCreated(handleEntry.handle));
             }
             break;
 
@@ -269,8 +280,8 @@ void EntitySystem::ProcessCommands()
                     continue;
                 }
 
-                // Inform about the soon to be destroyed entity.
-                OnDestroyEntity(handleEntry.handle);
+                // Send event about soon to be destroyed entity.
+                m_eventSystem->Dispatch(GameEvent::EntityDestroyed(handleEntry.handle));
 
                 // Decrement the counter of active entities.
                 m_entityCount -= 1;
@@ -309,24 +320,6 @@ void EntitySystem::ProcessCommands()
 
     // Clear processed entity commands.
     m_commands.clear();
-}
-
-void EntitySystem::OnCreateEntity(const EntityHandle& entity)
-{
-    // Inform subscribers about entity creation.
-    for(auto it = m_subscribers.begin(); it != m_subscribers.end(); ++it)
-    {
-        (*it)->OnCreateEntity(entity);
-    }
-}
-
-void EntitySystem::OnDestroyEntity(const EntityHandle& entity)
-{
-    // Inform subscribers about entity destroyal.
-    for(auto it = m_subscribers.begin(); it != m_subscribers.end(); ++it)
-    {
-        (*it)->OnDestroyEntity(entity);
-    }
 }
 
 unsigned int EntitySystem::GetEntityCount() const
