@@ -43,11 +43,33 @@ private:
 template<typename... Arguments>
 Lua::LuaRef LuaState::Call(std::string compoundVariable, Arguments... arguments)
 {
+    // Create nil reference for results.
+    Lua::LuaRef results(m_state);
+
     // Get the function variable.
     Lua::LuaRef function = GetVariable(compoundVariable);
 
     // Call the function.
-    Lua::LuaRef results = function(arguments...);
+    try
+    {
+        results = function(arguments...);
+    }
+    catch(Lua::LuaException& exception)
+    {
+        // Get the exception error text.
+        std::string error = exception.what();
+
+        // Remove base path to working directory.
+        std::size_t position = error.find(Main::GetWorkingDir());
+
+        if(position != std::string::npos)
+        {
+            error.erase(position, Main::GetWorkingDir().size());
+        }
+
+        // Print the error.
+        Log() << "Lua error - " << error << ".";
+    }
 
     // Return results.
     return results;
