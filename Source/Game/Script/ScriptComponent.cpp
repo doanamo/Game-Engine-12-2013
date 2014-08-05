@@ -1,6 +1,28 @@
 #include "Precompiled.hpp"
 #include "ScriptComponent.hpp"
 
+ScriptLuaComponent::ScriptLuaComponent()
+{
+}
+
+ScriptLuaComponent::~ScriptLuaComponent()
+{
+}
+
+void ScriptLuaComponent::AddScript(Lua::LuaRef script)
+{
+    // Check if script is valid.
+    if(script.isNil())
+        return;
+
+    // Must be a table.
+    if(!script.isTable())
+        return;
+
+    // Add script to the list.
+    m_scripts.push_back(script);
+}
+
 ScriptComponent::ScriptComponent()
 {
 }

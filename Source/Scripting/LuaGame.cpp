@@ -13,6 +13,8 @@
 #include "Game/Health/HealthSystem.hpp"
 #include "Game/Collision/CollisionComponent.hpp"
 #include "Game/Collision/CollisionSystem.hpp"
+#include "Game/Script/ScriptComponent.hpp"
+#include "Game/Script/ScriptSystem.hpp"
 #include "Game/Render/RenderComponent.hpp"
 #include "Game/Render/RenderSystem.hpp"
 
@@ -39,6 +41,9 @@ bool BindLuaGame(LuaState& state, const Services& services)
 
     CollisionSystem* collisionSystem = services.Get<CollisionSystem>();
     if(collisionSystem == nullptr) return false;
+
+    ScriptSystem* scriptSystem = services.Get<ScriptSystem>();
+    if(scriptSystem == nullptr) return false;
 
     RenderSystem* renderSystem = services.Get<RenderSystem>();
     if(renderSystem == nullptr) return false;
@@ -86,6 +91,11 @@ bool BindLuaGame(LuaState& state, const Services& services)
         .endClass();
 
     Lua::getGlobalNamespace(state.GetState())
+        .beginClass<ScriptLuaComponent>("ScriptComponent")
+            .addFunction("AddScript", &ScriptLuaComponent::AddScript)
+        .endClass();
+
+    Lua::getGlobalNamespace(state.GetState())
         .beginClass<RenderComponent>("RenderComponent")
             .addFunction("SetDiffuseColor", &RenderComponent::SetDiffuseColor)
             .addFunction("GetDiffuseColor", &RenderComponent::GetDiffuseColor)
@@ -113,6 +123,7 @@ bool BindLuaGame(LuaState& state, const Services& services)
             .addFunction("CreateInput", &ComponentSystem::Create<InputComponent>)
             .addFunction("CreateHealth", &ComponentSystem::Create<HealthComponent>)
             .addFunction("CreateCollision", &ComponentSystem::Create<CollisionComponent>)
+            .addFunction("CreateScript", &ComponentSystem::Create<ScriptLuaComponent>)
             .addFunction("CreateRender", &ComponentSystem::Create<RenderComponent>)
         .endClass();
 
@@ -134,8 +145,19 @@ bool BindLuaGame(LuaState& state, const Services& services)
         .endClass();
 
     Lua::getGlobalNamespace(state.GetState())
+        .beginClass<CollisionObject>("CollisionObject")
+            .addData("entity", &CollisionObject::entity, false)
+            .addData("transform", &CollisionObject::transform, false)
+            .addData("collision", &CollisionObject::collision, false)
+            .addData("worldAABB", &CollisionObject::worldAABB, false)
+            .addData("enabled", &CollisionObject::enabled, false)
+        .endClass()
         .beginClass<CollisionSystem>("CollisionSystem")
             .addFunction("DisableCollisionResponse", &CollisionSystem::DisableCollisionResponse)
+        .endClass();
+
+    Lua::getGlobalNamespace(state.GetState())
+        .beginClass<ScriptSystem>("ScriptSystem")
         .endClass();
 
     Lua::getGlobalNamespace(state.GetState())
@@ -160,6 +182,9 @@ bool BindLuaGame(LuaState& state, const Services& services)
 
     Lua::push(state.GetState(), collisionSystem);
     lua_setglobal(state.GetState(), "CollisionSystem");
+
+    Lua::push(state.GetState(), scriptSystem);
+    lua_setglobal(state.GetState(), "ScriptSystem");
 
     Lua::push(state.GetState(), renderSystem);
     lua_setglobal(state.GetState(), "RenderSystem");

@@ -1,14 +1,23 @@
-local bit = require("bit")
+local Bit = require("bit")
 
 GameState = {}
 
 CollisionTypes = {}
 CollisionTypes.None = 0
-CollisionTypes.Player = bit.lshift(1, 0)
-CollisionTypes.Enemy = bit.lshift(1, 1)
-CollisionTypes.Projectile = bit.lshift(1, 2)
-CollisionTypes.Pickup = bit.lshift(1, 3)
-CollisionTypes.Environment = bit.lshift(1, 4)
+CollisionTypes.Player = Bit.lshift(1, 0)
+CollisionTypes.Enemy = Bit.lshift(1, 1)
+CollisionTypes.Projectile = Bit.lshift(1, 2)
+CollisionTypes.Pickup = Bit.lshift(1, 3)
+CollisionTypes.Environment = Bit.lshift(1, 4)
+
+Scripts = {}
+Scripts.DestroyOnDeath = {}
+
+function Scripts.DestroyOnDeath.OnDamaged(self, value, alive)
+    if not alive then
+        EntitySystem:DestroyEntity(self)
+    end
+end
 
 function GameState.Initialize()
     -- Print log message.
@@ -36,17 +45,17 @@ function GameState.Initialize()
     collision:SetType(CollisionTypes.Player)
     collision:SetMask(CollisionTypes.Enemy)
     
-    --[[ Not functional yet!
     local script = ComponentSystem:CreateScript(entity)
+    script:AddScript(Scripts.DestroyOnDeath);
+    
+    --[[ Not functional yet!
     script:AddScript(Scripts.PlayerScript())
     script:AddScript(Scripts.DamageOnCollision(10, 0.2))
     script:AddScript(Scripts.FlashOnDamageScript())
     --]]
     
     local render = ComponentSystem:CreateRender(entity)
-    render:SetDiffuseColor(Vec4(0.0, 1.0, 0.0, 1.0))
-    
-    EntitySystem:DestroyEntity(entity)
+    render:SetDiffuseColor(Vec4(1.0, 0.0, 1.0, 1.0))
 end
 
 Log("Main scripting entry has been loaded.")
