@@ -1,5 +1,14 @@
+local bit = require("bit")
 
 GameState = {}
+
+CollisionTypes = {}
+CollisionTypes.None = 0
+CollisionTypes.Player = bit.lshift(1, 0)
+CollisionTypes.Enemy = bit.lshift(1, 1)
+CollisionTypes.Projectile = bit.lshift(1, 2)
+CollisionTypes.Pickup = bit.lshift(1, 3)
+CollisionTypes.Environment = bit.lshift(1, 4)
 
 function GameState.Initialize()
     -- Print log message.
@@ -22,12 +31,12 @@ function GameState.Initialize()
     health:SetMaximumHealth(100)
     health:SetCurrentHealth(100)
     
-    --[[ Not functional yet!
     local collision = ComponentSystem:CreateCollision(entity)
-    collision:SetBoundingBox(Vector4(-25.0, -25.0, 25.0, 25.0))
+    collision:SetBoundingBox(Vec4(-25.0, -25.0, 25.0, 25.0))
     collision:SetType(CollisionTypes.Player)
     collision:SetMask(CollisionTypes.Enemy)
     
+    --[[ Not functional yet!
     local script = ComponentSystem:CreateScript(entity)
     script:AddScript(Scripts.PlayerScript())
     script:AddScript(Scripts.DamageOnCollision(10, 0.2))

@@ -39,6 +39,9 @@ bool LuaState::Initialize()
         return false;
     }
 
+    // Load standard Lua libraries.
+    luaL_openlibs(m_state);
+
     // Success!
     return initialized = true;
 }

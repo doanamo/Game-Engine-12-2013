@@ -11,6 +11,8 @@
 #include "Game/Input/InputSystem.hpp"
 #include "Game/Health/HealthComponent.hpp"
 #include "Game/Health/HealthSystem.hpp"
+#include "Game/Collision/CollisionComponent.hpp"
+#include "Game/Collision/CollisionSystem.hpp"
 
 bool BindLuaGame(LuaState& state, const Services& services)
 {
@@ -33,14 +35,17 @@ bool BindLuaGame(LuaState& state, const Services& services)
     HealthSystem* healthSystem = services.Get<HealthSystem>();
     if(healthSystem == nullptr) return false;
 
+    CollisionSystem* collisionSystem = services.Get<CollisionSystem>();
+    if(collisionSystem == nullptr) return false;
+
     // Bind component types.
     Lua::getGlobalNamespace(state.GetState())
         .beginClass<TransformComponent>("TransformComponent")
             .addFunction("SetPosition", &TransformComponent::SetPosition)
-            .addFunction("SetRotation", &TransformComponent::SetRotation)
-            .addFunction("SetScale", &TransformComponent::SetScale)
             .addFunction("GetPosition", &TransformComponent::GetPosition)
+            .addFunction("SetRotation", &TransformComponent::SetRotation)
             .addFunction("GetRotation", &TransformComponent::GetRotation)
+            .addFunction("SetScale", &TransformComponent::SetScale)
             .addFunction("GetScale", &TransformComponent::GetScale)
         .endClass();
 
@@ -53,11 +58,26 @@ bool BindLuaGame(LuaState& state, const Services& services)
     Lua::getGlobalNamespace(state.GetState())
         .beginClass<HealthComponent>("HealthComponent")
             .addFunction("SetMaximumHealth", &HealthComponent::SetMaximumHealth)
-            .addFunction("SetCurrentHealth", &HealthComponent::SetCurrentHealth)
             .addFunction("GetMaximumHealth", &HealthComponent::GetMaximumHealth)
+            .addFunction("SetCurrentHealth", &HealthComponent::SetCurrentHealth)
             .addFunction("GetCurrentHealth", &HealthComponent::GetCurrentHealth)
             .addFunction("IsAlive", &HealthComponent::IsAlive)
             .addFunction("IsDead", &HealthComponent::IsDead)
+        .endClass();
+
+    Lua::getGlobalNamespace(state.GetState())
+        .beginClass<CollisionComponent>("CollisionComponent")
+            .addFunction("SetBoundingBox", &CollisionComponent::SetBoundingBox)
+            .addFunction("GetBoundingBox", &CollisionComponent::GetBoundingBox)
+            .addFunction("SetType", &CollisionComponent::SetType)
+            .addFunction("GetType", &CollisionComponent::GetType)
+            .addFunction("SetMask", &CollisionComponent::SetMask)
+            .addFunction("GetMask", &CollisionComponent::GetMask)
+            .addFunction("SetFlags", &CollisionComponent::SetFlags)
+            .addFunction("GetFlags", &CollisionComponent::GetFlags)
+            .addFunction("Enable", &CollisionComponent::Enable)
+            .addFunction("Disable", &CollisionComponent::Disable)
+            .addFunction("IsEnabled", &CollisionComponent::IsEnabled)
         .endClass();
 
     // Bind system types.
@@ -77,6 +97,7 @@ bool BindLuaGame(LuaState& state, const Services& services)
             .addFunction("CreateTransform", &ComponentSystem::Create<TransformComponent>)
             .addFunction("CreateInput", &ComponentSystem::Create<InputComponent>)
             .addFunction("CreateHealth", &ComponentSystem::Create<HealthComponent>)
+            .addFunction("CreateCollision", &ComponentSystem::Create<CollisionComponent>)
         .endClass();
 
     Lua::getGlobalNamespace(state.GetState())
@@ -96,6 +117,11 @@ bool BindLuaGame(LuaState& state, const Services& services)
             .addFunction("Heal", &HealthSystem::Heal)
         .endClass();
 
+    Lua::getGlobalNamespace(state.GetState())
+        .beginClass<CollisionSystem>("CollisionSystem")
+            .addFunction("DisableCollisionResponse", &CollisionSystem::DisableCollisionResponse)
+        .endClass();
+
     // Pass object references.
     Lua::push(state.GetState(), entitySystem);
     lua_setglobal(state.GetState(), "EntitySystem");
@@ -111,6 +137,9 @@ bool BindLuaGame(LuaState& state, const Services& services)
 
     Lua::push(state.GetState(), healthSystem);
     lua_setglobal(state.GetState(), "HealthSystem");
+
+    Lua::push(state.GetState(), collisionSystem);
+    lua_setglobal(state.GetState(), "CollisionSystem");
 
     return true;
 }
