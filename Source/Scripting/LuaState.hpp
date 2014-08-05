@@ -16,6 +16,9 @@ public:
     bool Load(std::string filename);
     void Cleanup();
 
+    template<typename... Arguments>
+    Lua::LuaRef Call(std::string compoundVariable, Arguments... arguments);
+
     Lua::LuaRef GetVariable(std::string compoundVariable);
     std::string GetString(std::string compoundVariable, std::string defaultValue = "nil");
     bool GetBool(std::string compoundVariable, bool defaultValue = false);
@@ -32,3 +35,20 @@ private:
 private:
     lua_State* m_state;
 };
+
+//
+// Template Implementation
+//
+
+template<typename... Arguments>
+Lua::LuaRef LuaState::Call(std::string compoundVariable, Arguments... arguments)
+{
+    // Get the function variable.
+    Lua::LuaRef function = GetVariable(compoundVariable);
+
+    // Call the function.
+    Lua::LuaRef results = function(arguments...);
+
+    // Return results.
+    return results;
+}
