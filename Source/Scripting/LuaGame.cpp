@@ -13,6 +13,8 @@
 #include "Game/Health/HealthSystem.hpp"
 #include "Game/Collision/CollisionComponent.hpp"
 #include "Game/Collision/CollisionSystem.hpp"
+#include "Game/Render/RenderComponent.hpp"
+#include "Game/Render/RenderSystem.hpp"
 
 bool BindLuaGame(LuaState& state, const Services& services)
 {
@@ -37,6 +39,9 @@ bool BindLuaGame(LuaState& state, const Services& services)
 
     CollisionSystem* collisionSystem = services.Get<CollisionSystem>();
     if(collisionSystem == nullptr) return false;
+
+    RenderSystem* renderSystem = services.Get<RenderSystem>();
+    if(renderSystem == nullptr) return false;
 
     // Bind component types.
     Lua::getGlobalNamespace(state.GetState())
@@ -80,6 +85,16 @@ bool BindLuaGame(LuaState& state, const Services& services)
             .addFunction("IsEnabled", &CollisionComponent::IsEnabled)
         .endClass();
 
+    Lua::getGlobalNamespace(state.GetState())
+        .beginClass<RenderComponent>("RenderComponent")
+            .addFunction("SetDiffuseColor", &RenderComponent::SetDiffuseColor)
+            .addFunction("GetDiffuseColor", &RenderComponent::GetDiffuseColor)
+            .addFunction("SetEmissionColor", &RenderComponent::SetEmissionColor)
+            .addFunction("GetEmissionColor", &RenderComponent::GetEmissionColor)
+            .addFunction("SetEmissionPower", &RenderComponent::SetEmissionPower)
+            .addFunction("GetEmissionPower", &RenderComponent::GetEmissionPower)
+        .endClass();
+
     // Bind system types.
     Lua::getGlobalNamespace(state.GetState())
         .beginClass<EntityHandle>("EntityHandle")
@@ -98,6 +113,7 @@ bool BindLuaGame(LuaState& state, const Services& services)
             .addFunction("CreateInput", &ComponentSystem::Create<InputComponent>)
             .addFunction("CreateHealth", &ComponentSystem::Create<HealthComponent>)
             .addFunction("CreateCollision", &ComponentSystem::Create<CollisionComponent>)
+            .addFunction("CreateRender", &ComponentSystem::Create<RenderComponent>)
         .endClass();
 
     Lua::getGlobalNamespace(state.GetState())
@@ -122,6 +138,10 @@ bool BindLuaGame(LuaState& state, const Services& services)
             .addFunction("DisableCollisionResponse", &CollisionSystem::DisableCollisionResponse)
         .endClass();
 
+    Lua::getGlobalNamespace(state.GetState())
+        .beginClass<RenderSystem>("RenderSystem")
+        .endClass();
+
     // Pass object references.
     Lua::push(state.GetState(), entitySystem);
     lua_setglobal(state.GetState(), "EntitySystem");
@@ -140,6 +160,9 @@ bool BindLuaGame(LuaState& state, const Services& services)
 
     Lua::push(state.GetState(), collisionSystem);
     lua_setglobal(state.GetState(), "CollisionSystem");
+
+    Lua::push(state.GetState(), renderSystem);
+    lua_setglobal(state.GetState(), "RenderSystem");
 
     return true;
 }

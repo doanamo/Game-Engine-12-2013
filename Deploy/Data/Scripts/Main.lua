@@ -41,10 +41,10 @@ function GameState.Initialize()
     script:AddScript(Scripts.PlayerScript())
     script:AddScript(Scripts.DamageOnCollision(10, 0.2))
     script:AddScript(Scripts.FlashOnDamageScript())
+    --]]
     
     local render = ComponentSystem:CreateRender(entity)
-    render:SetDiffuseColor(Vector4(0.0, 1.0, 0.0, 1.0))
-    --]]
+    render:SetDiffuseColor(Vec4(0.0, 1.0, 0.0, 1.0))
     
     EntitySystem:DestroyEntity(entity)
 end
