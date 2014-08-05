@@ -30,7 +30,7 @@ namespace GameState
     // State accessors.
     bool IsInitialized();
 
-    Services& GetServices();
+    const Services& GetServices();
 
     EventSystem&     GetEventSystem();
     EntitySystem&    GetEntitySystem();

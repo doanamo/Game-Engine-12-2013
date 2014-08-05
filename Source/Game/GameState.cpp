@@ -147,7 +147,7 @@ bool GameState::IsInitialized()
     return isInitialized;
 }
 
-Services& GameState::GetServices()
+const Services& GameState::GetServices()
 {
     return services;
 }
