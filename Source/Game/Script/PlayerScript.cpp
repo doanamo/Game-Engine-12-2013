@@ -32,7 +32,7 @@ void PlayerScript::OnUpdate(EntityHandle self, float timeDelta)
     // Shoot a projectile.
     m_shootTime = std::max(0.0f, m_shootTime - timeDelta);
 
-    if(input->GetState()->IsKeyDown(SDL_SCANCODE_SPACE))
+    if(input->GetStateReference()->IsKeyDown(SDL_SCANCODE_SPACE))
     {
         if(m_shootTime == 0.0f)
         {
@@ -47,22 +47,22 @@ void PlayerScript::OnUpdate(EntityHandle self, float timeDelta)
     // Create a direction vector.
     glm::vec2 direction(0.0f, 0.0f);
 
-    if(input->GetState()->IsKeyDown(SDL_SCANCODE_D))
+    if(input->GetStateReference()->IsKeyDown(SDL_SCANCODE_D))
     {
         direction.x = 1.0f;
     }
 
-    if(input->GetState()->IsKeyDown(SDL_SCANCODE_A))
+    if(input->GetStateReference()->IsKeyDown(SDL_SCANCODE_A))
     {
         direction.x = -1.0f;
     }
 
-    if(input->GetState()->IsKeyDown(SDL_SCANCODE_W))
+    if(input->GetStateReference()->IsKeyDown(SDL_SCANCODE_W))
     {
         direction.y = 1.0f;
     }
 
-    if(input->GetState()->IsKeyDown(SDL_SCANCODE_S))
+    if(input->GetStateReference()->IsKeyDown(SDL_SCANCODE_S))
     {
         direction.y = -1.0f;
     }

@@ -23,7 +23,7 @@ public:
         m_state = state;
     }
 
-    const InputState* GetState() const
+    const InputState* GetStateReference() const
     {
         return m_state;
     }
