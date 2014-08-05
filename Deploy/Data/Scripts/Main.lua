@@ -18,11 +18,11 @@ function GameState.Initialize()
     local input = ComponentSystem:CreateInput(entity)
     input:SetStateReference(InputSystem)
     
-    --[[ Not functional yet!
     local health = ComponentSystem:CreateHealth(entity)
     health:SetMaximumHealth(100)
     health:SetCurrentHealth(100)
     
+    --[[ Not functional yet!
     local collision = ComponentSystem:CreateCollision(entity)
     collision:SetBoundingBox(Vector4(-25.0, -25.0, 25.0, 25.0))
     collision:SetType(CollisionTypes.Player)
