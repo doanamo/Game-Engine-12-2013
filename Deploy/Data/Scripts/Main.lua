@@ -2,10 +2,15 @@
 GameState = {}
 
 function GameState.Initialize()
-    --
+    -- Print log message.
     Log("Calling GameState.Initialize() function....")
     
-    --
+    -- Test math.
+    local position = Vec3(1.0, 2.0, 3.0)
+    
+    Log("Vec3(" .. position.x .. ", " .. position.y .. ", " .. position.z .. ")")
+    
+    -- Create player entity.
     local entity = EntitySystem:CreateEntity()
     
     IdentitySystem:SetEntityName(entity, "Test")

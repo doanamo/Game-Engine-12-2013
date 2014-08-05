@@ -107,6 +107,8 @@ Set(SourceFiles
     "Scripting/LuaState.cpp"
     "Scripting/LuaLogger.hpp"
     "Scripting/LuaLogger.cpp"
+    "Scripting/LuaMath.hpp"
+    "Scripting/LuaMath.cpp"
     "Scripting/LuaGame.hpp"
     "Scripting/LuaGame.cpp"
 

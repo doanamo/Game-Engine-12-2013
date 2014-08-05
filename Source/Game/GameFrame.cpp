@@ -3,6 +3,7 @@
 
 #include "MainGlobal.hpp"
 #include "Scripting/LuaState.hpp"
+#include "Scripting/LuaMath.hpp"
 #include "Scripting/LuaGame.hpp"
 #include "Game/GameGlobal.hpp"
 #include "Game/GameState.hpp"
@@ -57,6 +58,9 @@ bool GameFrame::Initialize()
         return false;
 
     // Setup scripting environment.
+    if(!BindLuaMath(Main::GetLuaState()))
+        return false;
+
     if(!BindLuaGame(Main::GetLuaState(), GameState::GetServices()))
         return false;
 
