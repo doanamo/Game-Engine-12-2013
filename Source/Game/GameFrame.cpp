@@ -2,6 +2,8 @@
 #include "GameFrame.hpp"
 
 #include "MainGlobal.hpp"
+#include "Scripting/LuaState.hpp"
+#include "Scripting/LuaGame.hpp"
 #include "Game/GameGlobal.hpp"
 #include "Game/GameState.hpp"
 #include "Game/GameFactory.hpp"
@@ -15,9 +17,6 @@
 #include "Game/Render/RenderSystem.hpp"
 #include "Game/Interface/InterfaceSystem.hpp"
 #include "Game/Spawn/SpawnSystem.hpp"
-
-// Temp!
-#include "Scripting/LuaState.hpp"
 
 namespace
 {
@@ -57,34 +56,15 @@ bool GameFrame::Initialize()
     if(!GameState::Initialize())
         return false;
 
-    // Temp!
-    Lua::getGlobalNamespace(Main::GetLuaState().GetState())
-        .beginClass<EntityHandle>("EntityHandle")
-            .addConstructor<void(*)(void)>()
-            .addData("identifier", &EntityHandle::identifier, false)
-            .addData("version", &EntityHandle::version, false)
-        .endClass();
+    // Setup scripting environment.
+    if(!BindLuaGame(Main::GetLuaState(), GameState::GetServices()))
+        return false;
 
-    Lua::getGlobalNamespace(Main::GetLuaState().GetState())
-        .beginClass<EntitySystem>("EntitySystem")
-            .addFunction("CreateEntity", &EntitySystem::CreateEntity)
-            .addFunction("DestroyEntity", &EntitySystem::DestroyEntity)
-        .endClass();
-
-    Lua::getGlobalNamespace(Main::GetLuaState().GetState())
-        .beginClass<IdentitySystem>("IdentitySystem")
-            .addFunction("SetEntityName", &IdentitySystem::SetEntityName)
-        .endClass();
-
+    // Load the main script.
     if(!Main::GetLuaState().Load("Data/Scripts/Main.lua"))
         return false;
 
-    Lua::push(Main::GetLuaState().GetState(), &GameState::GetEntitySystem());
-    lua_setglobal(Main::GetLuaState().GetState(), "EntitySystem");
-
-    Lua::push(Main::GetLuaState().GetState(), &GameState::GetIdentitySystem());
-    lua_setglobal(Main::GetLuaState().GetState(), "IdentitySystem");
-
+    // Call the initialization function.
     Main::GetLuaState().Call("GameState.Initialize");
 
     // Create bounds.

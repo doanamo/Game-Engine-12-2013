@@ -181,7 +181,8 @@ bool Main::Initialize()
         return false;
 
     // Setup config environment.
-    BindLuaLogger(config);
+    if(!BindLuaLogger(config))
+        return false;
 
     // Read config settings.
     if(config.Load("Game.cfg"))
@@ -214,7 +215,8 @@ bool Main::Initialize()
     }
     
     // Setup scripting environment.
-    BindLuaLogger(luaState);
+    if(!BindLuaLogger(luaState))
+        return false;
 
     //
     // SDL

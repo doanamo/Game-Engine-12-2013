@@ -74,11 +74,6 @@ Set(SourceFiles
     "System/CacheManager.hpp"
     "System/CacheManager.cpp"
 
-    "Scripting/LuaState.hpp"
-    "Scripting/LuaState.cpp"
-    "Scripting/LuaLogger.hpp"
-    "Scripting/LuaLogger.cpp"
-
     "Graphics/ScreenSpace.hpp"
     "Graphics/ScreenSpace.cpp"
     "Graphics/CoreRenderer.hpp"
@@ -107,6 +102,13 @@ Set(SourceFiles
     "Interface/InterfaceRoot.cpp"
     "Interface/Button.hpp"
     "Interface/Button.cpp"
+
+    "Scripting/LuaState.hpp"
+    "Scripting/LuaState.cpp"
+    "Scripting/LuaLogger.hpp"
+    "Scripting/LuaLogger.cpp"
+    "Scripting/LuaGame.hpp"
+    "Scripting/LuaGame.cpp"
 
     "Game/MainFrame.hpp"
     "Game/MainFrame.cpp"

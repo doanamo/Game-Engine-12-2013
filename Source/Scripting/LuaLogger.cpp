@@ -16,11 +16,14 @@ namespace
     }
 }
 
-void BindLuaLogger(LuaState& state)
+bool BindLuaLogger(LuaState& state)
 {
-    assert(state.IsValid());
+    if(!state.IsValid())
+        return false;
 
     // Bind log function.
     Lua::getGlobalNamespace(state.GetState())
         .addFunction("Log", LuaLog);
+
+    return true;
 }
