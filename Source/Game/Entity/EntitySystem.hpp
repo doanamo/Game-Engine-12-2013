@@ -22,11 +22,14 @@ public:
             // Entity handle has been allocated but is not being used.
             None = 0,
 
-            // Entity handle has been created and is active.
-            Active = 1 << 0,
+            // Entity handle has been created and is valid.
+            Valid =  1 << 0,
 
-            // Entity handle has been destroyed and is no longer valid.
-            Destroy = 1 << 1,
+            // Entity handle has been created and is active.
+            Active = 1 << 1,
+
+            // Entity handle has been scheduled to be destroyed.
+            Destroy = 1 << 2,
         };
 
         static const uint32_t Free = None; 
