@@ -58,7 +58,7 @@ bool GameFrame::Initialize()
         return false;
 
     // Setup scripting environment.
-    Lua::Security::setHideMetatables(false);
+    Main::GetLuaState().SetPackagePath(Main::GetWorkingDir() + "Data/Scripts/");
 
     if(!BindLuaMath(Main::GetLuaState()))
         return false;

@@ -20,6 +20,15 @@ LuaState::~LuaState()
     Cleanup();
 }
 
+void LuaState::Cleanup()
+{
+    if(m_state)
+    {
+        lua_close(m_state);
+        m_state = nullptr;
+    }
+}
+
 bool LuaState::Initialize()
 {
     Cleanup();
@@ -102,13 +111,14 @@ bool LuaState::Load(std::string filename)
     return true;
 }
 
-void LuaState::Cleanup()
+void LuaState::SetPackagePath(std::string path)
 {
-    if(m_state)
-    {
-        lua_close(m_state);
-        m_state = nullptr;
-    }
+    if(!m_state)
+        return;
+
+    // Set path to package location (script working directiory).
+    Lua::LuaRef package = GetVariable("package");
+    package["path"] = path + "?.lua";
 }
 
 std::string LuaState::DetachStem(std::string& compoundVariable)

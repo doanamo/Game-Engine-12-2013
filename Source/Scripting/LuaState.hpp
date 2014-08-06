@@ -19,6 +19,8 @@ public:
     template<typename... Arguments>
     Lua::LuaRef Call(std::string compoundVariable, Arguments... arguments);
 
+    void SetPackagePath(std::string path);
+
     Lua::LuaRef GetVariable(std::string compoundVariable);
     std::string GetString(std::string compoundVariable, std::string defaultValue = "nil");
     bool GetBool(std::string compoundVariable, bool defaultValue = false);

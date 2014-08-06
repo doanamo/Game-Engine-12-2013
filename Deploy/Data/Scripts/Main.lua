@@ -1,49 +1,8 @@
+require("Keyboard")
+
 local Bit = require("bit")
 
 Game = {}
-
-Key = {}
-Key["A"] = 4
-Key["B"] = 5
-Key["C"] = 6
-Key["D"] = 7
-Key["E"] = 8
-Key["F"] = 9
-Key["G"] = 10
-Key["H"] = 11
-Key["I"] = 12
-Key["J"] = 13
-Key["K"] = 14
-Key["L"] = 15
-Key["M"] = 16
-Key["N"] = 17
-Key["O"] = 18
-Key["P"] = 19
-Key["Q"] = 20
-Key["R"] = 21
-Key["S"] = 22
-Key["T"] = 23
-Key["U"] = 24
-Key["V"] = 25
-Key["W"] = 26
-Key["X"] = 27
-Key["Y"] = 28
-Key["Z"] = 29
-Key["1"] = 30
-Key["2"] = 31
-Key["3"] = 32
-Key["4"] = 33
-Key["5"] = 34
-Key["6"] = 35
-Key["7"] = 36
-Key["8"] = 37
-Key["9"] = 38
-Key["0"] = 39
-Key["Return"] = 40
-Key["Escape"] = 41
-Key["Backspace"] = 42
-Key["Tab"] = 43
-Key["Space"] = 44
 
 CollisionType = {}
 CollisionType.None = 0
