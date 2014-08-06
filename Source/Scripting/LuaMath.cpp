@@ -2,6 +2,27 @@
 #include "LuaMath.hpp"
 #include "LuaEngine.hpp"
 
+namespace
+{
+    template<typename Type>
+    bool Equals(const Type& left, const Type& right)
+    {
+        return left == right;
+    }
+
+    template<typename Type>
+    Type Normalized(const Type& vector)
+    {
+        return glm::normalize(vector);
+    }
+
+    template<typename Type>
+    void Normalize(Type& vector)
+    {
+        glm::normalize(vector);
+    }
+}
+
 bool BindLuaMath(LuaEngine& lua)
 {
     if(!lua.IsValid())
@@ -9,51 +30,41 @@ bool BindLuaMath(LuaEngine& lua)
 
     // Bind definitions.
     Lua::getGlobalNamespace(lua.GetState())
-        .beginNamespace("Private")
-            .beginClass<glm::vec2>("glmvec2")
-            .endClass()
-        .endNamespace()
-        .deriveClass<LuaVector<glm::vec2>, glm::vec2>("Vec2")
+        .beginClass<glm::vec2>("Vec2")
             .addConstructor<void(*)(float, float)>()
-            .addData("x", &LuaVector<glm::vec2>::x)
-            .addData("y", &LuaVector<glm::vec2>::y)
-            .addFunction("Equals", &LuaVector<glm::vec2>::Equals)
-            .addFunction("Normalized", &LuaVector<glm::vec2>::Normalized)
-            .addFunction("Normalize", &LuaVector<glm::vec2>::Normalize)
+            .addData("x", &glm::vec2::x)
+            .addData("y", &glm::vec2::y)
+            .addSelfFunction("Equals", &Equals<glm::vec2>)
+            .addSelfFunction("Normalized", &Normalized<glm::vec2>)
+            .addSelfFunction("Normalize", &Normalize<glm::vec2>)
         .endClass();
 
     Lua::getGlobalNamespace(lua.GetState())
-        .beginNamespace("Private")
-            .beginClass<glm::vec3>("glmvec3")
-            .endClass()
-        .endNamespace()
-        .deriveClass<LuaVector<glm::vec3>, glm::vec3>("Vec3")
+        .beginClass<glm::vec3>("Vec3")
             .addConstructor<void(*)(float, float, float)>()
-            .addData("x", &LuaVector<glm::vec3>::x)
-            .addData("y", &LuaVector<glm::vec3>::y)
-            .addData("z", &LuaVector<glm::vec3>::z)
-            .addData("r", &LuaVector<glm::vec3>::r)
-            .addData("g", &LuaVector<glm::vec3>::g)
-            .addData("b", &LuaVector<glm::vec3>::b)
-            .addFunction("Equals", &LuaVector<glm::vec3>::Equals)
+            .addData("x", &glm::vec3::x)
+            .addData("y", &glm::vec3::y)
+            .addData("z", &glm::vec3::z)
+            .addData("r", &glm::vec3::r)
+            .addData("g", &glm::vec3::g)
+            .addData("b", &glm::vec3::b)
+            .addSelfFunction("Equals", &Equals<glm::vec3>)
+            .addSelfFunction("Normalized", &Normalized<glm::vec3>)
+            .addSelfFunction("Normalize", &Normalize<glm::vec3>)
         .endClass();
 
     Lua::getGlobalNamespace(lua.GetState())
-        .beginNamespace("Private")
-            .beginClass<glm::vec4>("glmvec4")
-            .endClass()
-        .endNamespace()
-        .deriveClass<LuaVector<glm::vec4>, glm::vec4>("Vec4")
+        .beginClass<glm::vec4>("Vec4")
             .addConstructor<void(*)(float, float, float, float)>()
-            .addData("x", &LuaVector<glm::vec4>::x)
-            .addData("y", &LuaVector<glm::vec4>::y)
-            .addData("z", &LuaVector<glm::vec4>::z)
-            .addData("w", &LuaVector<glm::vec4>::w)
-            .addData("r", &LuaVector<glm::vec4>::r)
-            .addData("g", &LuaVector<glm::vec4>::g)
-            .addData("b", &LuaVector<glm::vec4>::b)
-            .addData("a", &LuaVector<glm::vec4>::a)
-            .addFunction("Equals", &LuaVector<glm::vec4>::Equals)
+            .addData("x", &glm::vec4::x)
+            .addData("y", &glm::vec4::y)
+            .addData("z", &glm::vec4::z)
+            .addData("w", &glm::vec4::w)
+            .addData("r", &glm::vec4::r)
+            .addData("g", &glm::vec4::g)
+            .addData("b", &glm::vec4::b)
+            .addData("a", &glm::vec4::a)
+            .addSelfFunction("Equals", &Equals<glm::vec4>)
         .endClass();
 
     return true;

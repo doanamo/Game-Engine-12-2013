@@ -45,8 +45,18 @@ public:
         return m_position;
     }
 
+    glm::vec2 GetPositionCopy() const
+    {
+        return m_position;
+    }
+
     // Gets the scale.
     const glm::vec2& GetScale() const
+    {
+        return m_scale;
+    }
+
+    glm::vec2 GetScaleCopy() const
     {
         return m_scale;
     }
@@ -55,27 +65,6 @@ public:
     float GetRotation() const
     {
         return m_rotation;
-    }
-
-public:
-    void SetPositionLua(const LuaVector<glm::vec2>& position)
-    {
-        m_position = position;
-    }
-
-    void SetScaleLua(const LuaVector<glm::vec2>& scale)
-    {
-        m_scale = scale;
-    }
-
-    LuaVector<glm::vec2> GetPositionLua() const
-    {
-        return m_position;
-    }
-
-    LuaVector<glm::vec2> GetScaleLua() const
-    {
-        return m_position;
     }
 
 private:

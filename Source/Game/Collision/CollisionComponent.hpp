@@ -49,7 +49,7 @@ public:
         return m_boundingBox;
     }
 
-    LuaVector<glm::vec4> GetBoundingBoxLua() const
+    glm::vec4 GetBoundingBoxCopy() const
     {
         return m_boundingBox;
     }

@@ -35,7 +35,7 @@ public:
         return m_diffuseColor;
     }
 
-    LuaVector<glm::vec3> GetDiffuseColorLua() const
+    glm::vec4 GetDiffuseColorCopy() const
     {
         return m_diffuseColor;
     }
@@ -45,7 +45,7 @@ public:
         return m_emissionColor;
     }
 
-    LuaVector<glm::vec3> GetEmissionColorLua() const
+    glm::vec3 GetEmissionColorCopy() const
     {
         return m_emissionColor;
     }
