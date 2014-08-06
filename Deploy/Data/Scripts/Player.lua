@@ -62,11 +62,5 @@ function Scripts.Player()
         end
     end
     
-    function script.OnDamaged(self, value, alive)
-        if not alive then
-            EntitySystem:DestroyEntity(self)
-        end
-    end
-
     return script
 end

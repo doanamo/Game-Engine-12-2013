@@ -18,6 +18,18 @@ function Scripts.ConstantVelocity(velocity)
     return script
 end
 
+function Scripts.DestroyOnDeath()
+    local script = {}
+    
+    function script.OnDamaged(self, value, alive)
+        if not alive then
+            EntitySystem:DestroyEntity(self)
+        end
+    end
+    
+    return script
+end
+
 function Scripts.DestroyOnCollision()
     local script = {}
     
