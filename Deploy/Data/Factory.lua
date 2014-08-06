@@ -1,6 +1,7 @@
 require("Scripts.Common")
 require("Scripts.Player")
 require("Scripts.Projectile")
+require("Scripts.HealthPickup")
 
 Factory = Factory or {}
 
@@ -90,4 +91,25 @@ function Factory.CreateProjectile(position, velocity, damage, mask)
     
     local render = ComponentSystem:CreateRender(entity)
     render:SetDiffuseColor(Vec4(1.0, 1.0, 0.0, 1.0))
+end
+
+function Factory.CreateHealthPickup(position, heal)
+    local entity = EntitySystem:CreateEntity()
+    
+    local transform = ComponentSystem:CreateTransform(entity)
+    transform:SetPosition(position)
+    transform:SetScale(Vec2(40.0, 40.0))
+    transform:SetRotation(0.0)
+    
+    local collision = ComponentSystem:CreateCollision(entity)
+    collision:SetBoundingBox(Vec4(-20.0, -20.0, 20.0, 20.0))
+    collision:SetType(CollisionTypes.Pickup)
+    collision:SetMask(CollisionTypes.Player)
+    
+    local script = ComponentSystem:CreateScript(entity)
+    script:AddScript(Script.HealthPickup(heal))
+    script:AddScript(Script.ConstantVelocity(Vec2(-100.0, 0)))
+    
+    local render = ComponentSystem:CreateRender(entity)
+    render:SetDiffuseColor(Vec4(0.6, 1.0, 0.6, 1.0))
 end
