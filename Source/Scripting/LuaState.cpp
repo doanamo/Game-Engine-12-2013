@@ -51,6 +51,13 @@ bool LuaState::Initialize()
     // Load standard Lua libraries.
     luaL_openlibs(m_state);
 
+    // Load other utility libraries.
+    if(luaL_dostring(m_state, "bit = require(\"bit\")") != 0)
+    {
+        Log() << LogInitializeError() << "Coundn't load one of the libraries.";
+        return false;
+    }
+
     // Success!
     return initialized = true;
 }

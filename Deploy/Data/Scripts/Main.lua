@@ -1,16 +1,7 @@
 require("Keyboard")
-
-local Bit = require("bit")
+require("Collision")
 
 Game = {}
-
-CollisionType = {}
-CollisionType.None = 0
-CollisionType.Player = Bit.lshift(1, 0)
-CollisionType.Enemy = Bit.lshift(1, 1)
-CollisionType.Projectile = Bit.lshift(1, 2)
-CollisionType.Pickup = Bit.lshift(1, 3)
-CollisionType.Environment = Bit.lshift(1, 4)
 
 Script = {}
 
