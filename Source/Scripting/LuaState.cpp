@@ -54,6 +54,24 @@ bool LuaState::Load(std::string filename)
     // Load Lua file.
     if(luaL_loadfile(m_state, (Main::GetWorkingDir() + filename).c_str()) != 0)
     {
+        std::string error = "Unknown error";
+
+        if(lua_isstring(m_state, -1))
+        {
+            error = lua_tostring(m_state, -1);
+
+            // Remove base path to working directory.
+            std::size_t position = error.find(Main::GetWorkingDir());
+
+            if(position != std::string::npos)
+            {
+                error.erase(position, Main::GetWorkingDir().size());
+            }
+        }
+
+        Log() << "Lua error - " << error << ".";
+        lua_pop(m_state, lua_gettop(m_state));
+
         Log() << LogLoadError(filename) << "Couldn't parse the file.";
         return false;
     }
