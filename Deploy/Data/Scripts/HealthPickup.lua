@@ -2,7 +2,7 @@ Scripts = Scripts or {}
 
 function Scripts.HealthPickup(heal)
     local script = {}
-    m_heal = heal or 0
+    local m_heal = heal or 0
     
     function script.OnCollision(self, other)
         -- Heal other entity.

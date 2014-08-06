@@ -2,7 +2,7 @@ Scripts = Scripts or {}
 
 function Scripts.Projectile(damage)
     local script = {}
-    m_damage = damage or 10
+    local m_damage = damage or 10
     
     function script.OnCollision(self, other)
         -- Apply damage to other entity.
