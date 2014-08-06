@@ -16,7 +16,9 @@ function Scripts.Player()
         -- Shoot projectiles.
         if InputSystem:IsKeyDown(Key["Space"]) then
             if m_shootTime == 0.0 then
-                -- TODO: Spawn a projectile.
+                local mask = bit.bor(CollisionTypes.Enemy, CollisionTypes.Environment)
+                Factory.CreateProjectile(transform:GetPosition(), Vec2(700.0, 0.0), 10, mask)
+
                 m_shootTime = 0.25
             end
         end

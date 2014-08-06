@@ -28,55 +28,6 @@ namespace
 
 namespace
 {
-    std::mt19937 asteroidRandom(deviceRandom());
-}
-
-EntityHandle GameFactory::CreateAsteroid(const glm::vec2& position)
-{
-    // Calculate entity parameters.
-    std::array<double, 3> intervals = { 0.2f, 0.3f, 1.0f };
-    std::array<double, 3> weights = { 0.0f, 0.6f, 1.0f };
-
-    float scale = std::piecewise_linear_distribution<float>(intervals.begin(), intervals.end(), weights.begin())(asteroidRandom);
-
-    float size = 200.0f * scale;
-    float halfSize = size * 0.5f;
-
-    int hitpoints = std::max(10, (int)(160 * scale));
-
-    float speed = 400.0f - 300.0f * scale;
-
-    // Create an entity.
-    EntityHandle entity = GameState::GetEntitySystem().CreateEntity();
-
-    TransformComponent* transform = GameState::GetComponentSystem().Create<TransformComponent>(entity);
-    transform->SetPosition(position);
-    transform->SetScale(glm::vec2(size, size));
-    transform->SetRotation(0.0f);
-
-    HealthComponent* health = GameState::GetComponentSystem().Create<HealthComponent>(entity);
-    health->SetMaximumHealth(hitpoints);
-    health->SetCurrentHealth(hitpoints);
-
-    CollisionComponent* collision = GameState::GetComponentSystem().Create<CollisionComponent>(entity);
-    collision->SetBoundingBox(glm::vec4(-halfSize, -halfSize, halfSize, halfSize));
-    collision->SetType(CollisionTypes::Environment);
-    collision->SetMask(CollisionTypes::Player | CollisionTypes::Enemy);
-
-    ScriptComponent* script = GameState::GetComponentSystem().Create<ScriptComponent>(entity);
-    script->AddScript(std::make_shared<ConstantVelocityScript>(glm::vec2(-speed, 0.0f)));
-    script->AddScript(std::make_shared<DamageOnCollision>(5, 0.2f));
-    script->AddScript(std::make_shared<FlashOnDamageScript>());
-    script->AddScript(std::make_shared<DestroyOnDeathScript>());
-
-    RenderComponent* render = GameState::GetComponentSystem().Create<RenderComponent>(entity);
-    render->SetDiffuseColor(glm::vec4(0.6f, 0.3f, 0.0f, 1.0f));
-
-    return entity;
-}
-
-namespace
-{
     std::mt19937 enemyRandom(deviceRandom());
 }
 

@@ -1,7 +1,8 @@
 require("Scripts.Common")
 require("Scripts.Player")
+require("Scripts.Projectile")
 
-Factory = {}
+Factory = Factory or {}
 
 function Factory.CreatePlayer()
     local entity = EntitySystem:CreateEntity()
@@ -68,4 +69,25 @@ function Factory.CreateBounds()
         local script = ComponentSystem:CreateScript(entity)
         script:AddScript(Scripts.DestroyOnCollision())
     end
+end
+
+function Factory.CreateProjectile(position, velocity, damage, mask)
+    local entity = EntitySystem:CreateEntity()
+    
+    local transform = ComponentSystem:CreateTransform(entity)
+    transform:SetPosition(position)
+    transform:SetScale(Vec2(30.0, 30.0))
+    transform:SetRotation(0.0)
+    
+    local collision = ComponentSystem:CreateCollision(entity)
+    collision:SetBoundingBox(Vec4(-15.0, -15.0, 15.0, 15.0))
+    collision:SetType(CollisionTypes.Projectile)
+    collision:SetMask(mask)
+    
+    local script = ComponentSystem:CreateScript(entity)
+    script:AddScript(Scripts.Projectile(damage))
+    script:AddScript(Scripts.ConstantVelocity(velocity))
+    
+    local render = ComponentSystem:CreateRender(entity)
+    render:SetDiffuseColor(Vec4(1.0, 1.0, 0.0, 1.0))
 end

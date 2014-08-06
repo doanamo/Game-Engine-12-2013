@@ -1,5 +1,23 @@
 Scripts = Scripts or {}
 
+function Scripts.ConstantVelocity(velocity)
+    local script = {}
+    m_velocity = velocity
+    
+    function script.OnUpdate(self, timeDelta)
+        -- Get transform component.
+        local transform = ComponentSystem:LookupTransform(self)
+        
+        -- Update position.
+        local position = transform:GetPosition()
+        position.x = position.x + m_velocity.x * timeDelta
+        position.y = position.y + m_velocity.y * timeDelta
+        transform:SetPosition(position)
+    end
+    
+    return script
+end
+
 function Scripts.DestroyOnCollision()
     local script = {}
     
