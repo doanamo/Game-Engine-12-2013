@@ -103,8 +103,8 @@ Set(SourceFiles
     "Interface/Button.hpp"
     "Interface/Button.cpp"
 
-    "Scripting/LuaState.hpp"
-    "Scripting/LuaState.cpp"
+    "Scripting/LuaEngine.hpp"
+    "Scripting/LuaEngine.cpp"
     "Scripting/LuaLogger.hpp"
     "Scripting/LuaLogger.cpp"
     "Scripting/LuaMath.hpp"

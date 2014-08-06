@@ -1,6 +1,6 @@
 #include "Precompiled.hpp"
 #include "LuaLogger.hpp"
-#include "LuaState.hpp"
+#include "LuaEngine.hpp"
 
 #include "Common/Services.hpp"
 #include "Game/Entity/EntitySystem.hpp"
@@ -18,9 +18,9 @@
 #include "Game/Render/RenderComponent.hpp"
 #include "Game/Render/RenderSystem.hpp"
 
-bool BindLuaGame(LuaState& state, const Services& services)
+bool BindLuaGame(LuaEngine& lua, const Services& services)
 {
-    if(!state.IsValid())
+    if(!lua.IsValid())
         return false;
 
     // Get required systems.
@@ -49,7 +49,7 @@ bool BindLuaGame(LuaState& state, const Services& services)
     if(renderSystem == nullptr) return false;
 
     // Bind component types.
-    Lua::getGlobalNamespace(state.GetState())
+    Lua::getGlobalNamespace(lua.GetState())
         .beginClass<TransformComponent>("TransformComponent")
             .addFunction("SetPosition", &TransformComponent::SetPosition)
             .addFunction("GetPosition", &TransformComponent::GetPositionLua)
@@ -59,13 +59,13 @@ bool BindLuaGame(LuaState& state, const Services& services)
             .addFunction("GetRotation", &TransformComponent::GetRotation)
         .endClass();
 
-    Lua::getGlobalNamespace(state.GetState())
+    Lua::getGlobalNamespace(lua.GetState())
         .beginClass<InputComponent>("InputComponent")
             .addFunction("SetStateReference", &InputComponent::SetStateReference)
             .addFunction("GetStateReference", &InputComponent::GetStateReference)
         .endClass();
 
-    Lua::getGlobalNamespace(state.GetState())
+    Lua::getGlobalNamespace(lua.GetState())
         .beginClass<HealthComponent>("HealthComponent")
             .addFunction("SetMaximumHealth", &HealthComponent::SetMaximumHealth)
             .addFunction("GetMaximumHealth", &HealthComponent::GetMaximumHealth)
@@ -75,7 +75,7 @@ bool BindLuaGame(LuaState& state, const Services& services)
             .addFunction("IsDead", &HealthComponent::IsDead)
         .endClass();
 
-    Lua::getGlobalNamespace(state.GetState())
+    Lua::getGlobalNamespace(lua.GetState())
         .beginClass<CollisionComponent>("CollisionComponent")
             .addFunction("SetBoundingBox", &CollisionComponent::SetBoundingBox)
             .addFunction("GetBoundingBox", &CollisionComponent::GetBoundingBoxLua)
@@ -90,12 +90,12 @@ bool BindLuaGame(LuaState& state, const Services& services)
             .addFunction("IsEnabled", &CollisionComponent::IsEnabled)
         .endClass();
 
-    Lua::getGlobalNamespace(state.GetState())
+    Lua::getGlobalNamespace(lua.GetState())
         .beginClass<ScriptLuaComponent>("ScriptComponent")
             .addFunction("AddScript", &ScriptLuaComponent::AddScript)
         .endClass();
 
-    Lua::getGlobalNamespace(state.GetState())
+    Lua::getGlobalNamespace(lua.GetState())
         .beginClass<RenderComponent>("RenderComponent")
             .addFunction("SetDiffuseColor", &RenderComponent::SetDiffuseColor)
             .addFunction("GetDiffuseColor", &RenderComponent::GetDiffuseColorLua)
@@ -106,7 +106,7 @@ bool BindLuaGame(LuaState& state, const Services& services)
         .endClass();
 
     // Bind system types.
-    Lua::getGlobalNamespace(state.GetState())
+    Lua::getGlobalNamespace(lua.GetState())
         .beginClass<EntityHandle>("EntityHandle")
             .addConstructor<void(*)(void)>()
             .addData("identifier", &EntityHandle::identifier, false)
@@ -117,7 +117,7 @@ bool BindLuaGame(LuaState& state, const Services& services)
             .addFunction("DestroyEntity", &EntitySystem::DestroyEntity)
         .endClass();
 
-    Lua::getGlobalNamespace(state.GetState())
+    Lua::getGlobalNamespace(lua.GetState())
         .beginClass<ComponentSystem>("ComponentSystem")
             .addFunction("CreateTransform", &ComponentSystem::Create<TransformComponent>)
             .addFunction("CreateInput", &ComponentSystem::Create<InputComponent>)
@@ -133,12 +133,12 @@ bool BindLuaGame(LuaState& state, const Services& services)
             .addFunction("LookupRender", &ComponentSystem::Lookup<RenderComponent>)
         .endClass();
 
-    Lua::getGlobalNamespace(state.GetState())
+    Lua::getGlobalNamespace(lua.GetState())
         .beginClass<IdentitySystem>("IdentitySystem")
             .addFunction("SetEntityName", &IdentitySystem::SetEntityName)
         .endClass();
 
-    Lua::getGlobalNamespace(state.GetState())
+    Lua::getGlobalNamespace(lua.GetState())
         .beginClass<InputState>("InputState")
         .endClass()
         .deriveClass<InputSystem, InputState>("InputSystem")
@@ -146,13 +146,13 @@ bool BindLuaGame(LuaState& state, const Services& services)
             .addFunction("IsKeyUp", &InputSystem::IsKeyUp)
         .endClass();
 
-    Lua::getGlobalNamespace(state.GetState())
+    Lua::getGlobalNamespace(lua.GetState())
         .beginClass<HealthSystem>("HealthSystem")
             .addFunction("Damage", &HealthSystem::Damage)
             .addFunction("Heal", &HealthSystem::Heal)
         .endClass();
 
-    Lua::getGlobalNamespace(state.GetState())
+    Lua::getGlobalNamespace(lua.GetState())
         .beginClass<CollisionObject>("CollisionObject")
             .addData("entity", &CollisionObject::entity, false)
             .addData("transform", &CollisionObject::transform, false)
@@ -164,38 +164,38 @@ bool BindLuaGame(LuaState& state, const Services& services)
             .addFunction("DisableCollisionResponse", &CollisionSystem::DisableCollisionResponse)
         .endClass();
 
-    Lua::getGlobalNamespace(state.GetState())
+    Lua::getGlobalNamespace(lua.GetState())
         .beginClass<ScriptSystem>("ScriptSystem")
         .endClass();
 
-    Lua::getGlobalNamespace(state.GetState())
+    Lua::getGlobalNamespace(lua.GetState())
         .beginClass<RenderSystem>("RenderSystem")
         .endClass();
 
     // Pass object references.
-    Lua::push(state.GetState(), entitySystem);
-    lua_setglobal(state.GetState(), "EntitySystem");
+    Lua::push(lua.GetState(), entitySystem);
+    lua_setglobal(lua.GetState(), "EntitySystem");
 
-    Lua::push(state.GetState(), componentSystem);
-    lua_setglobal(state.GetState(), "ComponentSystem");
+    Lua::push(lua.GetState(), componentSystem);
+    lua_setglobal(lua.GetState(), "ComponentSystem");
 
-    Lua::push(state.GetState(), identitySystem);
-    lua_setglobal(state.GetState(), "IdentitySystem");
+    Lua::push(lua.GetState(), identitySystem);
+    lua_setglobal(lua.GetState(), "IdentitySystem");
 
-    Lua::push(state.GetState(), inputSystem);
-    lua_setglobal(state.GetState(), "InputSystem");
+    Lua::push(lua.GetState(), inputSystem);
+    lua_setglobal(lua.GetState(), "InputSystem");
 
-    Lua::push(state.GetState(), healthSystem);
-    lua_setglobal(state.GetState(), "HealthSystem");
+    Lua::push(lua.GetState(), healthSystem);
+    lua_setglobal(lua.GetState(), "HealthSystem");
 
-    Lua::push(state.GetState(), collisionSystem);
-    lua_setglobal(state.GetState(), "CollisionSystem");
+    Lua::push(lua.GetState(), collisionSystem);
+    lua_setglobal(lua.GetState(), "CollisionSystem");
 
-    Lua::push(state.GetState(), scriptSystem);
-    lua_setglobal(state.GetState(), "ScriptSystem");
+    Lua::push(lua.GetState(), scriptSystem);
+    lua_setglobal(lua.GetState(), "ScriptSystem");
 
-    Lua::push(state.GetState(), renderSystem);
-    lua_setglobal(state.GetState(), "RenderSystem");
+    Lua::push(lua.GetState(), renderSystem);
+    lua_setglobal(lua.GetState(), "RenderSystem");
 
     return true;
 }

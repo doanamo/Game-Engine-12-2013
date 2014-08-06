@@ -3,10 +3,10 @@
 #include "Precompiled.hpp"
 
 // Forward declarations.
-class LuaState;
+class LuaEngine;
 
 //
 // Lua Logger
 //
 
-bool BindLuaLogger(LuaState& state);
+bool BindLuaLogger(LuaEngine& lua);

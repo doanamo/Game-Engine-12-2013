@@ -3,11 +3,11 @@
 #include "Precompiled.hpp"
 
 // Forward declarations.
-class LuaState;
+class LuaEngine;
 class Services;
 
 //
 // Lua Game
 //
 
-bool BindLuaGame(LuaState& state, const Services& services);
+bool BindLuaGame(LuaEngine& lua, const Services& services);

@@ -1,14 +1,14 @@
 #include "Precompiled.hpp"
 #include "LuaMath.hpp"
-#include "LuaState.hpp"
+#include "LuaEngine.hpp"
 
-bool BindLuaMath(LuaState& state)
+bool BindLuaMath(LuaEngine& lua)
 {
-    if(!state.IsValid())
+    if(!lua.IsValid())
         return false;
 
     // Bind definitions.
-    Lua::getGlobalNamespace(state.GetState())
+    Lua::getGlobalNamespace(lua.GetState())
         .beginNamespace("Private")
             .beginClass<glm::vec2>("glmvec2")
             .endClass()
@@ -22,7 +22,7 @@ bool BindLuaMath(LuaState& state)
             .addFunction("Normalize", &LuaVector<glm::vec2>::Normalize)
         .endClass();
 
-    Lua::getGlobalNamespace(state.GetState())
+    Lua::getGlobalNamespace(lua.GetState())
         .beginNamespace("Private")
             .beginClass<glm::vec3>("glmvec3")
             .endClass()
@@ -38,7 +38,7 @@ bool BindLuaMath(LuaState& state)
             .addFunction("Equals", &LuaVector<glm::vec3>::Equals)
         .endClass();
 
-    Lua::getGlobalNamespace(state.GetState())
+    Lua::getGlobalNamespace(lua.GetState())
         .beginNamespace("Private")
             .beginClass<glm::vec4>("glmvec4")
             .endClass()

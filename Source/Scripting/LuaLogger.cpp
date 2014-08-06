@@ -1,7 +1,6 @@
 #include "Precompiled.hpp"
 #include "LuaLogger.hpp"
-
-#include "LuaState.hpp"
+#include "LuaEngine.hpp"
 
 namespace
 {
@@ -16,7 +15,7 @@ namespace
     }
 }
 
-bool BindLuaLogger(LuaState& state)
+bool BindLuaLogger(LuaEngine& state)
 {
     if(!state.IsValid())
         return false;

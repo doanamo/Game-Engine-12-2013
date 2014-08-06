@@ -3,14 +3,14 @@
 #include "Precompiled.hpp"
 
 //
-// Lua State
+// Lua Engine
 //
 
-class LuaState
+class LuaEngine
 {
 public:
-    LuaState();
-    ~LuaState();
+    LuaEngine();
+    ~LuaEngine();
 
     bool Initialize();
     bool Load(std::string filename);
@@ -43,7 +43,7 @@ private:
 //
 
 template<typename... Arguments>
-Lua::LuaRef LuaState::Call(std::string compoundVariable, Arguments... arguments)
+Lua::LuaRef LuaEngine::Call(std::string compoundVariable, Arguments... arguments)
 {
     // Create nil reference for results.
     Lua::LuaRef results(m_state);

@@ -3,13 +3,13 @@
 #include "Precompiled.hpp"
 
 // Forward declarations.
-class LuaState;
+class LuaEngine;
 
 //
 // Lua Math
 //
 
-bool BindLuaMath(LuaState& state);
+bool BindLuaMath(LuaEngine& lua);
 
 //
 // Vector Wrapper
