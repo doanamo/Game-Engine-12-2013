@@ -97,16 +97,22 @@ void InputSystem::Reset()
     }
 }
 
-bool InputSystem::IsKeyDown(SDL_Scancode key) const
+bool InputSystem::IsKeyDown(int key) const
 {
     assert(m_initialized);
+
+    if(key < 0 || key >= SDL_NUM_SCANCODES)
+        return false;
 
     return m_keyboardState[key] == 1;
 }
 
-bool InputSystem::IsKeyUp(SDL_Scancode key) const
+bool InputSystem::IsKeyUp(int key) const
 {
     assert(m_initialized);
+
+    if(key < 0 || key >= SDL_NUM_SCANCODES)
+        return true;
 
     return m_keyboardState[key] == 0;
 }

@@ -22,8 +22,8 @@ public:
     void Process(const SDL_Event& event);
     void Reset();
 
-    bool IsKeyDown(SDL_Scancode key) const;
-    bool IsKeyUp(SDL_Scancode key) const;
+    bool IsKeyDown(int key) const;
+    bool IsKeyUp(int key) const;
 
 private:
     // System state.

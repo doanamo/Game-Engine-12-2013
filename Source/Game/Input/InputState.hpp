@@ -9,6 +9,6 @@
 class InputState
 {
 public:
-    virtual bool IsKeyDown(SDL_Scancode key) const = 0;
-    virtual bool IsKeyUp(SDL_Scancode key) const = 0;
+    virtual bool IsKeyDown(int key) const = 0;
+    virtual bool IsKeyUp(int key) const = 0;
 };
