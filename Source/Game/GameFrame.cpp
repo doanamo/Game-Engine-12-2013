@@ -2,9 +2,6 @@
 #include "GameFrame.hpp"
 
 #include "MainGlobal.hpp"
-#include "Scripting/LuaEngine.hpp"
-#include "Scripting/LuaMath.hpp"
-#include "Scripting/LuaGame.hpp"
 #include "Game/GameGlobal.hpp"
 #include "Game/GameState.hpp"
 #include "Game/GameFactory.hpp"
@@ -56,22 +53,6 @@ bool GameFrame::Initialize()
     // Initialize the game state.
     if(!GameState::Initialize())
         return false;
-
-    // Setup scripting environment.
-    Main::GetLuaEngine().SetPackagePath(Main::GetWorkingDir() + "Data/");
-
-    if(!BindLuaMath(Main::GetLuaEngine()))
-        return false;
-
-    if(!BindLuaGame(Main::GetLuaEngine(), GameState::GetServices()))
-        return false;
-
-    // Load the main script.
-    if(!Main::GetLuaEngine().Load("Data/Main.lua"))
-        return false;
-
-    // Call the initialization function.
-    Main::GetLuaEngine().Call("Initialize");
 
     // Create bounds.
     GameFactory::CreateBounds();

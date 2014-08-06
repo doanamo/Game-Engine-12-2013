@@ -16,6 +16,7 @@ class RenderSystem;
 class InterfaceSystem;
 class SpawnSystem;
 class ProgressSystem;
+class LuaEngine;
 
 //
 // Game State
@@ -43,4 +44,6 @@ namespace GameState
     RenderSystem&    GetRenderSystem();
     InterfaceSystem& GetInterfaceSystem();
     SpawnSystem&     GetSpawnSystem();
+
+    LuaEngine& GetLuaEngine();
 };

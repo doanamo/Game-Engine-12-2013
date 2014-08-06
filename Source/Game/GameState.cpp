@@ -1,6 +1,11 @@
 #include "Precompiled.hpp"
 #include "GameState.hpp"
 
+#include "MainGlobal.hpp"
+#include "Scripting/LuaEngine.hpp"
+#include "Scripting/LuaLogger.hpp"
+#include "Scripting/LuaMath.hpp"
+#include "Scripting/LuaGame.hpp"
 #include "Game/Event/EventDefinitions.hpp"
 #include "Game/Event/EventSystem.hpp"
 #include "Game/Entity/EntitySystem.hpp"
@@ -37,6 +42,9 @@ namespace
     RenderSystem    renderSystem;
     InterfaceSystem interfaceSystem;
     SpawnSystem     spawnSystem;
+
+    // Scripting engine.
+    LuaEngine luaEngine;
 }
 
 //
@@ -59,6 +67,7 @@ bool GameState::Initialize()
     services.Set(&renderSystem);
     services.Set(&interfaceSystem);
     services.Set(&spawnSystem);
+    services.Set(&luaEngine);
 
     // Initialize the event system.
     if(!eventSystem.Initialize())
@@ -104,6 +113,32 @@ bool GameState::Initialize()
     if(!spawnSystem.Initialize())
         return false;
 
+    // Initialize the Lua engine.
+    if(!luaEngine.Initialize())
+    {
+        Log() << "Failed to initialize Lua engine!";
+        return false;
+    }
+
+    luaEngine.SetPackagePath(Main::GetWorkingDir() + "Data/");
+    
+    // Setup scripting environment.
+    if(!BindLuaLogger(luaEngine))
+        return false;
+
+    if(!BindLuaMath(luaEngine))
+        return false;
+
+    if(!BindLuaGame(luaEngine, services))
+        return false;
+
+    // Load the main script.
+    if(!luaEngine.Load("Data/Main.lua"))
+        return false;
+
+    // Call the initialization function.
+    luaEngine.Call("Initialize");
+
     // Success!
     return isInitialized = true;
 }
@@ -118,6 +153,9 @@ void GameState::Cleanup()
     // Entities must be destroyed first, then other systems
     // can be destroyed in a regular reversed order.
     entitySystem.DestroyAllEntities();
+
+    // Scripting engine.
+    luaEngine.Cleanup();
 
     // Game systems.
     spawnSystem.Cleanup();
@@ -205,4 +243,9 @@ InterfaceSystem& GameState::GetInterfaceSystem()
 SpawnSystem& GameState::GetSpawnSystem()
 {
     return spawnSystem;
+}
+
+LuaEngine& GameState::GetLuaEngine()
+{
+    return luaEngine;
 }
