@@ -2,10 +2,7 @@ require("Keyboard")
 require("Collision")
 require("Factory")
 
-function Initialize()
-    -- Print log message.
-    Log("Calling Game.Initialize() function....")
-    
+function Initialize()    
     -- Create entity bounds.
     Factory.CreateBounds()
     
