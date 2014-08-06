@@ -1,8 +1,9 @@
-CollisionType = {}
+CollisionTypes = {}
 
-CollisionType.None = 0
-CollisionType.Player = bit.lshift(1, 0)
-CollisionType.Enemy = bit.lshift(1, 1)
-CollisionType.Projectile = bit.lshift(1, 2)
-CollisionType.Pickup = bit.lshift(1, 3)
-CollisionType.Environment = bit.lshift(1, 4)
+CollisionTypes.None = 0
+CollisionTypes.All = -1
+CollisionTypes.Player = bit.lshift(1, 0)
+CollisionTypes.Enemy = bit.lshift(1, 1)
+CollisionTypes.Projectile = bit.lshift(1, 2)
+CollisionTypes.Pickup = bit.lshift(1, 3)
+CollisionTypes.Environment = bit.lshift(1, 4)

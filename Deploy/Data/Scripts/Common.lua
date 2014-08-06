@@ -1,6 +1,6 @@
-Script = Script or {}
+Scripts = Scripts or {}
 
-function Script.DamageOnCollision(damage, interval)
+function Scripts.DamageOnCollision(damage, interval)
     -- Create class instance.
     local instance = {}
     
@@ -21,7 +21,7 @@ function Script.DamageOnCollision(damage, interval)
     return instance
 end
 
-function Script.FlashOnDamage()
+function Scripts.FlashOnDamage()
     -- Create class instance.
     local instance = {}
     

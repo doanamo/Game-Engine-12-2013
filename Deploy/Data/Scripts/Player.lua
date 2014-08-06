@@ -1,6 +1,6 @@
-Script = Script or {}
+Scripts = Scripts or {}
 
-function Script.Player()
+function Scripts.Player()
     -- Create class instance.
     local instance = {}
     
