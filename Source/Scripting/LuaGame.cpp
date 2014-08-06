@@ -95,8 +95,8 @@ bool BindLuaGame(LuaEngine& lua, const Services& services)
         .endClass();
 
     Lua::getGlobalNamespace(lua.GetState())
-        .beginClass<ScriptLuaComponent>("ScriptComponent")
-            .addFunction("AddScript", &ScriptLuaComponent::AddScript)
+        .beginClass<ScriptComponent>("ScriptComponent")
+            .addFunction("AddScript", &ScriptComponent::AddScript)
         .endClass();
 
     Lua::getGlobalNamespace(lua.GetState())
@@ -127,13 +127,13 @@ bool BindLuaGame(LuaEngine& lua, const Services& services)
             .addFunction("CreateInput", &ComponentSystem::Create<InputComponent>)
             .addFunction("CreateHealth", &ComponentSystem::Create<HealthComponent>)
             .addFunction("CreateCollision", &ComponentSystem::Create<CollisionComponent>)
-            .addFunction("CreateScript", &ComponentSystem::Create<ScriptLuaComponent>)
+            .addFunction("CreateScript", &ComponentSystem::Create<ScriptComponent>)
             .addFunction("CreateRender", &ComponentSystem::Create<RenderComponent>)
             .addFunction("LookupTransform", &ComponentSystem::Lookup<TransformComponent>)
             .addFunction("LookupInput", &ComponentSystem::Lookup<InputComponent>)
             .addFunction("LookupHealth", &ComponentSystem::Lookup<HealthComponent>)
             .addFunction("LookupCollision", &ComponentSystem::Lookup<CollisionComponent>)
-            .addFunction("LookupScript", &ComponentSystem::Lookup<ScriptLuaComponent>)
+            .addFunction("LookupScript", &ComponentSystem::Lookup<ScriptComponent>)
             .addFunction("LookupRender", &ComponentSystem::Lookup<RenderComponent>)
         .endClass();
 

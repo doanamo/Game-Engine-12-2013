@@ -1,24 +1,23 @@
 #pragma once
 
 #include "Precompiled.hpp"
-#include "Script.hpp"
 
 #include "MainGlobal.hpp"
 #include "Game/Component/Component.hpp"
 
 //
-// Script Lua Component
+// Script Component
 //
 
-class ScriptLuaComponent : public Component
+class ScriptComponent : public Component
 {
 public:
     // Type declarations.
     typedef std::vector<Lua::LuaRef> ScriptList;
 
 public:
-    ScriptLuaComponent();
-    ~ScriptLuaComponent();
+    ScriptComponent();
+    ~ScriptComponent();
 
     void AddScript(Lua::LuaRef script);
 
@@ -30,7 +29,7 @@ private:
 };
 
 template<typename... Arguments>
-void ScriptLuaComponent::Call(std::string name, Arguments... arguments)
+void ScriptComponent::Call(std::string name, Arguments... arguments)
 {
     // Execute every script in order.
     for(Lua::LuaRef& script : m_scripts)
@@ -64,35 +63,3 @@ void ScriptLuaComponent::Call(std::string name, Arguments... arguments)
         }
     }
 }
-
-//
-// Script Component
-//
-
-class ScriptComponent : public Component
-{
-public:
-    // Friend declarations.
-    friend class ScriptSystem;
-
-    // Type declarations.
-    typedef std::shared_ptr<Script> ScriptPtr;
-    typedef std::vector<ScriptPtr> ScriptList;
-
-public:
-    ScriptComponent();
-    ~ScriptComponent();
-
-    void AddScript(ScriptPtr script);
-
-    // Script calls.
-    void OnCreate(EntityHandle self);
-    void OnUpdate(EntityHandle self, float timeDelta);
-    void OnDamage(EntityHandle self, int value, bool alive);
-    void OnHeal(EntityHandle self, int value);
-    void OnCollision(const CollisionObject& self, const CollisionObject& other);
-    
-private:
-    ScriptList m_scripts;
-    bool       m_touched;
-};

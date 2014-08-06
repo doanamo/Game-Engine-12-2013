@@ -2,7 +2,6 @@
 #include "SpawnSystem.hpp"
 
 #include "MainGlobal.hpp"
-#include "Game/GameFactory.hpp"
 
 namespace
 {

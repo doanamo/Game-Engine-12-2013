@@ -4,7 +4,6 @@
 #include "MainGlobal.hpp"
 #include "Game/GameGlobal.hpp"
 #include "Game/GameState.hpp"
-#include "Game/GameFactory.hpp"
 #include "Game/MenuFrame.hpp"
 #include "Game/LoseFrame.hpp"
 #include "Game/Entity/EntitySystem.hpp"
@@ -15,14 +14,6 @@
 #include "Game/Render/RenderSystem.hpp"
 #include "Game/Interface/InterfaceSystem.hpp"
 #include "Game/Spawn/SpawnSystem.hpp"
-
-namespace
-{
-    void SpawnFunction(const glm::vec2& position)
-    {
-        GameFactory::CreateEnemy(position);
-    }
-}
 
 GameFrame::GameFrame() :
     m_initialized(false),

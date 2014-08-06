@@ -1,7 +1,6 @@
 #include "Precompiled.hpp"
 #include "ScriptSystem.hpp"
 #include "ScriptComponent.hpp"
-#include "Script.hpp"
 
 #include "Common/Services.hpp"
 #include "Game/Event/EventDefinitions.hpp"
@@ -72,7 +71,6 @@ bool ScriptSystem::Initialize(const Services& services)
 
     // Declare required components.
     m_componentSystem->Declare<ScriptComponent>();
-    m_componentSystem->Declare<ScriptLuaComponent>();
 
     // Success!
     return m_initialized = true;
@@ -83,48 +81,20 @@ void ScriptSystem::Update(float timeDelta)
     assert(m_initialized);
 
     // Process script components.
+    auto componentsBegin = m_componentSystem->Begin<ScriptComponent>();
+    auto componentsEnd = m_componentSystem->End<ScriptComponent>();
+
+    for(auto it = componentsBegin; it != componentsEnd; ++it)
     {
-        auto componentsBegin = m_componentSystem->Begin<ScriptLuaComponent>();
-        auto componentsEnd = m_componentSystem->End<ScriptLuaComponent>();
+        // Check if entity is active.
+        if(!m_entitySystem->IsHandleValid(it->first))
+            continue;
 
-        for(auto it = componentsBegin; it != componentsEnd; ++it)
-        {
-            // Check if entity is active.
-            if(!m_entitySystem->IsHandleValid(it->first))
-                continue;
+        // Get the script component.
+        ScriptComponent& script = it->second;
 
-            // Get the script component.
-            ScriptLuaComponent& script = it->second;
-
-            // Call OnUpdate() function.
-            script.Call("OnUpdate", it->first, timeDelta);
-        }
-    }
-
-    // Process script components.
-    {
-        auto componentsBegin = m_componentSystem->Begin<ScriptComponent>();
-        auto componentsEnd = m_componentSystem->End<ScriptComponent>();
-
-        for(auto it = componentsBegin; it != componentsEnd; ++it)
-        {
-            // Check if entity is active.
-            if(!m_entitySystem->IsHandleValid(it->first))
-                continue;
-
-            // Get the script component.
-            ScriptComponent& script = it->second;
-
-            // Call OnCreate() method (only for new components).
-            if(!script.m_touched)
-            {
-                script.OnCreate(it->first);
-                script.m_touched = true;
-            }
-
-            // Call OnUpdate() method.
-            script.OnUpdate(it->first, timeDelta);
-        }
+        // Call OnUpdate() function.
+        script.Call("OnUpdate", it->first, timeDelta);
     }
 }
 
@@ -132,7 +102,7 @@ void ScriptSystem::OnEntityCreatedEvent(const GameEvent::EntityCreated& event)
 {
     assert(m_initialized);
 
-    ScriptLuaComponent* script = m_componentSystem->Lookup<ScriptLuaComponent>(event.entity);
+    ScriptComponent* script = m_componentSystem->Lookup<ScriptComponent>(event.entity);
 
     if(script != nullptr)
     {
@@ -144,7 +114,7 @@ void ScriptSystem::OnEntityDestroyedEvent(const GameEvent::EntityDestroyed& even
 {
     assert(m_initialized);
 
-    ScriptLuaComponent* script = m_componentSystem->Lookup<ScriptLuaComponent>(event.entity);
+    ScriptComponent* script = m_componentSystem->Lookup<ScriptComponent>(event.entity);
 
     if(script != nullptr)
     {
@@ -156,23 +126,11 @@ void ScriptSystem::OnEntityDamagedEvent(const GameEvent::EntityDamaged& event)
 {
     assert(m_initialized);
 
+    ScriptComponent* script = m_componentSystem->Lookup<ScriptComponent>(event.entity);
+
+    if(script != nullptr)
     {
-        ScriptLuaComponent* script = m_componentSystem->Lookup<ScriptLuaComponent>(event.entity);
-
-        if(script != nullptr)
-        {
-            script->Call("OnDamaged", event.entity, event.value, event.component->IsAlive());
-        }
-    }
-
-    // Execute the event script.
-    {
-        ScriptComponent* script = m_componentSystem->Lookup<ScriptComponent>(event.entity);
-
-        if(script != nullptr)
-        {
-            script->OnDamage(event.entity, event.value, event.component->IsAlive());
-        }
+        script->Call("OnDamaged", event.entity, event.value, event.component->IsAlive());
     }
 }
 
@@ -180,23 +138,11 @@ void ScriptSystem::OnEntityHealedEvent(const GameEvent::EntityHealed& event)
 {
     assert(m_initialized);
 
+    ScriptComponent* script = m_componentSystem->Lookup<ScriptComponent>(event.entity);
+
+    if(script != nullptr)
     {
-        ScriptLuaComponent* script = m_componentSystem->Lookup<ScriptLuaComponent>(event.entity);
-
-        if(script != nullptr)
-        {
-            script->Call("OnHeal", event.entity, event.value);
-        }
-    }
-
-    // Execute the event script.
-    {
-        ScriptComponent* script = m_componentSystem->Lookup<ScriptComponent>(event.entity);
-
-        if(script != nullptr)
-        {
-            script->OnHeal(event.entity, event.value);
-        }
+        script->Call("OnHeal", event.entity, event.value);
     }
 }
 
@@ -204,22 +150,10 @@ void ScriptSystem::OnEntityCollisionEvent(const GameEvent::EntityCollision& even
 {
     assert(m_initialized);
 
+    ScriptComponent* script = m_componentSystem->Lookup<ScriptComponent>(event.self.entity);
+
+    if(script != nullptr)
     {
-        ScriptLuaComponent* script = m_componentSystem->Lookup<ScriptLuaComponent>(event.self.entity);
-
-        if(script != nullptr)
-        {
-            script->Call("OnCollision", event.self, event.other);
-        }
-    }
-
-    // Execute the event script.
-    {
-        ScriptComponent* script = m_componentSystem->Lookup<ScriptComponent>(event.self.entity);
-
-        if(script != nullptr)
-        {
-            script->OnCollision(event.self, event.other);
-        }
+        script->Call("OnCollision", event.self, event.other);
     }
 }
