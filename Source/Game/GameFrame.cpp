@@ -40,15 +40,8 @@ bool GameFrame::Initialize()
 {
     Cleanup();
 
-    // Setup emergency cleanup.
-    auto EmergenyCleanup = MakeScopeGuard([&]()
-    {
-        // Cleanup if initialization failed.
-        if(!m_initialized)
-        {
-            Cleanup();
-        }
-    });
+    // Setup scope guard.
+    SCOPE_GUARD_IF(!m_initialized, Cleanup());
 
     // Initialize the game state.
     if(!GameState::Initialize())
@@ -59,14 +52,15 @@ bool GameFrame::Initialize()
     GameState::GetSpawnSystem().AddSpawn(&SpawnFunction, 0.5f, 1.0f);
 
     // Success!
-    m_initialized = true;
-
-    return true;
+    return m_initialized = true;
 }
 
 void GameFrame::Cleanup()
 {
-    GameState::Cleanup();
+    if(m_initialized)
+    {
+        GameState::Cleanup();
+    }
 
     m_initialized = false;
 

@@ -55,6 +55,9 @@ bool GameState::Initialize()
 {
     assert(!isInitialized);
 
+    // Setup scope guard.
+    SCOPE_GUARD_IF(!isInitialized, Cleanup());
+
     // Register services.
     services.Set(&eventSystem);
     services.Set(&entitySystem);
@@ -145,9 +148,6 @@ bool GameState::Initialize()
 
 void GameState::Cleanup()
 {
-    if(!isInitialized)
-        return;
-
     Log() << "Cleaning up the game state...";
 
     // Entities must be destroyed first, then other systems
