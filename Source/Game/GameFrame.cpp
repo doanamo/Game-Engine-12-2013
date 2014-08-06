@@ -71,7 +71,7 @@ bool GameFrame::Initialize()
         return false;
 
     // Call the initialization function.
-    Main::GetLuaState().Call("Game.Initialize");
+    Main::GetLuaState().Call("Initialize");
 
     // Create bounds.
     GameFactory::CreateBounds();
