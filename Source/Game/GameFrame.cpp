@@ -58,7 +58,7 @@ bool GameFrame::Initialize()
         return false;
 
     // Setup scripting environment.
-    Main::GetLuaState().SetPackagePath(Main::GetWorkingDir() + "Data/Scripts/");
+    Main::GetLuaState().SetPackagePath(Main::GetWorkingDir() + "Data/");
 
     if(!BindLuaMath(Main::GetLuaState()))
         return false;
@@ -67,7 +67,7 @@ bool GameFrame::Initialize()
         return false;
 
     // Load the main script.
-    if(!Main::GetLuaState().Load("Data/Scripts/Main.lua"))
+    if(!Main::GetLuaState().Load("Data/Main.lua"))
         return false;
 
     // Call the initialization function.
