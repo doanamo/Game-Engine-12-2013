@@ -169,8 +169,6 @@ Set(SourceFiles
     "Game/Script/ScriptSystem.cpp"
     "Game/Script/CommonScripts.hpp"
     "Game/Script/CommonScripts.cpp"
-    "Game/Script/PlayerScript.hpp"
-    "Game/Script/PlayerScript.cpp"
     "Game/Script/EnemyScript.hpp"
     "Game/Script/EnemyScript.cpp"
     "Game/Script/SpawnerScript.hpp"

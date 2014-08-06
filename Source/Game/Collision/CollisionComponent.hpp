@@ -2,6 +2,7 @@
 
 #include "Precompiled.hpp"
 
+#include "Scripting/LuaMath.hpp"
 #include "Game/Component/Component.hpp"
 
 //
@@ -44,6 +45,11 @@ public:
     }
 
     const glm::vec4& GetBoundingBox() const
+    {
+        return m_boundingBox;
+    }
+
+    LuaVector<glm::vec4> GetBoundingBoxLua() const
     {
         return m_boundingBox;
     }

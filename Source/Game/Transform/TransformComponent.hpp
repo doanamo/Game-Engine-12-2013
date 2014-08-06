@@ -2,6 +2,7 @@
 
 #include "Precompiled.hpp"
 
+#include "Scripting/LuaMath.hpp"
 #include "Game/Component/Component.hpp"
 
 //
@@ -44,10 +45,20 @@ public:
         return m_position;
     }
 
+    LuaVector<glm::vec2> GetPositionLua() const
+    {
+        return m_position;
+    }
+
     // Gets the scale.
     const glm::vec2& GetScale() const
     {
         return m_scale;
+    }
+
+    LuaVector<glm::vec2> GetScaleLua() const
+    {
+        return m_position;
     }
 
     // Gets the rotation.

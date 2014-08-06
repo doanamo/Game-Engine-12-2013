@@ -58,6 +58,8 @@ bool GameFrame::Initialize()
         return false;
 
     // Setup scripting environment.
+    Lua::Security::setHideMetatables(false);
+
     if(!BindLuaMath(Main::GetLuaState()))
         return false;
 
@@ -69,13 +71,10 @@ bool GameFrame::Initialize()
         return false;
 
     // Call the initialization function.
-    Main::GetLuaState().Call("GameState.Initialize");
+    Main::GetLuaState().Call("Game.Initialize");
 
     // Create bounds.
     GameFactory::CreateBounds();
-
-    // Create the player.
-    GameFactory::CreatePlayer();
 
     // Setup the spawn system.
     GameState::GetSpawnSystem().SetSpawnArea(glm::vec4(1024.0f + 100.0f, 50.0f, 1024.0f + 100.0f, 526.0f));

@@ -2,6 +2,7 @@
 
 #include "Precompiled.hpp"
 
+#include "Scripting/LuaMath.hpp"
 #include "Game/Component/Component.hpp"
 
 //
@@ -34,7 +35,17 @@ public:
         return m_diffuseColor;
     }
 
+    LuaVector<glm::vec3> GetDiffuseColorLua() const
+    {
+        return m_diffuseColor;
+    }
+
     const glm::vec3& GetEmissionColor() const
+    {
+        return m_emissionColor;
+    }
+
+    LuaVector<glm::vec3> GetEmissionColorLua() const
     {
         return m_emissionColor;
     }

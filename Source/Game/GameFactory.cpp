@@ -15,7 +15,6 @@
 #include "Game/Health/HealthComponent.hpp"
 #include "Game/Script/ScriptComponent.hpp"
 #include "Game/Script/CommonScripts.hpp"
-#include "Game/Script/PlayerScript.hpp"
 #include "Game/Script/EnemyScript.hpp"
 #include "Game/Script/ProjectileScript.hpp"
 #include "Game/Script/HealthPickupScript.hpp"
@@ -62,40 +61,6 @@ void GameFactory::CreateBounds()
         ScriptComponent* script = GameState::GetComponentSystem().Create<ScriptComponent>(entity);
         script->AddScript(std::make_shared<DestroyOnCollision>());
     }
-}
-
-EntityHandle GameFactory::CreatePlayer()
-{
-    EntityHandle entity = GameState::GetEntitySystem().CreateEntity();
-
-    GameState::GetIdentitySystem().SetEntityName(entity, "Player");
-
-    TransformComponent* transform = GameState::GetComponentSystem().Create<TransformComponent>(entity);
-    transform->SetPosition(glm::vec2(50.0f, 275.0f));
-    transform->SetScale(glm::vec2(50.0f, 50.0f));
-    transform->SetRotation(0.0f);
-
-    InputComponent* input = GameState::GetComponentSystem().Create<InputComponent>(entity);
-    input->SetStateReference(&GameState::GetInputSystem());
-
-    HealthComponent* health = GameState::GetComponentSystem().Create<HealthComponent>(entity);
-    health->SetMaximumHealth(100);
-    health->SetCurrentHealth(100);
-
-    CollisionComponent* collision = GameState::GetComponentSystem().Create<CollisionComponent>(entity);
-    collision->SetBoundingBox(glm::vec4(-25.0f, -25.0f, 25.0f, 25.0f));
-    collision->SetType(CollisionTypes::Player);
-    collision->SetMask(CollisionTypes::Enemy);
-
-    ScriptComponent* script = GameState::GetComponentSystem().Create<ScriptComponent>(entity);
-    script->AddScript(std::make_shared<PlayerScript>());
-    script->AddScript(std::make_shared<DamageOnCollision>(10, 0.2f));
-    script->AddScript(std::make_shared<FlashOnDamageScript>());
-
-    RenderComponent* render = GameState::GetComponentSystem().Create<RenderComponent>(entity);
-    render->SetDiffuseColor(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-
-    return entity;
 }
 
 namespace
