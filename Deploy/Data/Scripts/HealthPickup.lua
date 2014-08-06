@@ -6,10 +6,10 @@ function Scripts.HealthPickup(heal)
     
     function script.OnCollision(self, other)
         -- Heal other entity.
-        HealthSystem.Heal(other.entity, m_heal)
+        HealthSystem:Heal(other.entity, m_heal)
         
         -- Destroy health pickup.
-        EntitySystem.DestroyEntity(self.entity)
+        EntitySystem:DestroyEntity(self.entity)
     end
     
     return script

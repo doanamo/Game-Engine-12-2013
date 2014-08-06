@@ -47,10 +47,6 @@ bool GameFrame::Initialize()
     if(!GameState::Initialize())
         return false;
 
-    // Setup the spawn system.
-    GameState::GetSpawnSystem().SetSpawnArea(glm::vec4(1024.0f + 100.0f, 50.0f, 1024.0f + 100.0f, 526.0f));
-    GameState::GetSpawnSystem().AddSpawn(&SpawnFunction, 0.5f, 1.0f);
-
     // Success!
     return m_initialized = true;
 }

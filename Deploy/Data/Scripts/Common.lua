@@ -2,7 +2,7 @@ Scripts = Scripts or {}
 
 function Scripts.ConstantVelocity(velocity)
     local script = {}
-    m_velocity = velocity
+    local m_velocity = velocity
     
     function script.OnUpdate(self, timeDelta)
         -- Get transform component.

@@ -17,6 +17,7 @@
 #include "Game/Script/ScriptSystem.hpp"
 #include "Game/Render/RenderComponent.hpp"
 #include "Game/Render/RenderSystem.hpp"
+#include "Game/Spawn/SpawnSystem.hpp"
 
 bool BindLuaGame(LuaEngine& lua, const Services& services)
 {
@@ -47,6 +48,9 @@ bool BindLuaGame(LuaEngine& lua, const Services& services)
 
     RenderSystem* renderSystem = services.Get<RenderSystem>();
     if(renderSystem == nullptr) return false;
+
+    SpawnSystem* spawnSystem = services.Get<SpawnSystem>();
+    if(spawnSystem == nullptr) return false;
 
     // Bind component types.
     Lua::getGlobalNamespace(lua.GetState())
@@ -172,6 +176,11 @@ bool BindLuaGame(LuaEngine& lua, const Services& services)
         .beginClass<RenderSystem>("RenderSystem")
         .endClass();
 
+    Lua::getGlobalNamespace(lua.GetState())
+        .beginClass<SpawnSystem>("SpawnSystem")
+            .addFunction("AddSpawn", &SpawnSystem::AddSpawn)
+        .endClass();
+
     // Define constants.
     Lua::LuaRef collisionFlags(lua.GetState());
     collisionFlags = Lua::newTable(lua.GetState());
@@ -207,6 +216,9 @@ bool BindLuaGame(LuaEngine& lua, const Services& services)
 
     Lua::push(lua.GetState(), renderSystem);
     lua_setglobal(lua.GetState(), "RenderSystem");
+
+    Lua::push(lua.GetState(), spawnSystem);
+    lua_setglobal(lua.GetState(), "SpawnSystem");
 
     return true;
 }

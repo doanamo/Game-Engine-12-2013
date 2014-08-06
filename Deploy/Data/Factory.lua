@@ -1,5 +1,6 @@
 require("Scripts.Common")
 require("Scripts.Player")
+require("Scripts.Enemy")
 require("Scripts.Projectile")
 require("Scripts.HealthPickup")
 
@@ -136,8 +137,8 @@ function Factory.CreateHealthPickup(position, heal)
     collision:SetMask(CollisionTypes.Player)
     
     local script = ComponentSystem:CreateScript(entity)
-    script:AddScript(Script.HealthPickup(heal))
-    script:AddScript(Script.ConstantVelocity(Vec2(-100.0, 0)))
+    script:AddScript(Scripts.HealthPickup(heal))
+    script:AddScript(Scripts.ConstantVelocity(Vec2(-100.0, 0)))
     
     local render = ComponentSystem:CreateRender(entity)
     render:SetDiffuseColor(Vec4(0.6, 1.0, 0.6, 1.0))

@@ -9,9 +9,6 @@
 class SpawnSystem
 {
 public:
-    typedef void SpawnFunction(const glm::vec2& position);
-
-public:
     SpawnSystem();
     ~SpawnSystem();
 
@@ -20,22 +17,26 @@ public:
 
     void Update(float timeDelta);
 
-    void SetSpawnArea(const glm::vec4& area);
-
-    void AddSpawn(SpawnFunction* function, float minDelay, float maxDelay);
-    void ResetSpawns();
+    void AddSpawn(Lua::LuaRef function, const glm::vec4& area, float minDelay, float maxDelay);
+    void RemoveAllSpawns();
 
 private:
     struct SpawnDefinition
     {
-        SpawnFunction* function;
-        float minDelay, maxDelay;
+        SpawnDefinition(Lua::LuaRef function, const glm::vec4& area, float minDelay, float maxDelay) :
+            function(function), area(area), minDelay(minDelay), maxDelay(maxDelay)
+        {
+        }
+
+        Lua::LuaRef function;
+        glm::vec4 area;
+        float minDelay;
+        float maxDelay;
         float currentDelay;
     };
 
     typedef std::vector<SpawnDefinition> SpawnList;
 
 private:
-    glm::vec4 m_spawnArea;
     SpawnList m_spawnList;
 };

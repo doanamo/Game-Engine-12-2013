@@ -150,6 +150,9 @@ void GameState::Cleanup()
 {
     Log() << "Cleaning up the game state...";
 
+    // Remove all spawn defintions that could have references to Lua.
+    spawnSystem.RemoveAllSpawns();
+
     // Entities must be destroyed first, then other systems
     // can be destroyed in a regular reversed order.
     entitySystem.DestroyAllEntities();
