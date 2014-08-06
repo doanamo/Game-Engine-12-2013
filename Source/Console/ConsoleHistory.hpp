@@ -17,7 +17,7 @@ public:
     void Cleanup();
 
     // Console output.
-    void WriteOutput(const char* text);
+    void WriteOutput(std::string text);
     void ClearOutput();
 
     const char* GetOutput(int index) const;
