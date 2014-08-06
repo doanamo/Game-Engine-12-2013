@@ -6,7 +6,7 @@
 class LuaEngine;
 
 //
-// Lua Logger
+// Lua Math
 //
 
-bool BindLuaLogger(LuaEngine& lua);
+bool BindLuaMath(LuaEngine& lua);

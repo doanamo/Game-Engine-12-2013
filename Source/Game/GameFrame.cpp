@@ -4,7 +4,6 @@
 #include "MainGlobal.hpp"
 #include "Game/GameGlobal.hpp"
 #include "Game/GameState.hpp"
-#include "Game/GameFactory.hpp"
 #include "Game/MenuFrame.hpp"
 #include "Game/LoseFrame.hpp"
 #include "Game/Entity/EntitySystem.hpp"
@@ -15,14 +14,6 @@
 #include "Game/Render/RenderSystem.hpp"
 #include "Game/Interface/InterfaceSystem.hpp"
 #include "Game/Spawn/SpawnSystem.hpp"
-
-namespace
-{
-    void SpawnFunction(const glm::vec2& position)
-    {
-        GameFactory::CreateEnemy(position);
-    }
-}
 
 GameFrame::GameFrame() :
     m_initialized(false),
@@ -40,39 +31,23 @@ bool GameFrame::Initialize()
 {
     Cleanup();
 
-    // Setup emergency cleanup.
-    auto EmergenyCleanup = MakeScopeGuard([&]()
-    {
-        // Cleanup if initialization failed.
-        if(!m_initialized)
-        {
-            Cleanup();
-        }
-    });
+    // Setup scope guard.
+    SCOPE_GUARD_IF(!m_initialized, Cleanup());
 
     // Initialize the game state.
     if(!GameState::Initialize())
         return false;
 
-    // Create bounds.
-    GameFactory::CreateBounds();
-
-    // Create the player.
-    GameFactory::CreatePlayer();
-
-    // Setup the spawn system.
-    GameState::GetSpawnSystem().SetSpawnArea(glm::vec4(1024.0f + 100.0f, 50.0f, 1024.0f + 100.0f, 526.0f));
-    GameState::GetSpawnSystem().AddSpawn(&SpawnFunction, 0.5f, 1.0f);
-
     // Success!
-    m_initialized = true;
-
-    return true;
+    return m_initialized = true;
 }
 
 void GameFrame::Cleanup()
 {
-    GameState::Cleanup();
+    if(m_initialized)
+    {
+        GameState::Cleanup();
+    }
 
     m_initialized = false;
 

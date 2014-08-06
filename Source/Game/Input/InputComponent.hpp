@@ -1,12 +1,11 @@
 #pragma once
 
 #include "Precompiled.hpp"
-#include "InputState.hpp"
 
 #include "Game/Component/Component.hpp"
 
 // Forward declarations.
-class Entity;
+class InputState;
 
 //
 // Input Component
@@ -23,10 +22,13 @@ public:
         m_state = state;
     }
 
-    const InputState* GetState() const
+    const InputState* GetStateReference() const
     {
         return m_state;
     }
+
+    bool IsKeyDown(int key) const;
+    bool IsKeyUp(int key) const;
 
 private:
     InputState* m_state;

@@ -26,6 +26,8 @@ public:
     void Update(float timeDelta);
 
 public:
+    void OnEntityCreatedEvent(const GameEvent::EntityCreated& event);
+    void OnEntityDestroyedEvent(const GameEvent::EntityDestroyed& event);
     void OnEntityDamagedEvent(const GameEvent::EntityDamaged& event);
     void OnEntityHealedEvent(const GameEvent::EntityHealed& event);
     void OnEntityCollisionEvent(const GameEvent::EntityCollision& event);
@@ -40,6 +42,8 @@ private:
     ComponentSystem* m_componentSystem;
 
     // Event receivers.
+    Receiver<GameEvent::EntityCreated> m_receiverEntityCreated;
+    Receiver<GameEvent::EntityDestroyed> m_receiverEntityDestroyed;
     Receiver<GameEvent::EntityDamaged> m_receiverEntityDamaged;
     Receiver<GameEvent::EntityHealed> m_receiverEntityHealed;
     Receiver<GameEvent::EntityCollision> m_receiverEntityCollsion;

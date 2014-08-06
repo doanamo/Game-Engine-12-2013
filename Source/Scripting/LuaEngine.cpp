@@ -1,5 +1,5 @@
 #include "Precompiled.hpp"
-#include "LuaState.hpp"
+#include "LuaEngine.hpp"
 
 #include "MainGlobal.hpp"
 
@@ -10,17 +10,26 @@ namespace
     #define LogLoadError(filename) "Failed to load \"" << filename << "\" file! "
 }
 
-LuaState::LuaState() :
+LuaEngine::LuaEngine() :
     m_state(nullptr)
 {
 }
 
-LuaState::~LuaState()
+LuaEngine::~LuaEngine()
 {
     Cleanup();
 }
 
-bool LuaState::Initialize()
+void LuaEngine::Cleanup()
+{
+    if(m_state)
+    {
+        lua_close(m_state);
+        m_state = nullptr;
+    }
+}
+
+bool LuaEngine::Initialize()
 {
     Cleanup();
 
@@ -39,11 +48,28 @@ bool LuaState::Initialize()
         return false;
     }
 
+    // Load standard Lua libraries.
+    luaL_openlibs(m_state);
+
+    // Load other utility libraries.
+    if(luaL_dostring(m_state, "bit = require(\"bit\")") != 0)
+    {
+        Log() << LogInitializeError() << "Coundn't load one of the libraries.";
+        return false;
+    }
+
+    // Set random seed.
+    if(luaL_dostring(m_state, "math.randomseed(os.time())") != 0)
+    {
+        Log() << LogInitializeError() << "Coundn't set random seed.";
+        return false;
+    }
+
     // Success!
     return initialized = true;
 }
 
-bool LuaState::Load(std::string filename)
+bool LuaEngine::Load(std::string filename)
 {
     if(m_state == nullptr)
         return false;
@@ -51,6 +77,24 @@ bool LuaState::Load(std::string filename)
     // Load Lua file.
     if(luaL_loadfile(m_state, (Main::GetWorkingDir() + filename).c_str()) != 0)
     {
+        std::string error = "Unknown error";
+
+        if(lua_isstring(m_state, -1))
+        {
+            error = lua_tostring(m_state, -1);
+
+            // Remove base path to working directory.
+            std::size_t position = error.find(Main::GetWorkingDir());
+
+            if(position != std::string::npos)
+            {
+                error.erase(position, Main::GetWorkingDir().size());
+            }
+        }
+
+        Log() << "Lua error - " << error << ".";
+        lua_pop(m_state, lua_gettop(m_state));
+
         Log() << LogLoadError(filename) << "Couldn't parse the file.";
         return false;
     }
@@ -81,16 +125,17 @@ bool LuaState::Load(std::string filename)
     return true;
 }
 
-void LuaState::Cleanup()
+void LuaEngine::SetPackagePath(std::string path)
 {
-    if(m_state)
-    {
-        lua_close(m_state);
-        m_state = nullptr;
-    }
+    if(!m_state)
+        return;
+
+    // Set path to package location (script working directiory).
+    Lua::LuaRef package = GetVariable("package");
+    package["path"] = path + "?.lua";
 }
 
-std::string LuaState::DetachStem(std::string& compoundVariable)
+std::string LuaEngine::DetachStem(std::string& compoundVariable)
 {
     // Find the separator.
     std::size_t separator = compoundVariable.find_first_of('.');
@@ -111,7 +156,7 @@ std::string LuaState::DetachStem(std::string& compoundVariable)
     return detached;
 }
 
-Lua::LuaRef LuaState::GetVariable(std::string compoundVariable)
+Lua::LuaRef LuaEngine::GetVariable(std::string compoundVariable)
 {
     assert(m_state);
 
@@ -144,7 +189,7 @@ Lua::LuaRef LuaState::GetVariable(std::string compoundVariable)
     return variable;
 }
 
-std::string LuaState::GetString(std::string compoundVariable, std::string defaultValue)
+std::string LuaEngine::GetString(std::string compoundVariable, std::string defaultValue)
 {
     std::string value = defaultValue;
 
@@ -161,7 +206,7 @@ std::string LuaState::GetString(std::string compoundVariable, std::string defaul
     return value;
 }
 
-bool LuaState::GetBool(std::string compoundVariable, bool defaultValue)
+bool LuaEngine::GetBool(std::string compoundVariable, bool defaultValue)
 {
     bool value = defaultValue;
 
@@ -178,7 +223,7 @@ bool LuaState::GetBool(std::string compoundVariable, bool defaultValue)
     return value;
 }
 
-int LuaState::GetInteger(std::string compoundVariable, int defaultValue)
+int LuaEngine::GetInteger(std::string compoundVariable, int defaultValue)
 {
     int value = defaultValue;
 
@@ -195,7 +240,7 @@ int LuaState::GetInteger(std::string compoundVariable, int defaultValue)
     return value;
 }
 
-float LuaState::GetFloat(std::string compoundVariable, float defaultValue)
+float LuaEngine::GetFloat(std::string compoundVariable, float defaultValue)
 {
     float value = defaultValue;
 
@@ -212,12 +257,12 @@ float LuaState::GetFloat(std::string compoundVariable, float defaultValue)
     return value;
 }
 
-lua_State* LuaState::GetState()
+lua_State* LuaEngine::GetState()
 {
     return m_state;
 }
 
-bool LuaState::IsValid() const
+bool LuaEngine::IsValid() const
 {
     return m_state != nullptr;
 }

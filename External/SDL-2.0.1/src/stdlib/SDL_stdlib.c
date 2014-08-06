@@ -295,11 +295,16 @@ localexit:
     /* *INDENT-ON* */
 }
 
+// User: Conflicts with LuaJIT.
+//  "error LNK2005: __ftol2_sse already defined in SDL2.lib(SDL_stdlib.obj)"
+//  Occurs only when calling luaL_openlibs().
+/*
 void
 _ftol2_sse()
 {
     _ftol();
 }
+*/
 
 /* 64-bit math operators for 32-bit systems */
 void

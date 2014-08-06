@@ -16,6 +16,7 @@ class RenderSystem;
 class InterfaceSystem;
 class SpawnSystem;
 class ProgressSystem;
+class LuaEngine;
 
 //
 // Game State
@@ -30,7 +31,7 @@ namespace GameState
     // State accessors.
     bool IsInitialized();
 
-    Services& GetServices();
+    const Services& GetServices();
 
     EventSystem&     GetEventSystem();
     EntitySystem&    GetEntitySystem();
@@ -43,4 +44,6 @@ namespace GameState
     RenderSystem&    GetRenderSystem();
     InterfaceSystem& GetInterfaceSystem();
     SpawnSystem&     GetSpawnSystem();
+
+    LuaEngine& GetLuaEngine();
 };

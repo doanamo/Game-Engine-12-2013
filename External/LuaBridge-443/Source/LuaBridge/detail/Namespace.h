@@ -628,6 +628,18 @@ private:
       return *this;
     }
 
+    // User: Adds static method that can be called from the class 
+    //  using ":" which results in first argument being itself.
+    template <class FP>
+    Class <T>& addSelfFunction (char const* name, FP const fp)
+    {
+      new (lua_newuserdata (L, sizeof (fp))) FP (fp);
+      lua_pushcclosure (L, &CFunc::Call <FP>::f, 1);
+      rawsetfield (L, -3, name); // class table
+
+      return *this;
+    }
+
     //--------------------------------------------------------------------------
     /**
       Add or replace a lua_CFunction.

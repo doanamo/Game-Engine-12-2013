@@ -1,7 +1,6 @@
 #include "Precompiled.hpp"
 #include "LuaLogger.hpp"
-
-#include "LuaState.hpp"
+#include "LuaEngine.hpp"
 
 namespace
 {
@@ -16,11 +15,14 @@ namespace
     }
 }
 
-void BindLuaLogger(LuaState& state)
+bool BindLuaLogger(LuaEngine& state)
 {
-    assert(state.IsValid());
+    if(!state.IsValid())
+        return false;
 
     // Bind log function.
     Lua::getGlobalNamespace(state.GetState())
         .addFunction("Log", LuaLog);
+
+    return true;
 }

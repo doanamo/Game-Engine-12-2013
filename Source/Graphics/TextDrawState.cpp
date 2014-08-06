@@ -108,6 +108,21 @@ bool TextDrawState::Initialize(const TextDrawInfo& info, const char* text)
         m_textBuffer.push_back(InvalidCharacter);
     }
 
+    // Replace tabulator characters with 8 spaces.
+    while(true)
+    {
+        std::size_t invalid = m_textBuffer.find('\t');
+
+        if(invalid != std::string::npos)
+        {
+            m_textBuffer.replace(invalid, 1, "        ");
+        }
+        else
+        {
+            break;
+        }
+    }
+
     // Calculate text length.
     m_textLength = utf8::distance(m_textBuffer.begin(), m_textBuffer.end());
 

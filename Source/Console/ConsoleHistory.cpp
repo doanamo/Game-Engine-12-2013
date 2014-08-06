@@ -56,25 +56,39 @@ void ConsoleHistory::Cleanup()
     m_initialized = false;
 }
 
-void ConsoleHistory::WriteOutput(const char* text)
+void ConsoleHistory::WriteOutput(std::string text)
 {
     if(!m_initialized)
         return;
 
-    if(text == nullptr)
-        return;
+    // Break new lines.
+    auto position = text.begin();
 
-    // Check if there is space for another string.
-    assert((int)m_outputHistory.size() <= m_outputCapacity);
-
-    if((int)m_outputHistory.size() == m_outputCapacity)
+    while(position != text.end())
     {
-        // Remove oldest string.
-        m_outputHistory.pop_back();
-    }
+        // Find first occurance of the new line character.
+        auto it = std::find(position, text.end(), '\n');
 
-    // Add string to the history.
-    m_outputHistory.emplace_front(text);
+        // Check if there is space for another string.
+        assert((int)m_outputHistory.size() <= m_outputCapacity);
+
+        if((int)m_outputHistory.size() == m_outputCapacity)
+        {
+            // Remove oldest string.
+            m_outputHistory.pop_back();
+        }
+
+        // Add string to the history.
+        m_outputHistory.emplace_front(position, it);
+
+        // Point position after the new line character.
+        position = it;
+
+        if(position != text.end())
+        {
+            position++;
+        }
+    }
 }
 
 void ConsoleHistory::ClearOutput()

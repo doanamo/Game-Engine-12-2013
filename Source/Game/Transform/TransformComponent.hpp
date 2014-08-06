@@ -2,6 +2,7 @@
 
 #include "Precompiled.hpp"
 
+#include "Scripting/LuaMath.hpp"
 #include "Game/Component/Component.hpp"
 
 //
@@ -44,8 +45,18 @@ public:
         return m_position;
     }
 
+    glm::vec2 GetPositionCopy() const
+    {
+        return m_position;
+    }
+
     // Gets the scale.
     const glm::vec2& GetScale() const
+    {
+        return m_scale;
+    }
+
+    glm::vec2 GetScaleCopy() const
     {
         return m_scale;
     }

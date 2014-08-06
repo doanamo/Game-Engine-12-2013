@@ -17,8 +17,6 @@ class FrameCounter;
 class Texture;
 class Font;
 
-class LuaState;
-
 class BaseFrame;
 
 //
@@ -71,7 +69,6 @@ namespace Main
     Texture&        GetBlankTexture();
     Font&           GetDefaultFont();
 
-    LuaState&       GetLuaState();
     SDL_Window*     GetSystemWindow();
     SDL_GLContext   GetGraphicsContext();
     FT_Library      GetFontLibrary();

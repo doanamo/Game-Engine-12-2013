@@ -124,6 +124,9 @@ EntityHandle EntitySystem::CreateEntity()
 
     handleEntry.nextFree = InvalidNextFree;
 
+    // Mark handle as valid.
+    handleEntry.flags |= HandleFlags::Valid;
+
     // Add a create entity commands.
     EntityCommand command;
     command.type = EntityCommands::Create;
@@ -175,7 +178,7 @@ void EntitySystem::DestroyAllEntities()
     {
         HandleEntry& handleEntry = *it;
 
-        if(handleEntry.flags & HandleFlags::Active)
+        if(handleEntry.flags & HandleFlags::Valid)
         {
             // Send event about soon to be destroyed entity.
             m_eventSystem->Dispatch(GameEvent::EntityDestroyed(handleEntry.handle));
@@ -220,8 +223,8 @@ bool EntitySystem::IsHandleValid(const EntityHandle& entity) const
     int handleIndex = entity.identifier - 1;
     const HandleEntry& handleEntry = m_handles[handleIndex];
 
-    // Check if handle is active.
-    if(!(handleEntry.flags & HandleFlags::Active))
+    // Check if handle is valid.
+    if(!(handleEntry.flags & HandleFlags::Valid))
         return false;
 
     // Check if handle is scheduled to be destroyed.
@@ -276,7 +279,8 @@ void EntitySystem::ProcessCommands()
                 // Check if handles match.
                 if(command->handle != handleEntry.handle)
                 {
-                    // Trying to destroy an enity twice.
+                    // Trying to destroy an entity twice.
+                    assert(false);
                     continue;
                 }
 
@@ -286,7 +290,8 @@ void EntitySystem::ProcessCommands()
                 // Decrement the counter of active entities.
                 m_entityCount -= 1;
 
-                // Mark handle flags as free.
+                // Mark handle flags as free
+                assert(handleEntry.flags & HandleFlags::Valid);
                 assert(handleEntry.flags & HandleFlags::Active);
                 assert(handleEntry.flags & HandleFlags::Destroy);
 
