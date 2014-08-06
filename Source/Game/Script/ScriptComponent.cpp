@@ -13,11 +13,17 @@ void ScriptLuaComponent::AddScript(Lua::LuaRef script)
 {
     // Check if script is valid.
     if(script.isNil())
+    {
+        Log() << "Warning: Passed a nil script.";
         return;
+    }
 
     // Must be a table.
     if(!script.isTable())
+    {
+        Log() << "Warning: Passed an invalid script.";
         return;
+    }
 
     // Add script to the list.
     m_scripts.push_back(script);
