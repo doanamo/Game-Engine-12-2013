@@ -172,6 +172,17 @@ bool BindLuaGame(LuaEngine& lua, const Services& services)
         .beginClass<RenderSystem>("RenderSystem")
         .endClass();
 
+    // Define constants.
+    Lua::LuaRef collisionFlags(lua.GetState());
+    collisionFlags = Lua::newTable(lua.GetState());
+    collisionFlags["None"] = (int)CollisionFlags::None;
+    collisionFlags["Enabled"] = (int)CollisionFlags::Enabled;
+    collisionFlags["Reversed"] = (int)CollisionFlags::Reversed;
+    collisionFlags["Default"] = (int)CollisionFlags::Default;
+
+    collisionFlags.push(lua.GetState());
+    lua_setglobal(lua.GetState(), "CollisionFlags");
+
     // Pass object references.
     Lua::push(lua.GetState(), entitySystem);
     lua_setglobal(lua.GetState(), "EntitySystem");

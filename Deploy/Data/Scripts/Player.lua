@@ -1,14 +1,10 @@
 Scripts = Scripts or {}
 
 function Scripts.Player()
-    -- Create class instance.
-    local instance = {}
-    
-    -- Class members.
+    local script = {}
     local m_shootTime = 0.0
     
-    -- Class methods.
-    function instance.OnUpdate(self, timeDelta)
+    function script.OnUpdate(self, timeDelta)
         -- Get entity components.
         local transform = ComponentSystem:LookupTransform(self)
         local collision = ComponentSystem:LookupCollision(self)
@@ -64,12 +60,11 @@ function Scripts.Player()
         end
     end
     
-    function instance.OnDamaged(self, value, alive)
+    function script.OnDamaged(self, value, alive)
         if not alive then
             EntitySystem:DestroyEntity(self)
         end
     end
-    
-    -- Return instance.
-    return instance
+
+    return script
 end

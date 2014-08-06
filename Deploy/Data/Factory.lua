@@ -33,3 +33,39 @@ function Factory.CreatePlayer()
     local render = ComponentSystem:CreateRender(entity)
     render:SetDiffuseColor(Vec4(0.0, 1.0, 0.0, 1.0))
 end
+
+function Factory.CreateBounds()
+    -- Create projectile bounds.
+    do
+        local entity = EntitySystem:CreateEntity()
+    
+        local transform = ComponentSystem:CreateTransform(entity)
+        transform:SetPosition(Vec2(0.0, 0.0))
+        
+        local collision = ComponentSystem:CreateCollision(entity)
+        collision:SetBoundingBox(Vec4(0.0, 0.0, 1024.0, 576.0))
+        collision:SetType(CollisionTypes.None)
+        collision:SetMask(CollisionTypes.Projectile)
+        collision:SetFlags(bit.bor(CollisionFlags.Default, CollisionFlags.Reversed))
+        
+        local script = ComponentSystem:CreateScript(entity)
+        script:AddScript(Scripts.DestroyOnCollision())
+    end
+
+    -- Create entity bounds.
+    do
+        local entity = EntitySystem:CreateEntity()
+    
+        local transform = ComponentSystem:CreateTransform(entity)
+        transform:SetPosition(Vec2(0.0, 0.0))
+        
+        local collision = ComponentSystem:CreateCollision(entity)
+        collision:SetBoundingBox(Vec4(0.0, 0.0, 1024.0 + 200.0, 576.0))
+        collision:SetType(CollisionTypes.None)
+        collision:SetMask(bit.bxor(CollisionTypes.All, CollisionTypes.Player))
+        collision:SetFlags(bit.bor(CollisionFlags.Default, CollisionFlags.Reversed))
+        
+        local script = ComponentSystem:CreateScript(entity)
+        script:AddScript(Scripts.DestroyOnCollision())
+    end
+end

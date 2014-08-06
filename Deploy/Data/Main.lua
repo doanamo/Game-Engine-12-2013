@@ -8,6 +8,9 @@ function Initialize()
     
     -- Create player entity.
     Factory.CreatePlayer()
+    
+    -- Create entity bounds.
+    Factory.CreateBounds()
 end
 
 Log("Main scripting entry has been loaded.")

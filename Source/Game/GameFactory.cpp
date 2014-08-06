@@ -26,43 +26,6 @@ namespace
     std::random_device deviceRandom;
 }
 
-void GameFactory::CreateBounds()
-{
-    // Create projectile bounds.
-    {
-        EntityHandle entity = GameState::GetEntitySystem().CreateEntity();
-
-        TransformComponent* transform = GameState::GetComponentSystem().Create<TransformComponent>(entity);
-        transform->SetPosition(glm::vec2(0.0f, 0.0f));
-
-        CollisionComponent* collision = GameState::GetComponentSystem().Create<CollisionComponent>(entity);
-        collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 1024.0f, 576.0f));
-        collision->SetType(CollisionTypes::None);
-        collision->SetMask(CollisionTypes::Projectile);
-        collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reversed);
-
-        ScriptComponent* script = GameState::GetComponentSystem().Create<ScriptComponent>(entity);
-        script->AddScript(std::make_shared<DestroyOnCollision>());
-    }
-
-    // Create entity bounds.
-    {
-        EntityHandle entity = GameState::GetEntitySystem().CreateEntity();
-
-        TransformComponent* transform = GameState::GetComponentSystem().Create<TransformComponent>(entity);
-        transform->SetPosition(glm::vec2(0.0f, 0.0f));
-
-        CollisionComponent* collision = GameState::GetComponentSystem().Create<CollisionComponent>(entity);
-        collision->SetBoundingBox(glm::vec4(0.0f, 0.0f, 1024.0f + 200.0f, 576.0f));
-        collision->SetType(CollisionTypes::None);
-        collision->SetMask(CollisionMasks::All ^ CollisionTypes::Player);
-        collision->SetFlags(CollisionFlags::Default | CollisionFlags::Reversed);
-
-        ScriptComponent* script = GameState::GetComponentSystem().Create<ScriptComponent>(entity);
-        script->AddScript(std::make_shared<DestroyOnCollision>());
-    }
-}
-
 namespace
 {
     std::mt19937 asteroidRandom(deviceRandom());
