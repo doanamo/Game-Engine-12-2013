@@ -54,10 +54,17 @@ function Script.PlayerScript()
             -- Normalize movement vector.
             movement:Normalize()
         
-            -- Calculate and set new position.
+            -- Calculate new position.
             local position = transform:GetPosition()
             position.x = position.x + movement.x * 400.0 * timeDelta
             position.y = position.y + movement.y * 400.0 * timeDelta
+            
+            -- Prevent from moving outside of the screen bounds.
+            local boundingBox = collision:GetBoundingBox()
+            position.x = math.max(0.0 - boundingBox.x, math.min(position.x, 1024.0 - boundingBox.z))
+            position.y = math.max(0.0 - boundingBox.y, math.min(position.y, 576.0 - boundingBox.w))
+            
+            -- Set new position.
             transform:SetPosition(position)
         end
     end
