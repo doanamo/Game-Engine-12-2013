@@ -58,6 +58,13 @@ bool LuaEngine::Initialize()
         return false;
     }
 
+    // Set random seed.
+    if(luaL_dostring(m_state, "math.randomseed(os.time())") != 0)
+    {
+        Log() << LogInitializeError() << "Coundn't set random seed.";
+        return false;
+    }
+
     // Success!
     return initialized = true;
 }
