@@ -136,11 +136,11 @@ bool GameState::Initialize()
         return false;
 
     // Load the main script.
-    if(!luaEngine.Load("Data/Main.lua"))
+    if(!luaEngine.Load("Data/Game.lua"))
         return false;
 
     // Call the initialization function.
-    luaEngine.Call("Initialize");
+    luaEngine.Call("Game.Initialize");
 
     // Success!
     return isInitialized = true;

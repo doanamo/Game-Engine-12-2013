@@ -2,7 +2,9 @@ require("Keyboard")
 require("Collision")
 require("Factory")
 
-function Initialize()    
+Game = {}
+
+function Game.Initialize()    
     -- Create entity bounds.
     Factory.CreateBounds()
     
