@@ -204,6 +204,21 @@ bool Main::Initialize()
         return false;
 
     //
+    // Scripting
+    //
+
+    // Initialize the main Lua state.
+    if(!luaEngine.Initialize())
+    {
+        Log() << "Failed to initialize Lua engine!";
+        return false;
+    }
+    
+    // Setup scripting environment.
+    if(!BindLuaLogger(luaEngine))
+        return false;
+
+    //
     // SDL
     //
 
@@ -450,6 +465,12 @@ void Main::Cleanup()
     SDL_Quit();
 
     //
+    // Scripting
+    //
+
+    luaEngine.Cleanup();
+
+    //
     // System
     //
 
@@ -585,6 +606,11 @@ Texture& Main::GetBlankTexture()
 Font& Main::GetDefaultFont()
 {
     return defaultFont;
+}
+
+LuaEngine& Main::GetLuaEngine()
+{
+    return luaEngine;
 }
 
 SDL_Window* Main::GetSystemWindow()
