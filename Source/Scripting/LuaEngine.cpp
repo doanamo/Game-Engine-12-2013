@@ -130,7 +130,7 @@ void LuaEngine::SetPackagePath(std::string path)
         return;
 
     // Set path to package location (script working directiory).
-    Lua::LuaRef package = GetVariable("package");
+    Lua::LuaRef package = GetReference("package");
     package["path"] = path + "?.lua";
 }
 
@@ -155,7 +155,7 @@ std::string LuaEngine::DetachStem(std::string& compoundVariable)
     return detached;
 }
 
-Lua::LuaRef LuaEngine::GetVariable(std::string compoundVariable)
+Lua::LuaRef LuaEngine::GetReference(std::string compoundVariable)
 {
     assert(m_state);
 
@@ -194,7 +194,7 @@ std::string LuaEngine::GetString(std::string compoundVariable, std::string defau
 
     if(m_state)
     {
-        Lua::LuaRef variable = GetVariable(compoundVariable);
+        Lua::LuaRef variable = GetReference(compoundVariable);
 
         if(variable.isString())
         {
@@ -211,7 +211,7 @@ bool LuaEngine::GetBool(std::string compoundVariable, bool defaultValue)
 
     if(m_state)
     {
-        Lua::LuaRef variable = GetVariable(compoundVariable);
+        Lua::LuaRef variable = GetReference(compoundVariable);
 
         if(variable.isBoolean())
         {
@@ -228,7 +228,7 @@ int LuaEngine::GetInteger(std::string compoundVariable, int defaultValue)
 
     if(m_state)
     {
-        Lua::LuaRef variable = GetVariable(compoundVariable);
+        Lua::LuaRef variable = GetReference(compoundVariable);
 
         if(variable.isNumber())
         {
@@ -245,7 +245,7 @@ float LuaEngine::GetFloat(std::string compoundVariable, float defaultValue)
 
     if(m_state)
     {
-        Lua::LuaRef variable = GetVariable(compoundVariable);
+        Lua::LuaRef variable = GetReference(compoundVariable);
 
         if(variable.isNumber())
         {

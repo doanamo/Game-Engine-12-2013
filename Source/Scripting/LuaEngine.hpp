@@ -21,7 +21,7 @@ public:
 
     void SetPackagePath(std::string path);
 
-    Lua::LuaRef GetVariable(std::string compoundVariable);
+    Lua::LuaRef GetReference(std::string compoundVariable);
     std::string GetString(std::string compoundVariable, std::string defaultValue = "nil");
     bool GetBool(std::string compoundVariable, bool defaultValue = false);
     int GetInteger(std::string compoundVariable, int defaultValue = 0);
@@ -49,7 +49,7 @@ Lua::LuaRef LuaEngine::Call(std::string compoundVariable, Arguments... arguments
     Lua::LuaRef results(m_state);
 
     // Get the function variable.
-    Lua::LuaRef function = GetVariable(compoundVariable);
+    Lua::LuaRef function = GetReference(compoundVariable);
 
     // Call the function.
     try
