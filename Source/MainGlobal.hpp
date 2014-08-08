@@ -67,11 +67,11 @@ namespace Main
     BasicRenderer&  GetBasicRenderer();
     TextRenderer&   GetTextRenderer();
     FrameCounter&   GetFrameCounter();
+    LuaEngine&      GetLuaEngine();
 
     Texture&        GetBlankTexture();
     Font&           GetDefaultFont();
 
-    LuaEngine&      GetLuaEngine();
     SDL_Window*     GetSystemWindow();
     SDL_GLContext   GetGraphicsContext();
     FT_Library      GetFontLibrary();

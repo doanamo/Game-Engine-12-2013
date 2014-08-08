@@ -62,11 +62,11 @@ namespace
     BasicRenderer       basicRenderer;
     TextRenderer        textRenderer;
     FrameCounter        frameCounter;
+    LuaEngine           luaEngine;
 
     Texture             blankTexture;
     Font                defaultFont;
 
-    LuaEngine           luaEngine;
     SDL_Window*         systemWindow = nullptr;
     SDL_GLContext       graphicsContext = nullptr;
     FT_Library          fontLibrary = nullptr;
@@ -201,21 +201,6 @@ bool Main::Initialize()
 
     // Initialize the cache manager.
     if(!cacheManager.Initialize())
-        return false;
-
-    //
-    // Scripting
-    //
-
-    // Initialize the main Lua state.
-    if(!luaEngine.Initialize())
-    {
-        Log() << "Failed to initialize Lua engine!";
-        return false;
-    }
-    
-    // Setup scripting environment.
-    if(!BindLuaLogger(luaEngine))
         return false;
 
     //
@@ -394,6 +379,21 @@ bool Main::Initialize()
         return false;
 
     //
+    // Scripting
+    //
+
+    // Initialize the main Lua state.
+    if(!luaEngine.Initialize())
+    {
+        Log() << "Failed to initialize Lua engine!";
+        return false;
+    }
+    
+    // Setup scripting environment.
+    if(!BindLuaLogger(luaEngine))
+        return false;
+
+    //
     // Main Frame
     //
 
@@ -419,6 +419,12 @@ void Main::Cleanup()
     //
 
     mainFrame.Cleanup();
+
+    //
+    // Scripting
+    //
+
+    luaEngine.Cleanup();
 
     //
     // Frame Counter
@@ -463,12 +469,6 @@ void Main::Cleanup()
     systemWindow = nullptr;
 
     SDL_Quit();
-
-    //
-    // Scripting
-    //
-
-    luaEngine.Cleanup();
 
     //
     // System
@@ -598,6 +598,11 @@ FrameCounter& Main::GetFrameCounter()
     return frameCounter;
 }
 
+LuaEngine& Main::GetLuaEngine()
+{
+    return luaEngine;
+}
+
 Texture& Main::GetBlankTexture()
 {
     return blankTexture;
@@ -606,11 +611,6 @@ Texture& Main::GetBlankTexture()
 Font& Main::GetDefaultFont()
 {
     return defaultFont;
-}
-
-LuaEngine& Main::GetLuaEngine()
-{
-    return luaEngine;
 }
 
 SDL_Window* Main::GetSystemWindow()
