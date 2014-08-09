@@ -30,7 +30,7 @@ namespace Console
     ConsoleVariable windowName(ConsoleDefinition::Internal, "Game");
     ConsoleVariable windowWidth("r_width", 1024, "Current screen width.");
     ConsoleVariable windowHeight("r_height", 576, "Current screen height.");
-    ConsoleVariable windowResize(ConsoleDefinition::Internal, false);
+    ConsoleVariable windowResize(ConsoleDefinition::Internal, true);
 
     // Render settings.
     ConsoleVariable renderVsync("r_vsync", true, "Enables vertical synchronization.");
@@ -185,7 +185,7 @@ bool Main::Initialize()
         return false;
 
     // Read config settings.
-    if(config.Load("Game.cfg"))
+    if(config.Load("Data/Config.lua"))
     {
         Console::windowWidth = config.GetInteger("Config.Graphics.Width", Console::windowWidth);
         Console::windowHeight = config.GetInteger("Config.Graphics.Height", Console::windowHeight);
