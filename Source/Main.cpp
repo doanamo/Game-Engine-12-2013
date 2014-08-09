@@ -98,6 +98,11 @@ void HandleWindowSizeChange(int oldWidth, int oldHeight, int newWidth, int newHe
 
 int main(int argc, char* argv[])
 {
+    // Report memory leaks at program exit.
+    #if defined(_WINDOWS) && defined(_DEBUG)
+        _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+    #endif
+
     // Finalize static instances.
     ConsoleDefinition::FinalizeStatic();
 
