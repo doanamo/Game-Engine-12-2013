@@ -119,7 +119,7 @@ bool Main::Initialize()
     }
 
     // Get the cache directory.
-    cacheDir = workingDir + "Cache/";
+    cacheDir = workingDir + "Data/Cache/";
 
     //
     // Logger
