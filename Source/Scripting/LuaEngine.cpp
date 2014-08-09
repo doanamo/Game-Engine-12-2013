@@ -54,14 +54,14 @@ bool LuaEngine::Initialize()
     // Load other utility libraries.
     if(luaL_dostring(m_state, "bit = require(\"bit\")") != 0)
     {
-        Log() << LogInitializeError() << "Coundn't load one of the libraries.";
+        Log() << LogInitializeError() << "Couldn't load one of the libraries.";
         return false;
     }
 
     // Set random seed.
     if(luaL_dostring(m_state, "math.randomseed(os.time())") != 0)
     {
-        Log() << LogInitializeError() << "Coundn't set random seed.";
+        Log() << LogInitializeError() << "Couldn't set random seed.";
         return false;
     }
 
@@ -93,9 +93,8 @@ bool LuaEngine::Load(std::string filename)
         }
 
         Log() << "Lua error - " << error << ".";
-        lua_pop(m_state, lua_gettop(m_state));
-
         Log() << LogLoadError(filename) << "Couldn't parse the file.";
+        lua_pop(m_state, lua_gettop(m_state));
         return false;
     }
 
