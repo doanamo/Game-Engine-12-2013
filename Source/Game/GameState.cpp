@@ -135,7 +135,7 @@ bool GameState::Initialize()
     if(!BindLuaGame(luaEngine, services))
         return false;
 
-    // Load the main script.
+    // Load the game script.
     if(!luaEngine.Load("Data/Game.lua"))
         return false;
 

@@ -388,10 +388,19 @@ bool Main::Initialize()
         Log() << "Failed to initialize Lua engine!";
         return false;
     }
+
+    luaEngine.SetPackagePath(Main::GetWorkingDir() + "Data/");
     
     // Setup scripting environment.
     if(!BindLuaLogger(luaEngine))
         return false;
+
+    // Load the main script.
+    if(luaEngine.Load("Data/Main.lua"))
+
+
+    // Call the script initialization function.
+    luaEngine.Call("Main.Initialize");
 
     //
     // Main Frame
@@ -412,7 +421,11 @@ bool Main::Initialize()
 
 void Main::Cleanup()
 {
-    Log() << "Cleaning up the main context...";
+    // Call the script cleanup function.
+    if(isInitialized)
+    {
+        luaEngine.Call("Main.Cleanup");
+    }
 
     //
     // Main Frame
