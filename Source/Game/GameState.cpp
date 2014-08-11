@@ -148,7 +148,11 @@ bool GameState::Initialize()
 
 void GameState::Cleanup()
 {
-    Log() << "Cleaning up the game state...";
+    // Call the cleanup function.
+    if(isInitialized)
+    {
+        luaEngine.Call("Game.Cleanup");
+    }
 
     // Remove all spawn defintions that could have references to Lua.
     spawnSystem.RemoveAllSpawns();
