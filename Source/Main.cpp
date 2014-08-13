@@ -181,7 +181,9 @@ int main(int argc, char* argv[])
                 continue;
 
             // Call the scripting routine.
-            Main::GetLuaEngine().Call("Main.Process", event);
+            Lua::LuaRef result = Main::GetLuaEngine().Call("Main.Process", event);
+            if(result.isBoolean() && result.cast<bool>())
+                continue;
         }
 
         // Handle console variable change for window size.

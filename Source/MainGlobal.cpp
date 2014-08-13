@@ -412,7 +412,9 @@ bool Main::Initialize()
         return false;
 
     // Call the script initialization function.
-    luaEngine.Call("Main.Initialize");
+    Lua::LuaRef result = luaEngine.Call("Main.Initialize");
+    if(!result.isBoolean() || !result.cast<bool>())
+        return false;
 
     //
     // Main Frame

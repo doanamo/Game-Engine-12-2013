@@ -2,6 +2,8 @@ Main = {}
 
 function Main.Initialize()
     Log("Main context has been initialized.")
+    
+    return true
 end
 
 function Main.Cleanup()
@@ -9,6 +11,7 @@ function Main.Cleanup()
 end
 
 function Main.Process(event)
+    return false
 end
 
 function Main.Update(timeDelta)
