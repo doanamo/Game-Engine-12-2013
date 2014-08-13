@@ -10,15 +10,17 @@
 #include "Console/ConsoleSystem.hpp"
 #include "Console/ConsoleHistory.hpp"
 #include "Console/ConsoleFrame.hpp"
-#include "Scripting/LuaEngine.hpp"
-#include "Scripting/LuaLogger.hpp"
-#include "Scripting/LuaSystem.hpp"
 #include "Graphics/Texture.hpp"
 #include "Graphics/Font.hpp"
 #include "Graphics/ScreenSpace.hpp"
 #include "Graphics/CoreRenderer.hpp"
 #include "Graphics/BasicRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
+#include "Scripting/LuaEngine.hpp"
+#include "Scripting/LuaMath.hpp"
+#include "Scripting/LuaLogger.hpp"
+#include "Scripting/LuaSystem.hpp"
+#include "Scripting/LuaGraphics.hpp"
 #include "Game/MainFrame.hpp"
 
 //
@@ -393,15 +395,21 @@ bool Main::Initialize()
     luaEngine.SetPackagePath(Main::GetWorkingDir() + "Data/");
     
     // Setup scripting environment.
+    if(!BindLuaMath(luaEngine))
+        return false;
+
     if(!BindLuaLogger(luaEngine))
         return false;
 
     if(!BindLuaSystem(luaEngine))
         return false;
 
-    // Load the main script.
-    if(luaEngine.Load("Data/Main.lua"))
+    if(!BindLuaGraphics(luaEngine))
+        return false;
 
+    // Load the main script.
+    if(!luaEngine.Load("Data/Main.lua"))
+        return false;
 
     // Call the script initialization function.
     luaEngine.Call("Main.Initialize");

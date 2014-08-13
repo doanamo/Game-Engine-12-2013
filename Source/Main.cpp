@@ -5,12 +5,12 @@
 #include "Console/ConsoleFrame.hpp"
 #include "System/BaseFrame.hpp"
 #include "System/FrameCounter.hpp"
-#include "Scripting/LuaEngine.hpp"
 #include "Graphics/Font.hpp"
 #include "Graphics/ScreenSpace.hpp"
 #include "Graphics/CoreRenderer.hpp"
 #include "Graphics/BasicRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
+#include "Scripting/LuaEngine.hpp"
 
 //
 // Console Variables

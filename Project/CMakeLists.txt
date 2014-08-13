@@ -105,12 +105,14 @@ Set(SourceFiles
 
     "Scripting/LuaEngine.hpp"
     "Scripting/LuaEngine.cpp"
+    "Scripting/LuaMath.hpp"
+    "Scripting/LuaMath.cpp"
     "Scripting/LuaLogger.hpp"
     "Scripting/LuaLogger.cpp"
     "Scripting/LuaSystem.hpp"
     "Scripting/LuaSystem.cpp"
-    "Scripting/LuaMath.hpp"
-    "Scripting/LuaMath.cpp"
+    "Scripting/LuaGraphics.hpp"
+    "Scripting/LuaGraphics.cpp"
     "Scripting/LuaGame.hpp"
     "Scripting/LuaGame.cpp"
 

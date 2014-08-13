@@ -15,4 +15,8 @@ function Main.Update(timeDelta)
 end
 
 function Main.Draw()
+    -- Clear the screen buffer.
+    CoreRenderer:SetClearColor(Vec4(1.0, 1.0, 1.0, 1.0))
+    CoreRenderer:SetClearDepth(1.0)
+    CoreRenderer:Clear(bit.bor(ClearFlags.Color, ClearFlags.Depth))
 end

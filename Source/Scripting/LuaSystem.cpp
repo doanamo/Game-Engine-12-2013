@@ -2,13 +2,13 @@
 #include "LuaSystem.hpp"
 #include "LuaEngine.hpp"
 
-bool BindLuaSystem(LuaEngine& state)
+bool BindLuaSystem(LuaEngine& lua)
 {
-    if(!state.IsValid())
+    if(!lua.IsValid())
         return false;
 
     // Bind definitions.
-    Lua::getGlobalNamespace(state.GetState())
+    Lua::getGlobalNamespace(lua.GetState())
         .beginClass<SDL_Event>("SystemEvent")
         .endClass();
 
