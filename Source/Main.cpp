@@ -5,6 +5,7 @@
 #include "Console/ConsoleFrame.hpp"
 #include "System/BaseFrame.hpp"
 #include "System/FrameCounter.hpp"
+#include "Scripting/LuaEngine.hpp"
 #include "Graphics/Font.hpp"
 #include "Graphics/ScreenSpace.hpp"
 #include "Graphics/CoreRenderer.hpp"
@@ -182,6 +183,9 @@ int main(int argc, char* argv[])
             // Process an event by main frame.
             if(Main::GetMainFrame().Process(event))
                 continue;
+
+            // Call the scripting routine.
+            Main::GetLuaEngine().Call("Main.Process", event);
         }
 
         // Handle console variable change for window size.
@@ -205,6 +209,9 @@ int main(int argc, char* argv[])
 
         // Update main frame.
         Main::GetMainFrame().Update(dt);
+
+        // Call the scripting routine.
+        Main::GetLuaEngine().Call("Main.Update", dt);
 
         //
         // Setup View
@@ -240,6 +247,9 @@ int main(int argc, char* argv[])
         //
         // Draw
         //
+
+        // Call the scripting routine.
+        Main::GetLuaEngine().Call("Main.Draw");
 
         // Draw the main frame.
         Main::GetMainFrame().Draw();

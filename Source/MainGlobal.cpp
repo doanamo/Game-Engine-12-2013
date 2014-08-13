@@ -12,6 +12,7 @@
 #include "Console/ConsoleFrame.hpp"
 #include "Scripting/LuaEngine.hpp"
 #include "Scripting/LuaLogger.hpp"
+#include "Scripting/LuaSystem.hpp"
 #include "Graphics/Texture.hpp"
 #include "Graphics/Font.hpp"
 #include "Graphics/ScreenSpace.hpp"
@@ -393,6 +394,9 @@ bool Main::Initialize()
     
     // Setup scripting environment.
     if(!BindLuaLogger(luaEngine))
+        return false;
+
+    if(!BindLuaSystem(luaEngine))
         return false;
 
     // Load the main script.
