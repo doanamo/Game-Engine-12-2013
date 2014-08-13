@@ -180,10 +180,6 @@ int main(int argc, char* argv[])
             if(Main::GetConsoleFrame().Process(event))
                 continue;
 
-            // Process an event by main frame.
-            if(Main::GetMainFrame().Process(event))
-                continue;
-
             // Call the scripting routine.
             Main::GetLuaEngine().Call("Main.Process", event);
         }
@@ -206,9 +202,6 @@ int main(int argc, char* argv[])
 
         // Update cursor blink time.
         Main::GetTextRenderer().UpdateCursorBlink(dt);
-
-        // Update main frame.
-        Main::GetMainFrame().Update(dt);
 
         // Call the scripting routine.
         Main::GetLuaEngine().Call("Main.Update", dt);
@@ -250,9 +243,6 @@ int main(int argc, char* argv[])
 
         // Call the scripting routine.
         Main::GetLuaEngine().Call("Main.Draw");
-
-        // Draw the main frame.
-        Main::GetMainFrame().Draw();
 
         // Draw frame rate.
         if(Console::drawFrameRate)
