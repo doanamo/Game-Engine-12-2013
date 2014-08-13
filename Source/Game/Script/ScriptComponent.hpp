@@ -42,7 +42,8 @@ void ScriptComponent::Call(std::string name, Arguments... arguments)
         {
             try
             {
-                function(arguments...);
+                // Call method with a self argument.
+                function(script, arguments...);
             }
             catch(Lua::LuaException& exception)
             {
