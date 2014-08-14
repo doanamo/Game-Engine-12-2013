@@ -129,6 +129,9 @@ int main(int argc, char* argv[])
         // Reset console system intermediate state.
         Main::GetConsoleSystem().ResetIntermediateState();
 
+        // Run garbage collection.
+        Main::GetLuaEngine().CollectGarbage(0.02f);
+
         //
         // Timer
         //

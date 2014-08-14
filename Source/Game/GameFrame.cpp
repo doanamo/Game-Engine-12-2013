@@ -2,6 +2,7 @@
 #include "GameFrame.hpp"
 
 #include "MainGlobal.hpp"
+#include "Scripting/LuaEngine.hpp"
 #include "Game/GameGlobal.hpp"
 #include "Game/GameState.hpp"
 #include "Game/MenuFrame.hpp"
@@ -80,6 +81,9 @@ bool GameFrame::Process(const SDL_Event& event)
 
 void GameFrame::Update(float timeDelta)
 {
+    // Collect scripting garbage.
+    GameState::GetLuaEngine().CollectGarbage(0.02f);
+
     // Update the spawn system.
     GameState::GetSpawnSystem().Update(timeDelta);
 

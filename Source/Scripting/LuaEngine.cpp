@@ -124,6 +124,21 @@ bool LuaEngine::Load(std::string filename)
     return true;
 }
 
+void LuaEngine::CollectGarbage(float maxTime)
+{
+    // Run garbage collector for a specified time.
+    uint32_t startTicks = SDL_GetTicks();
+    uint32_t currentTicks = SDL_GetTicks();
+
+    while((currentTicks - startTicks) / 1000.0f < maxTime)
+    {
+        if(lua_gc(m_state, LUA_GCSTEP, 0))
+            break;
+
+        currentTicks = SDL_GetTicks();
+    }
+}
+
 void LuaEngine::SetPackagePath(std::string path)
 {
     if(!m_state)
