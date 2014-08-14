@@ -1,4 +1,5 @@
 require("StateMachine")
+require("MenuFrame")
 
 -- Package namespace.
 Main = {}
@@ -7,8 +8,9 @@ Main = {}
 function Main.Initialize()
     Log("Main context has been initialized.")
     
-    -- Create a state machine.
+    -- Setup state machine.
     Main.stateMachine = StateMachine()
+    Main.stateMachine:Change(MenuFrame())
     
     return true
 end
@@ -20,15 +22,13 @@ function Main.Cleanup()
 end
 
 function Main.Process(event)
-    return false
+    return Main.stateMachine:Call("Process", event)
 end
 
 function Main.Update(timeDelta)
+    Main.stateMachine:Call("Update", timeDelta)
 end
 
 function Main.Draw()
-    -- Clear the screen buffer.
-    CoreRenderer:SetClearColor(Vec4(1.0, 1.0, 1.0, 1.0))
-    CoreRenderer:SetClearDepth(1.0)
-    CoreRenderer:Clear(bit.bor(ClearFlags.Color, ClearFlags.Depth))
+    Main.stateMachine:Call("Draw")
 end
