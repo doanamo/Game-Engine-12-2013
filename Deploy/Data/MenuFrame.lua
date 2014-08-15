@@ -9,6 +9,13 @@ local ButtonFontSize = 48
 
 function MenuFrame:New()
     local self = {}
+    self.screenSpace = ScreenSpace()
+    self.interfaceRoot = Interface.Root()
+    self.buttonContinue = Interface.Button()
+    self.buttonNewGame = Interface.Button()
+    self.buttonOptions = Interface.Button()
+    self.buttonCredits = Interface.Button()
+    self.buttonQuit = Interface.Button()
     
     return setmetatable(self, MenuFrame)
 end

@@ -113,6 +113,8 @@ Set(SourceFiles
     "Scripting/LuaSystem.cpp"
     "Scripting/LuaGraphics.hpp"
     "Scripting/LuaGraphics.cpp"
+    "Scripting/LuaInterface.hpp"
+    "Scripting/LuaInterface.cpp"
     "Scripting/LuaGame.hpp"
     "Scripting/LuaGame.cpp"
 

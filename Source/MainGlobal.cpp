@@ -21,6 +21,7 @@
 #include "Scripting/LuaLogger.hpp"
 #include "Scripting/LuaSystem.hpp"
 #include "Scripting/LuaGraphics.hpp"
+#include "Scripting/LuaInterface.hpp"
 #include "Game/MainFrame.hpp"
 
 //
@@ -405,6 +406,9 @@ bool Main::Initialize()
         return false;
 
     if(!BindLuaGraphics(luaEngine))
+        return false;
+
+    if(!BindLuaInterface(luaEngine))
         return false;
 
     // Load the main script.

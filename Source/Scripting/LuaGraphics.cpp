@@ -3,6 +3,7 @@
 #include "LuaEngine.hpp"
 
 #include "MainGlobal.hpp"
+#include "Graphics/ScreenSpace.hpp"
 #include "Graphics/CoreRenderer.hpp"
 
 bool BindLuaGraphics(LuaEngine& lua)
@@ -11,6 +12,18 @@ bool BindLuaGraphics(LuaEngine& lua)
         return false;
 
     // Bind definitions.
+    Lua::getGlobalNamespace(lua.GetState())
+        .beginClass<ScreenSpace>("ScreenSpace")
+            .addConstructor<void(*)(void)>()
+            .addFunction("SetSourceSize", &ScreenSpace::SetSourceSize)
+            .addFunction("GetSourceSize", &ScreenSpace::GetSourceSize)
+            .addFunction("SetTargetSize", &ScreenSpace::SetSourceSize)
+            .addFunction("GetTargetSize", &ScreenSpace::GetSourceSize)
+            .addFunction("SetTargetAspect", &ScreenSpace::SetTargetAspect)
+            .addFunction("GetRectangle", &ScreenSpace::GetRectangle)
+            .addFunction("GetOffset", &ScreenSpace::GetOffset)
+        .endClass();
+
     Lua::getGlobalNamespace(lua.GetState())
         .beginClass<CoreRenderer>("CoreRenderer")
             .addFunction("Clear", &CoreRenderer::Clear)
