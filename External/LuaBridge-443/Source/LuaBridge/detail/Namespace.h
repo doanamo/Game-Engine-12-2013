@@ -631,7 +631,7 @@ private:
     // User: Adds static method that can be called from the class 
     //  using ":" which results in first argument being itself.
     template <class FP>
-    Class <T>& addSelfFunction (char const* name, FP const fp)
+    Class <T>& addFunctionProxy (char const* name, FP const fp)
     {
       new (lua_newuserdata (L, sizeof (fp))) FP (fp);
       lua_pushcclosure (L, &CFunc::Call <FP>::f, 1);
@@ -750,7 +750,7 @@ private:
       argument respectively.
     */
     template <class TG, class TS>
-    Class <T>& addProperty (char const* name, TG (*get) (T const*), void (*set) (T*, TS))
+    Class <T>& addPropertyProxy (char const* name, TG (*get) (T const*), void (*set) (T*, TS))
     {
       // Add to __propget in class and const tables.
       {
@@ -782,7 +782,7 @@ private:
 
     // read-only
     template <class TG, class TS>
-    Class <T>& addProperty (char const* name, TG (*get) (T const*))
+    Class <T>& addPropertyProxy (char const* name, TG (*get) (T const*))
     {
       // Add to __propget in class and const tables.
       rawgetfield (L, -2, "__propget");
