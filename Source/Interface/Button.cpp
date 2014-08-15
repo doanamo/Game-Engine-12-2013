@@ -1,8 +1,9 @@
 #include "Precompiled.hpp"
 #include "Button.hpp"
+#include "Root.hpp"
+using namespace Interface;
 
 #include "MainGlobal.hpp"
-#include "Interface/InterfaceRoot.hpp"
 
 Button::Button() :
     m_text(),
@@ -21,7 +22,7 @@ Button::~Button()
 
 void Button::Cleanup()
 {
-    InterfaceElement::Cleanup();
+    Element::Cleanup();
 
     m_text.clear();
     m_position = glm::vec2(0.0f, 0.0f);
@@ -46,7 +47,7 @@ bool Button::Process(const SDL_Event& event)
     case SDL_MOUSEMOTION:
         {
             // Get cursor position in interface space.
-            glm::vec2 cursorPosition = Root()->GetCursorPosition();
+            glm::vec2 cursorPosition = GetRoot()->GetCursorPosition();
 
             // Checks if cursor is above the button.
             bool hovered =

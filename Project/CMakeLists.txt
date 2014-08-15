@@ -96,10 +96,10 @@ Set(SourceFiles
     "Graphics/TextDrawState.hpp"
     "Graphics/TextDrawState.cpp"
 
-    "Interface/InterfaceElement.hpp"
-    "Interface/InterfaceElement.cpp"
-    "Interface/InterfaceRoot.hpp"
-    "Interface/InterfaceRoot.cpp"
+    "Interface/Element.hpp"
+    "Interface/Element.cpp"
+    "Interface/Root.hpp"
+    "Interface/Root.cpp"
     "Interface/Button.hpp"
     "Interface/Button.cpp"
 

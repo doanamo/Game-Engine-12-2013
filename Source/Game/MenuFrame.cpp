@@ -204,7 +204,7 @@ bool MenuFrame::Initialize()
     return true;
 }
 
-void MenuFrame::ButtonContinue(const Button::EventAction& event)
+void MenuFrame::ButtonContinue(const Interface::Button::EventAction& event)
 {
     assert(m_initialized);
 
@@ -215,7 +215,7 @@ void MenuFrame::ButtonContinue(const Button::EventAction& event)
     }
 }
 
-void MenuFrame::ButtonNewGame(const Button::EventAction& event)
+void MenuFrame::ButtonNewGame(const Interface::Button::EventAction& event)
 {
     assert(m_initialized);
 
@@ -226,7 +226,7 @@ void MenuFrame::ButtonNewGame(const Button::EventAction& event)
     }
 }
 
-void MenuFrame::ButtonQuit(const Button::EventAction& event)
+void MenuFrame::ButtonQuit(const Interface::Button::EventAction& event)
 {
     assert(m_initialized);
 
@@ -294,7 +294,7 @@ void MenuFrame::Draw()
     }
 
     // Define button drawing routine.
-    auto DrawButton = [&](const Button& button)
+    auto DrawButton = [&](const Interface::Button& button)
     {
         TextDrawInfo info;
         info.font = &Main::GetDefaultFont();

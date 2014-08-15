@@ -4,8 +4,7 @@
 
 #include "System/BaseFrame.hpp"
 #include "Graphics/ScreenSpace.hpp"
-#include "Interface/InterfaceRoot.hpp"
-#include "Interface/InterfaceElement.hpp"
+#include "Interface/Root.hpp"
 #include "Interface/Button.hpp"
 
 //
@@ -44,9 +43,9 @@ public:
 
 private:
     // Button event handlers.
-    void ButtonContinue(const Button::EventAction& event);
-    void ButtonNewGame(const Button::EventAction& event);
-    void ButtonQuit(const Button::EventAction& event);
+    void ButtonContinue(const Interface::Button::EventAction& event);
+    void ButtonNewGame(const Interface::Button::EventAction& event);
+    void ButtonQuit(const Interface::Button::EventAction& event);
 
 private:
     void OnEnter();
@@ -58,16 +57,16 @@ private:
     ScreenSpace m_screenSpace;
 
     // Interface elements.
-    InterfaceRoot m_interfaceRoot;
+    Interface::Root m_interfaceRoot;
 
-    Button m_buttonContinue;
-    Button m_buttonNewGame;
-    Button m_buttonOptions;
-    Button m_buttonCredits;
-    Button m_buttonQuit;
+    Interface::Button m_buttonContinue;
+    Interface::Button m_buttonNewGame;
+    Interface::Button m_buttonOptions;
+    Interface::Button m_buttonCredits;
+    Interface::Button m_buttonQuit;
 
     // Button event receivers.
-    Receiver<Button::EventAction> m_actionContinue;
-    Receiver<Button::EventAction> m_actionNewGame;
-    Receiver<Button::EventAction> m_actionQuit;
+    Receiver<Interface::Button::EventAction> m_actionContinue;
+    Receiver<Interface::Button::EventAction> m_actionNewGame;
+    Receiver<Interface::Button::EventAction> m_actionQuit;
 };
