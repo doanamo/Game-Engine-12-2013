@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
         Main::GetConsoleSystem().ResetIntermediateState();
 
         // Run garbage collection.
-        Main::GetLuaEngine().CollectGarbage(0.02f);
+        Main::GetLuaEngine().CollectGarbage(0.002f);
 
         //
         // Timer
