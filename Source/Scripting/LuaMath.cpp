@@ -18,10 +18,9 @@ namespace
     }
 
     template<typename Type>
-    void Normalize(Type* vector)
+    void Normalize(Type& vector)
     {
-        assert(vector != nullptr);
-        *vector = glm::normalize(*vector);
+        vector = glm::normalize(vector);
     }
 }
 
