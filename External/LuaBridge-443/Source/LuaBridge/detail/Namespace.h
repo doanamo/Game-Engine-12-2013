@@ -798,6 +798,56 @@ private:
       return *this;
     }
 
+    // User: Overload for self reference.
+    template <class TG, class TS>
+    Class <T>& addPropertyProxy (char const* name, TG (*get) (T const&), void (*set) (T&, TS))
+    {
+      // Add to __propget in class and const tables.
+      {
+        rawgetfield (L, -2, "__propget");
+        rawgetfield (L, -4, "__propget");
+        typedef TG (*get_t) (T const&);
+        new (lua_newuserdata (L, sizeof (get_t))) get_t (get);
+        lua_pushcclosure (L, &CFunc::Call <get_t>::f, 1);
+        lua_pushvalue (L, -1);
+        rawsetfield (L, -4, name);
+        rawsetfield (L, -2, name);
+        lua_pop (L, 2);
+      }
+
+      if (set != 0)
+      {
+        // Add to __propset in class table.
+        rawgetfield (L, -2, "__propset");
+        assert (lua_istable (L, -1));
+        typedef void (*set_t) (T&, TS);
+        new (lua_newuserdata (L, sizeof (set_t))) set_t (set);
+        lua_pushcclosure (L, &CFunc::Call <set_t>::f, 1);
+        rawsetfield (L, -2, name);
+        lua_pop (L, 1);
+      }
+
+      return *this;
+    }
+
+    // read-only
+    template <class TG, class TS>
+    Class <T>& addPropertyProxy (char const* name, TG (*get) (T const&))
+    {
+      // Add to __propget in class and const tables.
+      rawgetfield (L, -2, "__propget");
+      rawgetfield (L, -4, "__propget");
+      typedef TG (*get_t) (T const&);
+      new (lua_newuserdata (L, sizeof (get_t))) get_t (get);
+      lua_pushcclosure (L, &CFunc::Call <get_t>::f, 1);
+      lua_pushvalue (L, -1);
+      rawsetfield (L, -4, name);
+      rawsetfield (L, -2, name);
+      lua_pop (L, 2);
+
+      return *this;
+    }
+
     //--------------------------------------------------------------------------
     /**
         Add or replace a member function.
