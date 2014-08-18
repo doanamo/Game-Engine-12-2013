@@ -110,7 +110,7 @@ bool BindLuaGraphics(LuaEngine& lua)
     lua_setglobal(lua.GetState(), "ClearFlags");
 
     // Pass global references.
-    Lua::push(lua.GetState(), Main::GetCoreRenderer());
+    Lua::push(lua.GetState(), &Main::GetCoreRenderer());
     lua_setglobal(lua.GetState(), "CoreRenderer");
 
     return true;

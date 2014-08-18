@@ -184,10 +184,10 @@ bool BindLuaGame(LuaEngine& lua, const Services& services)
     // Define constants.
     Lua::LuaRef collisionFlags(lua.GetState());
     collisionFlags = Lua::newTable(lua.GetState());
-    collisionFlags["None"] = (int)CollisionFlags::None;
-    collisionFlags["Enabled"] = (int)CollisionFlags::Enabled;
-    collisionFlags["Reversed"] = (int)CollisionFlags::Reversed;
-    collisionFlags["Default"] = (int)CollisionFlags::Default;
+    collisionFlags["None"] = (uint32_t)CollisionFlags::None;
+    collisionFlags["Enabled"] = (uint32_t)CollisionFlags::Enabled;
+    collisionFlags["Reversed"] = (uint32_t)CollisionFlags::Reversed;
+    collisionFlags["Default"] = (uint32_t)CollisionFlags::Default;
 
     collisionFlags.push(lua.GetState());
     lua_setglobal(lua.GetState(), "CollisionFlags");
