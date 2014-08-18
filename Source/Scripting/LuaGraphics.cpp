@@ -46,6 +46,7 @@ bool BindLuaGraphics(LuaEngine& lua)
         .beginNamespace("Graphics")
             .beginClass<Font>("Font")
             .endClass()
+            .addFunction("GetDefaultFont", &Main::GetDefaultFont)
         .endNamespace();
 
     Lua::getGlobalNamespace(lua.GetState())

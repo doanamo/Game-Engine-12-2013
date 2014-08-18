@@ -25,6 +25,10 @@ function MenuFrame:New()
     local buttonTextMetrics = Graphics.TextDrawMetrics()
     local buttonSize = Vec2(0.0, 0.0)
     
+    -- Set shared properties.
+    buttonTextInfo.font = Graphics.GetDefaultFont()
+    buttonTextInfo.align = TextDrawAlign.BottomLeft
+    buttonTextInfo.size = ButtonFontSize
     return setmetatable(self, MenuFrame)
 end
 
