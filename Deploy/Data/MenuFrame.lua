@@ -22,6 +22,8 @@ function MenuFrame:New()
     
     -- Intermediate structures.
     local buttonTextInfo = Graphics.TextDrawInfo()
+    local buttonTextMetrics = Graphics.TextDrawMetrics()
+    local buttonSize = Vec2(0.0, 0.0)
     
     return setmetatable(self, MenuFrame)
 end

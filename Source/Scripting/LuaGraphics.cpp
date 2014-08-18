@@ -69,6 +69,16 @@ bool BindLuaGraphics(LuaEngine& lua)
 
     Lua::getGlobalNamespace(lua.GetState())
         .beginNamespace("Graphics")
+            .beginClass<TextDrawMetrics>("TextDrawMetrics")
+                .addConstructor<void(*)(void)>()
+                .addData("textArea", &TextDrawMetrics::textArea)
+                .addData("boundingBox", &TextDrawMetrics::boundingBox)
+                .addData("lines", &TextDrawMetrics::lines)
+            .endClass()
+        .endNamespace();
+
+    Lua::getGlobalNamespace(lua.GetState())
+        .beginNamespace("Graphics")
             .beginClass<CoreRenderer>("CoreRenderer")
                 .addFunction("Clear", &CoreRenderer::Clear)
                 .addFunction("SetClearColor", &CoreRenderer::SetClearColor)
