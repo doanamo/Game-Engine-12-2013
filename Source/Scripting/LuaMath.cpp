@@ -68,5 +68,10 @@ bool BindLuaMath(LuaEngine& lua)
             .addFunctionProxy("Equals", &Equals<glm::vec4>)
         .endClass();
 
+    Lua::getGlobalNamespace(lua.GetState())
+        .beginClass<glm::mat4>("Mat4")
+            .addConstructor<void(*)(void)>()
+        .endClass();
+
     return true;
 }

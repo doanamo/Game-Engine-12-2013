@@ -86,6 +86,14 @@ bool BindLuaGraphics(LuaEngine& lua)
                 .addFunction("SetClearDepth", &CoreRenderer::SetClearDepth)
             .endClass()
         .endNamespace();
+    
+    Lua::getGlobalNamespace(lua.GetState())
+        .beginNamespace("Graphics")
+            .beginClass<TextRenderer>("TextRenderer")
+                .addFunction("Measure", &TextRenderer::Measure)
+                .addFunction("Draw", &TextRenderer::Draw)
+            .endClass()
+        .endNamespace();
 
     // Define constants.
     Lua::LuaRef textDrawAlign(lua.GetState());
@@ -112,6 +120,9 @@ bool BindLuaGraphics(LuaEngine& lua)
     // Pass global references.
     Lua::push(lua.GetState(), &Main::GetCoreRenderer());
     lua_setglobal(lua.GetState(), "CoreRenderer");
+
+    Lua::push(lua.GetState(), &Main::GetTextRenderer());
+    lua_setglobal(lua.GetState(), "TextRenderer");
 
     return true;
 }

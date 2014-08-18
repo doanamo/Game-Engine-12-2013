@@ -29,6 +29,87 @@ function MenuFrame:New()
     buttonTextInfo.font = Graphics.GetDefaultFont()
     buttonTextInfo.align = TextDrawAlign.BottomLeft
     buttonTextInfo.size = ButtonFontSize
+    
+    -- Setup continue button.
+    local buttonContinueText = "Continue"
+    
+    buttonTextInfo.position = buttonPosition
+    buttonTextMetrics = TextRenderer:Measure(buttonTextInfo, buttonContinueText)
+    
+    buttonSize.x = buttonTextMetrics.textArea.z - buttonTextMetrics.textArea.x
+    buttonSize.y = buttonTextMetrics.textArea.w - buttonTextMetrics.textArea.y
+    
+    self.buttonContinue:SetEnabled(false)
+    self.buttonContinue:SetText(buttonContinueText)
+    self.buttonContinue:SetPosition(buttonPosition)
+    self.buttonContinue:SetSize(buttonSize)
+    
+    buttonPosition.y = buttonPosition.y - buttonSize.y
+    
+    -- Setup new game button.
+    local buttonNewGameText = "New Game"
+    
+    buttonTextInfo.position = buttonPosition
+    buttonTextMetrics = TextRenderer:Measure(buttonTextInfo, buttonNewGameText)
+    
+    buttonSize.x = buttonTextMetrics.textArea.z - buttonTextMetrics.textArea.x
+    buttonSize.y = buttonTextMetrics.textArea.w - buttonTextMetrics.textArea.y
+    
+    self.buttonNewGame:SetEnabled(true)
+    self.buttonNewGame:SetText(buttonNewGameText)
+    self.buttonNewGame:SetPosition(buttonPosition)
+    self.buttonNewGame:SetSize(buttonSize)
+    
+    buttonPosition.y = buttonPosition.y - buttonSize.y
+    
+    -- Setup options button.
+    local buttonOptionsText = "Options"
+    
+    buttonTextInfo.position = buttonPosition
+    buttonTextMetrics = TextRenderer:Measure(buttonTextInfo, buttonOptionsText)
+    
+    buttonSize.x = buttonTextMetrics.textArea.z - buttonTextMetrics.textArea.x
+    buttonSize.y = buttonTextMetrics.textArea.w - buttonTextMetrics.textArea.y
+    
+    self.buttonOptions:SetEnabled(false)
+    self.buttonOptions:SetText(buttonOptionsText)
+    self.buttonOptions:SetPosition(buttonPosition)
+    self.buttonOptions:SetSize(buttonSize)
+    
+    buttonPosition.y = buttonPosition.y - buttonSize.y
+    
+    -- Setup credits button.
+    local buttonCreditsText = "Credits"
+    
+    buttonTextInfo.position = buttonPosition
+    buttonTextMetrics = TextRenderer:Measure(buttonTextInfo, buttonCreditsText)
+    
+    buttonSize.x = buttonTextMetrics.textArea.z - buttonTextMetrics.textArea.x
+    buttonSize.y = buttonTextMetrics.textArea.w - buttonTextMetrics.textArea.y
+    
+    self.buttonCredits:SetEnabled(false)
+    self.buttonCredits:SetText(buttonCreditsText)
+    self.buttonCredits:SetPosition(buttonPosition)
+    self.buttonCredits:SetSize(buttonSize)
+    
+    buttonPosition.y = buttonPosition.y - buttonSize.y
+    
+    -- Setup quit button.
+    local buttonQuitText = "Credits"
+    
+    buttonTextInfo.position = buttonPosition
+    buttonTextMetrics = TextRenderer:Measure(buttonTextInfo, buttonQuitText)
+    
+    buttonSize.x = buttonTextMetrics.textArea.z - buttonTextMetrics.textArea.x
+    buttonSize.y = buttonTextMetrics.textArea.w - buttonTextMetrics.textArea.y
+    
+    self.buttonQuit:SetEnabled(true)
+    self.buttonQuit:SetText(buttonQuitText)
+    self.buttonQuit:SetPosition(buttonPosition)
+    self.buttonQuit:SetSize(buttonSize)
+    
+    buttonPosition.y = buttonPosition.y - buttonSize.y
+    
     return setmetatable(self, MenuFrame)
 end
 
