@@ -29,7 +29,7 @@ namespace Interface
 
         bool AddChild(Element* element);
         bool RemoveChild(Element* element);
-        void RemoveAllChilds();
+        void RemoveChildren();
 
         Root* GetRoot()
         {

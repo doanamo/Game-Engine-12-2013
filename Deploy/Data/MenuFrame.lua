@@ -117,6 +117,14 @@ function MenuFrame:New()
     self.screenSpace:SetSourceSize(windowWidth, windowHeight)
     self.screenSpace:SetTargetSize(ViewWidth, ViewHeight)
     
+    -- Setup interface.
+    self.interfaceRoot:SetScreenSpace(self.screenSpace)
+    self.interfaceRoot:AddChild(self.buttonContinue)
+    self.interfaceRoot:AddChild(self.buttonNewGame)
+    self.interfaceRoot:AddChild(self.buttonOptions)
+    self.interfaceRoot:AddChild(self.buttonCredits)
+    self.interfaceRoot:AddChild(self.buttonQuit)
+    
     return setmetatable(self, MenuFrame)
 end
 

@@ -19,8 +19,8 @@ Element::~Element()
 
 void Element::Cleanup()
 {
-    // Remove all childs.
-    RemoveAllChilds();
+    // Remove children.
+    RemoveChildren();
 
     // Remove from the parent.
     if(m_parent != nullptr)
@@ -167,7 +167,7 @@ bool Element::RemoveChild(Element* element)
     return true;
 }
 
-void Element::RemoveAllChilds()
+void Element::RemoveChildren()
 {
     // Remove all childs.
     Element* iterator = m_begin;

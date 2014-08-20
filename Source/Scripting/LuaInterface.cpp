@@ -15,6 +15,9 @@ bool BindLuaInterface(LuaEngine& lua)
     Lua::getGlobalNamespace(lua.GetState())
         .beginNamespace("Interface")
             .beginClass<Interface::Element>("Element")
+                .addFunction("AddChild", &Interface::Element::AddChild)
+                .addFunction("RemoveChild", &Interface::Element::RemoveChild)
+                .addFunction("RemoveChildren", &Interface::Element::RemoveChildren)
             .endClass()
         .endNamespace();
 
@@ -22,6 +25,7 @@ bool BindLuaInterface(LuaEngine& lua)
         .beginNamespace("Interface")
             .deriveClass<Interface::Root, Interface::Element>("Root")
                 .addConstructor<void(*)(void)>()
+                .addFunction("SetScreenSpace", &Interface::Root::SetScreenSpace)
             .endClass()
         .endNamespace();
 
