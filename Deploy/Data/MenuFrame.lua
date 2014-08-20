@@ -110,6 +110,13 @@ function MenuFrame:New()
     
     buttonPosition.y = buttonPosition.y - buttonSize.y
     
+    -- Setup screen space.
+    local windowWidth = Console.GetInteger("r_width")
+    local windowHeight = Console.GetInteger("r_height")
+    
+    self.screenSpace:SetSourceSize(windowWidth, windowHeight)
+    self.screenSpace:SetTargetSize(ViewWidth, ViewHeight)
+    
     return setmetatable(self, MenuFrame)
 end
 

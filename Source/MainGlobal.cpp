@@ -19,6 +19,7 @@
 #include "Scripting/LuaEngine.hpp"
 #include "Scripting/LuaMath.hpp"
 #include "Scripting/LuaLogger.hpp"
+#include "Scripting/LuaConsole.hpp"
 #include "Scripting/LuaSystem.hpp"
 #include "Scripting/LuaGraphics.hpp"
 #include "Scripting/LuaInterface.hpp"
@@ -400,6 +401,9 @@ bool Main::Initialize()
         return false;
 
     if(!BindLuaLogger(luaEngine))
+        return false;
+
+    if(!BindLuaConsole(luaEngine))
         return false;
 
     if(!BindLuaSystem(luaEngine))

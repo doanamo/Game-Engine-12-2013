@@ -105,6 +105,8 @@ Set(SourceFiles
 
     "Scripting/LuaEngine.hpp"
     "Scripting/LuaEngine.cpp"
+    "Scripting/LuaConsole.hpp"
+    "Scripting/LuaConsole.cpp"
     "Scripting/LuaMath.hpp"
     "Scripting/LuaMath.cpp"
     "Scripting/LuaLogger.hpp"
