@@ -24,6 +24,10 @@ void Root::Cleanup()
     Element::Cleanup();
 
     m_screenSpace = nullptr;
+
+    m_windowCursorPosition = glm::ivec2(0, 0);
+    m_interfaceCursorPosition = glm::vec2(0.0f, 0.0f);
+    m_rebuildCursorPosition = true;
 }
 
 bool Root::Process(const SDL_Event& event)
