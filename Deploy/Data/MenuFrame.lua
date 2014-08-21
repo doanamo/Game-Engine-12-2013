@@ -1,3 +1,5 @@
+require("GameFrame")
+
 MenuFrame = {}
 MenuFrame.__index = MenuFrame
 
@@ -135,14 +137,18 @@ function MenuFrame:New()
 end
 
 function MenuFrame:ButtonContinue()
-    Log("MenuFrame:ButtonContinue() called.")
+    -- Change state back to the game frame.
+    Main.stateMachine:Change(Main.gameFrame)
 end
 
 function MenuFrame:ButtonNewGame()
-    Log("MenuFrame:ButtonNewGame() called.")
+    -- Create a game frame and change the state.
+    Main.gameFrame = GameFrame()
+    Main.stateMachine:Change(Main.gameFrame)
 end
 
 function MenuFrame:ButtonQuit()
+    -- Quit the application.
     System.Quit()
 end
 
@@ -170,6 +176,9 @@ function MenuFrame:ButtonDraw(button)
 end
 
 function MenuFrame:OnEnter()
+    -- Enable continue button if game is running.
+    local isGameRunning = Main.gameFrame ~= nil
+    self.buttonContinue:SetEnabled(isGameRunning)
 end
 
 function MenuFrame:Process(event)
