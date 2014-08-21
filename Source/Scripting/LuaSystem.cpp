@@ -2,6 +2,8 @@
 #include "LuaSystem.hpp"
 #include "LuaEngine.hpp"
 
+#include "MainGlobal.hpp"
+
 bool BindLuaSystem(LuaEngine& lua)
 {
     if(!lua.IsValid())
@@ -9,8 +11,11 @@ bool BindLuaSystem(LuaEngine& lua)
 
     // Bind definitions.
     Lua::getGlobalNamespace(lua.GetState())
-        .beginClass<SDL_Event>("SystemEvent")
-        .endClass();
+        .beginNamespace("System")
+            .addFunction("Quit", &Main::Quit)
+            .beginClass<SDL_Event>("Event")
+            .endClass()
+        .endNamespace();
 
     return true;
 }

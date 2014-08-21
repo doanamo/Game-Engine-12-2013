@@ -143,7 +143,7 @@ function MenuFrame:ButtonNewGame()
 end
 
 function MenuFrame:ButtonQuit()
-    Log("MenuFrame:ButtonQuit() called.")
+    System.Quit()
 end
 
 function MenuFrame:ButtonDraw(button)
