@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Precompiled.hpp"
-
 #include "System/BaseFrame.hpp"
+
+#include "Game/GameState.hpp"
 
 //
 // Game Frame
@@ -28,6 +29,9 @@ public:
 
 private:
     bool m_initialized;
+
+    // Game state.
+    GameState m_gameState;
 
     // Player dead state.
     bool m_playerDead;

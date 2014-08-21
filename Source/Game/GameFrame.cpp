@@ -36,7 +36,7 @@ bool GameFrame::Initialize()
     SCOPE_GUARD_IF(!m_initialized, Cleanup());
 
     // Initialize the game state.
-    if(!GameState::Initialize())
+    if(!m_gameState.Initialize())
         return false;
 
     // Success!
@@ -45,12 +45,9 @@ bool GameFrame::Initialize()
 
 void GameFrame::Cleanup()
 {
-    if(m_initialized)
-    {
-        GameState::Cleanup();
-    }
-
     m_initialized = false;
+
+    m_gameState.Cleanup();
 
     m_playerDead = false;
     m_deadTimer = 0.0f;
@@ -73,41 +70,23 @@ bool GameFrame::Process(const SDL_Event& event)
         break;
     }
 
-    // Process input events.
-    GameState::GetInputSystem().Process(event);
+    // Process events by game state.
+    m_gameState.Process(event);
 
     return false;
 }
 
 void GameFrame::Update(float timeDelta)
 {
-    // Collect scripting garbage.
-    GameState::GetLuaEngine().CollectGarbage(0.02f);
-
-    // Update the spawn system.
-    GameState::GetSpawnSystem().Update(timeDelta);
-
-    // Process entity commands.
-    GameState::GetEntitySystem().ProcessCommands();
-
-    // Update the collision system.
-    GameState::GetCollisionSystem().Update(timeDelta);
-
-    // Update the script system.
-    GameState::GetScriptSystem().Update(timeDelta);
-
-    // Update the render system.
-    GameState::GetRenderSystem().Update();
-
-    // Update the interface system.
-    GameState::GetInterfaceSystem().Update(timeDelta);
+    // Update the game state.
+    m_gameState.Update(timeDelta);
 
     // Check if player is dead.
     if(!m_playerDead)
     {
-        EntityHandle player = GameState::GetIdentitySystem().GetEntityByName("Player");
+        EntityHandle player = m_gameState.GetIdentitySystem().GetEntityByName("Player");
 
-        if(!GameState::GetEntitySystem().IsHandleValid(player))
+        if(!m_gameState.GetEntitySystem().IsHandleValid(player))
         {
             // Set the dead state.
             m_playerDead = true;
@@ -129,9 +108,6 @@ void GameFrame::Update(float timeDelta)
 
 void GameFrame::Draw()
 {
-    // Draw the world.
-    GameState::GetRenderSystem().Draw();
-
-    // Draw the interface.
-    GameState::GetInterfaceSystem().Draw();
+    // Draw the game state.
+    m_gameState.Draw();
 }

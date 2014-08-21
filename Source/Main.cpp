@@ -12,6 +12,8 @@
 #include "Graphics/TextRenderer.hpp"
 #include "Scripting/LuaEngine.hpp"
 
+#include "Game/GameState.hpp" // TEMP
+
 //
 // Console Variables
 //
@@ -116,6 +118,16 @@ int main(int argc, char* argv[])
         return -1;
 
     SCOPE_GUARD(Main::Cleanup());
+
+    // TEMP
+    Lua::getGlobalNamespace(Main::GetLuaEngine().GetState())
+        .beginClass<GameState>("GameState")
+            .addConstructor<void(*)(void)>()
+            .addFunction("Initialize", &GameState::Initialize)
+            .addFunction("Process", &GameState::Process)
+            .addFunction("Update", &GameState::Update)
+            .addFunction("Draw", &GameState::Draw)
+        .endClass();
     
     //
     // Main Loop
