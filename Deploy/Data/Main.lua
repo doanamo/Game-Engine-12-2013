@@ -10,7 +10,10 @@ function Main.Initialize()
     
     -- Setup state machine.
     Main.stateMachine = StateMachine()
-    Main.stateMachine:Change(MenuFrame())
+    
+    -- Create initial frame.
+    Main.menuFrame = MenuFrame()
+    Main.stateMachine:Change(Main.menuFrame)
     
     return true
 end
