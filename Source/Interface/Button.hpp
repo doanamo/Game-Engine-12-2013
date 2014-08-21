@@ -4,6 +4,7 @@
 #include "Element.hpp"
 
 #include "Common/Dispatcher.hpp"
+#include "Scripting/LuaDelegate.hpp"
 
 //
 // Interface
@@ -69,6 +70,10 @@ namespace Interface
         void OnEventHovered(const ReceiverSignature<EventHovered>& receiver);
         void OnEventPressed(const ReceiverSignature<EventPressed>& receiver);
 
+        void OnEventActionLua(Lua::LuaRef function, Lua::LuaRef instance);
+        void OnEventHoveredLua(Lua::LuaRef function, Lua::LuaRef instance);
+        void OnEventPressedLua(Lua::LuaRef function, Lua::LuaRef instance);
+
     private:
         // Button state.
         std::string m_text;
@@ -79,9 +84,14 @@ namespace Interface
         bool m_hovered;
         bool m_pressed;
 
-        // Event dispatchers.
+        // Event dispatchers (to be removed).
         Dispatcher<EventAction> m_eventAction;
         Dispatcher<EventPressed> m_eventPressed;
         Dispatcher<EventHovered> m_eventHovered;
+
+        // Script delegates.
+        LuaDelegate m_eventActionLua;
+        LuaDelegate m_eventPressedLua;
+        LuaDelegate m_eventHoveredLua;
     };
 } // namespace Interface

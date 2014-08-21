@@ -26,6 +26,7 @@ bool BindLuaInterface(LuaEngine& lua)
             .deriveClass<Interface::Root, Interface::Element>("Root")
                 .addConstructor<void(*)(void)>()
                 .addFunction("SetScreenSpace", &Interface::Root::SetScreenSpace)
+                .addFunction("Process", &Interface::Root::Process)
             .endClass()
         .endNamespace();
 
@@ -45,6 +46,9 @@ bool BindLuaInterface(LuaEngine& lua)
                 .addFunction("IsEnabled", &Interface::Button::IsEnabled)
                 .addFunction("IsHovered", &Interface::Button::IsHovered)
                 .addFunction("IsPressed", &Interface::Button::IsPressed)
+                .addFunction("OnEventAction", &Interface::Button::OnEventActionLua)
+                .addFunction("OnEventHovered", &Interface::Button::OnEventHoveredLua)
+                .addFunction("OnEventPressed", &Interface::Button::OnEventPressedLua)
             .endClass()
         .endNamespace();
 

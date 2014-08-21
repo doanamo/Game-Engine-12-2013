@@ -420,7 +420,12 @@ struct CFunc
   {
     C const* const c = Userdata::get <C> (L, 1, true);
     T C::** mp = static_cast <T C::**> (lua_touserdata (L, lua_upvalueindex (1)));
+
+    // User warning!
+    //  Below push creates a copy, which is in most cases undesirable.
+    //  For example: info.position(pushed copy).x = 50 won't have any effect.
     Stack <T>::push (L, c->**mp);
+
     return 1;
   }
 

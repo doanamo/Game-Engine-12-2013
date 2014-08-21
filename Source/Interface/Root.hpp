@@ -22,12 +22,10 @@ namespace Interface
         Root();
         ~Root();
 
-        void Cleanup();
-
-        bool Process(const SDL_Event& event);
-
         void SetScreenSpace(ScreenSpace* screenSpace);
-
+        bool Process(const SDL_Event& event);
+        void Cleanup();
+        
         const glm::vec2& GetCursorPosition() const;
 
     private:

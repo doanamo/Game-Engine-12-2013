@@ -16,6 +16,7 @@ function MenuFrame:New()
     self.buttonOptions = Interface.Button()
     self.buttonCredits = Interface.Button()
     self.buttonQuit = Interface.Button()
+    setmetatable(self, MenuFrame)
     
     -- Button starting position.
     local buttonPosition = Vec2(175.0, ViewHeight - 260.0)
@@ -95,7 +96,7 @@ function MenuFrame:New()
     buttonPosition.y = buttonPosition.y - buttonSize.y
     
     -- Setup quit button.
-    local buttonQuitText = "Credits"
+    local buttonQuitText = "Quit"
     
     buttonTextInfo.position = buttonPosition
     buttonTextMetrics = TextRenderer:Measure(buttonTextInfo, buttonQuitText)
@@ -125,10 +126,57 @@ function MenuFrame:New()
     self.interfaceRoot:AddChild(self.buttonCredits)
     self.interfaceRoot:AddChild(self.buttonQuit)
     
-    return setmetatable(self, MenuFrame)
+    -- Bind delegates.
+    self.buttonContinue:OnEventAction(MenuFrame.ButtonContinue, self)
+    self.buttonNewGame:OnEventAction(MenuFrame.ButtonNewGame, self)
+    self.buttonQuit:OnEventAction(MenuFrame.ButtonQuit, self)
+    
+    return self
+end
+
+function MenuFrame:ButtonContinue()
+    Log("MenuFrame:ButtonContinue() called.")
+end
+
+function MenuFrame:ButtonNewGame()
+    Log("MenuFrame:ButtonNewGame() called.")
+end
+
+function MenuFrame:ButtonQuit()
+    Log("MenuFrame:ButtonQuit() called.")
+end
+
+function MenuFrame:ButtonDraw(button)
+    -- Draw a button.
+    local info = Graphics.TextDrawInfo()
+    info.font = Graphics.GetDefaultFont()
+    info.position = button:GetPosition()
+    info.size = ButtonFontSize
+    info.align = TextDrawAlign.BottomLeft
+    info.outlineColor = Vec4(0.0, 0.0, 0.0, 1.0)
+    info.outlineRange = Vec2(0.4, 0.5)
+    
+    if button:IsHovered() then
+        info.bodyColor = Vec4(1.0, 0.0, 0.0, 1.0)
+    else
+        if button:IsEnabled() then
+            info.bodyColor = Vec4(1.0, 1.0, 1.0, 1.0)
+        else
+            info.bodyColor = Vec4(0.0, 0.0, 0.0, 0.4)
+        end
+    end
+    
+    TextRenderer:Draw(info, button:GetText(), self.screenSpace:GetTransform())
+end
+
+function MenuFrame:OnEnter()
 end
 
 function MenuFrame:Process(event)
+    if self.interfaceRoot:Process(event) then
+        return true
+    end
+    
     return false
 end
 
@@ -136,10 +184,37 @@ function MenuFrame:Update(timeDelta)
 end
 
 function MenuFrame:Draw()
+    -- Setup screen space.
+    local windowWidth = Console.GetInteger("r_width")
+    local windowHeight = Console.GetInteger("r_height")
+    
+    self.screenSpace:SetSourceSize(windowWidth, windowHeight)
+    self.screenSpace:SetTargetSize(ViewWidth, ViewHeight)
+    
     -- Clear the screen buffer.
     CoreRenderer:SetClearColor(Vec4(1.0, 1.0, 1.0, 1.0))
     CoreRenderer:SetClearDepth(1.0)
     CoreRenderer:Clear(bit.bor(ClearFlags.Color, ClearFlags.Depth))
+    
+    -- Draw the main title.
+    do
+        local info = Graphics.TextDrawInfo()
+        info.font = Graphics.GetDefaultFont()
+        info.size = TitleFontSize
+        info.bodyColor = Vec4(1.0, 1.0, 1.0, 1.0)
+        info.outlineColor = Vec4(0.0, 0.0, 0.0, 1.0)
+        info.outlineRange = Vec2(0.45, 0.55)
+        info.position = Vec2(50.0, ViewHeight + 10.0)
+        
+        TextRenderer:Draw(info, "Gunstar", self.screenSpace:GetTransform())
+    end
+    
+    -- Draw buttons.
+    self:ButtonDraw(self.buttonContinue)
+    self:ButtonDraw(self.buttonNewGame)
+    self:ButtonDraw(self.buttonOptions)
+    self:ButtonDraw(self.buttonCredits)
+    self:ButtonDraw(self.buttonQuit)
 end
 
 setmetatable(MenuFrame, { __call = MenuFrame.New })
