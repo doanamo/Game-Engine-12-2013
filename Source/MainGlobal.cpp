@@ -386,7 +386,7 @@ bool Main::Initialize()
         return false;
     }
 
-    luaEngine.SetPackagePath(Main::GetWorkingDir() + "Data/");
+    luaEngine.SetPackagePath(Main::GetWorkingDir() + "Data/Game/");
     
     // Setup scripting environment.
     if(!BindLuaMath(luaEngine))
@@ -411,7 +411,7 @@ bool Main::Initialize()
         return false;
 
     // Load the main script.
-    if(!luaEngine.Load("Data/Main.lua"))
+    if(!luaEngine.Load("Data/Game/Main.lua"))
         return false;
 
     // Call the script initialization function.

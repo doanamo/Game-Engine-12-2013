@@ -1,8 +1,5 @@
-require("Keyboard")
-require("Collision")
-require("Factory")
-
-require("LoseFrame")
+require("Systems.Factory")
+require("Frames.LoseFrame")
 
 GameFrame = {}
 GameFrame.__index = GameFrame

@@ -1,10 +1,8 @@
-require("StateMachine")
-require("MenuFrame")
+require("Common.StateMachine")
+require("Frames.MenuFrame")
 
--- Package namespace.
 Main = {}
 
--- Define functions.
 function Main.Initialize()
     Log("Main context has been initialized.")
     

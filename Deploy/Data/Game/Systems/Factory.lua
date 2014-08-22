@@ -1,3 +1,4 @@
+require("Defines.Collision")
 require("Scripts.Common")
 require("Scripts.Player")
 require("Scripts.Enemy")

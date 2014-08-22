@@ -1,4 +1,4 @@
-require("GameFrame")
+require("Frames.GameFrame")
 
 MenuFrame = {}
 MenuFrame.__index = MenuFrame
