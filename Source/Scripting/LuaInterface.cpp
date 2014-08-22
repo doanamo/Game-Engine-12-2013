@@ -46,9 +46,9 @@ bool BindLuaInterface(LuaEngine& lua)
                 .addFunction("IsEnabled", &Interface::Button::IsEnabled)
                 .addFunction("IsHovered", &Interface::Button::IsHovered)
                 .addFunction("IsPressed", &Interface::Button::IsPressed)
-                .addFunction("OnEventAction", &Interface::Button::OnEventActionLua)
-                .addFunction("OnEventHovered", &Interface::Button::OnEventHoveredLua)
-                .addFunction("OnEventPressed", &Interface::Button::OnEventPressedLua)
+                .addFunction("OnEventAction", &Interface::Button::OnEventAction)
+                .addFunction("OnEventHovered", &Interface::Button::OnEventHovered)
+                .addFunction("OnEventPressed", &Interface::Button::OnEventPressed)
             .endClass()
         .endNamespace();
 

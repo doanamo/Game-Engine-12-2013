@@ -35,10 +35,6 @@ void Button::Cleanup()
     m_eventAction.Cleanup();
     m_eventPressed.Cleanup();
     m_eventHovered.Cleanup();
-
-    m_eventActionLua.Cleanup();
-    m_eventPressedLua.Cleanup();
-    m_eventHoveredLua.Cleanup();
 }
 
 bool Button::Process(const SDL_Event& event)
@@ -60,8 +56,7 @@ bool Button::Process(const SDL_Event& event)
 
             if(m_hovered != hovered)
             {
-                m_eventHovered.Dispatch(EventHovered(hovered));
-                m_eventHoveredLua.Invoke(hovered);
+                m_eventHovered.Invoke(hovered);
                 m_hovered = hovered;
             }
         }
@@ -73,8 +68,7 @@ bool Button::Process(const SDL_Event& event)
             // Set the pressed state if cursor is above the button.
             if(m_hovered)
             {
-                m_eventPressed.Dispatch(EventPressed(true));
-                m_eventPressedLua.Invoke(true);
+                m_eventPressed.Invoke(true);
                 m_pressed = true;
             }
         }
@@ -87,12 +81,10 @@ bool Button::Process(const SDL_Event& event)
             {
                 if(m_hovered)
                 {
-                    m_eventAction.Dispatch(EventAction());
-                    m_eventActionLua.Invoke();
+                    m_eventAction.Invoke();
                 }
 
-                m_eventPressed.Dispatch(EventPressed(false));
-                m_eventPressedLua.Invoke(false);
+                m_eventPressed.Invoke(false);
                 m_pressed = false;
             }
         }
@@ -106,34 +98,19 @@ void Button::Update(float timeDelta)
 {
 }
 
-void Button::OnEventAction(const ReceiverSignature<EventAction>& receiver)
+void Button::OnEventAction(Lua::LuaRef function, Lua::LuaRef instance)
 {
-    m_eventAction.Subscribe(receiver);
+    m_eventAction.Bind(function, instance);
 }
 
-void Button::OnEventHovered(const ReceiverSignature<EventHovered>& receiver)
+void Button::OnEventHovered(Lua::LuaRef function, Lua::LuaRef instance)
 {
-    m_eventHovered.Subscribe(receiver);
+    m_eventHovered.Bind(function, instance);
 }
 
-void Button::OnEventPressed(const ReceiverSignature<EventPressed>& receiver)
+void Button::OnEventPressed(Lua::LuaRef function, Lua::LuaRef instance)
 {
-    m_eventPressed.Subscribe(receiver);
-}
-
-void Button::OnEventActionLua(Lua::LuaRef function, Lua::LuaRef instance)
-{
-    m_eventActionLua.Bind(function, instance);
-}
-
-void Button::OnEventHoveredLua(Lua::LuaRef function, Lua::LuaRef instance)
-{
-    m_eventHoveredLua.Bind(function, instance);
-}
-
-void Button::OnEventPressedLua(Lua::LuaRef function, Lua::LuaRef instance)
-{
-    m_eventPressedLua.Bind(function, instance);
+    m_eventPressed.Bind(function, instance);
 }
 
 void Button::Enable()

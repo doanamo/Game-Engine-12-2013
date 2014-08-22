@@ -3,7 +3,6 @@
 #include "Precompiled.hpp"
 #include "Element.hpp"
 
-#include "Common/Dispatcher.hpp"
 #include "Scripting/LuaDelegate.hpp"
 
 //
@@ -18,27 +17,6 @@ namespace Interface
 
     class Button : public Element
     {
-    public:
-        struct EventAction
-        {
-        };
-
-        struct EventPressed
-        {
-            EventPressed(bool pressed) :
-                pressed(pressed) { }
-
-            bool pressed;
-        };
-
-        struct EventHovered
-        {
-            EventHovered(bool hovered) :
-                hovered(hovered) { }
-
-            bool hovered;
-        };
-
     public:
         Button();
         virtual ~Button();
@@ -66,13 +44,16 @@ namespace Interface
         bool IsPressed() const;
 
     public:
-        void OnEventAction(const ReceiverSignature<EventAction>& receiver);
-        void OnEventHovered(const ReceiverSignature<EventHovered>& receiver);
-        void OnEventPressed(const ReceiverSignature<EventPressed>& receiver);
+        // Arguments: None
+        void OnEventAction(Lua::LuaRef function, Lua::LuaRef instance);
 
-        void OnEventActionLua(Lua::LuaRef function, Lua::LuaRef instance);
-        void OnEventHoveredLua(Lua::LuaRef function, Lua::LuaRef instance);
-        void OnEventPressedLua(Lua::LuaRef function, Lua::LuaRef instance);
+        // Arguments:
+        //  hovered - true if cursor is entered area over the button, false if left.
+        void OnEventHovered(Lua::LuaRef function, Lua::LuaRef instance);
+
+        // Arguments:
+        //  pressed - true if button has been pressed, false if released.
+        void OnEventPressed(Lua::LuaRef function, Lua::LuaRef instance);
 
     private:
         // Button state.
@@ -84,14 +65,9 @@ namespace Interface
         bool m_hovered;
         bool m_pressed;
 
-        // Event dispatchers (to be removed).
-        Dispatcher<EventAction> m_eventAction;
-        Dispatcher<EventPressed> m_eventPressed;
-        Dispatcher<EventHovered> m_eventHovered;
-
         // Script delegates.
-        LuaDelegate m_eventActionLua;
-        LuaDelegate m_eventPressedLua;
-        LuaDelegate m_eventHoveredLua;
+        LuaDelegate m_eventAction;
+        LuaDelegate m_eventPressed;
+        LuaDelegate m_eventHovered;
     };
 } // namespace Interface
