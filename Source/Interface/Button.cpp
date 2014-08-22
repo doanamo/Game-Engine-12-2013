@@ -1,8 +1,9 @@
 #include "Precompiled.hpp"
 #include "Button.hpp"
+#include "Root.hpp"
+using namespace Interface;
 
 #include "MainGlobal.hpp"
-#include "Interface/InterfaceRoot.hpp"
 
 Button::Button() :
     m_text(),
@@ -21,7 +22,7 @@ Button::~Button()
 
 void Button::Cleanup()
 {
-    InterfaceElement::Cleanup();
+    Element::Cleanup();
 
     m_text.clear();
     m_position = glm::vec2(0.0f, 0.0f);
@@ -34,6 +35,10 @@ void Button::Cleanup()
     m_eventAction.Cleanup();
     m_eventPressed.Cleanup();
     m_eventHovered.Cleanup();
+
+    m_eventActionLua.Cleanup();
+    m_eventPressedLua.Cleanup();
+    m_eventHoveredLua.Cleanup();
 }
 
 bool Button::Process(const SDL_Event& event)
@@ -46,7 +51,7 @@ bool Button::Process(const SDL_Event& event)
     case SDL_MOUSEMOTION:
         {
             // Get cursor position in interface space.
-            glm::vec2 cursorPosition = Root()->GetCursorPosition();
+            glm::vec2 cursorPosition = GetRoot()->GetCursorPosition();
 
             // Checks if cursor is above the button.
             bool hovered =
@@ -56,6 +61,7 @@ bool Button::Process(const SDL_Event& event)
             if(m_hovered != hovered)
             {
                 m_eventHovered.Dispatch(EventHovered(hovered));
+                m_eventHoveredLua.Invoke(hovered);
                 m_hovered = hovered;
             }
         }
@@ -68,6 +74,7 @@ bool Button::Process(const SDL_Event& event)
             if(m_hovered)
             {
                 m_eventPressed.Dispatch(EventPressed(true));
+                m_eventPressedLua.Invoke(true);
                 m_pressed = true;
             }
         }
@@ -81,9 +88,11 @@ bool Button::Process(const SDL_Event& event)
                 if(m_hovered)
                 {
                     m_eventAction.Dispatch(EventAction());
+                    m_eventActionLua.Invoke();
                 }
 
                 m_eventPressed.Dispatch(EventPressed(false));
+                m_eventPressedLua.Invoke(false);
                 m_pressed = false;
             }
         }
@@ -110,6 +119,21 @@ void Button::OnEventHovered(const ReceiverSignature<EventHovered>& receiver)
 void Button::OnEventPressed(const ReceiverSignature<EventPressed>& receiver)
 {
     m_eventPressed.Subscribe(receiver);
+}
+
+void Button::OnEventActionLua(Lua::LuaRef function, Lua::LuaRef instance)
+{
+    m_eventActionLua.Bind(function, instance);
+}
+
+void Button::OnEventHoveredLua(Lua::LuaRef function, Lua::LuaRef instance)
+{
+    m_eventHoveredLua.Bind(function, instance);
+}
+
+void Button::OnEventPressedLua(Lua::LuaRef function, Lua::LuaRef instance)
+{
+    m_eventPressedLua.Bind(function, instance);
 }
 
 void Button::Enable()

@@ -19,8 +19,6 @@ class Font;
 
 class LuaEngine;
 
-class BaseFrame;
-
 //
 // Console Definitions
 //
@@ -75,6 +73,4 @@ namespace Main
     SDL_Window*     GetSystemWindow();
     SDL_GLContext   GetGraphicsContext();
     FT_Library      GetFontLibrary();
-
-    BaseFrame&      GetMainFrame();
 }

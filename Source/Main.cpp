@@ -10,6 +10,7 @@
 #include "Graphics/CoreRenderer.hpp"
 #include "Graphics/BasicRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
+#include "Scripting/LuaEngine.hpp"
 
 //
 // Console Variables
@@ -115,7 +116,7 @@ int main(int argc, char* argv[])
         return -1;
 
     SCOPE_GUARD(Main::Cleanup());
-    
+
     //
     // Main Loop
     //
@@ -127,6 +128,9 @@ int main(int argc, char* argv[])
     {
         // Reset console system intermediate state.
         Main::GetConsoleSystem().ResetIntermediateState();
+
+        // Run garbage collection.
+        Main::GetLuaEngine().CollectGarbage(0.002f);
 
         //
         // Timer
@@ -179,8 +183,9 @@ int main(int argc, char* argv[])
             if(Main::GetConsoleFrame().Process(event))
                 continue;
 
-            // Process an event by main frame.
-            if(Main::GetMainFrame().Process(event))
+            // Call the scripting routine.
+            Lua::LuaRef result = Main::GetLuaEngine().Call("Main.Process", event);
+            if(result.isBoolean() && result.cast<bool>())
                 continue;
         }
 
@@ -203,8 +208,8 @@ int main(int argc, char* argv[])
         // Update cursor blink time.
         Main::GetTextRenderer().UpdateCursorBlink(dt);
 
-        // Update main frame.
-        Main::GetMainFrame().Update(dt);
+        // Call the scripting routine.
+        Main::GetLuaEngine().Call("Main.Update", dt);
 
         //
         // Setup View
@@ -241,8 +246,8 @@ int main(int argc, char* argv[])
         // Draw
         //
 
-        // Draw the main frame.
-        Main::GetMainFrame().Draw();
+        // Call the scripting routine.
+        Main::GetLuaEngine().Call("Main.Draw");
 
         // Draw frame rate.
         if(Console::drawFrameRate)

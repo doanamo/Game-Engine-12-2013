@@ -92,6 +92,13 @@ struct TypeListValues <TypeList <Head, Tail> >
   }
 };
 
+// User fix: Below specializations cause functions that have reference
+// arguments to receive references to copies of those objects (which
+// defeats the purpose of references). I coulnt't figure out why I "can't
+// count on the referenced object hanging around for the lifetime of the
+// list". Note that pointers to lua objects are handled normally.
+
+/*
 // Specializations of type/value list for head types that are references and
 // const-references.  We need to handle these specially since we can't count
 // on the referenced object hanging around for the lifetime of the list.
@@ -143,6 +150,7 @@ struct TypeListValues <TypeList <Head const&, Tail> >
     return s + TypeListValues <Tail>::tostring (true);
   }
 };
+*/
 
 //==============================================================================
 /**

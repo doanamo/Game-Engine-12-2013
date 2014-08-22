@@ -4,10 +4,9 @@
 
 // Forward declarations.
 class LuaEngine;
-class Services;
 
 //
-// Lua Game
+// Lua System
 //
 
-bool BindLuaGame(LuaEngine& lua);
+bool BindLuaSystem(LuaEngine& lua);

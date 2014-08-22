@@ -1,8 +1,9 @@
 #include "Precompiled.hpp"
-#include "InterfaceElement.hpp"
-#include "InterfaceRoot.hpp"
+#include "Element.hpp"
+#include "Root.hpp"
+using namespace Interface;
 
-InterfaceElement::InterfaceElement(InterfaceRoot* root) :
+Element::Element(Root* root) :
     m_root(root),
     m_parent(nullptr),
     m_next(nullptr),
@@ -11,15 +12,15 @@ InterfaceElement::InterfaceElement(InterfaceRoot* root) :
 {
 }
 
-InterfaceElement::~InterfaceElement()
+Element::~Element()
 {
     Cleanup();
 }
 
-void InterfaceElement::Cleanup()
+void Element::Cleanup()
 {
-    // Remove all childs.
-    RemoveAllChilds();
+    // Remove children.
+    RemoveChildren();
 
     // Remove from the parent.
     if(m_parent != nullptr)
@@ -33,9 +34,9 @@ void InterfaceElement::Cleanup()
     }
 }
 
-bool InterfaceElement::Process(const SDL_Event& event)
+bool Element::Process(const SDL_Event& event)
 {
-    InterfaceElement* iterator = this->Begin();
+    Element* iterator = this->Begin();
 
     while(iterator != nullptr)
     {
@@ -44,15 +45,15 @@ bool InterfaceElement::Process(const SDL_Event& event)
             return true;
 
         // Advance the iterator.
-        iterator = iterator->Next();
+        iterator = iterator->GetNext();
     }
 
     return false;
 }
 
-void InterfaceElement::Update(float timeDelta)
+void Element::Update(float timeDelta)
 {
-    InterfaceElement* iterator = this->Begin();
+    Element* iterator = this->Begin();
 
     while(iterator != nullptr)
     {
@@ -60,13 +61,13 @@ void InterfaceElement::Update(float timeDelta)
         iterator->Update(timeDelta);
 
         // Advance the iterator.
-        iterator = iterator->Next();
+        iterator = iterator->GetNext();
     }
 }
 
-void InterfaceElement::Draw()
+void Element::Draw()
 {
-    InterfaceElement* iterator = this->Begin();
+    Element* iterator = this->Begin();
 
     while(iterator != nullptr)
     {
@@ -74,11 +75,11 @@ void InterfaceElement::Draw()
         iterator->Draw();
 
         // Advance the iterator.
-        iterator = iterator->Next();
+        iterator = iterator->GetNext();
     }
 }
 
-bool InterfaceElement::AddChild(InterfaceElement* element)
+bool Element::AddChild(Element* element)
 {
     // Must have a root to add child elements.
     if(m_root == nullptr)
@@ -122,7 +123,7 @@ bool InterfaceElement::AddChild(InterfaceElement* element)
     return true;
 }
 
-bool InterfaceElement::RemoveChild(InterfaceElement* element)
+bool Element::RemoveChild(Element* element)
 {
     // Check for a null pointer.
     if(element == nullptr)
@@ -147,7 +148,7 @@ bool InterfaceElement::RemoveChild(InterfaceElement* element)
     }
     else
     {
-        InterfaceElement* previous = PreviousChild(element);
+        Element* previous = PreviousChild(element);
         assert(previous != nullptr);
 
         previous->m_next = element->m_next;
@@ -166,14 +167,14 @@ bool InterfaceElement::RemoveChild(InterfaceElement* element)
     return true;
 }
 
-void InterfaceElement::RemoveAllChilds()
+void Element::RemoveChildren()
 {
     // Remove all childs.
-    InterfaceElement* iterator = m_begin;
+    Element* iterator = m_begin;
         
     while(iterator != nullptr)
     {
-        InterfaceElement* element = iterator;
+        Element* element = iterator;
 
         // Advance to the next receiver.
         iterator = iterator->m_next;
@@ -188,11 +189,11 @@ void InterfaceElement::RemoveAllChilds()
     m_end = nullptr;
 }
 
-InterfaceElement* InterfaceElement::PreviousChild(InterfaceElement* element)
+Element* Element::PreviousChild(Element* element)
 {
     // Iterate through all elements.
-    InterfaceElement* iterator = m_begin;
-    InterfaceElement* previous = nullptr;
+    Element* iterator = m_begin;
+    Element* previous = nullptr;
 
     while(iterator != nullptr)
     {

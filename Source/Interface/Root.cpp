@@ -1,11 +1,12 @@
 #include "Precompiled.hpp"
-#include "InterfaceRoot.hpp"
+#include "Root.hpp"
+using namespace Interface;
 
 #include "MainGlobal.hpp"
 #include "Graphics/ScreenSpace.hpp"
 
-InterfaceRoot::InterfaceRoot() :
-    InterfaceElement(this),
+Root::Root() :
+    Element(this),
     m_screenSpace(nullptr),
     m_windowCursorPosition(0, 0),
     m_interfaceCursorPosition(0.0f, 0.0f),
@@ -13,19 +14,23 @@ InterfaceRoot::InterfaceRoot() :
 {
 }
 
-InterfaceRoot::~InterfaceRoot()
+Root::~Root()
 {
     Cleanup();
 }
 
-void InterfaceRoot::Cleanup()
+void Root::Cleanup()
 {
-    InterfaceElement::Cleanup();
+    Element::Cleanup();
 
     m_screenSpace = nullptr;
+
+    m_windowCursorPosition = glm::ivec2(0, 0);
+    m_interfaceCursorPosition = glm::vec2(0.0f, 0.0f);
+    m_rebuildCursorPosition = true;
 }
 
-bool InterfaceRoot::Process(const SDL_Event& event)
+bool Root::Process(const SDL_Event& event)
 {
     // Intercept mouse motion event.
     if(event.type == SDL_MOUSEMOTION)
@@ -36,21 +41,21 @@ bool InterfaceRoot::Process(const SDL_Event& event)
     }
 
     // Continue processing for childs.
-    return InterfaceElement::Process(event);
+    return Element::Process(event);
 }
 
-void InterfaceRoot::SetScreenSpace(ScreenSpace* screenSpace)
+void Root::SetScreenSpace(ScreenSpace* screenSpace)
 {
     m_screenSpace = screenSpace;
 }
 
-const glm::vec2& InterfaceRoot::GetCursorPosition() const
+const glm::vec2& Root::GetCursorPosition() const
 {
     CalculateCursorPosition();
     return m_interfaceCursorPosition;
 }
 
-void InterfaceRoot::CalculateCursorPosition() const
+void Root::CalculateCursorPosition() const
 {
     if(m_rebuildCursorPosition)
     {

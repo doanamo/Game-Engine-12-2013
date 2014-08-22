@@ -10,15 +10,20 @@
 #include "Console/ConsoleSystem.hpp"
 #include "Console/ConsoleHistory.hpp"
 #include "Console/ConsoleFrame.hpp"
-#include "Scripting/LuaEngine.hpp"
-#include "Scripting/LuaLogger.hpp"
 #include "Graphics/Texture.hpp"
 #include "Graphics/Font.hpp"
 #include "Graphics/ScreenSpace.hpp"
 #include "Graphics/CoreRenderer.hpp"
 #include "Graphics/BasicRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
-#include "Game/MainFrame.hpp"
+#include "Scripting/LuaEngine.hpp"
+#include "Scripting/LuaMath.hpp"
+#include "Scripting/LuaLogger.hpp"
+#include "Scripting/LuaConsole.hpp"
+#include "Scripting/LuaSystem.hpp"
+#include "Scripting/LuaGraphics.hpp"
+#include "Scripting/LuaInterface.hpp"
+#include "Scripting/LuaGame.hpp"
 
 //
 // Console Variables
@@ -70,8 +75,6 @@ namespace
     SDL_Window*         systemWindow = nullptr;
     SDL_GLContext       graphicsContext = nullptr;
     FT_Library          fontLibrary = nullptr;
-
-    MainFrame           mainFrame;
 }
 
 //
@@ -392,22 +395,34 @@ bool Main::Initialize()
     luaEngine.SetPackagePath(Main::GetWorkingDir() + "Data/");
     
     // Setup scripting environment.
+    if(!BindLuaMath(luaEngine))
+        return false;
+
     if(!BindLuaLogger(luaEngine))
         return false;
 
-    // Load the main script.
-    if(luaEngine.Load("Data/Main.lua"))
+    if(!BindLuaConsole(luaEngine))
+        return false;
 
+    if(!BindLuaSystem(luaEngine))
+        return false;
+
+    if(!BindLuaGraphics(luaEngine))
+        return false;
+
+    if(!BindLuaInterface(luaEngine))
+        return false;
+
+    if(!BindLuaGame(luaEngine))
+        return false;
+
+    // Load the main script.
+    if(!luaEngine.Load("Data/Main.lua"))
+        return false;
 
     // Call the script initialization function.
-    luaEngine.Call("Main.Initialize");
-
-    //
-    // Main Frame
-    //
-
-    // Initialize the main frame.
-    if(!mainFrame.Initialize())
+    Lua::LuaRef result = luaEngine.Call("Main.Initialize");
+    if(!result.isBoolean() || !result.cast<bool>())
         return false;
 
     //
@@ -426,12 +441,6 @@ void Main::Cleanup()
     {
         luaEngine.Call("Main.Cleanup");
     }
-
-    //
-    // Main Frame
-    //
-
-    mainFrame.Cleanup();
 
     //
     // Scripting
@@ -639,9 +648,4 @@ SDL_GLContext Main::GetGraphicsContext()
 FT_Library Main::GetFontLibrary()
 {
     return fontLibrary;
-}
-
-BaseFrame& Main::GetMainFrame()
-{
-    return mainFrame;
 }

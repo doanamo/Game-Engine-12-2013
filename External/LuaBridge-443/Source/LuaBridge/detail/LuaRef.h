@@ -592,6 +592,13 @@ private:
   }
 
 public:
+  // User: Allow state less reference (but be careful with it).
+  LuaRef ()
+    : m_L (nullptr)
+    , m_ref (LUA_REFNIL)
+  {
+  }
+
   //----------------------------------------------------------------------------
   /**
       Create a nil reference.
@@ -698,9 +705,13 @@ public:
   template <class T>
   LuaRef& operator= (T rhs)
   {
-    luaL_unref (m_L, LUA_REGISTRYINDEX, m_ref);
-    Stack <T>::push (m_L, rhs);
-    m_ref = luaL_ref (m_L, LUA_REGISTRYINDEX);
+    if(m_L != nullptr)
+    {
+        luaL_unref (m_L, LUA_REGISTRYINDEX, m_ref);
+        Stack <T>::push (m_L, rhs);
+        m_ref = luaL_ref (m_L, LUA_REGISTRYINDEX);
+    }
+
     return *this;
   }
 
@@ -710,10 +721,23 @@ public:
   */
   LuaRef& operator= (LuaRef const& rhs)
   {
-    luaL_unref (m_L, LUA_REGISTRYINDEX, m_ref);
-    rhs.push (m_L);
-    m_L = rhs.state ();
-    m_ref = luaL_ref (m_L, LUA_REGISTRYINDEX);
+    if(m_L != nullptr)
+    {
+        luaL_unref (m_L, LUA_REGISTRYINDEX, m_ref);
+    }
+
+    if(rhs.state() != nullptr)
+    {
+        m_L = rhs.state();
+        m_ref = rhs.createRef();
+    }
+    else
+    {
+        m_L = nullptr;
+        m_ref = LUA_REFNIL;
+    }
+
+    
     return *this;
   }
 
@@ -723,6 +747,7 @@ public:
   */
   std::string tostring() const
   {
+    assert(m_L != nullptr);
     lua_getglobal (m_L, "tostring");
     push (m_L);
     lua_call (m_L, 1, 1);
@@ -801,6 +826,7 @@ public:
   */
   void push (lua_State* L) const
   {
+    assert(m_L != nullptr);
     assert (equalstates (L, m_L));
     lua_rawgeti (L, LUA_REGISTRYINDEX, m_ref);
   }
@@ -811,6 +837,7 @@ public:
   */
   void pop (lua_State* L)
   {
+    assert(m_L != nullptr);
     assert (equalstates (L, m_L));
     luaL_unref (m_L, LUA_REGISTRYINDEX, m_ref);
     m_ref = luaL_ref (m_L, LUA_REGISTRYINDEX);
@@ -861,6 +888,7 @@ public:
   template <class T>
   T cast () const
   {
+    assert(m_L != nullptr);
     StackPop p (m_L, 1);
     push (m_L);
 
@@ -892,6 +920,7 @@ public:
   template <class T>
   inline operator T () const
   {
+    assert(m_L != nullptr);
     return cast <T> ();
   }
 
@@ -903,6 +932,7 @@ public:
   template <class T>
   bool operator== (T rhs) const
   {
+    assert(m_L != nullptr);
     StackPop p (m_L, 2);
     push (m_L);
     Stack <T>::push (m_L, rhs);
@@ -912,6 +942,7 @@ public:
   template <class T>
   bool operator< (T rhs) const
   {
+    assert(m_L != nullptr);
     StackPop p (m_L, 2);
     push (m_L);
     Stack <T>::push (m_L, rhs);
@@ -921,6 +952,7 @@ public:
   template <class T>
   bool operator<= (T rhs) const
   {
+    assert(m_L != nullptr);
     StackPop p (m_L, 2);
     push (m_L);
     Stack <T>::push (m_L, rhs);
@@ -930,6 +962,7 @@ public:
   template <class T>
   bool operator> (T rhs) const
   {
+    assert(m_L != nullptr);
     StackPop p (m_L, 2);
     push (m_L);
     Stack <T>::push (m_L, rhs);
@@ -939,6 +972,7 @@ public:
   template <class T>
   bool operator>= (T rhs) const
   {
+    assert(m_L != nullptr);
     StackPop p (m_L, 2);
     push (m_L);
     Stack <T>::push (m_L, rhs);
@@ -948,6 +982,7 @@ public:
   template <class T>
   bool rawequal (T rhs) const
   {
+    assert(m_L != nullptr);
     StackPop p (m_L, 2);
     push (m_L);
     Stack <T>::push (m_L, rhs);
@@ -964,6 +999,7 @@ public:
   template <class T>
   void append (T v) const
   {
+    assert(m_L != nullptr);
     push (m_L);
     Stack <T>::push (m_L, v);
     luaL_ref (m_L, -2);
@@ -978,6 +1014,7 @@ public:
   */
   int length () const
   {
+    assert(m_L != nullptr);
     StackPop p (m_L, 1);
     push (m_L);
     return get_length (m_L, -1);
@@ -992,6 +1029,7 @@ public:
   template <class T>
   Proxy operator[] (T key) const
   {
+    assert(m_L != nullptr);
     Stack <T>::push (m_L, key);
     return Proxy (m_L, m_ref);
   }
@@ -1007,6 +1045,7 @@ public:
   /** @{ */
   LuaRef const operator() () const
   {
+    assert(m_L != nullptr);
     push (m_L);
     LuaException::pcall (m_L, 0, 1);
     return LuaRef (m_L, FromStack ());
@@ -1015,6 +1054,7 @@ public:
   template <class P1>
   LuaRef const operator() (P1 p1) const
   {
+    assert(m_L != nullptr);
     push (m_L);
     Stack <P1>::push (m_L, p1);
     LuaException::pcall (m_L, 1, 1);
@@ -1024,6 +1064,7 @@ public:
   template <class P1, class P2>
   LuaRef const operator() (P1 p1, P2 p2) const
   {
+    assert(m_L != nullptr);
     push (m_L);
     Stack <P1>::push (m_L, p1);
     Stack <P2>::push (m_L, p2);
@@ -1034,6 +1075,7 @@ public:
   template <class P1, class P2, class P3>
   LuaRef const operator() (P1 p1, P2 p2, P3 p3) const
   {
+    assert(m_L != nullptr);
     push (m_L);
     Stack <P1>::push (m_L, p1);
     Stack <P2>::push (m_L, p2);
@@ -1045,6 +1087,7 @@ public:
   template <class P1, class P2, class P3, class P4>
   LuaRef const operator() (P1 p1, P2 p2, P3 p3, P4 p4) const
   {
+    assert(m_L != nullptr);
     push (m_L);
     Stack <P1>::push (m_L, p1);
     Stack <P2>::push (m_L, p2);
@@ -1057,6 +1100,7 @@ public:
   template <class P1, class P2, class P3, class P4, class P5>
   LuaRef const operator() (P1 p1, P2 p2, P3 p3, P4 p4, P5 p5) const
   {
+    assert(m_L != nullptr);
     push (m_L);
     Stack <P1>::push (m_L, p1);
     Stack <P2>::push (m_L, p2);
@@ -1070,6 +1114,7 @@ public:
   template <class P1, class P2, class P3, class P4, class P5, class P6>
   LuaRef const operator() (P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6) const
   {
+    assert(m_L != nullptr);
     push (m_L);
     Stack <P1>::push (m_L, p1);
     Stack <P2>::push (m_L, p2);
@@ -1084,6 +1129,7 @@ public:
   template <class P1, class P2, class P3, class P4, class P5, class P6, class P7>
   LuaRef const operator() (P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7) const
   {
+    assert(m_L != nullptr);
     push (m_L);
     Stack <P1>::push (m_L, p1);
     Stack <P2>::push (m_L, p2);
@@ -1099,6 +1145,7 @@ public:
   template <class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8>
   LuaRef const operator() (P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8) const
   {
+    assert(m_L != nullptr);
     push (m_L);
     Stack <P1>::push (m_L, p1);
     Stack <P2>::push (m_L, p2);

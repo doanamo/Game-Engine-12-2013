@@ -25,6 +25,9 @@ public:
     void UnregisterDefinition(ConsoleDefinition* definition);
 
     ConsoleDefinition* FindDefinition(std::string name);
+    
+    template<class Type>
+    Type* FindDefinition(std::string name);
 
     void ResetIntermediateState();
 
@@ -50,3 +53,11 @@ private:
 
     bool m_initialized;
 };
+
+// Template implementation.
+template<class Type>
+Type* ConsoleSystem::FindDefinition(std::string name)
+{
+    static_assert(std::is_base_of<ConsoleDefinition, Type>::value, "Not a console definition type.");
+    return dynamic_cast<Type*>(this->FindDefinition(name));
+}

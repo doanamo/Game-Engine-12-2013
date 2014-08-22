@@ -4,6 +4,7 @@
 
 namespace
 {
+    // Proxy functions.
     template<typename Type>
     bool Equals(const Type& left, const Type& right)
     {
@@ -17,10 +18,9 @@ namespace
     }
 
     template<typename Type>
-    void Normalize(Type* vector)
+    void Normalize(Type& vector)
     {
-        assert(vector != nullptr);
-        *vector = glm::normalize(*vector);
+        vector = glm::normalize(vector);
     }
 }
 
@@ -35,9 +35,9 @@ bool BindLuaMath(LuaEngine& lua)
             .addConstructor<void(*)(float, float)>()
             .addData("x", &glm::vec2::x)
             .addData("y", &glm::vec2::y)
-            .addSelfFunction("Equals", &Equals<glm::vec2>)
-            .addSelfFunction("Normalized", &Normalized<glm::vec2>)
-            .addSelfFunction("Normalize", &Normalize<glm::vec2>)
+            .addFunctionProxy("Equals", &Equals<glm::vec2>)
+            .addFunctionProxy("Normalized", &Normalized<glm::vec2>)
+            .addFunctionProxy("Normalize", &Normalize<glm::vec2>)
         .endClass();
 
     Lua::getGlobalNamespace(lua.GetState())
@@ -49,9 +49,9 @@ bool BindLuaMath(LuaEngine& lua)
             .addData("r", &glm::vec3::r)
             .addData("g", &glm::vec3::g)
             .addData("b", &glm::vec3::b)
-            .addSelfFunction("Equals", &Equals<glm::vec3>)
-            .addSelfFunction("Normalized", &Normalized<glm::vec3>)
-            .addSelfFunction("Normalize", &Normalize<glm::vec3>)
+            .addFunctionProxy("Equals", &Equals<glm::vec3>)
+            .addFunctionProxy("Normalized", &Normalized<glm::vec3>)
+            .addFunctionProxy("Normalize", &Normalize<glm::vec3>)
         .endClass();
 
     Lua::getGlobalNamespace(lua.GetState())
@@ -65,7 +65,12 @@ bool BindLuaMath(LuaEngine& lua)
             .addData("g", &glm::vec4::g)
             .addData("b", &glm::vec4::b)
             .addData("a", &glm::vec4::a)
-            .addSelfFunction("Equals", &Equals<glm::vec4>)
+            .addFunctionProxy("Equals", &Equals<glm::vec4>)
+        .endClass();
+
+    Lua::getGlobalNamespace(lua.GetState())
+        .beginClass<glm::mat4>("Mat4")
+            .addConstructor<void(*)(void)>()
         .endClass();
 
     return true;
