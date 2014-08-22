@@ -7,7 +7,7 @@ GameFrame.__index = GameFrame
 
 function GameFrame:New()
     local self = {}
-    self.gameState = GameState()
+    self.gameState = Game.GameState()
     setmetatable(self, GameFrame)
     
     -- Initialize the game state.
@@ -30,7 +30,14 @@ function GameFrame:New()
 end
 
 function GameFrame:Process(event)
-    self.gameState:Process(event)
+    if event.type == Event.KeyDown then
+        if event.key.scancode == Key.Escape then
+            Main.stateMachine:Change(Main.menuFrame)
+            return false
+        end
+    end
+
+    return self.gameState:Process(event)
 end
 
 function GameFrame:Update(timeDelta)

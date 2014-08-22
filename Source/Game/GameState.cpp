@@ -28,6 +28,11 @@ bool GameState::Initialize()
     LuaEngine& lua = Main::GetLuaEngine();
     assert(lua.IsValid());
 
+    // Workaround for late Lua garbage collection.
+    // Old game state could be still lying around and it would
+    // conflict with the global script environment that we are modifying.
+    lua.CollectGarbage();
+
     // Check if there is another game state active.
     if(!lua.GetReference("GameState").isNil())
     {
@@ -197,7 +202,8 @@ void GameState::Cleanup()
 
 bool GameState::Process(const SDL_Event& event)
 {
-    assert(m_initialized);
+    if(!m_initialized)
+        return false;
 
     m_inputSystem.Process(event);
 
@@ -206,7 +212,8 @@ bool GameState::Process(const SDL_Event& event)
 
 void GameState::Update(float timeDelta)
 {
-    assert(m_initialized);
+    if(!m_initialized)
+        return;
 
     // Update the spawn system.
     m_spawnSystem.Update(timeDelta);
@@ -229,7 +236,8 @@ void GameState::Update(float timeDelta)
 
 void GameState::Draw()
 {
-    assert(m_initialized);
+    if(!m_initialized)
+        return;
 
     // Draw the world.
     m_renderSystem.Draw();

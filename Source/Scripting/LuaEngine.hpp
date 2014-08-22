@@ -19,6 +19,7 @@ public:
     template<typename... Arguments>
     Lua::LuaRef Call(std::string compoundVariable, Arguments... arguments);
 
+    void CollectGarbage();
     void CollectGarbage(float maxTime);
 
     void SetPackagePath(std::string path);

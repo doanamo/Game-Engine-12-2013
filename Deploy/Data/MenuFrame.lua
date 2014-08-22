@@ -142,8 +142,11 @@ function MenuFrame:ButtonContinue()
 end
 
 function MenuFrame:ButtonNewGame()
-    -- Create a game frame and change the state.
+    -- Create new game frame.
+    Main.gameFrame = nil
     Main.gameFrame = GameFrame()
+
+    -- Change the state.
     Main.stateMachine:Change(Main.gameFrame)
 end
 
