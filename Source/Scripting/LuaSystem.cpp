@@ -1,5 +1,5 @@
 #include "Precompiled.hpp"
-#include "LuaSystem.hpp"
+#include "LuaBindings.hpp"
 #include "LuaEngine.hpp"
 
 #include "MainGlobal.hpp"

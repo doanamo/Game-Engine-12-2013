@@ -1,5 +1,5 @@
 #include "Precompiled.hpp"
-#include "LuaLogger.hpp"
+#include "LuaBindings.hpp"
 #include "LuaEngine.hpp"
 
 namespace

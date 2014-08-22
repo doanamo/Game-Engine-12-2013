@@ -17,13 +17,7 @@
 #include "Graphics/BasicRenderer.hpp"
 #include "Graphics/TextRenderer.hpp"
 #include "Scripting/LuaEngine.hpp"
-#include "Scripting/LuaMath.hpp"
-#include "Scripting/LuaLogger.hpp"
-#include "Scripting/LuaConsole.hpp"
-#include "Scripting/LuaSystem.hpp"
-#include "Scripting/LuaGraphics.hpp"
-#include "Scripting/LuaInterface.hpp"
-#include "Scripting/LuaGame.hpp"
+#include "Scripting/LuaBindings.hpp"
 
 //
 // Console Variables

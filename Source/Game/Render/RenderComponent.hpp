@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Precompiled.hpp"
-
-#include "Scripting/LuaMath.hpp"
 #include "Game/Component/Component.hpp"
 
 //

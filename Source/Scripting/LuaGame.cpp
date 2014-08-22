@@ -1,8 +1,7 @@
 #include "Precompiled.hpp"
-#include "LuaLogger.hpp"
+#include "LuaBindings.hpp"
 #include "LuaEngine.hpp"
 
-#include "Common/Services.hpp"
 #include "Game/GameState.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Component/ComponentSystem.hpp"
