@@ -20,8 +20,6 @@ end
 
 function Main.Cleanup()
     Log("Cleaning up the main context...")
-    
-    Main.stateMachine = nil
 end
 
 function Main.Process(event)
