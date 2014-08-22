@@ -121,71 +121,49 @@ Set(SourceFiles
     "Scripting/LuaGame.cpp"
     "Scripting/LuaDelegate.hpp"
 
-    "Game/MainFrame.hpp"
-    "Game/MainFrame.cpp"
-    "Game/GameGlobal.hpp"
-    "Game/GameGlobal.cpp"
-    "Game/MenuFrame.hpp"
-    "Game/MenuFrame.cpp"
-    "Game/GameFrame.hpp"
-    "Game/GameFrame.cpp"
-    "Game/LoseFrame.hpp"
-    "Game/LoseFrame.cpp"
     "Game/GameState.hpp"
     "Game/GameState.cpp"
-
     "Game/Entity/EntityHandle.hpp"
     "Game/Entity/EntitySystem.hpp"
     "Game/Entity/EntitySystem.cpp"
-
     "Game/Event/EventDefinitions.hpp"
     "Game/Event/EventSystem.hpp"
-
     "Game/Identity/IdentitySystem.hpp"
     "Game/Identity/IdentitySystem.cpp"
-
     "Game/Component/Component.hpp"
     "Game/Component/ComponentPool.hpp"
     "Game/Component/ComponentSystem.hpp"
-
     "Game/Input/InputState.hpp"
     "Game/Input/InputComponent.hpp"
     "Game/Input/InputComponent.cpp"
     "Game/Input/InputSystem.hpp"
     "Game/Input/InputSystem.cpp"
-
     "Game/Transform/TransformComponent.hpp"
     "Game/Transform/TransformComponent.cpp"
-
     "Game/Collision/CollisionDefinitions.hpp"
     "Game/Collision/CollisionComponent.hpp"
     "Game/Collision/CollisionComponent.cpp"
     "Game/Collision/CollisionObject.hpp"
     "Game/Collision/CollisionSystem.hpp"
     "Game/Collision/CollisionSystem.cpp"
-
     "Game/Health/HealthComponent.hpp"
     "Game/Health/HealthComponent.cpp"
     "Game/Health/HealthSystem.hpp"
     "Game/Health/HealthSystem.cpp"
-
     "Game/Script/ScriptComponent.hpp"
     "Game/Script/ScriptComponent.cpp"
     "Game/Script/ScriptSystem.hpp"
     "Game/Script/ScriptSystem.cpp"
-
     "Game/Render/RenderComponent.hpp"
     "Game/Render/RenderComponent.cpp"
     "Game/Render/RenderSystem.hpp"
     "Game/Render/RenderSystem.cpp"
-
     "Game/Interface/InterfaceSystem.hpp"
     "Game/Interface/InterfaceSystem.cpp"
     "Game/Interface/ValueBar.hpp"
     "Game/Interface/ValueBar.cpp"
     "Game/Interface/FloatingText.hpp"
     "Game/Interface/FloatingText.cpp"
-
     "Game/Spawn/SpawnSystem.hpp"
     "Game/Spawn/SpawnSystem.cpp"
 )

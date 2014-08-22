@@ -24,7 +24,6 @@
 #include "Scripting/LuaGraphics.hpp"
 #include "Scripting/LuaInterface.hpp"
 #include "Scripting/LuaGame.hpp"
-#include "Game/MainFrame.hpp"
 
 //
 // Console Variables
@@ -76,8 +75,6 @@ namespace
     SDL_Window*         systemWindow = nullptr;
     SDL_GLContext       graphicsContext = nullptr;
     FT_Library          fontLibrary = nullptr;
-
-    MainFrame           mainFrame;
 }
 
 //
@@ -429,14 +426,6 @@ bool Main::Initialize()
         return false;
 
     //
-    // Main Frame
-    //
-
-    // Initialize the main frame.
-    if(!mainFrame.Initialize())
-        return false;
-
-    //
     // Success!
     //
 
@@ -452,12 +441,6 @@ void Main::Cleanup()
     {
         luaEngine.Call("Main.Cleanup");
     }
-
-    //
-    // Main Frame
-    //
-
-    mainFrame.Cleanup();
 
     //
     // Scripting
@@ -665,9 +648,4 @@ SDL_GLContext Main::GetGraphicsContext()
 FT_Library Main::GetFontLibrary()
 {
     return fontLibrary;
-}
-
-BaseFrame& Main::GetMainFrame()
-{
-    return mainFrame;
 }
