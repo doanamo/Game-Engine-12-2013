@@ -3,7 +3,6 @@
 #include "Precompiled.hpp"
 
 #include "Common/Services.hpp"
-#include "Scripting/LuaEngine.hpp"
 #include "Game/Event/EventSystem.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Component/ComponentSystem.hpp"
@@ -15,21 +14,6 @@
 #include "Game/Render/RenderSystem.hpp"
 #include "Game/Interface/InterfaceSystem.hpp"
 #include "Game/Spawn/SpawnSystem.hpp"
-
-// Forward declarations.
-class EventSystem;
-class EntitySystem;
-class ComponentSystem;
-class IdentitySystem;
-class InputSystem;
-class HealthSystem;
-class CollisionSystem;
-class ScriptSystem;
-class RenderSystem;
-class InterfaceSystem;
-class SpawnSystem;
-class ProgressSystem;
-class LuaEngine;
 
 //
 // Game State
@@ -64,8 +48,6 @@ public:
     InterfaceSystem& GetInterfaceSystem();
     SpawnSystem&     GetSpawnSystem();
 
-    LuaEngine& GetLuaEngine();
-
 private:
     bool m_initialized;
 
@@ -84,7 +66,4 @@ private:
     RenderSystem    m_renderSystem;
     InterfaceSystem m_interfaceSystem;
     SpawnSystem     m_spawnSystem;
-
-    // Scripting engine.
-    LuaEngine m_luaEngine;
 };

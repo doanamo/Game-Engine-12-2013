@@ -3,6 +3,7 @@
 #include "LuaEngine.hpp"
 
 #include "Common/Services.hpp"
+#include "Game/GameState.hpp"
 #include "Game/Entity/EntitySystem.hpp"
 #include "Game/Component/ComponentSystem.hpp"
 #include "Game/Identity/IdentitySystem.hpp"
@@ -19,38 +20,10 @@
 #include "Game/Render/RenderSystem.hpp"
 #include "Game/Spawn/SpawnSystem.hpp"
 
-bool BindLuaGame(LuaEngine& lua, const Services& services)
+bool BindLuaGame(LuaEngine& lua)
 {
     if(!lua.IsValid())
         return false;
-
-    // Get required systems.
-    EntitySystem* entitySystem = services.Get<EntitySystem>();
-    if(entitySystem == nullptr) return false;
-
-    ComponentSystem* componentSystem = services.Get<ComponentSystem>();
-    if(componentSystem == nullptr) return false;
-
-    IdentitySystem* identitySystem = services.Get<IdentitySystem>();
-    if(identitySystem == nullptr) return false;
-
-    InputSystem* inputSystem = services.Get<InputSystem>();
-    if(inputSystem == nullptr) return false;
-
-    HealthSystem* healthSystem = services.Get<HealthSystem>();
-    if(healthSystem == nullptr) return false;
-
-    CollisionSystem* collisionSystem = services.Get<CollisionSystem>();
-    if(collisionSystem == nullptr) return false;
-
-    ScriptSystem* scriptSystem = services.Get<ScriptSystem>();
-    if(scriptSystem == nullptr) return false;
-
-    RenderSystem* renderSystem = services.Get<RenderSystem>();
-    if(renderSystem == nullptr) return false;
-
-    SpawnSystem* spawnSystem = services.Get<SpawnSystem>();
-    if(spawnSystem == nullptr) return false;
 
     // Bind component types.
     Lua::getGlobalNamespace(lua.GetState())
@@ -181,6 +154,15 @@ bool BindLuaGame(LuaEngine& lua, const Services& services)
             .addFunction("AddSpawn", &SpawnSystem::AddSpawn)
         .endClass();
 
+    Lua::getGlobalNamespace(Main::GetLuaEngine().GetState())
+        .beginClass<GameState>("GameState")
+            .addConstructor<void(*)(void)>()
+            .addFunction("Initialize", &GameState::Initialize)
+            .addFunction("Process", &GameState::Process)
+            .addFunction("Update", &GameState::Update)
+            .addFunction("Draw", &GameState::Draw)
+        .endClass();
+
     // Define constants.
     Lua::LuaRef collisionFlags(lua.GetState());
     collisionFlags = Lua::newTable(lua.GetState());
@@ -191,34 +173,6 @@ bool BindLuaGame(LuaEngine& lua, const Services& services)
 
     collisionFlags.push(lua.GetState());
     lua_setglobal(lua.GetState(), "CollisionFlags");
-
-    // Pass object references.
-    Lua::push(lua.GetState(), entitySystem);
-    lua_setglobal(lua.GetState(), "EntitySystem");
-
-    Lua::push(lua.GetState(), componentSystem);
-    lua_setglobal(lua.GetState(), "ComponentSystem");
-
-    Lua::push(lua.GetState(), identitySystem);
-    lua_setglobal(lua.GetState(), "IdentitySystem");
-
-    Lua::push(lua.GetState(), inputSystem);
-    lua_setglobal(lua.GetState(), "InputSystem");
-
-    Lua::push(lua.GetState(), healthSystem);
-    lua_setglobal(lua.GetState(), "HealthSystem");
-
-    Lua::push(lua.GetState(), collisionSystem);
-    lua_setglobal(lua.GetState(), "CollisionSystem");
-
-    Lua::push(lua.GetState(), scriptSystem);
-    lua_setglobal(lua.GetState(), "ScriptSystem");
-
-    Lua::push(lua.GetState(), renderSystem);
-    lua_setglobal(lua.GetState(), "RenderSystem");
-
-    Lua::push(lua.GetState(), spawnSystem);
-    lua_setglobal(lua.GetState(), "SpawnSystem");
 
     return true;
 }
