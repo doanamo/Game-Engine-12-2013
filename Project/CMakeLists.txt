@@ -134,7 +134,6 @@ Set(SourceFiles
     "Game/Input/InputSystem.cpp"
     "Game/Transform/TransformComponent.hpp"
     "Game/Transform/TransformComponent.cpp"
-    "Game/Collision/CollisionDefinitions.hpp"
     "Game/Collision/CollisionComponent.hpp"
     "Game/Collision/CollisionComponent.cpp"
     "Game/Collision/CollisionObject.hpp"
