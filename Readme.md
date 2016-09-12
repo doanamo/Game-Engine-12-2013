@@ -1,6 +1,6 @@
 Game Engine
 ====
-Simple implementation of a scrolling shooter game using a over featured game engine.
+Simple implementation of a scrolling shooter game using an over featured game engine.
 
 ![](Docs/Demo.gif)
 
