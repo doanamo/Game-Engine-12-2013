@@ -205,7 +205,7 @@ bool Main::Initialize()
     //
 
     // Initialize SDL library.
-    if(SDL_Init(SDL_INIT_EVERYTHING) != 0)
+    if(SDL_Init(SDL_INIT_EVERYTHING & ~SDL_INIT_HAPTIC) != 0)
     {
         Log() << "Failed to initialize SDL library! Error: " << SDL_GetError();
         return false;

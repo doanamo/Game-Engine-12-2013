@@ -237,6 +237,7 @@ Include_Directories("../External/GLM-0.9.4.6")
 # Compile as a static library.
 Set(SDL_SHARED OFF CACHE BOOL "")
 Set(SDL_STATIC ON CACHE BOOL "")
+Set(DIRECTX OFF CACHE BOOL "")
 
 # Add library directory.
 Add_SubDirectory("../External/SDL-2.0.1" "SDL2" EXCLUDE_FROM_ALL)

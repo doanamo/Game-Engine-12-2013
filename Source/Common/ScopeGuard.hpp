@@ -40,13 +40,20 @@
 
 // Scope guard class.
 template<typename Type>
-class ScopeGuard : public NonCopyable
+class ScopeGuard : private NonCopyable
 {
 public:
     ScopeGuard(Type function) :
         m_function(function),
         m_enabled(true)
     {
+    }
+
+    ScopeGuard(ScopeGuard<Type>&& other)
+    {
+        m_function = std::move(other.m_function);
+        m_enabled = other.m_enabled;
+        other.m_enabled = false;
     }
 
     ~ScopeGuard()
