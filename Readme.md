@@ -6,12 +6,12 @@ Simple implementation of a scrolling shooter game using an over featured game en
 
 Notable features:
 - Font loading and rendering using signed distance fields.
-- Cache system for storing expensive calculations between application executions.
-- Basic 2D rendering done with shaders and batching/instancing.
-- Quake like console with input and variables.
+- Cache system for storing expensive calculations between application's executions.
+- Very efficient 2D sprite rendering achieved with batching and instancing.
+- Scripting Lua engine where the entire game logic resides.
+- Entity/Component system for all game objects.
 - Elegant logging system using stream operators.
-- Scripting engine using Lua where the entire game resides.
-- Entity/Component scene system.
+- Quake like console with input and variables.
 
 How to Build
 ====
